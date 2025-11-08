@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌺 ハワイ家族旅行 実用英語フレーズ集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .search-box {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        .quick-nav {
+            padding: 15px;
+            background: #fff;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .quick-nav button {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .quick-nav button:active {
+            transform: scale(0.95);
+        }
+        .content {
+            padding: 20px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+        .category {
+            margin-bottom: 30px;
+        }
+        .category-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .section {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .conversation {
+            margin-bottom: 12px;
+        }
+        .speaker-you {
+            text-align: right;
+            margin-bottom: 8px;
+        }
+        .speaker-other {
+            text-align: left;
+            margin-bottom: 8px;
+        }
+        .message {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 85%;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        .message-you {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .message-other {
+            background: #e9ecef;
+            color: #212529;
+        }
+        .english {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .japanese {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .phrase-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .phrase-english {
+            font-weight: bold;
+            color: #212529;
+            margin-bottom: 4px;
+        }
+        .phrase-japanese {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            .quick-nav button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌺 ハワイ家族旅行 実用英語フレーズ集</h1>
+            <p>完全版 - オフライン対応</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 フレーズを検索（英語・日本語OK）" autocomplete="off">
+        </div>
+
+        <div class="quick-nav">
+            <button onclick="scrollToCategory('airport-arrival')">✈️ 空港到着</button>
+            <button onclick="scrollToCategory('airport-departure')">🛫 空港出発</button>
+            <button onclick="scrollToCategory('responses')">🗣️ 返事相槌</button>
+            <button onclick="scrollToCategory('hotel')">🏨 ホテル</button>
+            <button onclick="scrollToCategory('restaurant')">🍽️ レストラン</button>
+            <button onclick="scrollToCategory('steakhouse')">🥩 ステーキ</button>
+            <button onclick="scrollToCategory('family-restaurant')">🍔 ファミレス</button>
+            <button onclick="scrollToCategory('cafe')">☕ カフェ</button>
+            <button onclick="scrollToCategory('shopping')">🛍️ 買物</button>
+            <button onclick="scrollToCategory('holo-bus')">🚌 バス</button>
+            <button onclick="scrollToCategory('uber-taxi')">🚕 タクシー</button>
+            <button onclick="scrollToCategory('beach')">🏖️ ビーチ</button>
+            <button onclick="scrollToCategory('money')">💰 お金</button>
+            <button onclick="scrollToCategory('emergency')">🚨 緊急</button>
+            <button onclick="scrollToCategory('general')">🌟 汎用</button>
+            <button onclick="scrollToCategory('patterns')">📝 パターン</button>
+        </div>
+
+        <div class="content" id="content">
+            <!-- Content will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // All phrase data
+        const phrasesData = {
+            'airport-arrival': {
+                title: '✈️ ホノルル空港 到着時',
+                sections: [
+                    {
+                        title: '入国審査',
+                        items: [
+                            {type: 'conv', speaker: 'other', en: "What's the purpose of your visit?", ja: '訪問の目的は何ですか?'},
+                            {type: 'conv', speaker: 'you', en: "We're here for vacation.", ja: '休暇で来ました'},
+                            {type: 'conv', speaker: 'other', en: 'How long are you staying?', ja: 'どのくらい滞在しますか?'},
+                            {type: 'conv', speaker: 'you', en: "We're staying for 7 days.", ja: '7日間滞在します'},
+                            {type: 'conv', speaker: 'other', en: 'Where are you staying?', ja: 'どこに滞在しますか?'},
+                            {type: 'conv', speaker: 'you', en: "We're staying at the Hilton Hawaiian Village.", ja: 'ヒルトン・ハワイアン・ビレッジに泊まります'},
+                            {type: 'conv', speaker: 'other', en: 'Are you traveling together?', ja: '一緒に旅行していますか?'},
+                            {type: 'conv', speaker: 'you', en: "Yes, we're a family of 8.", ja: 'はい、家族8人です'},
+                            {type: 'note', text: '【その他の便利なフレーズ】<br>• Just sightseeing. (観光だけです)<br>• Here are our passports. (パスポートです)<br>• This is our first time in Hawaii. (ハワイは初めてです)'}
+                        ]
+                    },
+                    {
+                        title: '荷物受取(バゲージクレーム)',
+                        items: [
+                            {type: 'conv', speaker: 'you', en: "Excuse me, where's the baggage claim?", ja: 'すみません、手荷物受取所はどこですか?'},
+                            {type: 'conv', speaker: 'other', en: 'It\'s downstairs. Follow the signs.', ja: '下の階です。案内表示に従ってください'},
+                            {type: 'conv', speaker: 'you', en: 'Which carousel is for flight from Tokyo?', ja: '東京からの便の荷物はどのターンテーブルですか?'},
+                            {type: 'conv', speaker: 'other', en: 'Carousel 3.', ja: '3番です'},
+                            {type: 'note', text: '【荷物トラブル時】'},
+                            {type: 'phrase', en: 'Our bag is missing.', ja: '荷物が1つ見つかりません'},
+                            {type: 'phrase', en: "One of our suitcases didn't come out.", ja: 'スーツケースが1つ出てきません'},
+                            {type: 'conv', speaker: 'you', en: 'Where do we report lost luggage?', ja: '紛失荷物の報告はどこでしますか?'},
+                            {type: 'conv', speaker: 'other', en: 'Go to the baggage service counter over there.', ja: 'あちらの手荷物サービスカウンターへ行ってください'}
+                        ]
+                    },
+                    {
+                        title: '税関',
+                        items: [
+                            {type: 'conv', speaker: 'other', en: 'Do you have anything to declare?', ja: '申告するものはありますか?'},
+                            {type: 'conv', speaker: 'you', en: 'We have nothing to declare.', ja: '申告するものはありません'},
+                            {type: 'phrase', en: "We're bringing some snacks for the kids.", ja: '子供用のお菓子を持っています'},
+                            {type: 'conv', speaker: 'other', en: 'Could you open your bag?', ja: '荷物を開けてもらえますか?'},
+                            {type: 'conv', speaker: 'you', en: 'Sure, no problem.', ja: 'はい、もちろんです'}
+                        ]
+                    },
+                    {
+                        title: '空港からの移動',
+                        items: [
+                            {type: 'conv', speaker: 'you', en: 'Excuse me, where can we get a taxi?', ja: 'すみません、タクシー乗り場はどこですか?'},
+                            {type: 'conv', speaker: 'other', en: "Go outside and turn left. You'll see the taxi stand.", ja: '外に出て左に曲がってください。タクシー乗り場が見えます'},
+                            {type: 'conv', speaker: 'you', en: "Where's the shuttle bus pickup for Hilton?", ja: 'ヒルトンのシャトルバス乗り場はどこですか?'},
+                            {type: 'conv', speaker: 'other', en: "It's at lane 5, outside baggage claim.", ja: '手荷物受取所の外、5番レーンです'},
+                            {type: 'note', text: '【その他の便利なフレーズ】<br>• Where can we rent a car? (レンタカーはどこで借りられますか?)<br>• Is there a currency exchange? (両替所はありますか?)<br>• Where are the restrooms? (お手洗いはどこですか?)<br>• Do you have luggage carts? (カートはありますか?)<br>• Where can I get a SIM card? (SIMカードはどこで買えますか?)'}
+                        ]
+                    }
+                ]
+            },
+            'airport-departure': {
+                title: '🛫 ホノルル空港 出発時',
+                sections: [
+                    {
+                        title: 'チェックイン',
+                        items: [
+                            {type: 'conv', speaker: 'you', en: "We're checking in for the flight to Tokyo.", ja: '東京行きの便のチェックインをお願いします'},
+                            {type: 'conv', speaker: 'other', en: 'May I see your passports, please?', ja: 'パスポートを見せてもらえますか?'},
+                            {type: 'conv', speaker: 'you', en: 'Here you are. We have 8 passengers.', ja: 'はい、どうぞ。8名です'},
+                            {type: 'conv', speaker: 'other', en: 'How many bags are you checking?', ja: '荷物はいくつ預けますか?'},
+                            {type: 'conv', speaker: 'you', en: 'We have 8 checked bags.', ja: '預け荷物が8個あります'},
+                            {type: 'conv', speaker: 'other', en: 'Would you like window or aisle seats?', ja: '窓側と通路側、どちらがよろしいですか?'},
+                            {type: 'conv', speaker: 'you', en: 'Could we get seats together?', ja: '席を近くにしてもらえますか?'},
+                            {type: 'note', text: '【荷物関連】'},
+                            {type: 'phrase', en: 'How many bags can we check?', ja: '何個まで荷物を預けられますか?'},
+                            {type: 'phrase', en: 'Is there a fee for extra baggage?', ja: '追加の荷物には料金がかかりますか?'},
+                            {type: 'conv', speaker: 'other', en: 'This bag is over the weight limit.', ja: 'この荷物は重量オーバーです'},
+                            {type: 'conv', speaker: 'you', en: 'Could we redistribute the weight?', ja: '重さを分散できますか?'},
+                            {type: 'phrase', en: "What's the weight limit per bag?", ja: '1つの荷物の重量制限は?'},
+                            {type: 'phrase', en: 'Can we carry this on board?', ja: 'これは機内持ち込みできますか?'}
+                        ]
+                    },
+                    {
+                        title: 'セキュリティチェック',
+                        items: [
+                            {type: 'conv', speaker: 'other', en: 'Please remove your laptop and liquids.', ja: 'ノートパソコンと液体を取り出してください'},
+                            {type: 'conv', speaker: 'you', en: 'Okay.', ja: 'わかりました'},
+                            {type: 'conv', speaker: 'other', en: 'Take off your shoes and belt.', ja: '靴とベルトを外してください'},
+                            {type: 'conv', speaker: 'you', en: 'Got it.', ja: 'わかりました'},
+                            {type: 'conv', speaker: 'other', en: 'Step through the scanner.', ja: 'スキャナーを通ってください'},
+                            {type: 'conv', speaker: 'you', en: 'Like this?', ja: 'こうですか?'},
+                            {type: 'note', text: '【追加検査が必要な時】'},
+                            {type: 'conv', speaker: 'other', en: 'We need to check your bag.', ja: '荷物を確認させてください'},
+                            {type: 'conv', speaker: 'you', en: 'Sure, go ahead.', ja: 'はい、どうぞ'}
+                        ]
+                    },
+                    {
+                        title: '搭乗ゲート・待機',
+                        items: [
+                            {type: 'conv', speaker: 'you', en: 'Excuse me, which gate is our flight?', ja: 'すみません、搭乗ゲートはどこですか?'},
+                            {type: 'conv', speaker: 'other', en: "Gate 25. It's to your right.", ja: '25番ゲートです。右手です'},
+                            {type: 'conv', speaker: 'you', en: 'What time is boarding?', ja: '搭乗開始は何時ですか?'},
+                            {type: 'conv', speaker: 'other', en: 'Boarding starts at 1:30 PM.', ja: '搭乗は午後1時30分開始です'},
+                            {type: 'conv', speaker: 'you', en: 'Is the flight on time?', ja: 'フライトは予定通りですか?'},
+                            {type: 'conv', speaker: 'other', en: "Yes, it's on schedule.", ja: 'はい、予定通りです'},
+                            {type: 'note', text: '【ゲート付近で】<br>• Where\'s gate 25? (25番ゲートはどこですか?)<br>• Has boarding started? (搭乗は始まっていますか?)<br>• Which group are we? (私たちは何番グループですか?)'}
+                        ]
+                    },
+                    {
+                        title: '免税店・お土産購入',
+                        items: [
+                            {type: 'conv', speaker: 'you', en: 'Do you have macadamia nuts?', ja: 'マカダミアナッツはありますか?'},
+                            {type: 'conv', speaker: 'other', en: "Yes, they're over there.", ja: 'はい、あちらにあります'},
+                            {type: 'conv', speaker: 'you', en: 'How much is this?', ja: 'これはいくらですか?'},
+                            {type: 'conv', speaker: 'other', en: "That's $25.", ja: '25ドルです'},
+                            {type: 'phrase', en: "I'll take three of these.", ja: 'これを3つください'},
+                            {type: 'conv', speaker: 'you', en: 'Do you accept Japanese Yen?', ja: '日本円は使えますか?'},
+                            {type: 'conv', speaker: 'other', en: 'Yes, but the exchange rate is not great.', ja: 'はい、でもレートはあまり良くないです'},
+                            {type: 'conv', speaker: 'you', en: "I'll pay by credit card.", ja: 'クレジットカードで払います'}
+                        ]
+                    },
+                    {
+                        title: '搭乗',
+                        items: [
+                            {type: 'conv', speaker: 'other', en: 'Boarding pass, please.', ja: '搭乗券をお願いします'},
+                            {type: 'conv', speaker: 'you', en: 'Here you are.', ja: 'はい、どうぞ'},
+                            {type: 'conv', speaker: 'other', en: "You're in group 3. Please wait.", ja: 'グループ3です。お待ちください'},
+                            {type: 'conv', speaker: 'you', en: 'Okay, thank you.', ja: 'わかりました、ありがとうございます'},
+                            {type: 'note', text: '【機内で】<br>• Excuse me, these are our seats. (すみません、ここが私たちの席です)<br>• Could you help us with the overhead bin? (頭上の荷物入れを手伝ってもらえますか?)<br>• Is there WiFi on this flight? (この便にWiFiはありますか?)'}
+                        ]
+                    }
+                ]
+            },
+            'responses': {
+                title: '🗣️ 返事・相槌・会話フレーズ',
+                sections: [
+                    {
+                        title: '基本の返事',
+                        items: [
+                            {type: 'phrase', en: 'Yes, please.', ja: 'はい、お願いします'},
+                            {type: 'phrase', en: 'No, thank you.', ja: 'いいえ、結構です'},
+                            {type: 'phrase', en: 'That sounds great!', ja: 'それは良いですね!'},
+                            {type: 'phrase', en: 'Perfect!', ja: '完璧です!'},
+                            {type: 'phrase', en: 'Absolutely!', ja: 'もちろんです!'},
+                            {type: 'phrase', en: 'I think so.', ja: 'そう思います'},
+                            {type: 'phrase', en: 'Maybe later.', ja: 'また今度で'}
+                        ]
+                    },
+                    {
+                        title: '理解を示す相槌',
+                        items: [
+                            {type: 'phrase', en: 'I see.', ja: 'なるほど'},
+                            {type: 'phrase', en: 'Got it.', ja: 'わかりました'},
+                            {type: 'phrase', en: 'That makes sense.', ja: 'それは納得です'},
+                            {type: 'phrase', en: 'Right.', ja: 'そうですね'},
+                            {type: 'phrase', en: 'Okay.', ja: 'オーケー'},
+                            {type: 'phrase', en: 'I understand.', ja: '理解しました'},
+                            {type: 'phrase', en: 'Fair enough.', ja: 'それはもっともですね'}
+                        ]
+                    },
+                    {
+                        title: '聞き取れない・理解できない時',
+                        items: [
+                            {type: 'phrase', en: "Sorry, I didn't catch that.", ja: 'すみません、聞き取れませんでした'},
+                            {type: 'phrase', en: 'Could you repeat that, please?', ja: 'もう一度言ってもらえますか?'},
+                            {type: 'phrase', en: "I'm sorry, what did you say?", ja: 'すみません、何とおっしゃいましたか?'},
+                            {type: 'phrase', en: 'Could you speak a little slower?', ja: 'もう少しゆっくり話してもらえますか?'},
+                            {type: 'phrase', en: "I don't understand.", ja: '理解できません'},
+                            {type: 'phrase', en: 'What does that mean?', ja: 'それはどういう意味ですか?'},
+                            {type: 'phrase', en: 'Could you explain that again?', ja: 'もう一度説明してもらえますか?'},
+                            {type: 'phrase', en: 'Pardon me?', ja: 'すみません?/もう一度お願いします'}
+                        ]
+                    },
+                    {
+                        title: '驚きや感心の表現',
+                        items: [
+                            {type: 'phrase', en: 'Really?', ja: '本当に?'},
+                            {type: 'phrase', en: 'Wow!', ja: 'わあ!'},
+                            {type: 'phrase', en: "That's amazing!", ja: 'すごいですね!'},
+                            {type: 'phrase', en: 'How interesting!', ja: '興味深いですね!'},
+                            {type: 'phrase', en: 'No way!', ja: 'まさか!'},
+                            {type: 'phrase', en: 'Cool!', ja: 'かっこいい!'}
+                        ]
+                    },
+                    {
+                        title: '会話を続ける相槌',
+                        items: [
+                            {type: 'phrase', en: 'Tell me more.', ja: 'もっと教えてください'},
+                            {type: 'phrase', en: 'What else?', ja: '他には?'},
+                            {type: 'phrase', en: 'And then?', ja: 'それから?'},
+                            {type: 'phrase', en: 'What about...?', ja: '...はどうですか?'},
+                            {type: 'phrase', en: "I'd love to hear about...", ja: '...について聞かせてください'}
+                        ]
+                    },
+                    {
+                        title: '同意・反対',
+                        items: [
+                            {type: 'phrase', en: 'I agree.', ja: '同感です'},
+                            {type: 'phrase', en: 'Exactly!', ja: 'その通り!'},
+                            {type: 'phrase', en: "I'm not sure about that.", ja: 'それはどうでしょう'},
+                            {type: 'phrase', en: "That's a good point.", ja: '良い指摘ですね'},
+                            {type: 'phrase', en: 'I think differently.', ja: '私は違う考えです'}
+                        ]
+                    },
+                    {
+                        title: '感謝・謝罪の表現',
+                        items: [
+                            {type: 'phrase', en: 'Thank you so much!', ja: '本当にありがとうございます'},
+                            {type: 'phrase', en: 'I appreciate it.', ja: '感謝します'},
+                            {type: 'phrase', en: "You're very kind.", ja: 'とても親切ですね'},
+                            {type: 'phrase', en: 'Sorry about that.', ja: 'すみませんでした'},
+                            {type: 'phrase', en: 'My apologies.', ja: 'お詫びします'},
+                            {type: 'phrase', en: 'No problem at all.', ja: '全く問題ありません'}
+                        ]
+                    }
+                ]
+            },
+            'hotel': {
+                title: '🏨 ホテル 実用会話例',
+                sections: [
+                    {title: '荷物預かり(チェックイン前)', items: [{type: 'conv', speaker: 'you', en: "Hi, we'd like to store our luggage before check-in.", ja: 'こんにちは、チェックイン前に荷物を預けたいです'}, {type: 'conv', speaker: 'other', en: 'Sure, no problem. How many bags do you have?', ja: 'もちろんです。荷物はいくつありますか?'}, {type: 'conv', speaker: 'you', en: 'We have 8 suitcases.', ja: 'スーツケース8個あります'}, {type: 'conv', speaker: 'you', en: 'Is there a storage fee?', ja: '保管料はかかりますか?'}, {type: 'conv', speaker: 'other', en: "No, it's complimentary for our guests.", ja: 'いいえ、宿泊客は無料です'}, {type: 'conv', speaker: 'you', en: "We'll be back around 3 PM.", ja: '午後3時頃戻ります'}, {type: 'conv', speaker: 'other', en: 'Perfect. Here are your claim tickets.', ja: 'わかりました。こちらが預かり票です'}, {type: 'conv', speaker: 'you', en: 'Thank you!', ja: 'ありがとうございます!'}]},
+                    {title: 'チェックイン', items: [{type: 'conv', speaker: 'you', en: 'Hi, I have a reservation under Tanaka.', ja: 'こんにちは、田中で予約しています'}, {type: 'conv', speaker: 'other', en: 'Let me check... Yes, I have it here. Two rooms for 8 guests?', ja: '確認します...はい、ございました。2部屋で8名様ですね?'}, {type: 'conv', speaker: 'you', en: "Yes, that's correct.", ja: 'はい、その通りです'}, {type: 'conv', speaker: 'you', en: 'Could our rooms be close together?', ja: '部屋を近くにしてもらえますか?'}, {type: 'conv', speaker: 'other', en: "Absolutely. I'll put you on the same floor, next to each other.", ja: 'もちろんです。同じフロアで隣同士にします'}, {type: 'conv', speaker: 'you', en: 'Perfect, thank you!', ja: '完璧です、ありがとうございます!'}, {type: 'conv', speaker: 'other', en: 'Check-out is at 11 AM. Here are your room keys.', ja: 'チェックアウトは午前11時です。こちらがルームキーです'}, {type: 'phrase', en: 'What time is check-out?', ja: 'チェックアウトは何時ですか?'}]},
+                    {title: 'ビーチタオル・レンタル用品', items: [{type: 'conv', speaker: 'you', en: 'Excuse me, could we borrow some beach towels?', ja: 'すみません、ビーチタオルをお借りできますか?'}, {type: 'conv', speaker: 'other', en: 'Of course! How many do you need?', ja: 'もちろんです!何枚必要ですか?'}, {type: 'conv', speaker: 'you', en: 'How many beach towels can we get?', ja: 'ビーチタオルは何枚もらえますか?'}, {type: 'conv', speaker: 'other', en: 'You can get up to 8 towels with your room key.', ja: 'ルームキーで8枚までもらえます'}, {type: 'conv', speaker: 'you', en: 'Is there a fee for beach towels?', ja: 'ビーチタオルは有料ですか?'}, {type: 'conv', speaker: 'other', en: "No, they're free for guests.", ja: 'いいえ、宿泊客は無料です'}, {type: 'conv', speaker: 'you', en: 'When do we need to return them?', ja: 'いつまでに返却すればよいですか?'}, {type: 'conv', speaker: 'other', en: 'Just bring them back before check-out.', ja: 'チェックアウト前に返却してください'}]},
+                    {title: '炊飯器・キッチン用品レンタル', items: [{type: 'conv', speaker: 'you', en: 'Hi, do you have rice cookers available?', ja: 'こんにちは、炊飯器はありますか?'}, {type: 'conv', speaker: 'other', en: 'Yes, we do. Would you like to borrow one?', ja: 'はい、ございます。1つお借りになりますか?'}, {type: 'conv', speaker: 'you', en: 'Yes, please. Is there a rental fee?', ja: 'はい、お願いします。レンタル料はかかりますか?'}, {type: 'conv', speaker: 'other', en: 'No charge. You can keep it for your entire stay.', ja: '無料です。滞在中ずっとお使いいただけます'}, {type: 'conv', speaker: 'you', en: 'Do you have other cooking equipment?', ja: '他の調理器具はありますか?'}, {type: 'conv', speaker: 'other', en: 'We have pots, pans, and utensils. What do you need?', ja: '鍋、フライパン、調理器具があります。何が必要ですか?'}, {type: 'conv', speaker: 'you', en: 'Could we get some plates and utensils?', ja: 'お皿と食器をもらえますか?'}, {type: 'conv', speaker: 'other', en: "Sure, I'll send those up to your room.", ja: 'もちろん、お部屋にお持ちします'}]},
+                    {title: 'その他のサービス・リクエスト', items: [{type: 'conv', speaker: 'you', en: 'Could you call a taxi for us?', ja: 'タクシーを呼んでもらえますか?'}, {type: 'conv', speaker: 'other', en: 'Certainly. Where are you headed?', ja: 'もちろんです。どちらまでですか?'}, {type: 'conv', speaker: 'you', en: 'To Ala Moana Shopping Center.', ja: 'アラモアナショッピングセンターまでです'}, {type: 'conv', speaker: 'other', en: "It'll be here in about 5 minutes.", ja: '約5分で到着します'}, {type: 'phrase', en: 'Could we get some extra pillows?', ja: '枕を追加でもらえますか?'}, {type: 'phrase', en: 'Do you have coolers available?', ja: 'クーラーボックスはありますか?'}, {type: 'phrase', en: 'Is there a mini-fridge in the room?', ja: '部屋にミニ冷蔵庫はありますか?'}]},
+                    {title: 'チェックアウト・荷物預かり(チェックアウト後)', items: [{type: 'conv', speaker: 'you', en: "We're checking out. Here are our room keys.", ja: 'チェックアウトします。こちらがルームキーです'}, {type: 'conv', speaker: 'other', en: 'Thank you. Did you enjoy your stay?', ja: 'ありがとうございます。ご滞在はいかがでしたか?'}, {type: 'conv', speaker: 'you', en: 'Yes, it was wonderful!', ja: 'はい、素晴らしかったです!'}, {type: 'conv', speaker: 'you', en: 'Could we store our luggage until our flight?', ja: 'フライトまで荷物を預かってもらえますか?'}, {type: 'conv', speaker: 'other', en: 'Of course. What time is your flight?', ja: 'もちろんです。フライトは何時ですか?'}, {type: 'conv', speaker: 'you', en: "6 PM. We'll pick them up around 3.", ja: '午後6時です。3時頃取りに来ます'}, {type: 'conv', speaker: 'other', en: 'No problem. Have a great day!', ja: '問題ありません。良い一日を!'}]}
+                ]
+            },
+            'restaurant': {
+                title: '🍽️ レストラン全般 実用会話例',
+                sections: [
+                    {title: '入店・席案内', items: [{type: 'conv', speaker: 'other', en: 'Hi! Welcome! How many in your party?', ja: 'こんにちは!いらっしゃいませ!何名様ですか?'}, {type: 'conv', speaker: 'you', en: 'Table for 8, please.', ja: '8名でお願いします'}, {type: 'conv', speaker: 'other', en: "It'll be about 15 minutes. Is that okay?", ja: '約15分待ちです。よろしいですか?'}, {type: 'conv', speaker: 'you', en: "That's fine.", ja: '大丈夫です'}, {type: 'conv', speaker: 'you', en: 'Could we have a booth?', ja: 'ボックス席をお願いできますか?'}, {type: 'conv', speaker: 'other', en: 'Let me see what I can do.', ja: 'できるか確認してみます'}]},
+                    {title: 'メニュー・注文開始', items: [{type: 'conv', speaker: 'other', en: "Hi! I'm Sarah, I'll be your server today. Can I start you off with drinks?", ja: 'こんにちは!サラです。本日担当します。まずお飲み物はいかがですか?'}, {type: 'conv', speaker: 'you', en: 'Could we see the menu first, please?', ja: 'まずメニューを見せてもらえますか?'}, {type: 'conv', speaker: 'other', en: 'Of course! Here you go.', ja: 'もちろん!どうぞ'}, {type: 'phrase', en: 'May I see the menu?', ja: 'メニューを見せてください'}, {type: 'conv', speaker: 'you', en: "Do you have a kids' menu?", ja: 'キッズメニューはありますか?'}, {type: 'conv', speaker: 'other', en: "Yes, I'll bring those right away.", ja: 'はい、すぐにお持ちします'}, {type: 'conv', speaker: 'you', en: 'What do you recommend?', ja: '何がおすすめですか?'}, {type: 'conv', speaker: 'other', en: 'Our fish tacos are very popular!', ja: 'フィッシュタコスがとても人気です!'}, {type: 'conv', speaker: 'you', en: 'That sounds great!', ja: 'それは良いですね!'}]},
+                    {title: '指差し注文・複数人分', items: [{type: 'conv', speaker: 'you', en: "We're ready to order. I'll point to what we want, okay?", ja: '注文します。欲しいものを指差しますね?'}, {type: 'conv', speaker: 'other', en: 'Sure, go ahead!', ja: 'はい、どうぞ!'}, {type: 'conv', speaker: 'you', en: 'This burger (pointing) - we need three of these.', ja: 'このハンバーガー(指差し) - これを3つお願いします'}, {type: 'conv', speaker: 'other', en: 'Three burgers. How would you like them cooked?', ja: 'ハンバーガー3つですね。焼き加減はいかがですか?'}, {type: 'conv', speaker: 'you', en: 'Two medium, one well-done.', ja: '2つはミディアム、1つはウェルダンで'}, {type: 'conv', speaker: 'you', en: 'And this pasta (pointing) - two orders.', ja: 'そしてこのパスタ(指差し) - 2人分'}, {type: 'conv', speaker: 'other', en: 'Got it. Anything else?', ja: '承りました。他には?'}, {type: 'note', text: '【指差し注文フレーズ】<br>• This one, please. How many? Three. (これをお願いします。何人分?3人分です)<br>• For him, this one. For her, that one. (彼にはこれ、彼女にはあれ)<br>• Same for everyone. (みんな同じで)'}]},
+                    {title: 'ドリンク注文', items: [{type: 'conv', speaker: 'other', en: 'What can I get you to drink?', ja: 'お飲み物は何にしますか?'}, {type: 'conv', speaker: 'you', en: 'Five sodas, please. Three Cokes and two Sprites.', ja: 'ソーダを5つお願いします。コーラ3つとスプライト2つ'}, {type: 'conv', speaker: 'you', en: 'Do you have free refills?', ja: 'おかわり自由ですか?'}, {type: 'conv', speaker: 'other', en: 'Yes, unlimited refills on soft drinks.', ja: 'はい、ソフトドリンクはおかわり自由です'}, {type: 'conv', speaker: 'you', en: 'Perfect!', ja: '完璧です!'}]},
+                    {title: '注文完了の合図', items: [{type: 'conv', speaker: 'other', en: 'Anything else for you?', ja: '他に何かございますか?'}, {type: 'conv', speaker: 'you', en: "That's it. Thank you!", ja: '以上です。ありがとう!'}, {type: 'note', text: '【注文完了フレーズ】<br>• That\'s good for now. (とりあえずこれで大丈夫です)<br>• That\'s all for now. (今のところこれで全部です)<br>• We\'re all set. (これで全部揃いました)'}]},
+                    {title: '食事中のリクエスト', items: [{type: 'conv', speaker: 'you', en: 'Excuse me, could we get more bread?', ja: 'すみません、パンのお代わりをお願いします'}, {type: 'conv', speaker: 'other', en: "Absolutely! I'll bring some right away.", ja: 'もちろん!すぐにお持ちします'}, {type: 'phrase', en: 'Could I get another beer?', ja: 'ビールのお代わりをもらえますか?'}, {type: 'phrase', en: 'Another Coke, please.', ja: 'コーラをもう一つお願いします'}, {type: 'phrase', en: "We'd like two more beers.", ja: 'ビールをあと2つお願いします'}, {type: 'phrase', en: 'Could we get refills on our sodas?', ja: 'ソーダのお代わりをお願いします'}, {type: 'phrase', en: 'We need more napkins.', ja: 'ナプキンを追加でお願いします'}, {type: 'phrase', en: 'Could we get some ketchup?', ja: 'ケチャップをもらえますか?'}]},
+                    {title: '食べ残し持ち帰り', items: [{type: 'conv', speaker: 'other', en: 'How was everything?', ja: 'お食事はいかがでしたか?'}, {type: 'conv', speaker: 'you', en: 'It was delicious!', ja: '美味しかったです!'}, {type: 'conv', speaker: 'you', en: 'Could we get a to-go box?', ja: '持ち帰り用の箱をもらえますか?'}, {type: 'conv', speaker: 'other', en: 'Sure! Would you like me to box it up for you?', ja: 'もちろん!箱に詰めましょうか?'}, {type: 'phrase', en: 'Could you box this up for us?', ja: 'これを箱に入れてもらえますか?'}, {type: 'phrase', en: "We'd like separate boxes.", ja: '別々の箱でお願いします'}]},
+                    {title: '会計', items: [{type: 'conv', speaker: 'you', en: 'Could we get the check?', ja: 'お会計をお願いします'}, {type: 'conv', speaker: 'other', en: "Sure, I'll bring it right over.", ja: 'もちろん、すぐにお持ちします'}, {type: 'conv', speaker: 'you', en: 'Is the tip included?', ja: 'チップは含まれていますか?'}, {type: 'conv', speaker: 'other', en: 'No, gratuity is not included.', ja: 'いいえ、チップは含まれていません'}, {type: 'conv', speaker: 'you', en: 'Could we split the bill?', ja: '別々に支払えますか?'}, {type: 'conv', speaker: 'other', en: 'How would you like to split it?', ja: 'どのように分けますか?'}, {type: 'phrase', en: "I'll pay for everyone.", ja: '私がまとめて支払います'}, {type: 'phrase', en: 'Put it all on one bill.', ja: '全部一つのお会計にしてください'}]}
+                ]
+            },
+            'steakhouse': {title:'🥩 ステーキハウス 実用会話例',sections:[{title:'入店・席案内',items:[{type:'conv',speaker:'other',en:'Good evening! Do you have a reservation?',ja:'こんばんは!ご予約はありますか?'},{type:'conv',speaker:'you',en:'Yes, we have a reservation for 8 at 6 PM.',ja:'はい、6時に8名で予約しています'},{type:'conv',speaker:'other',en:'Perfect! Right this way, please.',ja:'かしこまりました!こちらへどうぞ'},{type:'conv',speaker:'you',en:'Table for 8, please.',ja:'8名でお願いします'},{type:'conv',speaker:'other',en:"It'll be about 30 minutes. Can I get your name?",ja:'約30分待ちです。お名前をいただけますか?'},{type:'conv',speaker:'you',en:'Tanaka.',ja:'田中です'}]},{title:'メニュー・おすすめ確認',items:[{type:'conv',speaker:'other',en:"Good evening! I'm Mike, your server. Can I start you with drinks?",ja:'こんばんは!マイクです、担当します。まずお飲み物はいかがですか?'},{type:'conv',speaker:'you',en:'Could we see the menu first, please?',ja:'まずメニューを見せてもらえますか?'},{type:'conv',speaker:'other',en:'Of course! Here are the menus.',ja:'もちろん!メニューです'},{type:'conv',speaker:'you',en:"What's your signature steak?",ja:'看板ステーキは何ですか?'},{type:'conv',speaker:'other',en:'Our ribeye is the most popular. It\'s very tender and flavorful.',ja:'リブアイが一番人気です。とても柔らかくて風味豊かです'},{type:'conv',speaker:'you',en:'What do you recommend?',ja:'何がおすすめですか?'},{type:'conv',speaker:'other',en:"I'd recommend the filet mignon. It melts in your mouth!",ja:'フィレミニョンがおすすめです。口の中でとろけますよ!'},{type:'conv',speaker:'you',en:"What's the difference between ribeye and sirloin?",ja:'リブアイとサーロインの違いは何ですか?'},{type:'conv',speaker:'other',en:'Ribeye is more marbled and juicy. Sirloin is leaner with a firmer texture.',ja:'リブアイはサシが多くてジューシーです。サーロインは赤身で食感がしっかりしています'}]},{title:'ステーキ注文',items:[{type:'conv',speaker:'other',en:'Are you ready to order?',ja:'ご注文はお決まりですか?'},{type:'conv',speaker:'you',en:"Yes. I'd like the ribeye, medium-rare.",ja:'はい。リブアイをミディアムレアで'},{type:'conv',speaker:'other',en:'Excellent choice! What size? We have 8oz, 12oz, or 16oz.',ja:'素晴らしい選択です!サイズは?8、12、16オンスがあります'},{type:'conv',speaker:'you',en:'How big is the 12-ounce steak?',ja:'12オンスステーキはどのくらいの大きさですか?'},{type:'conv',speaker:'other',en:"It's about this size (shows with hands). Very filling!",ja:'このくらいです(手で示す)。とてもボリュームがあります!'},{type:'conv',speaker:'you',en:"I'll have the 12-ounce.",ja:'12オンスでお願いします'},{type:'conv',speaker:'you',en:"We'll have three ribeyes and two sirloins.",ja:'リブアイ3つとサーロイン2つお願いします'},{type:'conv',speaker:'other',en:'How would you like those cooked?',ja:'焼き加減はいかがですか?'},{type:'conv',speaker:'you',en:'Two ribeyes medium-rare, one medium. Both sirloins medium-well.',ja:'リブアイ2つはミディアムレア、1つはミディアム。サーロイン両方ともミディアムウェル'},{type:'note',text:'【焼き加減】<br>• Rare(レア:生に近い)<br>• Medium-rare(ミディアムレア:少し赤い)<br>• Medium(ミディアム:ほんのりピンク)<br>• Medium-well(ミディアムウェル:ほぼ火が通っている)<br>• Well-done(ウェルダン:完全に火が通っている)'}]},{title:'サイドメニュー',items:[{type:'conv',speaker:'you',en:'What comes with the steak?',ja:'ステーキには何が付きますか?'},{type:'conv',speaker:'other',en:'It comes with two sides. You can choose from mashed potatoes, baked potato, fries, vegetables, or salad.',ja:'サイド2品が付きます。マッシュポテト、ベイクドポテト、フライ、野菜、サラダから選べます'},{type:'conv',speaker:'you',en:"I'll have mashed potatoes and grilled vegetables.",ja:'マッシュポテトとグリル野菜でお願いします'},{type:'conv',speaker:'you',en:'Can I substitute the vegetables for fries?',ja:'野菜をフライドポテトに変更できますか?'},{type:'conv',speaker:'other',en:'Sure, no problem!',ja:'もちろん、問題ありません!'},{type:'conv',speaker:'you',en:"We'd like to add a Caesar salad.",ja:'シーザーサラダを追加したいです'},{type:'conv',speaker:'you',en:'Could we share some appetizers?',ja:'前菜をシェアできますか?'},{type:'conv',speaker:'other',en:'Absolutely! Our onion rings are great for sharing.',ja:'もちろん!オニオンリングがシェアに最適です'}]},{title:'ドリンク注文',items:[{type:'conv',speaker:'you',en:'What beers do you have on tap?',ja:'生ビールは何がありますか?'},{type:'conv',speaker:'other',en:'We have Budweiser, Heineken, and Kona Brewing.',ja:'バドワイザー、ハイネケン、コナブリューイングがあります'},{type:'conv',speaker:'you',en:'Do you have any local Hawaiian beers?',ja:'ハワイ地ビールはありますか?'},{type:'conv',speaker:'other',en:'Yes! Kona Brewing is local. Very popular!',ja:'はい!コナブリューイングが地元です。とても人気です!'},{type:'conv',speaker:'you',en:"I'll have that.",ja:'それでお願いします'},{type:'phrase',en:'Could I see the wine list?',ja:'ワインリストを見せてもらえますか?'},{type:'phrase',en:"We'd like a bottle of red wine.",ja:'赤ワインをボトルでお願いします'},{type:'phrase',en:'Just water for me, please.',ja:'私は水だけで結構です'}]},{title:'食事中',items:[{type:'conv',speaker:'other',en:'How is everything?',ja:'お食事はいかがですか?'},{type:'conv',speaker:'you',en:'This steak is perfect!',ja:'このステーキは完璧です!'},{type:'conv',speaker:'you',en:'The food is delicious!',ja:'料理が美味しいです!'},{type:'conv',speaker:'you',en:'Could we get some steak sauce?',ja:'ステーキソースをもらえますか?'},{type:'conv',speaker:'other',en:'Of course! A1 or HP sauce?',ja:'もちろん!A1それともHPソース?'},{type:'conv',speaker:'you',en:'A1, please.',ja:'A1でお願いします'},{type:'note',text:'【問題がある時】'},{type:'conv',speaker:'you',en:'Excuse me, this is a bit too rare. Could you cook it a little more?',ja:'すみません、これは少し生すぎます。もう少し焼いてもらえますか?'},{type:'conv',speaker:'other',en:"Oh, I'm so sorry! I'll have the kitchen fix that right away.",ja:'申し訳ございません!すぐにキッチンで焼き直させます'}]}]},
+            'family-restaurant': {title:'🍔 ファミレス 実用会話例',sections:[{title:'入店・席案内',items:[{type:'conv',speaker:'other',en:'Hi there! How many?',ja:'こんにちは!何名様ですか?'},{type:'conv',speaker:'you',en:'Table for 8, please. We have 3 adults and 5 kids.',ja:'8名でお願いします。大人3名、子供5名です'},{type:'conv',speaker:'other',en:'Perfect! Do you need high chairs?',ja:'かしこまりました!ハイチェアは必要ですか?'},{type:'conv',speaker:'you',en:'Yes, we need two high chairs.',ja:'はい、ハイチェアを2つお願いします'},{type:'conv',speaker:'you',en:'Could we sit in a booth?',ja:'ボックス席に座れますか?'},{type:'conv',speaker:'other',en:'Sure! Follow me.',ja:'もちろん!こちらへどうぞ'},{type:'conv',speaker:'you',en:'Somewhere quiet would be great.',ja:'静かな場所だと助かります'},{type:'conv',speaker:'other',en:"I'll put you in the back corner.",ja:'奥の角の席にご案内します'}]},{title:'メニュー・注文開始',items:[{type:'conv',speaker:'other',en:"Hi! I'm Jessica. Can I get you started with drinks?",ja:'こんにちは!ジェシカです。まずお飲み物はいかがですか?'},{type:'conv',speaker:'you',en:'Could we see the menu first, please?',ja:'まずメニューを見せてもらえますか?'},{type:'conv',speaker:'other',en:"Of course! And here's the kids' menu.",ja:'もちろん!こちらがキッズメニューです'},{type:'conv',speaker:'you',en:"Do you have a kids' menu?",ja:'キッズメニューはありますか?'},{type:'conv',speaker:'you',en:'Are there any specials today?',ja:'今日の特別メニューはありますか?'},{type:'conv',speaker:'other',en:'Yes! Our soup of the day is clam chowder.',ja:'はい!本日のスープはクラムチャウダーです'},{type:'conv',speaker:'you',en:'We need a few more minutes.',ja:'もう少し時間をください'},{type:'conv',speaker:'other',en:'No problem! Take your time.',ja:'問題ありません!ごゆっくりどうぞ'}]},{title:'複数人分の注文',items:[{type:'conv',speaker:'other',en:'Ready to order?',ja:'ご注文はお決まりですか?'},{type:'conv',speaker:'you',en:'Yes. We\'ll have three burgers, two with cheese.',ja:'はい。ハンバーガー3つ、2つはチーズ付き'},{type:'conv',speaker:'other',en:'How would you like those cooked?',ja:'焼き加減はいかがですか?'},{type:'conv',speaker:'you',en:'All medium is fine.',ja:'全部ミディアムで結構です'},{type:'conv',speaker:'you',en:'Four chicken tenders for the kids.',ja:'子供たちにチキンテンダー4つ'},{type:'conv',speaker:'you',en:'Two pancakes and one waffle.',ja:'パンケーキ2つとワッフル1つ'},{type:'conv',speaker:'other',en:'Would the kids like a side with their chicken tenders?',ja:'チキンテンダーにサイドをお付けしますか?'},{type:'conv',speaker:'you',en:'Could we get fries for the table?',ja:'テーブル用フライドポテトをお願いします'}]},{title:'カスタマイズ・アレルギー対応',items:[{type:'phrase',en:'No onions on this one, please.',ja:'これは玉ねぎ抜きでお願いします'},{type:'phrase',en:'Make three of those without pickles.',ja:'そのうち3つはピクルス抜きで'},{type:'conv',speaker:'you',en:'Could we get the sauce on the side?',ja:'ソースは別添えでもらえますか?'},{type:'conv',speaker:'other',en:'Sure, no problem!',ja:'もちろん、問題ありません!'},{type:'conv',speaker:'you',en:'My child has a nut allergy.',ja:'子供がナッツアレルギーです'},{type:'conv',speaker:'other',en:"I'll let the kitchen know. We'll be very careful.",ja:'キッチンに伝えます。十分注意します'},{type:'phrase',en:'Is this gluten-free?',ja:'これはグルテンフリーですか?'},{type:'phrase',en:"Could you make this mild? It's for kids.",ja:'子供用なので辛くしないでもらえますか?'}]},{title:'ドリンク・おかわり',items:[{type:'conv',speaker:'other',en:'What can I get you to drink?',ja:'お飲み物は何にしますか?'},{type:'conv',speaker:'you',en:'Five sodas, please. Three orange juices and two milks.',ja:'ソーダ5つお願いします。オレンジジュース3つとミルク2つ'},{type:'conv',speaker:'you',en:'Do you have free refills?',ja:'おかわり自由ですか?'},{type:'conv',speaker:'other',en:'Yes, all sodas and juices are unlimited.',ja:'はい、ソーダとジュースは全ておかわり自由です'},{type:'phrase',en:'Could we get refills on our drinks?',ja:'飲み物のお代わりをお願いします'},{type:'phrase',en:'Just water is fine.',ja:'水で結構です'}]},{title:'追加注文・調味料',items:[{type:'conv',speaker:'you',en:'Could we get some ketchup?',ja:'ケチャップをもらえますか?'},{type:'conv',speaker:'other',en:"Sure! I'll bring extra.",ja:'もちろん!多めにお持ちします'},{type:'phrase',en:'We need more napkins.',ja:'ナプキンを追加でお願いします'},{type:'phrase',en:'Could we order another side of fries?',ja:'フライドポテトをもう一皿注文できますか?'},{type:'phrase',en:'More ranch dressing, please.',ja:'ランチドレッシングを追加でお願いします'},{type:'phrase',en:'Could we get extra syrup?',ja:'シロップを多めにもらえますか?'}]},{title:'デザート・食後',items:[{type:'conv',speaker:'other',en:'Save room for dessert?',ja:'デザートはいかがですか?'},{type:'conv',speaker:'you',en:'Could we see the dessert menu?',ja:'デザートメニューを見せてもらえますか?'},{type:'conv',speaker:'other',en:'We have ice cream, brownies, and apple pie.',ja:'アイスクリーム、ブラウニー、アップルパイがあります'},{type:'conv',speaker:'you',en:"We'll share one brownie sundae.",ja:'ブラウニーサンデーを1つシェアします'},{type:'phrase',en:'Do you have ice cream?',ja:'アイスクリームはありますか?'},{type:'phrase',en:'Just the check, please.',ja:'お会計だけお願いします'}]}]},
+            'cafe': {title:'☕ カフェ 実用会話例',sections:[{title:'入店・注文開始',items:[{type:'conv',speaker:'other',en:'Hi! What can I get for you today?',ja:'こんにちは!本日は何にしますか?'},{type:'conv',speaker:'you',en:"Hi! We're ordering for 8 people.",ja:'こんにちは!8人分注文します'},{type:'conv',speaker:'other',en:'No problem! Take your time.',ja:'問題ありません!ごゆっくりどうぞ'},{type:'phrase',en:'Could we see the menu?',ja:'メニューを見せてもらえますか?'},{type:'conv',speaker:'you',en:'What sizes do you have?',ja:'サイズは何がありますか?'},{type:'conv',speaker:'other',en:'We have small, medium, and large. Or tall, grande, and venti.',ja:'スモール、ミディアム、ラージです。もしくはトール、グランデ、ベンティ'},{type:'conv',speaker:'you',en:'We need a few minutes to decide.',ja:'決めるのに少し時間をください'},{type:'conv',speaker:'other',en:"Sure! Let me know when you're ready.",ja:'もちろん!準備ができたら教えてください'}]},{title:'コーヒー・ドリンク注文',items:[{type:'conv',speaker:'you',en:"I'd like a large latte, please.",ja:'ラージラテをお願いします'},{type:'conv',speaker:'other',en:'Hot or iced?',ja:'ホットですかアイスですか?'},{type:'conv',speaker:'you',en:'Hot, please.',ja:'ホットでお願いします'},{type:'phrase',en:'Two medium coffees, one with cream.',ja:'ミディアムコーヒー2つ、1つはクリーム入り'},{type:'phrase',en:'Could I get an iced mocha?',ja:'アイスモカをもらえますか?'},{type:'conv',speaker:'you',en:'Do you have decaf?',ja:'デカフェはありますか?'},{type:'conv',speaker:'other',en:'Yes, we do!',ja:'はい、ございます!'},{type:'conv',speaker:'you',en:"What's the difference between latte and cappuccino?",ja:'ラテとカプチーノの違いは何ですか?'},{type:'conv',speaker:'other',en:'Cappuccino has more foam, latte has more milk. Both have espresso.',ja:'カプチーノは泡が多く、ラテはミルクが多いです。両方エスプレッソ入りです'},{type:'conv',speaker:'you',en:"I'll have a latte.",ja:'ラテでお願いします'}]},{title:'カスタマイズ',items:[{type:'conv',speaker:'you',en:'With almond milk, please.',ja:'アーモンドミルクでお願いします'},{type:'conv',speaker:'other',en:"Almond milk costs 50 cents extra. Is that okay?",ja:'アーモンドミルクは50セント追加です。よろしいですか?'},{type:'conv',speaker:'you',en:"That's fine.",ja:'大丈夫です'},{type:'phrase',en:'Could I get an extra shot of espresso?',ja:'エスプレッソショットを追加できますか?'},{type:'phrase',en:'Less ice, please.',ja:'氷少なめでお願いします'},{type:'phrase',en:'Could you make it not too sweet?',ja:'甘さ控えめにしてもらえますか?'},{type:'phrase',en:'With whipped cream on top.',ja:'ホイップクリームをトッピングで'},{type:'phrase',en:'No foam, please.',ja:'泡なしでお願いします'}]},{title:'フード・ペストリー',items:[{type:'conv',speaker:'you',en:'What pastries do you have?',ja:'どんなペストリーがありますか?'},{type:'conv',speaker:'other',en:'We have croissants, muffins, cookies, and scones.',ja:'クロワッサン、マフィン、クッキー、スコーンがあります'},{type:'conv',speaker:'you',en:'Could we get three croissants?',ja:'クロワッサンを3つもらえますか?'},{type:'conv',speaker:'you',en:'Are these muffins fresh?',ja:'このマフィンは焼きたてですか?'},{type:'conv',speaker:'other',en:'Yes, baked this morning!',ja:'はい、今朝焼きたてです!'},{type:'conv',speaker:'you',en:"We'll take two blueberry muffins.",ja:'ブルーベリーマフィンを2つください'},{type:'phrase',en:'Do you have any bagels?',ja:'ベーグルはありますか?'},{type:'conv',speaker:'you',en:'Could you warm this up?',ja:'これを温めてもらえますか?'},{type:'conv',speaker:'other',en:'Of course!',ja:'もちろんです!'}]},{title:'複数注文・テイクアウト',items:[{type:'conv',speaker:'other',en:'For here or to go?',ja:'店内ですか、持ち帰りですか?'},{type:'conv',speaker:'you',en:"We'll take these to go.",ja:'これらはテイクアウトで'},{type:'conv',speaker:'you',en:'Could we get a carrier for these drinks?',ja:'ドリンクホルダーをもらえますか?'},{type:'conv',speaker:'other',en:'Sure! How many do you need?',ja:'もちろん!いくつ必要ですか?'},{type:'conv',speaker:'you',en:'Two carriers, please.',ja:'2つお願いします'},{type:'phrase',en:'Could we get extra napkins?',ja:'ナプキンを多めにもらえますか?'},{type:'phrase',en:'Separate bags, please.',ja:'別々の袋でお願いします'}]},{title:'支払い',items:[{type:'conv',speaker:'other',en:'Your total is $47.50.',ja:'合計47ドル50セントです'},{type:'conv',speaker:'you',en:"I'll pay for the first four drinks.",ja:'最初の4つの飲み物は私が払います'},{type:'conv',speaker:'you',en:'Could we split this?',ja:'これを分けて支払えますか?'},{type:'conv',speaker:'other',en:'Sure! How would you like to split it?',ja:'もちろん!どのように分けますか?'},{type:'conv',speaker:'you',en:'All together, please.',ja:'全部まとめてお願いします'},{type:'conv',speaker:'you',en:'Do you accept Apple Pay?',ja:'Apple Payは使えますか?'},{type:'conv',speaker:'other',en:'Yes, we do!',ja:'はい、使えます!'}]},{title:'受け取り・確認',items:[{type:'conv',speaker:'other',en:'Large latte for Tanaka!',ja:'田中様、ラージラテです!'},{type:'conv',speaker:'you',en:"That's me. Thank you!",ja:'私です。ありがとうございます!'},{type:'conv',speaker:'you',en:'Is this the large latte?',ja:'これがラージラテですか?'},{type:'conv',speaker:'other',en:"Yes, that's yours!",ja:'はい、あなたのです!'},{type:'conv',speaker:'you',en:'I ordered a medium, not a small.',ja:'ミディアムを頼みましたが、スモールではないですか?'},{type:'conv',speaker:'other',en:"Oh, I'm sorry! Let me fix that.",ja:'申し訳ございません!修正します'},{type:'conv',speaker:'you',en:'This one is missing.',ja:'1つ足りません'},{type:'conv',speaker:'other',en:"Let me check your order... I'll make that right away!",ja:'ご注文を確認します...すぐに作ります!'},{type:'conv',speaker:'you',en:'Thank you! This looks perfect!',ja:'ありがとう!完璧です!'}]}]},
+            'shopping': {title:'🛍️ ショッピング 実用会話例',sections:[{title:'入店・ブラウジング',items:[{type:'conv',speaker:'other',en:'Hi! How are you today? Can I help you find anything?',ja:'こんにちは!いかがですか?何かお探しですか?'},{type:'conv',speaker:'you',en:'Just browsing, thank you.',ja:'見ているだけです、ありがとう'},{type:'conv',speaker:'you',en:"Yes, we're looking for souvenirs.",ja:'はい、お土産を探しています'},{type:'conv',speaker:'other',en:'Great! We have Hawaiian shirts, keychains, and chocolates over there.',ja:'素晴らしい!アロハシャツ、キーホルダー、チョコレートがあちらにあります'},{type:'phrase',en:'Do you have Hawaiian shirts?',ja:'アロハシャツはありますか?'},{type:'phrase',en:"Where's the kids' section?",ja:'子供用セクションはどこですか?'},{type:'phrase',en:"I'm looking for a gift.",ja:'贈り物を探しています'}]},{title:'商品確認・試着',items:[{type:'conv',speaker:'you',en:'Excuse me, how much is this?',ja:'すみません、これはいくらですか?'},{type:'conv',speaker:'other',en:"That's $35.",ja:'35ドルです'},{type:'conv',speaker:'you',en:'Do you have this in different colors?',ja:'違う色はありますか?'},{type:'conv',speaker:'other',en:'Yes! We have it in blue, red, and green.',ja:'はい!青、赤、緑があります'},{type:'conv',speaker:'you',en:'Do you have this in a larger size?',ja:'これのもっと大きいサイズはありますか?'},{type:'conv',speaker:'other',en:"Let me check... Yes, here's a large.",ja:'確認します...はい、ラージがあります'},{type:'conv',speaker:'you',en:'Can I try this on?',ja:'これを試着できますか?'},{type:'conv',speaker:'other',en:'Of course! The fitting rooms are over there.',ja:'もちろん!試着室はあちらです'},{type:'phrase',en:'Where are the fitting rooms?',ja:'試着室はどこですか?'},{type:'phrase',en:'Does this come in other patterns?',ja:'これは他の柄もありますか?'}]},{title:'サイズ確認',items:[{type:'conv',speaker:'you',en:'What size is this?',ja:'これは何サイズですか?'},{type:'conv',speaker:'other',en:"That's a medium.",ja:'それはミディアムです'},{type:'conv',speaker:'you',en:'Do you have this in medium?',ja:'これのMサイズはありますか?'},{type:'conv',speaker:'other',en:'Let me check the back... Yes, here you go!',ja:'裏を確認します...はい、どうぞ!'},{type:'phrase',en:"I'm looking for size small.",ja:'Sサイズを探しています'},{type:'conv',speaker:'you',en:'Is this true to size?',ja:'これは通常サイズ通りですか?'},{type:'conv',speaker:'other',en:'Yes, it fits true to size.',ja:'はい、通常サイズ通りです'},{type:'conv',speaker:'you',en:'This is too big.',ja:'これは大きすぎます'},{type:'conv',speaker:'you',en:'This is too small.',ja:'これは小さすぎます'},{type:'conv',speaker:'other',en:'Let me get you a different size.',ja:'別のサイズをお持ちします'}]},{title:'複数購入・まとめ買い',items:[{type:'conv',speaker:'you',en:'We need several of these.',ja:'これを何個か必要です'},{type:'conv',speaker:'other',en:'How many would you like?',ja:'いくつ必要ですか?'},{type:'conv',speaker:'you',en:"I'll take three of these.",ja:'これを3つください'},{type:'conv',speaker:'you',en:'Do you have group discounts?',ja:'グループ割引はありますか?'},{type:'conv',speaker:'other',en:'If you buy 5 or more, you get 10% off.',ja:'5つ以上買うと10%オフです'},{type:'phrase',en:'If I buy 5, do I get a discount?',ja:'5つ買ったら割引はありますか?'},{type:'phrase',en:'Can I get a better price for buying multiple items?',ja:'複数購入で安くなりますか?'},{type:'conv',speaker:'other',en:'Let me ask my manager.',ja:'マネージャーに聞いてみます'}]},{title:'商品の詳細確認',items:[{type:'conv',speaker:'you',en:"What's this made of?",ja:'これは何でできていますか?'},{type:'conv',speaker:'other',en:"It's 100% cotton.",ja:'100%コットンです'},{type:'phrase',en:'Is this 100% cotton?',ja:'これは100%コットンですか?'},{type:'conv',speaker:'you',en:'Is this machine washable?',ja:'これは洗濯機で洗えますか?'},{type:'conv',speaker:'other',en:'Yes, cold water, gentle cycle.',ja:'はい、冷水で優しく洗ってください'},{type:'conv',speaker:'you',en:'Is this authentic Hawaiian?',ja:'これは本物のハワイ産ですか?'},{type:'conv',speaker:'other',en:"Yes, it's made right here in Hawaii!",ja:'はい、ここハワイで作られています!'},{type:'conv',speaker:'you',en:'Where is this made?',ja:'これはどこ製ですか?'},{type:'conv',speaker:'other',en:'This is made in Hawaii.',ja:'これはハワイ製です'}]},{title:'セール・値引き',items:[{type:'conv',speaker:'you',en:'Is this on sale?',ja:'これはセール中ですか?'},{type:'conv',speaker:'other',en:"Yes! It's 20% off today.",ja:'はい!今日は20%オフです'},{type:'conv',speaker:'you',en:'When does the sale end?',ja:'セールはいつ終わりますか?'},{type:'conv',speaker:'other',en:'The sale ends Sunday.',ja:'日曜日に終わります'},{type:'conv',speaker:'you',en:'Do you have any promotions right now?',ja:'今何かプロモーションはありますか?'},{type:'conv',speaker:'other',en:'Buy 2, get 1 free on all t-shirts!',ja:'Tシャツ全品、2つ買うと1つ無料です!'},{type:'phrase',en:'Is there a discount for this?',ja:'これに割引はありますか?'},{type:'conv',speaker:'you',en:"What's your best price?",ja:'一番安い値段はいくらですか?'},{type:'conv',speaker:'other',en:'This is the best price I can offer.',ja:'これが最安値です'}]},{title:'支払い・会計',items:[{type:'conv',speaker:'you',en:"I'm ready to check out.",ja:'お会計をお願いします'},{type:'conv',speaker:'other',en:'Great! Did you find everything okay?',ja:'素晴らしい!お探しのものは見つかりましたか?'},{type:'conv',speaker:'you',en:'Yes, thank you!',ja:'はい、ありがとうございます!'},{type:'conv',speaker:'other',en:'Your total is $127.50.',ja:'合計127ドル50セントです'},{type:'conv',speaker:'you',en:'Can I pay with credit card?',ja:'クレジットカードで支払えますか?'},{type:'conv',speaker:'other',en:'Of course! Tap or insert.',ja:'もちろん!タップまたは挿入してください'},{type:'conv',speaker:'you',en:'Could we split this between two cards?',ja:'2枚のカードで分割できますか?'},{type:'conv',speaker:'other',en:'Sure! How much on each card?',ja:'もちろん!各カードいくらずつですか?'},{type:'conv',speaker:'you',en:'$60 on this one, the rest on the other.',ja:'これに60ドル、残りをもう一枚に'},{type:'phrase',en:"We'd like to pay separately.",ja:'別々に支払いたいです'},{type:'phrase',en:'Could I get a receipt?',ja:'レシートをもらえますか?'},{type:'conv',speaker:'other',en:"It's in the bag!",ja:'袋の中に入っています!'},{type:'conv',speaker:'you',en:'Do you offer tax-free shopping?',ja:'免税ショッピングはできますか?'},{type:'conv',speaker:'other',en:'Yes, with your passport. Do you have it?',ja:'はい、パスポートがあれば。お持ちですか?'}]},{title:'返品・交換',items:[{type:'conv',speaker:'you',en:"What's your return policy?",ja:'返品ポリシーはどうなっていますか?'},{type:'conv',speaker:'other',en:'You have 30 days with the receipt.',ja:'レシートがあれば30日以内です'},{type:'conv',speaker:'you',en:"Can I exchange this if it doesn't fit?",ja:'サイズが合わなかったら交換できますか?'},{type:'conv',speaker:'other',en:"Yes, as long as it's unworn with tags.",ja:'はい、未使用でタグ付きなら大丈夫です'},{type:'phrase',en:'How many days do I have to return this?',ja:'返品は何日以内ですか?'},{type:'conv',speaker:'you',en:'Do I need to keep the receipt?',ja:'レシートは取っておく必要がありますか?'},{type:'conv',speaker:'other',en:'Yes, please keep your receipt for returns.',ja:'はい、返品にはレシートを保管してください'}]},{title:'ギフト・ラッピング',items:[{type:'conv',speaker:'you',en:'Could you gift wrap this?',ja:'これをギフト包装してもらえますか?'},{type:'conv',speaker:'other',en:'Sure! Is it for a special occasion?',ja:'もちろん!特別な日のためですか?'},{type:'conv',speaker:'you',en:"It's a gift.",ja:'これは贈り物です'},{type:'conv',speaker:'you',en:'Is gift wrapping free?',ja:'ギフト包装は無料ですか?'},{type:'conv',speaker:'other',en:'Yes, complimentary!',ja:'はい、無料です!'},{type:'conv',speaker:'you',en:'Could you put these in separate bags?',ja:'これらを別々の袋に入れてもらえますか?'},{type:'conv',speaker:'other',en:'No problem!',ja:'問題ありません!'}]}]},
+            'holo-bus': {title:'🚌 ホロカード購入・バス 実用会話例',sections:[{title:'カード購入',items:[{type:'conv',speaker:'you',en:"Hi, we'd like to buy HOLO cards.",ja:'こんにちは、ホロカードを購入したいです'},{type:'conv',speaker:'other',en:'Sure! How many do you need?',ja:'もちろん!何枚必要ですか?'},{type:'conv',speaker:'you',en:'We need 2 senior cards and 3 youth cards.',ja:'シニアカード2枚とユースカード3枚'},{type:'conv',speaker:'other',en:'Okay. Do you have ID for the senior and youth cards?',ja:'わかりました。シニアとユースカード用の身分証明書はありますか?'},{type:'conv',speaker:'you',en:'Yes, here you are.',ja:'はい、どうぞ'},{type:'conv',speaker:'you',en:"What's the price for each type?",ja:'各タイプの料金はいくらですか?'},{type:'conv',speaker:'other',en:'Adult is $3, senior is $1, youth is $1.50.',ja:'大人は3ドル、シニアは1ドル、ユースは1.50ドルです'},{type:'conv',speaker:'you',en:'Do we need to put money on the cards?',ja:'カードにお金を入れる必要がありますか?'},{type:'conv',speaker:'other',en:'Yes, you can add value at the machine or online.',ja:'はい、機械またはオンラインでチャージできます'}]},{title:'バス利用',items:[{type:'conv',speaker:'you',en:'Excuse me, does this bus go to Waikiki?',ja:'すみません、このバスはワイキキに行きますか?'},{type:'conv',speaker:'other',en:'Yes, this is the number 8 to Waikiki.',ja:'はい、これはワイキキ行き8番です'},{type:'conv',speaker:'you',en:'How much is the fare?',ja:'運賃はいくらですか?'},{type:'conv',speaker:'other',en:'$3 with exact change, or use your HOLO card.',ja:'ちょうど3ドル、またはホロカードが使えます'},{type:'conv',speaker:'you',en:'Could you tell me when we reach Waikiki Beach?',ja:'ワイキキビーチに着いたら教えてもらえますか?'},{type:'conv',speaker:'other',en:"Sure, I'll let you know.",ja:'もちろん、お知らせします'},{type:'conv',speaker:'you',en:'How long does it take to get to Ala Moana?',ja:'アラモアナまでどのくらいかかりますか?'},{type:'conv',speaker:'other',en:'About 20 minutes.',ja:'約20分です'}]}]},
+            'uber-taxi': {title:'🚕 Uber・タクシー 実用会話例',sections:[{title:'予約・乗車',items:[{type:'conv',speaker:'other',en:'Hi! Are you Tanaka?',ja:'こんにちは!田中さんですか?'},{type:'conv',speaker:'you',en:"Yes, that's us!",ja:'はい、私たちです!'},{type:'conv',speaker:'other',en:'Going to Waikiki Beach?',ja:'ワイキキビーチまでですか?'},{type:'conv',speaker:'you',en:"Yes, that's right.",ja:'はい、その通りです'},{type:'conv',speaker:'you',en:'We have 8 people. Is that okay?',ja:'8人います。大丈夫ですか?'},{type:'conv',speaker:'other',en:'Yes, I have a van. No problem!',ja:'はい、バンなので問題ありません!'},{type:'conv',speaker:'you',en:'Could you help us with our luggage?',ja:'荷物を手伝ってもらえますか?'},{type:'conv',speaker:'other',en:'Of course! Let me get that for you.',ja:'もちろん!お手伝いします'},{type:'conv',speaker:'you',en:'We have several suitcases.',ja:'スーツケースがいくつかあります'},{type:'conv',speaker:'other',en:'No worries, plenty of room!',ja:'心配いりません、十分スペースがあります!'}]},{title:'ルート・時間',items:[{type:'conv',speaker:'you',en:'How long will it take?',ja:'どのくらい時間がかかりますか?'},{type:'conv',speaker:'other',en:'About 25 minutes without traffic.',ja:'渋滞がなければ約25分です'},{type:'conv',speaker:'you',en:'Could you take the fastest route?',ja:'最短ルートで行ってもらえますか?'},{type:'conv',speaker:'other',en:"Sure! I'll take the highway.",ja:'もちろん!ハイウェイで行きます'},{type:'conv',speaker:'you',en:'Is there a scenic route?',ja:'景色の良いルートはありますか?'},{type:'conv',speaker:'other',en:"Yes! I can take the coastal road. It's beautiful!",ja:'はい!海岸道路で行けます。美しいですよ!'},{type:'conv',speaker:'you',en:"We're not in a hurry. Let's take that route.",ja:'急いではいません。そのルートでお願いします'}]},{title:'途中で立ち寄り',items:[{type:'conv',speaker:'you',en:'Excuse me, could we make a quick stop at a bakery on the way?',ja:'すみません、途中でベーカリーに短時間立ち寄れますか?'},{type:'conv',speaker:'other',en:'Sure, no problem! Do you have a specific place in mind?',ja:'もちろん、問題ありません!特定の場所がありますか?'},{type:'conv',speaker:'you',en:'Not really. Is there a good bakery nearby?',ja:'特にありません。近くに良いベーカリーはありますか?'},{type:'conv',speaker:'other',en:"There's a great one just 2 minutes off our route.",ja:'ルートから2分の所に素晴らしい店があります'},{type:'conv',speaker:'you',en:'Perfect! How much extra would that cost?',ja:'完璧!追加でいくらかかりますか?'},{type:'conv',speaker:'other',en:"Don't worry about it. It's very close.",ja:'心配いりません。とても近いです'},{type:'conv',speaker:'you',en:"Thank you so much! We'll just be 5 minutes.",ja:'本当にありがとう!5分だけです'},{type:'conv',speaker:'other',en:'Take your time!',ja:'ごゆっくりどうぞ!'},{type:'phrase',en:'Is it okay to stop somewhere on the way?',ja:'途中でどこかに立ち寄っても大丈夫ですか?'},{type:'phrase',en:'Could we add a stop to our trip?',ja:'途中で立ち寄り先を追加できますか?'}]},{title:'車内・サービス',items:[{type:'conv',speaker:'you',en:'Could you turn on the air conditioning?',ja:'エアコンをつけてもらえますか?'},{type:'conv',speaker:'other',en:'Sure! Is this temperature okay?',ja:'もちろん!この温度で大丈夫ですか?'},{type:'conv',speaker:'you',en:'Perfect, thank you!',ja:'完璧です、ありがとう!'},{type:'conv',speaker:'you',en:'Could you wait for us?',ja:'待っていてもらえますか?'},{type:'conv',speaker:'other',en:'How long will you be?',ja:'どのくらいかかりますか?'},{type:'conv',speaker:'you',en:"We'll be back in 5 minutes.",ja:'5分で戻ります'},{type:'conv',speaker:'other',en:'No problem!',ja:'問題ありません!'}]},{title:'支払い・チップ',items:[{type:'conv',speaker:'other',en:"We're here! Your total is $35.",ja:'到着しました!合計35ドルです'},{type:'conv',speaker:'you',en:"I'll pay through the app.",ja:'アプリで支払います'},{type:'conv',speaker:'other',en:'Great! Thanks for riding with me.',ja:'素晴らしい!ご利用ありがとうございました'},{type:'conv',speaker:'you',en:"Here's $40. Keep the change.",ja:'40ドルです。お釣りは取っておいてください'},{type:'conv',speaker:'other',en:'Thank you so much! Have a great day!',ja:'本当にありがとうございます!良い一日を!'},{type:'conv',speaker:'you',en:"Here's some extra for you.",ja:'これは追加であなたへのものです'},{type:'conv',speaker:'other',en:"That's very kind! I appreciate it.",ja:'とても親切ですね!感謝します'}]},{title:'トラブル対応',items:[{type:'conv',speaker:'you',en:"I can't find my Uber.",ja:'Uberが見つかりません'},{type:'conv',speaker:'other',en:"I'm in a white van. Where are you?",ja:'白いバンです。どこにいますか?'},{type:'conv',speaker:'you',en:"I'm in front of the hotel.",ja:'ホテルの前にいます'},{type:'conv',speaker:'you',en:'What color is your car?',ja:'車は何色ですか?'},{type:'conv',speaker:'other',en:"It's a black SUV.",ja:'黒いSUVです'},{type:'conv',speaker:'you',en:'Could you flash your lights?',ja:'ライトを点滅させてもらえますか?'},{type:'conv',speaker:'other',en:'Sure! Do you see me now?',ja:'もちろん!見えますか?'},{type:'conv',speaker:'you',en:'Yes! I see you!',ja:'はい!見えました!'}]}]},
+            'beach': {title:'🏖️ ビーチ・アクティビティ 実用会話例',sections:[{title:'ビーチ・安全確認',items:[{type:'conv',speaker:'you',en:'Excuse me, is it safe to swim here?',ja:'すみません、ここで泳いでも安全ですか?'},{type:'conv',speaker:'other',en:"Yes, but stay within the flags. There's a current past the reef.",ja:'はい、でも旗の内側にいてください。リーフの先は流れがあります'},{type:'conv',speaker:'you',en:'Are there lifeguards?',ja:'ライフガードはいますか?'},{type:'conv',speaker:'other',en:"Yes, we're here until 5 PM.",ja:'はい、午後5時までいます'},{type:'conv',speaker:'you',en:'Where are the restrooms?',ja:'お手洗いはどこですか?'},{type:'conv',speaker:'other',en:'Over there, next to the snack bar.',ja:'あちら、スナックバーの隣です'}]},{title:'レンタル',items:[{type:'conv',speaker:'you',en:'Where can we rent beach chairs?',ja:'ビーチチェアはどこでレンタルできますか?'},{type:'conv',speaker:'other',en:'Right here! We have chairs and umbrellas.',ja:'ここです!チェアとパラソルがあります'},{type:'conv',speaker:'you',en:'Do you have group rates?',ja:'グループ料金はありますか?'},{type:'conv',speaker:'other',en:'Yes! 4 chairs and 2 umbrellas for $40.',ja:'はい!チェア4つとパラソル2つで40ドルです'},{type:'conv',speaker:'you',en:"We'll take that.",ja:'それでお願いします'},{type:'conv',speaker:'other',en:'How long do you need them?',ja:'どのくらいの時間必要ですか?'},{type:'conv',speaker:'you',en:'All day, please.',ja:'一日お願いします'}]}]},
+            'money': {title:'💰 お金・支払い',sections:[{title:'現金支払い',items:[{type:'phrase',en:"I'll pay with cash.",ja:'現金で支払います'},{type:'phrase',en:"Here's a twenty.",ja:'20ドル札です'},{type:'phrase',en:'I have exact change.',ja:'ちょうどあります'},{type:'phrase',en:'Your change is $3.75.',ja:'お釣りは3ドル75セントです'}]},{title:'金額の読み方',items:[{type:'phrase',en:'$15.50 = "Fifteen fifty"',ja:'$15.50 = "Fifteen fifty"'},{type:'phrase',en:'$3.25 = "Three twenty-five"',ja:'$3.25 = "Three twenty-five"'},{type:'phrase',en:'$20.00 = "Twenty dollars"',ja:'$20.00 = "Twenty dollars"'}]}]},
+            'emergency': {title:'🚨 困った時・緊急時',sections:[{title:'緊急フレーズ',items:[{type:'phrase',en:'I need help.',ja:'助けが必要です'},{type:'phrase',en:"I don't understand.",ja:'理解できません'},{type:'phrase',en:'Could you speak slowly?',ja:'ゆっくり話してもらえますか?'},{type:'phrase',en:'Where is the nearest hospital?',ja:'一番近い病院はどこですか?'},{type:'phrase',en:"I'm lost.",ja:'道に迷いました'}]}]},
+            'general': {title:'🌟 汎用フレーズ',sections:[{title:'基本の汎用フレーズ',items:[{type:'phrase',en:'Excuse me.',ja:'すみません'},{type:'phrase',en:'Thank you so much!',ja:'ありがとうございます'},{type:'phrase',en:'Could you take our picture?',ja:'写真を撮ってもらえますか?'},{type:'phrase',en:'What time is it?',ja:'今何時ですか?'},{type:'phrase',en:'Where is...?',ja:'...はどこですか?'},{type:'phrase',en:'How much?',ja:'いくらですか?'},{type:'phrase',en:'Aloha!',ja:'アロハ!'},{type:'phrase',en:'Mahalo!',ja:'マハロ!'}]}]},
+            'patterns': {title:'📝 簡単で実用的な基本パターン大全集',sections:[{title:'最重要5つの万能パターン',items:[{type:'note',text:'【1】Could you + 動詞 + please?(丁寧なお願い)<br>• Could you help me? (助けてもらえますか?)<br>• Could you wait for us? (待ってもらえますか?)<br>• Could you speak slowly? (ゆっくり話してもらえますか?)<br>• Could you call a taxi? (タクシーを呼んでもらえますか?)<br>• Could you take our picture? (写真を撮ってもらえますか?)'},{type:'note',text:'【2】Do you have + 名詞?(有無確認)<br>• Do you have a kids\' menu? (キッズメニューはありますか?)<br>• Do you have WiFi? (WiFiはありますか?)<br>• Do you have group discounts? (グループ割引はありますか?)<br>• Do you have decaf coffee? (デカフェコーヒーはありますか?)<br>• Do you have free refills? (おかわり自由ですか?)'},{type:'note',text:'【3】Where is/are + 名詞?(場所確認)<br>• Where is the restroom? (お手洗いはどこですか?)<br>• Where are the elevators? (エレベーターはどこですか?)<br>• Where is the nearest ATM? (一番近いATMはどこですか?)<br>• Where are you parked? (どこに駐車していますか?)'},{type:'note',text:'【4】How much/long/many + 動詞?(数量・時間・値段)<br>• How much is this? (これはいくらですか?)<br>• How long will it take? (どのくらい時間がかかりますか?)<br>• How many people can fit? (何人乗れますか?)<br>• How much does it cost? (いくらかかりますか?)'},{type:'note',text:"【5】We'd like to + 動詞(希望表現)<br>• We'd like to check in. (チェックインしたいです)<br>• We'd like to order. (注文したいです)<br>• We'd like to pay separately. (別々に支払いたいです)<br>• We'd like to buy HOLO cards. (ホロカードを購入したいです)"}]},{title:'人数・数量パターン',items:[{type:'note',text:'【人数を伝える】<br>• We\'re a group/party of [数字] = [数字]人のグループです<br>• Table for [数字], please = [数字]名でお願いします<br>• We need transportation for [数字] people = [数字]人用の交通手段が必要です'},{type:'note',text:'【分ける・個数を伝える】<br>• [数字] of us want... = [数字]人が...を欲しがっています<br>例:Three of us want coffee. (3人がコーヒーを欲しがっています)<br>例:Half of us want dessert. (半分の人がデザートを欲しがっています)<br>• We need [数字] of these = これを[数字]個必要です<br>• [数字] with..., [数字] without... = [数字]個は...付き、[数字]個は...なし'}]},{title:'注文・依頼パターン',items:[{type:'note',text:'【注文する時】<br>• I\'ll have + 商品名 = [商品名]をお願いします<br>• We\'ll take + 商品名 = [商品名]をお願いします<br>• Could I get + 商品名? = [商品名]をもらえますか?'},{type:'note',text:'【指差し注文パターン】<br>• This one (pointing) - how many? = これ(指差し) - 何個?<br>• Two of these, three of those = これを2つ、あれを3つ<br>• Same for everyone = みんな同じで<br>• Different for each person = 一人一人違います<br>• Let me point to what we want = 欲しいものを指差しします'},{type:'note',text:'【注文完了の合図】<br>• That\'s it. = 以上です<br>• That\'s good for now. = とりあえずこれで大丈夫です<br>• That\'s all for now. = 今のところこれで全部です<br>• We\'re all set. = これで全部揃いました'},{type:'note',text:'【追加・お代わり】<br>• Could we get more + 名詞? = [名詞]を追加でもらえますか?<br>• Another + 名詞, please = [名詞]をもう一つお願いします<br>• Extra + 名詞, please = [名詞]を多めにお願いします'}]},{title:'支払いパターン',items:[{type:'note',text:'【支払い方法】<br>• I\'ll pay with + 方法 = [方法]で支払います<br>例:I\'ll pay with cash. (現金で)<br>例:I\'ll pay with credit card. (クレジットカードで)<br>例:I\'ll pay through the app. (アプリで)'},{type:'note',text:'【分割支払い】<br>• Could we split + 名詞? = [名詞]を分けられますか?<br>例:Could we split the bill? (お会計を分けられますか?)<br>例:Could we split this order? (この注文を分けられますか?)<br>• Separate + 名詞, please = 別々の[名詞]でお願いします<br>例:Separate checks, please. (別々のお会計で)'},{type:'note',text:'【まとめて支払い】<br>• I\'ll pay for everyone. = 私がまとめて支払います<br>• Put it all on one bill. = 全部一つのお会計にしてください<br>• I\'ll take care of the whole table. = テーブル全体の分を私が支払います<br>• Everything goes on my card. = 全部私のカードで支払います'},{type:'note',text:'【チップ・お釣り】<br>• Keep the change = お釣りは取っておいてください<br>• Here\'s [金額] for you = これは[金額]あなたへのものです'}]},{title:'会話をスムーズにする相槌・返事パターン',items:[{type:'note',text:'【基本の応答パターン】<br>"Yes"の言い方バリエーション:<br>• Yes, please. (はい、お願いします)<br>• Absolutely! (もちろんです!)<br>• Sure! (いいですよ!)<br>• That sounds good. (それは良いですね)<br>• Perfect! (完璧です!)<br><br>"No"の丁寧な言い方:<br>• No, thank you. (いいえ、結構です)<br>• I\'m okay, thanks. (大丈夫です、ありがとう)<br>• Maybe next time. (また今度で)<br>• Not right now. (今はちょっと)'},{type:'note',text:'【理解を示す相槌】<br>• I see. = なるほど<br>• Got it. = わかりました<br>• Right. = そうですね<br>• That makes sense. = それは納得です<br>• I understand. = 理解しました'},{type:'note',text:'【興味を示す相槌】<br>• Really? = 本当に?<br>• That\'s interesting! = それは興味深いですね!<br>• Tell me more. = もっと教えてください<br>• How cool! = すごいですね!'},{type:'note',text:'【聞き返し・確認パターン】<br>• Sorry, I didn\'t catch that. = すみません、聞き取れませんでした<br>• Could you say that again? = もう一度言ってもらえますか?<br>• What does that mean? = それはどういう意味ですか?<br>• Could you speak slower? = もっとゆっくり話してもらえますか?<br>• Pardon me? = すみません?(もう一度お願いします)'}]},{title:'覚えやすい組み合わせテクニック',items:[{type:'note',text:'【基本形 + Please の法則】<br>どんな依頼も最後に"please"を付けるだけで丁寧になる<br>• Help me, please. (手伝ってください)<br>• Wait here, please. (ここで待ってください)<br>• Speak slowly, please. (ゆっくり話してください)'},{type:'note',text:'【疑問詞 + is/are/do/does の組み合わせ】<br>• Where is/are = どこに<br>• What is/do = 何を/何が<br>• How much/long/many = どのくらい<br>• When do/does = いつ<br>• Who is/are = 誰が'},{type:'note',text:'【頻出動詞パターン】<br>• Go = 行く → We\'re going to...<br>• Need = 必要 → We need...<br>• Want = 欲しい → We want...<br>• Like = したい → We\'d like to...<br>• Have = 持つ・ある → Do you have...?'}]},{title:'緊急時の必須パターン',items:[{type:'note',text:'【助けを求める】<br>• I need + 名詞 = [名詞]が必要です<br>例:I need help. (助けが必要)<br>例:I need a doctor. (医者が必要)<br>例:I need directions. (道案内が必要)'},{type:'note',text:'【問題を報告】<br>• There\'s a problem with + 名詞 = [名詞]に問題があります<br>• Something is wrong = 何かおかしいです<br>• This is urgent = これは緊急です'}]}]}
+        };
+
+        // Render functions
+        function renderConversation(item) {
+            const speakerClass = item.speaker === 'you' ? 'speaker-you' : 'speaker-other';
+            const messageClass = item.speaker === 'you' ? 'message-you' : 'message-other';
+            return `
+                <div class="conversation">
+                    <div class="${speakerClass}">
+                        <div class="message ${messageClass}">
+                            <div class="english">${item.en}</div>
+                            <div class="japanese">${item.ja}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPhrase(item) {
+            return `
+                <div class="phrase-item">
+                    <div class="phrase-english">${item.en}</div>
+                    <div class="phrase-japanese">${item.ja}</div>
+                </div>
+            `;
+        }
+
+        function renderNote(item) {
+            return `<div class="note">${item.text}</div>`;
+        }
+
+        function renderSection(section) {
+            let html = `
+                <div class="section">
+                    <div class="section-title">${section.title}</div>
+            `;
+            section.items.forEach(item => {
+                if (item.type === 'conv') {
+                    html += renderConversation(item);
+                } else if (item.type === 'phrase') {
+                    html += renderPhrase(item);
+                } else if (item.type === 'note') {
+                    html += renderNote(item);
+                }
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function renderCategory(categoryId) {
+            const category = phrasesData[categoryId];
+            if (!category) return '';
+            
+            let html = `
+                <div class="category" id="${categoryId}">
+                    <div class="category-title">${category.title}</div>
+            `;
+            category.sections.forEach(section => {
+                html += renderSection(section);
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function renderAllContent() {
+            const content = document.getElementById('content');
+            let html = '';
+            for (let categoryId in phrasesData) {
+                html += renderCategory(categoryId);
+            }
+            content.innerHTML = html;
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const categories = document.querySelectorAll('.category');
+            
+            if (searchTerm === '') {
+                categories.forEach(cat => {
+                    cat.style.display = 'block';
+                    const sections = cat.querySelectorAll('.section');
+                    sections.forEach(sec => sec.style.display = 'block');
+                    const items = cat.querySelectorAll('.phrase-item, .conversation');
+                    items.forEach(item => item.style.display = '');
+                });
+                return;
+            }
+
+            categories.forEach(category => {
+                let categoryHasMatch = false;
+                const sections = category.querySelectorAll('.section');
+                
+                sections.forEach(section => {
+                    let sectionHasMatch = false;
+                    const items = section.querySelectorAll('.phrase-item, .conversation');
+                    
+                    items.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
+                            sectionHasMatch = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    if (sectionHasMatch) {
+                        section.style.display = 'block';
+                        categoryHasMatch = true;
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+                
+                category.style.display = categoryHasMatch ? 'block' : 'none';
+            });
+        });
+
+        // Scroll to category
+        function scrollToCategory(categoryId) {
+            const category = document.getElementById(categoryId);
+            if (category) {
+                category.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', renderAllContent);
+    </script>
+</body>
+</html>
