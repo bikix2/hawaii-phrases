@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌺 ハワイ英会話クイズ - 完全版</title>
+    <title>🏝️ ハワイ英会話クイズ - 完全版</title>
     <style>
         * {
             margin: 0;
@@ -31,7 +31,7 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
             padding: 25px;
             text-align: center;
@@ -84,6 +84,45 @@
             text-align: center;
         }
         
+        .mode-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .mode-card {
+            padding: 25px 15px;
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .mode-card:hover {
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(17,153,142,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .mode-card.active {
+            border-color: #11998e;
+            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
+        }
+        
+        .mode-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .mode-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #212529;
+        }
+        
         .menu-grid {
             display: grid;
             gap: 10px;
@@ -109,8 +148,8 @@
         }
         
         .menu-btn:hover {
-            border-color: #4facfe;
-            box-shadow: 0 4px 12px rgba(79,172,254,0.2);
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(17,153,142,0.2);
         }
         
         .menu-btn-title {
@@ -126,14 +165,14 @@
         }
         
         .menu-btn.active {
-            border-color: #4facfe;
-            background: #e7f5ff;
+            border-color: #11998e;
+            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
         }
         
         .start-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -195,7 +234,7 @@
         
         .question-box {
             background: #f8f9fa;
-            border-left: 5px solid #4facfe;
+            border-left: 5px solid #11998e;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 25px;
@@ -216,7 +255,7 @@
             background: #ffc107;
             color: #000;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: bold;
@@ -243,7 +282,7 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: bold;
@@ -276,8 +315,8 @@
         
         .answer-input:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79,172,254,0.1);
+            border-color: #11998e;
+            box-shadow: 0 0 0 3px rgba(17,153,142,0.1);
         }
         
         .clear-btn {
@@ -315,40 +354,48 @@
         }
         
         .btn {
-            padding: 15px 10px;
+            padding: 18px 10px;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 6px;
             flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .btn-check {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
             grid-column: 1 / -1;
-            font-size: 16px;
+            font-size: 18px;
             flex-direction: row;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(17,153,142,0.3);
+        }
+        
+        .btn-check:hover {
+            box-shadow: 0 6px 16px rgba(17,153,142,0.4);
+            transform: translateY(-2px);
         }
         
         .btn-voice {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
             color: white;
         }
         
         .btn-next {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             color: white;
         }
         
         .btn-prev {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
             color: white;
         }
         
@@ -357,6 +404,7 @@
             color: white;
             grid-column: 1 / -1;
             margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .btn:active {
@@ -439,13 +487,123 @@
         .stat-number {
             font-size: 24px;
             font-weight: bold;
-            color: #4facfe;
+            color: #11998e;
         }
         
         .stat-label {
             font-size: 12px;
             color: #6c757d;
             margin-top: 5px;
+        }
+        
+        /* スピーキング練習画面 */
+        .speaking-screen {
+            padding: 30px;
+        }
+        
+        .speaking-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #212529;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .speaking-phrase {
+            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #11998e;
+        }
+        
+        .speaking-japanese {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+            margin-bottom: 15px;
+        }
+        
+        .speaking-english {
+            font-size: 18px;
+            color: #11998e;
+            font-weight: bold;
+        }
+        
+        .recognition-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+        }
+        
+        .recognition-text {
+            font-size: 18px;
+            color: #212529;
+            font-weight: bold;
+        }
+        
+        .recognition-placeholder {
+            font-size: 16px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .practice-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .practice-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .practice-btn-record {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .practice-btn-listen {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .practice-btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
         
         /* 結果画面 */
@@ -484,7 +642,7 @@
         
         .result-stat-value {
             font-weight: bold;
-            color: #4facfe;
+            color: #11998e;
             font-size: 24px;
         }
         
@@ -518,7 +676,7 @@
         .stats-card-value {
             font-size: 32px;
             font-weight: bold;
-            color: #4facfe;
+            color: #11998e;
         }
         
         .stats-grid {
@@ -559,8 +717,13 @@
             }
             
             .btn {
-                font-size: 12px;
-                padding: 12px 5px;
+                font-size: 13px;
+                padding: 15px 8px;
+            }
+            
+            .btn-check {
+                font-size: 16px;
+                padding: 20px;
             }
             
             .result-emoji {
@@ -574,13 +737,21 @@
             .menu-btn-desc {
                 font-size: 11px;
             }
+            
+            .mode-icon {
+                font-size: 32px;
+            }
+            
+            .mode-title {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌺 ハワイ英会話クイズ</h1>
+            <h1>🏝️ ハワイ英会話レッスン</h1>
             <div class="score" id="scoreDisplay">
                 スコア: <span id="score">0</span> / <span id="total">0</span>
             </div>
@@ -592,53 +763,68 @@
         
         <!-- メインメニュー画面 -->
         <div class="menu-screen" id="mainMenu">
-            <div class="menu-title">🎯 シーンを選択</div>
+            <div class="menu-title">📚 モードを選択</div>
             
-            <div class="menu-grid scene-grid">
-                <div class="menu-btn active" data-mode="random" onclick="selectScene('random')">
-                    <div class="menu-btn-title">🔀 ランダム</div>
-                    <div class="menu-btn-desc">全シーンから出題</div>
+            <div class="mode-selection">
+                <div class="mode-card active" data-mainmode="quiz" onclick="selectMainMode('quiz')">
+                    <div class="mode-icon">📝</div>
+                    <div class="mode-title">クイズモード</div>
                 </div>
-                <div class="menu-btn" data-mode="airport" onclick="selectScene('airport')">
-                    <div class="menu-btn-title">✈️ 空港</div>
-                    <div class="menu-btn-desc">入国審査、荷物受取</div>
-                </div>
-                <div class="menu-btn" data-mode="hotel" onclick="selectScene('hotel')">
-                    <div class="menu-btn-title">🏨 ホテル</div>
-                    <div class="menu-btn-desc">チェックイン、サービス</div>
-                </div>
-                <div class="menu-btn" data-mode="dining" onclick="selectScene('dining')">
-                    <div class="menu-btn-title">🍽️ 食事</div>
-                    <div class="menu-btn-desc">注文、会計</div>
-                </div>
-                <div class="menu-btn" data-mode="shopping" onclick="selectScene('shopping')">
-                    <div class="menu-btn-title">🛍️ 買い物</div>
-                    <div class="menu-btn-desc">試着、支払い</div>
-                </div>
-                <div class="menu-btn" data-mode="transport" onclick="selectScene('transport')">
-                    <div class="menu-btn-title">🚗 交通</div>
-                    <div class="menu-btn-desc">バス、タクシー</div>
-                </div>
-                <div class="menu-btn" data-mode="emergency" onclick="selectScene('emergency')">
-                    <div class="menu-btn-title">🆘 緊急</div>
-                    <div class="menu-btn-desc">病気、トラブル</div>
+                <div class="mode-card" data-mainmode="speaking" onclick="selectMainMode('speaking')">
+                    <div class="mode-icon">🎤</div>
+                    <div class="mode-title">スピーキング練習</div>
                 </div>
             </div>
             
-            <div class="menu-title" style="margin-top: 20px;">📊 レベルを選択</div>
-            <div class="menu-grid level-grid">
-                <div class="menu-btn active" data-level="all" onclick="selectLevel('all')">
-                    <div class="menu-btn-title">🌟 全て</div>
+            <div id="quizSettings">
+                <div class="menu-title">🎯 シーンを選択</div>
+                
+                <div class="menu-grid scene-grid">
+                    <div class="menu-btn active" data-mode="random" onclick="selectScene('random')">
+                        <div class="menu-btn-title">🔀 ランダム</div>
+                        <div class="menu-btn-desc">全シーンから出題</div>
+                    </div>
+                    <div class="menu-btn" data-mode="airport" onclick="selectScene('airport')">
+                        <div class="menu-btn-title">✈️ 空港</div>
+                        <div class="menu-btn-desc">入国審査、荷物受取</div>
+                    </div>
+                    <div class="menu-btn" data-mode="hotel" onclick="selectScene('hotel')">
+                        <div class="menu-btn-title">🏨 ホテル</div>
+                        <div class="menu-btn-desc">チェックイン、サービス</div>
+                    </div>
+                    <div class="menu-btn" data-mode="dining" onclick="selectScene('dining')">
+                        <div class="menu-btn-title">🍽️ 食事</div>
+                        <div class="menu-btn-desc">注文、会計</div>
+                    </div>
+                    <div class="menu-btn" data-mode="shopping" onclick="selectScene('shopping')">
+                        <div class="menu-btn-title">🛍️ 買い物</div>
+                        <div class="menu-btn-desc">試着、支払い</div>
+                    </div>
+                    <div class="menu-btn" data-mode="transport" onclick="selectScene('transport')">
+                        <div class="menu-btn-title">🚗 交通</div>
+                        <div class="menu-btn-desc">バス、タクシー</div>
+                    </div>
+                    <div class="menu-btn" data-mode="emergency" onclick="selectScene('emergency')">
+                        <div class="menu-btn-title">🆘 緊急</div>
+                        <div class="menu-btn-desc">病気、トラブル</div>
+                    </div>
                 </div>
-                <div class="menu-btn" data-level="beginner" onclick="selectLevel('beginner')">
-                    <div class="menu-btn-title">🟢 初級</div>
-                </div>
-                <div class="menu-btn" data-level="advanced" onclick="selectLevel('advanced')">
-                    <div class="menu-btn-title">🔴 上級</div>
+                
+                <div class="menu-title" style="margin-top: 20px;">📊 レベルを選択</div>
+                <div class="menu-grid level-grid">
+                    <div class="menu-btn active" data-level="all" onclick="selectLevel('all')">
+                        <div class="menu-btn-title">🌟 全て</div>
+                    </div>
+                    <div class="menu-btn" data-level="beginner" onclick="selectLevel('beginner')">
+                        <div class="menu-btn-title">🟢 初級</div>
+                    </div>
+                    <div class="menu-btn" data-level="advanced" onclick="selectLevel('advanced')">
+                        <div class="menu-btn-title">🔴 上級</div>
+                    </div>
                 </div>
             </div>
             
-            <button class="start-btn" onclick="startQuiz()">クイズを開始 🚀</button>
+            <button class="start-btn" onclick="startMode()">開始 🚀</button>
             <button class="stats-btn" onclick="showStats()">📊 学習統計を見る</button>
         </div>
         
@@ -670,7 +856,7 @@
             </div>
             
             <button class="btn btn-check" id="checkBtn" onclick="checkAnswer()">
-                回答をチェック ✓
+                ✓ 回答をチェック
             </button>
             
             <div class="button-group">
@@ -708,6 +894,44 @@
             </div>
         </div>
         
+        <!-- スピーキング練習画面 -->
+        <div class="speaking-screen hidden" id="speakingScreen">
+            <div class="speaking-title">🎤 スピーキング練習</div>
+            
+            <div class="speaking-phrase">
+                <div class="speaking-japanese" id="speakingJapanese">休暇です</div>
+                <div class="speaking-english" id="speakingEnglish">Vacation.</div>
+            </div>
+            
+            <div class="recognition-box">
+                <div class="recognition-placeholder" id="recognitionPlaceholder">マイクボタンを押して話してください</div>
+                <div class="recognition-text hidden" id="recognitionText"></div>
+            </div>
+            
+            <div class="score-display hidden" id="scoreDisplay2">
+                <div class="score-label">発音スコア</div>
+                <div class="score-value" id="scoreValue">0</div>
+                <div class="score-label" id="scoreMessage">録音してください</div>
+            </div>
+            
+            <div class="practice-buttons">
+                <button class="practice-btn practice-btn-record" id="recordBtn" onclick="togglePracticeRecording()">
+                    <span id="recordIcon">🎤</span>
+                    <span id="recordText">録音開始</span>
+                </button>
+                <button class="practice-btn practice-btn-listen" onclick="speakPracticeAnswer()">
+                    🔊 お手本を聞く
+                </button>
+                <button class="practice-btn practice-btn-next" onclick="nextPracticePhrase()">
+                    ➡️ 次のフレーズ
+                </button>
+            </div>
+            
+            <button class="btn btn-menu" onclick="returnToMenu()">
+                メインメニューに戻る
+            </button>
+        </div>
+        
         <!-- 結果画面 -->
         <div class="result-screen hidden" id="resultScreen">
             <div class="result-emoji" id="resultEmoji">🎉</div>
@@ -728,7 +952,7 @@
                 </div>
             </div>
             
-            <button class="start-btn" onclick="startQuiz()">もう一度チャレンジ 🔄</button>
+            <button class="start-btn" onclick="startMode()">もう一度チャレンジ 🔄</button>
             <button class="stats-btn" onclick="returnToMenu()">メインメニューに戻る</button>
         </div>
         
@@ -850,6 +1074,7 @@
         };
 
         // グローバル変数
+        let currentMainMode = 'quiz';
         let selectedScene = 'random';
         let selectedLevel = 'all';
         let currentQuestions = [];
@@ -858,6 +1083,11 @@
         let incorrectCount = 0;
         let userAnswers = [];
         let hasAnswered = false;
+
+        // スピーキング練習用
+        let practicePhrases = [];
+        let currentPracticeIndex = 0;
+        let isPracticeRecording = false;
 
         // Web Speech API
         const synth = window.speechSynthesis;
@@ -874,13 +1104,23 @@
 
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
-                document.getElementById('answerInput').value = transcript;
-                document.getElementById('clearBtn').classList.add('show');
+                
+                if (currentMainMode === 'quiz') {
+                    document.getElementById('answerInput').value = transcript;
+                    document.getElementById('clearBtn').classList.add('show');
+                } else if (currentMainMode === 'speaking') {
+                    handlePracticeRecognition(transcript);
+                }
             };
 
             recognition.onerror = function(event) {
                 console.error('音声認識エラー:', event.error);
-                stopRecording();
+                if (currentMainMode === 'quiz') {
+                    stopRecording();
+                } else if (currentMainMode === 'speaking') {
+                    stopPracticeRecording();
+                }
+                
                 if (event.error === 'no-speech') {
                     alert('音声が検出されませんでした。もう一度お試しください。');
                 } else if (event.error === 'not-allowed') {
@@ -889,7 +1129,11 @@
             };
 
             recognition.onend = function() {
-                stopRecording();
+                if (currentMainMode === 'quiz') {
+                    stopRecording();
+                } else if (currentMainMode === 'speaking') {
+                    stopPracticeRecording();
+                }
             };
         }
 
@@ -922,6 +1166,19 @@
             document.getElementById('averageAccuracy').textContent = avgAcc + '%';
         }
 
+        // メインモード選択
+        function selectMainMode(mode) {
+            currentMainMode = mode;
+            document.querySelectorAll('[data-mainmode]').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-mainmode="${mode}"]`).classList.add('active');
+            
+            if (mode === 'speaking') {
+                document.getElementById('quizSettings').classList.add('hidden');
+            } else {
+                document.getElementById('quizSettings').classList.remove('hidden');
+            }
+        }
+
         // シーン選択
         function selectScene(scene) {
             selectedScene = scene;
@@ -934,6 +1191,15 @@
             selectedLevel = level;
             document.querySelectorAll('[data-level]').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-level="${level}"]`).classList.add('active');
+        }
+
+        // モード開始
+        function startMode() {
+            if (currentMainMode === 'quiz') {
+                startQuiz();
+            } else if (currentMainMode === 'speaking') {
+                startSpeakingPractice();
+            }
         }
 
         // クイズ開始
@@ -981,11 +1247,150 @@
             // 画面切り替え
             document.getElementById('mainMenu').classList.add('hidden');
             document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('speakingScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.add('hidden');
             document.getElementById('statsScreen').classList.add('hidden');
 
             showQuestion();
             updateProgress();
+        }
+
+        // スピーキング練習開始
+        function startSpeakingPractice() {
+            // 全フレーズを集める
+            practicePhrases = [];
+            for (let scene in phrasesDatabase) {
+                practicePhrases = practicePhrases.concat(phrasesDatabase[scene]);
+            }
+            practicePhrases = practicePhrases.sort(() => 0.5 - Math.random());
+            currentPracticeIndex = 0;
+
+            // 画面切り替え
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('speakingScreen').classList.remove('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('statsScreen').classList.add('hidden');
+
+            showPracticePhrase();
+        }
+
+        // 練習フレーズを表示
+        function showPracticePhrase() {
+            const phrase = practicePhrases[currentPracticeIndex];
+            document.getElementById('speakingJapanese').textContent = phrase.japanese;
+            document.getElementById('speakingEnglish').textContent = phrase.english;
+            
+            // リセット
+            document.getElementById('recognitionPlaceholder').classList.remove('hidden');
+            document.getElementById('recognitionText').classList.add('hidden');
+            document.getElementById('recognitionText').textContent = '';
+            document.getElementById('scoreDisplay2').classList.add('hidden');
+        }
+
+        // 練習用音声再生
+        function speakPracticeAnswer() {
+            if (synth.speaking) {
+                synth.cancel();
+                return;
+            }
+
+            const phrase = practicePhrases[currentPracticeIndex];
+            const utterance = new SpeechSynthesisUtterance(phrase.english);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            synth.speak(utterance);
+        }
+
+        // 練習用録音切り替え
+        function togglePracticeRecording() {
+            if (!recognition) {
+                alert('このブラウザは音声入力に対応していません。');
+                return;
+            }
+
+            if (isPracticeRecording) {
+                stopPracticeRecording();
+            } else {
+                startPracticeRecording();
+            }
+        }
+
+        // 練習用録音開始
+        function startPracticeRecording() {
+            isPracticeRecording = true;
+            document.getElementById('recordBtn').classList.add('recording');
+            document.getElementById('recordIcon').textContent = '⏺️';
+            document.getElementById('recordText').textContent = '録音中...';
+            recognition.start();
+        }
+
+        // 練習用録音停止
+        function stopPracticeRecording() {
+            isPracticeRecording = false;
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordIcon').textContent = '🎤';
+            document.getElementById('recordText').textContent = '録音開始';
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        // 練習用認識結果処理
+        function handlePracticeRecognition(transcript) {
+            const phrase = practicePhrases[currentPracticeIndex];
+            
+            document.getElementById('recognitionPlaceholder').classList.add('hidden');
+            document.getElementById('recognitionText').classList.remove('hidden');
+            document.getElementById('recognitionText').textContent = transcript;
+
+            // スコア計算（簡易版：正解テキストとの類似度）
+            const normalizedUser = normalizeAnswer(transcript);
+            const normalizedCorrect = normalizeAnswer(phrase.english);
+            
+            const alternatives = [normalizedCorrect];
+            if (phrase.alternatives) {
+                phrase.alternatives.forEach(alt => {
+                    alternatives.push(normalizeAnswer(alt));
+                });
+            }
+
+            const isCorrect = alternatives.some(alt => normalizedUser === alt);
+            
+            let score = 0;
+            let message = '';
+            
+            if (isCorrect) {
+                score = 100;
+                message = '完璧です！✨';
+            } else {
+                // 部分一致でスコア計算
+                const userWords = normalizedUser.split(' ');
+                const correctWords = normalizedCorrect.split(' ');
+                const matchCount = userWords.filter(word => correctWords.includes(word)).length;
+                score = Math.round((matchCount / correctWords.length) * 100);
+                
+                if (score >= 70) {
+                    message = 'もう少しです！💪';
+                } else if (score >= 40) {
+                    message = '頑張りましょう！📖';
+                } else {
+                    message = 'お手本を聞いてみましょう🔊';
+                }
+            }
+
+            document.getElementById('scoreDisplay2').classList.remove('hidden');
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        // 次の練習フレーズ
+        function nextPracticePhrase() {
+            currentPracticeIndex = (currentPracticeIndex + 1) % practicePhrases.length;
+            showPracticePhrase();
         }
 
         // 問題を表示
@@ -1072,7 +1477,7 @@
         // 音声入力切り替え
         function toggleVoiceInput() {
             if (!recognition) {
-                alert('このブラウザは音声入力に対応していません。Chromeをご利用ください。');
+                alert('このブラウザは音声入力に対応していません。');
                 return;
             }
 
@@ -1313,13 +1718,13 @@
             // 結果に応じた絵文字とメッセージ
             let emoji = '🎉';
             let title = 'クイズ完了！';
-            if (correctCount === 10) {
+            if (correctCount === totalQuestions) {
                 emoji = '🏆';
                 title = 'パーフェクト！';
-            } else if (correctCount >= 7) {
+            } else if (correctCount >= totalQuestions * 0.7) {
                 emoji = '🎉';
                 title = '素晴らしい！';
-            } else if (correctCount >= 5) {
+            } else if (correctCount >= totalQuestions * 0.5) {
                 emoji = '👍';
                 title = 'よくできました！';
             } else {
@@ -1352,9 +1757,13 @@
             if (isRecording) {
                 stopRecording();
             }
+            if (isPracticeRecording) {
+                stopPracticeRecording();
+            }
             
             document.getElementById('mainMenu').classList.remove('hidden');
             document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('speakingScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.add('hidden');
             document.getElementById('statsScreen').classList.add('hidden');
         }
