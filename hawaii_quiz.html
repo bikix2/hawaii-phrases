@@ -2410,17 +2410,55 @@ function toggleHint() {
 
 function speakAnswer() {
     const question = currentQuestions[currentQuestionIndex];
+    
+    // 既存の音声を停止
+    speechSynthesis.cancel();
+    
     const utterance = new SpeechSynthesisUtterance(question.english);
     utterance.lang = 'en-US';
-    utterance.rate = 1.0;
+    utterance.rate = 0.9;  // 通常再生（少し遅め）
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    console.log('=== 通常再生 ===');
+    console.log('Text:', question.english);
+    console.log('Rate:', utterance.rate, '(0.9倍速)');
+    
     speechSynthesis.speak(utterance);
 }
 
 function speakAnswerSlow() {
     const question = currentQuestions[currentQuestionIndex];
+    
+    // 既存の音声を停止
+    speechSynthesis.cancel();
+    
     const utterance = new SpeechSynthesisUtterance(question.english);
     utterance.lang = 'en-US';
-    utterance.rate = 0.5;
+    utterance.rate = 0.5;  // 0.5倍速（最も遅い設定）
+    utterance.pitch = 1.0;  // ピッチは標準
+    utterance.volume = 1.0; // 音量は最大
+    
+    // デバッグ用：設定をコンソールに表示
+    console.log('=== ゆっくり再生 ===');
+    console.log('Text:', question.english);
+    console.log('Rate:', utterance.rate, '(0.5倍速)');
+    console.log('Pitch:', utterance.pitch);
+    console.log('Volume:', utterance.volume);
+    
+    // 再生開始と終了をログ
+    utterance.onstart = function() {
+        console.log('ゆっくり再生開始');
+    };
+    
+    utterance.onend = function() {
+        console.log('ゆっくり再生終了');
+    };
+    
+    utterance.onerror = function(event) {
+        console.error('再生エラー:', event);
+    };
+    
     speechSynthesis.speak(utterance);
 }
 
