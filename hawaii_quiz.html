@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ ハワイ英会話クイズ - Gemini AI Edition</title>
+    <title>🏝️ ハワイ英会話クイズ - 完全版 (866フレーズ)</title>
     <style>
         * {
             margin: 0;
@@ -229,6 +229,9 @@
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
+            min-width: 60px;
+            display: inline-block;
+            text-align: center;
         }
         
         .level-badge {
@@ -238,6 +241,9 @@
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
+            min-width: 50px;
+            display: inline-block;
+            text-align: center;
         }
         
         .question-box {
@@ -1038,6 +1044,11 @@
         
         <!-- スピーキング練習画面 -->
         <div class="practice-screen screen" id="practiceScreen">
+            <div class="quiz-header">
+                <span class="scene-badge" id="practiceScene">全シーン</span>
+                <span class="level-badge" id="practiceLevelBadge">全レベル</span>
+            </div>
+            
             <div class="practice-box">
                 <div class="practice-japanese" id="practiceJapanese">日本語がここに表示されます</div>
                 <div class="practice-english" id="practiceEnglish">English answer will be shown here</div>
@@ -1199,6 +1210,7 @@ let currentQuestionIndex = 0;
 let correctCount = 0;
 let incorrectCount = 0;
 let isAnswerShown = false;
+let hasAnswered = []; // 各問題の回答済みフラグ
 
 // 音声認識
 let recognition = null;
@@ -1276,9 +1288,9 @@ let workerApiUrl = '';
 const sceneNames = {
     frequent: '頻出',
     airport: '空港',
+    transportation: '交通',
     hotel: 'ホテル',
-    transport: '交通',
-    food: '食事',
+    dining: '食事',
     shopping: '買い物',
     emergency: '緊急',
     smalltalk: 'スモールトーク'
@@ -2037,26 +2049,156 @@ const phrasesDatabase = {
         { japanese: '日本語が話せる医師はいますか?', english: '35. Is there a doctor who speaks Japanese?', hint: '35. で始まります', level: 'beginner' },
     ],
     smalltalk: [
+        { japanese: 'こんにちは!いい天気ですね!', english: 'Hi! Nice day!', hint: 'Hi! で始まります', level: 'beginner' },
+        { japanese: 'はい!とてもいいですね!', english: 'Yes! Very nice!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '休暇ですか?', english: 'Are you on vacation?', hint: 'Are で始まります', level: 'beginner' },
+        { japanese: 'はい!日本から来ました', english: 'Yes! We\'re from Japan.', hint: 'Yes! で始まります', level: 'advanced' },
+        { japanese: 'おお、いいですね!ここは初めてですか?', english: 'Oh, cool! First time here?', hint: 'Oh, で始まります', level: 'beginner' },
+        { japanese: 'はい、初めてです!美しいですね!', english: 'Yes, first time! It\'s beautiful!', hint: 'Yes, で始まります', level: 'advanced' },
+        { japanese: '1週間です。家族と一緒に', english: 'One week. With my family.', hint: 'One で始まります', level: 'beginner' },
+        { japanese: '日本です。東京', english: 'Japan. Tokyo.', hint: 'Japan. で始まります', level: 'beginner' },
+        { japanese: 'いいですね!ハワイは初めてですか?', english: 'Nice! First time in Hawaii?', hint: 'Nice! で始まります', level: 'beginner' },
+        { japanese: 'はい!ここが大好きです!', english: 'Yes! I love it here!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'はい、とてもいいですよ!でも混んでます', english: 'Yes, very nice! But crowded.', hint: 'Yes, で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!どのくらい遠いですか?', english: 'Thank you! How far?', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'とても暑い!でもいいですね!', english: 'Very hot! But nice!', hint: 'Very で始まります', level: 'beginner' },
+        { japanese: 'はい!とてもいいです!', english: 'Yes! So nice!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'どこから来たんですか?', english: 'Where are you from?', hint: 'Where で始まります', level: 'beginner' },
+        { japanese: '日本です。こんなに暑くないです!', english: 'Japan. It\'s not this hot!', hint: 'Japan. で始まります', level: 'advanced' },
+        { japanese: 'ありがとう!気に入りました!', english: 'Thank you! I like it!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: '地元とは大違いです!', english: 'Very different from home!', hint: 'Very で始まります', level: 'beginner' },
+        { japanese: '日本です。そこでは雨がもっと長く続きます', english: 'Japan. Rain lasts longer there.', hint: 'Japan. で始まります', level: 'beginner' },
+        { japanese: '美しい日ですね!', english: 'Beautiful day!', hint: 'Beautiful で始まります', level: 'beginner' },
+        { japanese: 'はい!とても美しい!', english: 'Yes! So beautiful!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'あなたも!ありがとう!', english: 'You too! Thank you!', hint: 'You で始まります', level: 'beginner' },
+        { japanese: '休暇中ですか?', english: 'On vacation?', hint: 'On で始まります', level: 'beginner' },
+        { japanese: 'はい!家族旅行です!', english: 'Yes! Family trip!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'いいですね!何人ですか?', english: 'Nice! How many people?', hint: 'Nice! で始まります', level: 'beginner' },
+        { japanese: '10人!大家族です!', english: 'Ten people! Big family!', hint: 'Ten で始まります', level: 'beginner' },
+        { japanese: '10日間。初めてです!', english: 'Ten days. First time!', hint: 'Ten で始まります', level: 'beginner' },
+        { japanese: 'ハワイは初めてですか?', english: 'First time in Hawaii?', hint: 'First で始まります', level: 'beginner' },
+        { japanese: 'はい!大好きです!', english: 'Yes! We love it!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'はい!とてもいいです!', english: 'Yes! It\'s very nice!', hint: 'Yes! で始まります', level: 'advanced' },
+        { japanese: 'はい!子供たちが大好きです!', english: 'Yes! Kids love it!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'お子さんがいるんですか?', english: 'You have kids?', hint: 'You で始まります', level: 'beginner' },
+        { japanese: 'はい、3人います!', english: 'Yes, three kids!', hint: 'Yes, で始まります', level: 'beginner' },
+        { japanese: 'はい!ビーチが大好きです!', english: 'Yes! They love the beach!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'わかった!試してみます!ありがとう!', english: 'OK! We\'ll try it! Thank you!', hint: 'OK! で始まります', level: 'advanced' },
+        { japanese: 'ありがとう!高いですか?', english: 'Thank you! Expensive?', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: '子供向けのいいビーチは?', english: 'Good beach for kids?', hint: 'Good で始まります', level: 'beginner' },
+        { japanese: 'お子さんは何歳ですか?', english: 'How old are your kids?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: '子供に安全ですか?', english: 'Safe for kids?', hint: 'Safe で始まります', level: 'beginner' },
+        { japanese: 'はい!それに子供も一緒です', english: 'Yes! And kids are with us.', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'ハナウマ湾を試してください!子供にいいですよ!', english: 'Try Hanauma Bay! Good for kids!', hint: 'Try で始まります', level: 'beginner' },
+        { japanese: '子供もできますか?', english: 'Kids can do it?', hint: 'Kids で始まります', level: 'beginner' },
+        { japanese: 'わかりました!ありがとう!', english: 'OK! Thank you!', hint: 'OK! で始まります', level: 'beginner' },
+        { japanese: 'ここは初めてですか?', english: 'First time here?', hint: 'First で始まります', level: 'beginner' },
+        { japanese: 'いい選択!気に入りますよ!', english: 'Good choice! You\'ll love it!', hint: 'Good で始まります', level: 'advanced' },
+        { japanese: '子供には?', english: 'And for kids?', hint: 'And で始まります', level: 'beginner' },
+        { japanese: '美しい景色ですね!', english: 'Beautiful view!', hint: 'Beautiful で始まります', level: 'beginner' },
+        { japanese: 'ハワイが大好きです!', english: 'I love Hawaii!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!とても美味しいです!', english: 'Thank you! So good!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'おお!ありがとう!', english: 'Oh! Thank you!', hint: 'Oh! で始まります', level: 'beginner' },
+        { japanese: 'いいものがありますよ!', english: 'They have nice things!', hint: 'They で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!喜んで手伝います!', english: 'Thank you! Happy to help!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'みんなとても親切です!', english: 'Everyone is so nice!', hint: 'Everyone で始まります', level: 'beginner' },
+        { japanese: 'ここが大好きです!', english: 'I love it here!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'お子さんたちとても可愛いですね!', english: 'Your kids are so cute!', hint: 'Your で始まります', level: 'beginner' },
+        { japanese: '可愛い子供たちですね!', english: 'Cute kids!', hint: 'Cute で始まります', level: 'beginner' },
+        { japanese: '何人いますか?', english: 'How many kids?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: 'はい!プールが大好きです!', english: 'Yes! Love the pool!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '子供は水が好きですよね!', english: 'Kids love water!', hint: 'Kids で始まります', level: 'beginner' },
+        { japanese: '子供にいい場所は?', english: 'Good place for kids?', hint: 'Good で始まります', level: 'beginner' },
+        { japanese: 'ここから遠いですか?', english: 'Far from here?', hint: 'Far で始まります', level: 'beginner' },
+        { japanese: '完璧!ありがとう!', english: 'Perfect! Thank you!', hint: 'Perfect! で始まります', level: 'beginner' },
+        { japanese: '子供も大丈夫ですか?', english: 'OK for kids?', hint: 'OK で始まります', level: 'beginner' },
+        { japanese: 'キッズメニューはありますか?', english: 'Do you have kids menu?', hint: 'Do で始まります', level: 'beginner' },
+        { japanese: 'はい!子供3人と家族です', english: 'Yes! Three kids and family.', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '子供と旅行中ですか?', english: 'Traveling with kids?', hint: 'Traveling で始まります', level: 'beginner' },
+        { japanese: 'はい!2人います!', english: 'Yes! Two kids!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'いいですよ!サイズは?', english: 'It\'s nice! What size?', hint: 'It\'s で始まります', level: 'advanced' },
+        { japanese: 'いいえ、以上です。ありがとう!', english: 'No, that\'s all. Thank you!', hint: 'No, で始まります', level: 'advanced' },
+        { japanese: 'はい!大家族なんです!', english: 'Yes! Big family!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '本当に?ありがとう!', english: 'Really? Thank you!', hint: 'Really? で始まります', level: 'beginner' },
+        { japanese: 'はい、ありがとう!', english: 'Yes, thank you!', hint: 'Yes, で始まります', level: 'beginner' },
+        { japanese: 'もう行きます。お話しできて良かった!', english: 'We\'re going now. Nice talking to you!', hint: 'We\'re で始まります', level: 'advanced' },
+        { japanese: 'ありがとう!あなたも!', english: 'Thank you! You too!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!食事が素晴らしかった!', english: 'Thank you! Food was great!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: '今日出発します。全てにありがとう!', english: 'We\'re leaving today. Thank you for everything!', hint: 'We\'re で始まります', level: 'advanced' },
+        { japanese: 'それは嬉しい!良い旅を!', english: 'We\'d love that! Safe travels!', hint: 'We\'d で始まります', level: 'advanced' },
+        { japanese: '助けてくれてありがとう!', english: 'Thank you for your help!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: '楽しんでいます!ありがとう!さようなら!', english: 'I am! Thank you! Bye!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'はい!彼は日本人です!', english: 'Yes! He\'s Japanese!', hint: 'Yes! で始まります', level: 'advanced' },
+        { japanese: '知っています!日本の方ですか?', english: 'I know! You from Japan?', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'いいドジャースシャツですね!', english: 'Nice Dodgers shirt!', hint: 'Nice で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!大谷と山本が好きなんです!', english: 'Thank you! I like Ohtani and Yamamoto!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: '1つのチームに2人の日本人スター!', english: 'Two Japanese stars on one team!', hint: 'Two で始まります', level: 'beginner' },
+        { japanese: 'とても誇らしい!2人の日本人チャンピオン!', english: 'So proud! Two Japanese champions!', hint: 'So で始まります', level: 'beginner' },
+        { japanese: 'ありがとう!ここを押すだけです', english: 'Thank you! Just press here.', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'おお、ありがとう!はい!', english: 'Oh, thank you! Yes!', hint: 'Oh, で始まります', level: 'beginner' },
+        { japanese: '試します!ありがとう!', english: 'I will! Thanks!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '日本!行きたいです!', english: 'Japan! I want to visit!', hint: 'Japan! で始まります', level: 'beginner' },
+        { japanese: '東京は楽しい!京都は美しいです!', english: 'Tokyo is fun! Kyoto is beautiful!', hint: 'Tokyo で始まります', level: 'beginner' },
+        { japanese: 'はい!とても美しいです!', english: 'Yes! Very beautiful!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '気に入りますよ!', english: 'You\'ll love it!', hint: 'You\'ll で始まります', level: 'advanced' },
         { japanese: 'いい天気ですね!', english: '1. Nice day!', hint: '1. で始まります', level: 'beginner' },
         { japanese: 'ここは初めてです!', english: '2. First time here!', hint: '2. で始まります', level: 'beginner' },
         { japanese: '日本からです!', english: '3. From Japan!', hint: '3. で始まります', level: 'beginner' },
         { japanese: 'とても美しい!', english: '4. So beautiful!', hint: '4. で始まります', level: 'beginner' },
         { japanese: 'ハワイが大好きです!', english: '5. I love Hawaii!', hint: '5. で始まります', level: 'beginner' },
-        { japanese: 'すごいですね!', english: '6. That\'s amazing!', hint: '6. で始まります', level: 'advanced' },
         { japanese: '本当に素敵!', english: '7. Really nice!', hint: '7. で始まります', level: 'beginner' },
-        { japanese: '気に入りました!', english: '8. I like it!', hint: '8. で始まります', level: 'beginner' },
-        { japanese: 'いいアイデアですね!', english: '9. Good idea!', hint: '9. で始まります', level: 'beginner' },
-        { japanese: 'かっこいいですね!', english: '10. That\'s cool!', hint: '10. で始まります', level: 'advanced' },
         { japanese: 'どこから来ましたか?', english: '11. Where from?', hint: '11. で始まります', level: 'beginner' },
+        { japanese: 'ビーチに行くんですか?', english: 'Going to the beach?', hint: 'Going で始まります', level: 'beginner' },
+        { japanese: 'はい!今日はいい天気ですね!', english: 'Yes! Good weather today!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'ビーチには完璧な日ですね!どのビーチですか?', english: 'Perfect beach day! Which beach?', hint: 'Perfect で始まります', level: 'beginner' },
+        { japanese: 'ワイキキビーチ。いいですか?', english: 'Waikiki Beach. Is it good?', hint: 'Waikiki で始まります', level: 'beginner' },
+        { japanese: 'あら。他にビーチはありますか?', english: 'Oh. Any other beach?', hint: 'Oh. で始まります', level: 'beginner' },
+        { japanese: 'ラニカイビーチを試してみて。人が少ないです', english: 'Try Lanikai Beach. Less people.', hint: 'Try で始まります', level: 'beginner' },
+        { japanese: '地元はどこですか?', english: 'Where\'s home?', hint: 'Where\'s で始まります', level: 'advanced' },
+        { japanese: '何が必要ですか?', english: 'What do you need?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: 'そう!写真にいい日ですね!', english: 'Yeah! Good day for photos!', hint: 'Yeah! で始まります', level: 'beginner' },
+        { japanese: 'はい!たくさん写真を撮っています!', english: 'Yes! Taking many photos!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: '楽しそう!どのくらい滞在ですか?', english: 'How fun! How long here?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: 'それはいいですね!何をしましたか?', english: 'That\'s great! What did you do?', hint: 'That\'s で始まります', level: 'advanced' },
+        { japanese: '何歳ですか?', english: 'How old?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: '明日は何をしますか?', english: 'What are you doing tomorrow?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: 'はい!フードトラックです。とても美味しいですよ!', english: 'Yes! Food trucks. Very good!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'はい!どんな料理ですか?', english: 'Yes! What kind of food?', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'どこにありますか?', english: 'Where is it?', hint: 'Where で始まります', level: 'beginner' },
+        { japanese: '遠くないです。地図で見せられます', english: 'Not far. I can show you on map.', hint: 'Not で始まります', level: 'beginner' },
+        { japanese: 'わかりました。ラニカイビーチがいいですよ', english: 'OK. Lanikai Beach is good.', hint: 'OK. で始まります', level: 'beginner' },
+        { japanese: 'ハワイで何をすべきですか?', english: 'What should we do in Hawaii?', hint: 'What で始まります', level: 'advanced' },
+        { japanese: 'そこには何がありますか?', english: 'What\'s there?', hint: 'What\'s で始まります', level: 'advanced' },
+        { japanese: 'いいですね!どうやって行きますか?', english: 'Great! How do we go?', hint: 'Great! で始まります', level: 'beginner' },
+        { japanese: 'ポケって何ですか?', english: 'What is poke?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: '写真撮ってますか?', english: 'Taking photos?', hint: 'Taking で始まります', level: 'beginner' },
+        { japanese: 'はい!たくさん撮っています!', english: 'Yes! Many photos!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'お食事はいかがですか?', english: 'How\'s your food?', hint: 'How\'s で始まります', level: 'advanced' },
+        { japanese: 'どこで買ったんですか?', english: 'Where did you buy it?', hint: 'Where で始まります', level: 'beginner' },
+        { japanese: '何歳ですか?', english: 'How old are they?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: '何人分ですか?', english: 'How many people?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: 'いいアイデア!いくらですか?', english: 'Good idea! How much?', hint: 'Good で始まります', level: 'beginner' },
+        { japanese: 'すみません。水はどこですか?', english: 'Excuse me. Where\'s the water?', hint: 'Excuse で始まります', level: 'advanced' },
+        { japanese: '本当に?何の種類ですか?', english: 'Really? What kind?', hint: 'Really? で始まります', level: 'beginner' },
+        { japanese: 'すみません。写真を撮ってもらえますか?', english: 'Excuse me. Can you take our photo?', hint: 'Excuse で始まります', level: 'beginner' },
+        { japanese: 'ここです!このビーチで!', english: 'Right here! On this beach!', hint: 'Right で始まります', level: 'beginner' },
+        { japanese: 'それは美味しそう!何ですか?', english: 'That looks good! What is it?', hint: 'That で始まります', level: 'beginner' },
+        { japanese: '何が入っていますか?', english: 'What\'s in it?', hint: 'What\'s で始まります', level: 'advanced' },
+        { japanese: '何を見るべきですか?', english: 'What should I see?', hint: 'What で始まります', level: 'advanced' },
         { japanese: 'どのくらい滞在ですか?', english: '12. How long?', hint: '12. で始まります', level: 'beginner' },
-        { japanese: '私もです!', english: '13. Me too!', hint: '13. で始まります', level: 'beginner' },
-        { japanese: 'あなたも!', english: '14. You too!', hint: '14. で始まります', level: 'beginner' },
-        { japanese: '良い1日を!', english: '15. Have a good one!', hint: '15. で始まります', level: 'beginner' },
-        { japanese: '楽しんで!', english: '16. Enjoy!', hint: '16. で始まります', level: 'beginner' },
-        { japanese: 'お元気で!', english: '17. Take care!', hint: '17. で始まります', level: 'beginner' },
-        { japanese: 'アロハ!', english: '18. Aloha!', hint: '18. で始まります', level: 'beginner' },
-        { japanese: 'ありがとう!', english: '19. Mahalo!', hint: '19. で始まります', level: 'beginner' },
-        { japanese: 'またね!', english: '20. See you!', hint: '20. で始まります', level: 'beginner' },
+        { japanese: 'それはいいですね!滞在を楽しんでください!', english: 'That\'s great! Enjoy your stay!', hint: 'That\'s で始まります', level: 'advanced' },
+        { japanese: 'わかった!それを試してみます!', english: 'OK! I\'ll try that!', hint: 'OK! で始まります', level: 'advanced' },
+        { japanese: '車で約30分です', english: 'About 30 minutes by car.', hint: 'About で始まります', level: 'beginner' },
+        { japanese: 'わかった!行ってみます!', english: 'OK! We\'ll try it!', hint: 'OK! で始まります', level: 'advanced' },
+        { japanese: '今日は暑いですね!', english: 'Hot today!', hint: 'Hot で始まります', level: 'beginner' },
+        { japanese: 'プールが気持ちいいですね!', english: 'The pool feels good!', hint: 'The で始まります', level: 'beginner' },
+        { japanese: '日焼け止め使ってますか?', english: 'Using sunscreen?', hint: 'Using で始まります', level: 'beginner' },
+        { japanese: 'はい!たくさん使ってます!', english: 'Yes! Lots of sunscreen!', hint: 'Yes! で始まります', level: 'beginner' },
+        { japanese: 'いい考えですね!日差しが強いです!', english: 'Good idea! The sun is strong!', hint: 'Good で始まります', level: 'beginner' },
+        { japanese: 'わかります!とても強いです!', english: 'I know! Very strong!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '今日は雨ですね!', english: 'Raining today!', hint: 'Raining で始まります', level: 'beginner' },
+        { japanese: 'はい、でも止みました!', english: 'Yes, but it stopped!', hint: 'Yes, で始まります', level: 'beginner' },
+        { japanese: 'そう、ここの雨は短いです!', english: 'Yeah, rain is quick here!', hint: 'Yeah, で始まります', level: 'beginner' },
     ],
 };
 
@@ -2165,10 +2307,14 @@ function startQuiz() {
     // シャッフル
     currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
     
+    // 10問に制限
+    currentQuestions = currentQuestions.slice(0, 10);
+    
     // カウンターをリセット
     currentQuestionIndex = 0;
     correctCount = 0;
     incorrectCount = 0;
+    hasAnswered = new Array(currentQuestions.length).fill(false);
     
     // 画面を表示
     showScreen('quizScreen');
@@ -2274,7 +2420,7 @@ function speakAnswerSlow() {
     const question = currentQuestions[currentQuestionIndex];
     const utterance = new SpeechSynthesisUtterance(question.english);
     utterance.lang = 'en-US';
-    utterance.rate = 0.7;
+    utterance.rate = 0.5;
     speechSynthesis.speak(utterance);
 }
 
@@ -2361,21 +2507,41 @@ function checkAnswer() {
         return;
     }
     
-    if (isAnswerCorrect(userAnswer, question.english)) {
-        correctCount++;
-        resultBox.innerHTML = `
-            <div class="result correct">
-                ✅ 正解です!素晴らしい!
-            </div>
-        `;
+    // この問題が未回答の場合のみカウント
+    if (!hasAnswered[currentQuestionIndex]) {
+        if (isAnswerCorrect(userAnswer, question.english)) {
+            correctCount++;
+            resultBox.innerHTML = `
+                <div class="result correct">
+                    ✅ 正解です!素晴らしい!
+                </div>
+            `;
+        } else {
+            incorrectCount++;
+            resultBox.innerHTML = `
+                <div class="result incorrect">
+                    ❌ 不正解です
+                    <div class="correct-answer">正解: ${question.english}</div>
+                </div>
+            `;
+        }
+        hasAnswered[currentQuestionIndex] = true;
     } else {
-        incorrectCount++;
-        resultBox.innerHTML = `
-            <div class="result incorrect">
-                ❌ 不正解です
-                <div class="correct-answer">正解: ${question.english}</div>
-            </div>
-        `;
+        // 既に回答済みの場合は結果のみ表示
+        if (isAnswerCorrect(userAnswer, question.english)) {
+            resultBox.innerHTML = `
+                <div class="result correct">
+                    ✅ 正解です!（回答済み）
+                </div>
+            `;
+        } else {
+            resultBox.innerHTML = `
+                <div class="result incorrect">
+                    ❌ 不正解です（回答済み）
+                    <div class="correct-answer">正解: ${question.english}</div>
+                </div>
+            `;
+        }
     }
     
     resultBox.classList.remove('hidden');
@@ -2387,6 +2553,13 @@ function checkAnswer() {
 }
 
 function nextQuestion() {
+    // 未回答の場合は不正解としてカウント
+    if (!hasAnswered[currentQuestionIndex]) {
+        incorrectCount++;
+        hasAnswered[currentQuestionIndex] = true;
+        updateStats();
+    }
+    
     if (currentQuestionIndex < currentQuestions.length - 1) {
         currentQuestionIndex++;
         displayQuestion();
@@ -2537,6 +2710,34 @@ function displayPracticePhrase() {
     document.getElementById('practiceJapanese').textContent = phrase.japanese;
     document.getElementById('practiceEnglish').textContent = phrase.english;
     document.getElementById('recognitionResult').textContent = 'ここに音声認識結果が表示されます';
+    
+    // シーン名マッピング
+    const sceneNames = {
+        'frequent': '頻出',
+        'airport': '空港',
+        'transportation': '交通',
+        'hotel': 'ホテル',
+        'dining': '食事',
+        'shopping': '買い物',
+        'emergency': '緊急',
+        'smalltalk': 'スモールトーク'
+    };
+    
+    // シーンをデータベースから逆引きで取得（クイズモードと同じ方法）
+    let sceneName = '全シーン';
+    for (let scene in phrasesDatabase) {
+        if (phrasesDatabase[scene].includes(phrase)) {
+            sceneName = sceneNames[scene] || scene;
+            break;
+        }
+    }
+    
+    // シーンバッジを更新
+    document.getElementById('practiceScene').textContent = sceneName;
+    
+    // レベルバッジを更新
+    const levelText = phrase.level === 'beginner' ? '初級' : '上級';
+    document.getElementById('practiceLevelBadge').textContent = levelText;
     
     // スコアをリセット
     document.getElementById('scoreDisplay2').classList.add('hidden');
