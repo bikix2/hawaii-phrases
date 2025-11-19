@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ ハワイ英会話クイズ - Enhanced Edition</title>
+    <title>🏝️ ハワイ英会話クイズ - Gemini AI Edition</title>
     <style>
         * {
             margin: 0;
@@ -40,6 +40,16 @@
         .header h1 {
             font-size: 24px;
             margin-bottom: 10px;
+        }
+        
+        .ai-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
         }
         
         .progress-bar {
@@ -103,70 +113,75 @@
         
         .mode-card:hover {
             border-color: #11998e;
-            box-shadow: 0 4px 12px rgba(17,153,142,0.3);
-            transform: translateY(-2px);
+            background: #f0fdf9;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.2);
         }
         
-        .mode-card.active {
+        .mode-card.selected {
             border-color: #11998e;
-            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.3);
         }
         
         .mode-icon {
-            font-size: 36px;
+            font-size: 40px;
             margin-bottom: 10px;
         }
         
-        .mode-title {
+        .mode-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* 設定セクション */
+        .config-section {
+            margin-bottom: 25px;
+        }
+        
+        .config-title {
             font-size: 16px;
             font-weight: bold;
+            margin-bottom: 12px;
             color: #212529;
         }
         
-        .menu-grid {
+        .option-grid {
             display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
         }
         
-        .menu-grid.scene-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .option-grid.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
         }
         
-        .menu-grid.level-grid {
-            grid-template-columns: repeat(3, 1fr);
+        .option-grid.four-col {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
         }
         
-        .menu-btn {
-            padding: 15px 10px;
+        .option-btn {
+            padding: 12px;
             border: 2px solid #dee2e6;
-            border-radius: 12px;
+            border-radius: 10px;
             background: white;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
             text-align: center;
         }
         
-        .menu-btn:hover {
+        .option-btn:hover {
             border-color: #11998e;
-            box-shadow: 0 4px 12px rgba(17,153,142,0.2);
+            background: #f0fdf9;
         }
         
-        .menu-btn-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 3px;
-            color: #212529;
-        }
-        
-        .menu-btn-desc {
-            font-size: 12px;
-            color: #6c757d;
-        }
-        
-        .menu-btn.active {
+        .option-btn.active {
             border-color: #11998e;
-            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
+            background: #11998e;
+            color: white;
         }
         
         .start-btn {
@@ -180,81 +195,66 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
         }
         
         .start-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .stats-btn {
-            width: 100%;
-            padding: 15px;
-            background: #f8f9fa;
-            color: #212529;
-            border: 2px solid #dee2e6;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: all 0.3s;
-        }
-        
-        .stats-btn:hover {
-            background: #e9ecef;
+            transform: translateY(0);
         }
         
         /* クイズ画面 */
-        .content {
+        .quiz-screen {
             padding: 30px;
+            display: none;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
         }
         
         .scene-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #11998e;
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
-            margin-bottom: 20px;
         }
         
         .level-badge {
-            display: inline-block;
-            background: #ffc107;
-            color: #000;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 12px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: bold;
-            margin-left: 10px;
         }
         
         .question-box {
             background: #f8f9fa;
-            border-left: 5px solid #11998e;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-        
-        .japanese-text {
-            font-size: 22px;
-            font-weight: bold;
-            color: #212529;
-            margin-bottom: 10px;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
         }
         
         .context-box {
-            background: #e7f6fd;
-            border-left: 4px solid #0dcaf0;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 12px 15px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 15px;
-            color: #0a5568;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #856404;
             display: none;
         }
         
@@ -262,307 +262,223 @@
             display: block;
         }
         
-        .context-box::before {
-            content: '💡 ';
-            font-size: 16px;
-        }
-        
-        .hint-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
-        }
-        
-        .hint-btn {
-            background: #ffc107;
-            color: #000;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
+        .japanese-text {
+            font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
+            color: #212529;
+            line-height: 1.6;
         }
         
-        .hint-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .hint {
-            font-size: 14px;
-            color: #6c757d;
-            font-style: italic;
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3cd;
-            border-radius: 8px;
-            animation: slideIn 0.3s;
-        }
-        
-        .speak-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 10px;
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .speak-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .show-answer-btn {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .show-answer-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .answer-display {
-            font-size: 18px;
-            color: #f5576c;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: linear-gradient(135deg, #fff0f3 0%, #ffe8ec 100%);
-            border-radius: 10px;
-            border-left: 5px solid #f5576c;
-            animation: slideIn 0.3s;
-            text-align: center;
-        }
-        
-        .speak-btn.speaking {
-            animation: pulse 1s infinite;
-        }
-        
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 15px;
+        .answer-section {
+            margin-bottom: 20px;
         }
         
         .answer-input {
             width: 100%;
-            padding: 15px 45px 15px 15px;
-            font-size: 18px;
+            padding: 15px;
+            font-size: 16px;
             border: 2px solid #dee2e6;
             border-radius: 10px;
-            transition: all 0.3s;
-            min-height: 85px;
-            line-height: 1.5;
             resize: vertical;
+            min-height: 80px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         .answer-input:focus {
             outline: none;
             border-color: #11998e;
-            box-shadow: 0 0 0 3px rgba(17,153,142,0.1);
+        }
+        
+        .input-wrapper {
+            position: relative;
         }
         
         .clear-btn {
             position: absolute;
             right: 10px;
-            top: 15px;
-            background: #dc3545;
+            top: 10px;
+            background: #6c757d;
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
             border-radius: 50%;
-            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
             cursor: pointer;
             display: none;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
         
         .clear-btn.show {
-            display: flex;
+            display: block;
         }
         
-        .clear-btn:active {
-            transform: scale(0.9);
+        .clear-btn:hover {
+            background: #5a6268;
         }
         
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+        .hint-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0d6efd;
+            padding: 12px 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #084298;
         }
         
-        .btn {
-            padding: 18px 10px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        .hint-box.hidden {
+            display: none;
         }
         
-        .check-answer-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .btn-check {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            font-size: 18px;
-            flex-direction: row;
-            padding: 22px;
-            box-shadow: 0 4px 12px rgba(17,153,142,0.3);
-        }
-        
-        .btn-check:hover {
-            box-shadow: 0 6px 16px rgba(17,153,142,0.4);
-            transform: translateY(-2px);
-        }
-        
-        .btn-show-answer {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+        .answer-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0dcaf0;
+            padding: 12px 15px;
+            margin-top: 15px;
+            border-radius: 5px;
             font-size: 16px;
-            flex-direction: row;
-            padding: 22px 10px;
-            box-shadow: 0 4px 12px rgba(245,87,108,0.3);
+            color: #055160;
+            font-weight: bold;
         }
         
-        .btn-show-answer:hover {
-            box-shadow: 0 6px 16px rgba(245,87,108,0.4);
-            transform: translateY(-2px);
+        .answer-box.hidden {
+            display: none;
         }
         
-        .btn-voice {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-            color: white;
+        .result-box {
+            margin-top: 15px;
         }
         
-        .btn-next {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-        }
-        
-        .btn-prev {
-            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
-            color: white;
-        }
-        
-        .btn-menu {
-            background: #6c757d;
-            color: white;
-            grid-column: 1 / -1;
-            margin-top: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        .btn:active {
-            transform: scale(0.95);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .recording {
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+        .result-box.hidden {
+            display: none;
         }
         
         .result {
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
             font-size: 16px;
             font-weight: bold;
             text-align: center;
-            animation: slideIn 0.3s;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
         
         .result.correct {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 2px solid #badbcc;
         }
         
         .result.incorrect {
             background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
+            color: #842029;
+            border: 2px solid #f5c2c7;
         }
         
         .result.warning {
             background: #fff3cd;
             color: #856404;
-            border: 2px solid #ffeeba;
+            border: 2px solid #ffe69c;
         }
         
         .correct-answer {
             margin-top: 10px;
-            font-size: 18px;
-            color: #28a745;
+            font-size: 14px;
+            font-weight: normal;
         }
         
-        .stats {
+        .button-group {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 20px;
         }
         
-        .stat-item {
+        .button-group.single {
+            grid-template-columns: 1fr;
+        }
+        
+        .button-group.triple {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #11998e;
+            border: 2px solid #11998e;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            padding: 12px 25px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #5a6268;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats-box {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 10px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
             text-align: center;
         }
         
-        .stat-number {
+        .stat-item {
+            padding: 10px;
+        }
+        
+        .stat-value {
             font-size: 24px;
             font-weight: bold;
             color: #11998e;
@@ -574,853 +490,715 @@
             margin-top: 5px;
         }
         
-        /* スピーキング練習画面 */
-        .speaking-screen {
-            padding: 30px;
+        /* 結果画面 */
+        .results-screen {
+            padding: 40px 30px;
+            text-align: center;
+            display: none;
         }
         
-        .speaking-title {
-            font-size: 22px;
+        .results-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .results-title {
+            font-size: 28px;
             font-weight: bold;
             color: #212529;
-            margin-bottom: 20px;
-            text-align: center;
+            margin-bottom: 30px;
         }
         
-        .speaking-phrase {
-            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
+        .results-stats {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-size: 16px;
+            color: #6c757d;
+        }
+        
+        .result-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212529;
+        }
+        
+        /* スピーキング練習画面 */
+        .practice-screen {
+            padding: 30px;
+            display: none;
+        }
+        
+        .practice-box {
+            background: #f8f9fa;
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 20px;
-            border: 2px solid #11998e;
+            text-align: center;
         }
         
-        .speaking-japanese {
-            font-size: 20px;
+        .practice-japanese {
+            font-size: 18px;
             font-weight: bold;
             color: #212529;
             margin-bottom: 15px;
         }
         
-        .speaking-english {
-            font-size: 18px;
+        .practice-english {
+            font-size: 20px;
             color: #11998e;
             font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
         }
         
-        .recognition-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            min-height: 80px;
-            border: 2px dashed #dee2e6;
+        .recording-box {
+            background: white;
+            border: 3px dashed #dee2e6;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
             text-align: center;
         }
         
-        .recognition-text {
-            font-size: 18px;
-            color: #212529;
-            font-weight: bold;
+        .record-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.3);
+            margin-bottom: 15px;
         }
         
-        .recognition-placeholder {
+        .record-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(17, 153, 142, 0.4);
+        }
+        
+        .record-btn.recording {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .record-text {
             font-size: 16px;
-            color: #6c757d;
-            font-style: italic;
+            font-weight: bold;
+            color: #212529;
+        }
+        
+        .recognition-result {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            min-height: 60px;
+            font-size: 16px;
+            color: #084298;
         }
         
         .score-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
+            background: #d1e7dd;
+            border: 2px solid #badbcc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f5132;
             text-align: center;
-            margin-bottom: 20px;
         }
         
-        .score-value {
-            font-size: 48px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .score-label {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .practice-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .practice-btn {
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        .practice-btn-record {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-            color: white;
-            grid-column: 1 / -1;
-        }
-        
-        .practice-btn-listen {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-        
-        .practice-btn-next {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .score-display.hidden {
+            display: none;
         }
         
         /* AIチャット画面 */
         .aichat-screen {
             padding: 30px;
-        }
-        
-        .aichat-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #212529;
-            margin-bottom: 15px;
-            text-align: center;
+            display: none;
         }
         
         .aichat-setup {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            /* 設定画面用のスタイルは既存の config-section を使用 */
         }
         
-        .aichat-setup h3 {
-            font-size: 16px;
-            color: #495057;
-            margin-bottom: 10px;
-        }
-        
-        .aichat-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .aichat-option {
-            padding: 12px;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .aichat-option:hover {
-            border-color: #11998e;
-            box-shadow: 0 2px 8px rgba(17,153,142,0.2);
-        }
-        
-        .aichat-option.active {
-            border-color: #11998e;
-            background: linear-gradient(135deg, #e8f5f3 0%, #d4f1e8 100%);
-            font-weight: bold;
+        .aichat-active {
+            display: none;
         }
         
         .chat-container {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 15px;
-            max-height: 400px;
+            height: 400px;
             overflow-y: auto;
+            margin-bottom: 15px;
         }
         
         .chat-message {
             margin-bottom: 15px;
-            padding: 12px 15px;
-            border-radius: 12px;
-            animation: slideIn 0.3s;
-        }
-        
-        .chat-message.ai {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-right: 40px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
         }
         
         .chat-message.user {
-            background: #e9ecef;
-            color: #212529;
-            margin-left: 40px;
-            text-align: right;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
         }
         
-        .chat-input-wrapper {
-            display: grid;
-            grid-template-columns: 1fr auto;
+        .chat-message.ai {
+            background: white;
+            color: #212529;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .chat-message.loading {
+            background: white;
+            color: #6c757d;
+            margin-right: auto;
+            font-style: italic;
+            animation: fadeInOut 1.5s infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .chat-input-container {
+            display: flex;
             gap: 10px;
-            margin-bottom: 15px;
         }
         
         .chat-input {
-            padding: 12px;
+            flex: 1;
+            padding: 12px 15px;
             border: 2px solid #dee2e6;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #11998e;
         }
         
         .chat-send-btn {
-            padding: 12px 25px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
+            font-size: 20px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
-        /* 結果画面 */
-        .result-screen {
-            padding: 30px;
-            text-align: center;
+        .chat-send-btn:hover {
+            transform: scale(1.05);
         }
         
-        .result-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #212529;
-            margin-bottom: 20px;
-        }
-        
-        .result-emoji {
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-        
-        .result-stats {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .result-stat-item {
-            margin: 15px 0;
-            font-size: 18px;
-        }
-        
-        .result-stat-label {
-            color: #6c757d;
-        }
-        
-        .result-stat-value {
-            font-weight: bold;
-            color: #11998e;
-            font-size: 24px;
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         /* 統計画面 */
         .stats-screen {
             padding: 30px;
+            display: none;
         }
         
         .stats-title {
             font-size: 24px;
             font-weight: bold;
             color: #212529;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             text-align: center;
-        }
-        
-        .stats-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .stats-card-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #6c757d;
-            margin-bottom: 10px;
-        }
-        
-        .stats-card-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #11998e;
         }
         
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 20px;
+            margin-bottom: 25px;
         }
         
-        .reset-btn {
-            width: 100%;
-            padding: 15px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
+        .stats-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stats-card-value {
+            font-size: 36px;
             font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
+            color: #11998e;
+            margin-bottom: 10px;
         }
         
-        .hidden {
+        .stats-card-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        /* 画面の表示/非表示 */
+        .screen {
             display: none;
         }
         
+        .screen.active {
+            display: block;
+        }
+        
+        /* レスポンシブ対応 */
         @media (max-width: 600px) {
-            .header h1 {
-                font-size: 20px;
+            .mode-selection {
+                grid-template-columns: 1fr 1fr;
             }
             
-            .japanese-text {
-                font-size: 18px;
+            .option-grid.three-col,
+            .option-grid.four-col {
+                grid-template-columns: 1fr 1fr;
             }
             
-            .answer-input {
-                font-size: 16px;
+            .stats-box {
+                grid-template-columns: 1fr;
             }
             
-            .btn {
-                font-size: 13px;
-                padding: 15px 8px;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .btn-check {
-                font-size: 16px;
-                padding: 20px;
-            }
-            
-            .btn-show-answer {
-                font-size: 14px;
-                padding: 20px 8px;
-            }
-            
-            .check-answer-row {
-                grid-template-columns: 1.5fr 1fr;
-            }
-            
-            .result-emoji {
-                font-size: 60px;
-            }
-            
-            .menu-btn-title {
-                font-size: 14px;
-            }
-            
-            .menu-btn-desc {
-                font-size: 11px;
-            }
-            
-            .mode-icon {
-                font-size: 32px;
-            }
-            
-            .mode-title {
-                font-size: 14px;
-            }
+        }
+        
+        /* API設定セクション */
+        .api-config {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .api-config-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .api-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffe69c;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        
+        .api-input:focus {
+            outline: none;
+            border-color: #ffc107;
+        }
+        
+        .api-help-text {
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        .api-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .api-status.connected {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .api-status.disconnected {
+            background: #f8d7da;
+            color: #842029;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- ヘッダー -->
         <div class="header">
-            <h1>🏝️ ハワイ英会話レッスン</h1>
-            <div class="score" id="scoreDisplay">
-                スコア: <span id="score">0</span> / <span id="total">0</span>
-            </div>
-            <div class="progress-bar" id="progressBar">
+            <h1>🏝️ ハワイ英会話クイズ</h1>
+            <div class="ai-badge">🤖 Powered by Google Gemini AI</div>
+            <div class="progress-bar" style="display: none;">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText">問題 0 / 10</div>
+            <div class="progress-text" id="progressText" style="display: none;"></div>
+            <div class="score" id="scoreDisplay" style="display: none;">
+                正解: <span id="score">0</span> / <span id="total">0</span>
+            </div>
         </div>
         
-        <!-- メインメニュー画面 -->
-        <div class="menu-screen" id="mainMenu">
-            <div class="menu-title">📚 モードを選択</div>
+        <!-- メニュー画面 -->
+        <div class="menu-screen screen active" id="menuScreen">
+            <div class="menu-title">モードを選択してください</div>
             
             <div class="mode-selection">
-                <div class="mode-card active" data-mainmode="quiz" onclick="selectMainMode('quiz')">
+                <div class="mode-card" onclick="selectMode('quiz')">
                     <div class="mode-icon">📝</div>
-                    <div class="mode-title">クイズモード</div>
+                    <div class="mode-name">クイズ</div>
                 </div>
-                <div class="mode-card" data-mainmode="speaking" onclick="selectMainMode('speaking')">
+                
+                <div class="mode-card" onclick="selectMode('practice')">
                     <div class="mode-icon">🎤</div>
-                    <div class="mode-title">スピーキング練習</div>
+                    <div class="mode-name">スピーキング</div>
                 </div>
-                <div class="mode-card" data-mainmode="aichat" onclick="selectMainMode('aichat')">
+                
+                <div class="mode-card" onclick="selectMode('aichat')">
                     <div class="mode-icon">🤖</div>
-                    <div class="mode-title">AIチャット</div>
+                    <div class="mode-name">AIチャット</div>
                 </div>
             </div>
             
-            <div id="quizSettings">
-                <div class="menu-title">🎯 シーンを選択</div>
-                
-                <div class="menu-grid scene-grid">
-                    <div class="menu-btn active" data-mode="random" onclick="selectScene('random')">
-                        <div class="menu-btn-title">🔀 ランダム</div>
-                        <div class="menu-btn-desc">全シーンから出題</div>
-                    </div>
-                    <div class="menu-btn" data-mode="frequent" onclick="selectScene('frequent')">
-                        <div class="menu-btn-title">💡 頻出</div>
-                        <div class="menu-btn-desc">よく使うフレーズ</div>
-                    </div>
-                    <div class="menu-btn" data-mode="airport" onclick="selectScene('airport')">
-                        <div class="menu-btn-title">✈️ 空港</div>
-                        <div class="menu-btn-desc">入国審査、荷物受取</div>
-                    </div>
-                    <div class="menu-btn" data-mode="hotel" onclick="selectScene('hotel')">
-                        <div class="menu-btn-title">🏨 ホテル</div>
-                        <div class="menu-btn-desc">チェックイン、サービス</div>
-                    </div>
-                    <div class="menu-btn" data-mode="dining" onclick="selectScene('dining')">
-                        <div class="menu-btn-title">🍽️ 食事</div>
-                        <div class="menu-btn-desc">注文、会計</div>
-                    </div>
-                    <div class="menu-btn" data-mode="shopping" onclick="selectScene('shopping')">
-                        <div class="menu-btn-title">🛍️ 買い物</div>
-                        <div class="menu-btn-desc">試着、支払い</div>
-                    </div>
-                    <div class="menu-btn" data-mode="transport" onclick="selectScene('transport')">
-                        <div class="menu-btn-title">🚗 交通</div>
-                        <div class="menu-btn-desc">バス、タクシー</div>
-                    </div>
-                    <div class="menu-btn" data-mode="emergency" onclick="selectScene('emergency')">
-                        <div class="menu-btn-title">🆘 緊急</div>
-                        <div class="menu-btn-desc">病気、トラブル</div>
-                    </div>
-                    <div class="menu-btn" data-mode="smalltalk" onclick="selectScene('smalltalk')">
-                        <div class="menu-btn-title">💬 スモールトーク</div>
-                        <div class="menu-btn-desc">日常会話</div>
+            <!-- 設定セクション（クイズ・スピーキング共通） -->
+            <div id="quizSettings" style="display: none;">
+                <div class="config-section">
+                    <div class="config-title">📍 シーンを選択</div>
+                    <div class="option-grid four-col">
+                        <button class="option-btn active" data-scene="all" onclick="selectScene('all')">全て</button>
+                        <button class="option-btn" data-scene="frequent" onclick="selectScene('frequent')">頻出</button>
+                        <button class="option-btn" data-scene="airport" onclick="selectScene('airport')">空港</button>
+                        <button class="option-btn" data-scene="hotel" onclick="selectScene('hotel')">ホテル</button>
+                        <button class="option-btn" data-scene="transport" onclick="selectScene('transport')">交通</button>
+                        <button class="option-btn" data-scene="food" onclick="selectScene('food')">食事</button>
+                        <button class="option-btn" data-scene="shopping" onclick="selectScene('shopping')">買い物</button>
+                        <button class="option-btn" data-scene="emergency" onclick="selectScene('emergency')">緊急</button>
+                        <button class="option-btn" data-scene="smalltalk" onclick="selectScene('smalltalk')">スモールトーク</button>
                     </div>
                 </div>
                 
-                <div class="menu-title" style="margin-top: 20px;">📊 レベルを選択</div>
-                <div class="menu-grid level-grid">
-                    <div class="menu-btn active" data-level="all" onclick="selectLevel('all')">
-                        <div class="menu-btn-title">🌟 全て</div>
-                    </div>
-                    <div class="menu-btn" data-level="beginner" onclick="selectLevel('beginner')">
-                        <div class="menu-btn-title">🟢 初級</div>
-                    </div>
-                    <div class="menu-btn" data-level="advanced" onclick="selectLevel('advanced')">
-                        <div class="menu-btn-title">🔴 上級</div>
+                <div class="config-section">
+                    <div class="config-title">📊 レベルを選択</div>
+                    <div class="option-grid">
+                        <button class="option-btn active" data-level="all" onclick="selectLevel('all')">全て</button>
+                        <button class="option-btn" data-level="beginner" onclick="selectLevel('beginner')">初級</button>
+                        <button class="option-btn" data-level="advanced" onclick="selectLevel('advanced')">上級</button>
                     </div>
                 </div>
+                
+                <button class="start-btn" onclick="startSelectedMode()">🚀 スタート</button>
             </div>
             
-            <button class="start-btn" onclick="startMode()">開始 🚀</button>
-            <button class="stats-btn" onclick="showStats()">📊 学習統計を見る</button>
+            <!-- 統計ボタン -->
+            <div class="button-group single" style="margin-top: 20px;">
+                <button class="btn btn-outline" onclick="showStats()">📊 統計を見る</button>
+            </div>
         </div>
         
         <!-- クイズ画面 -->
-        <div class="content hidden" id="quizScreen">
-            <div class="scene-badge" id="scene">空港 ✈️</div>
-            <span class="level-badge" id="levelBadge">初級</span>
+        <div class="quiz-screen screen" id="quizScreen">
+            <div class="quiz-header">
+                <span class="scene-badge" id="scene">全シーン</span>
+                <span class="level-badge" id="levelBadge">全レベル</span>
+            </div>
             
             <div class="question-box">
-                <div class="japanese-text" id="japanese">チケット2枚お願いします</div>
                 <div class="context-box" id="contextBox"></div>
-                <div class="hint-container">
-                    <button class="hint-btn" id="hintBtn" onclick="toggleHint()">💡 ヒントを見る</button>
-                    <button class="speak-btn" id="speakBtn" onclick="speakAnswer()">🔊 正解を聞く</button>
-                    <button class="speak-btn" id="speakSlowBtn" onclick="speakAnswerSlow()" style="background: #17a2b8;">🐢 ゆっくり聞く</button>
-                    <div id="hintBox" class="hidden"></div>
+                <div class="japanese-text" id="japanese">日本語の質問がここに表示されます</div>
+            </div>
+            
+            <div class="answer-section">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="answer-input" 
+                        id="answerInput" 
+                        placeholder="英語で答えを入力してください...&#10;(2行まで表示されます)"
+                        rows="2"
+                    ></textarea>
+                    <button class="clear-btn" id="clearBtn" onclick="clearInput()">✕</button>
                 </div>
+                <div class="hint-box hidden" id="hintBox"></div>
+                <div class="answer-box hidden" id="answerBox"></div>
+                <div class="result-box hidden" id="resultBox"></div>
             </div>
             
-            <div id="resultBox" class="hidden"></div>
-            
-            <div class="input-wrapper">
-                <textarea 
-                    id="answerInput" 
-                    class="answer-input" 
-                    placeholder="英語で答えてください..."
-                    autocomplete="off"
-                    rows="2"
-                ></textarea>
-                <button class="clear-btn" id="clearBtn" onclick="clearInput()">×</button>
+            <div class="button-group triple">
+                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
+                <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
+                <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
             </div>
-            
-            <div class="check-answer-row">
-                <button class="btn btn-check" id="checkBtn" onclick="checkAnswer()">
-                    ✓ 回答をチェック
-                </button>
-                <button class="btn btn-show-answer" id="showAnswerBtn" onclick="toggleAnswer()">
-                    👁️ 正解を見る
-                </button>
-            </div>
-            
-            <div id="answerBox" class="answer-display hidden"></div>
             
             <div class="button-group">
-                <button class="btn btn-prev" id="prevBtn" onclick="previousQuestion()">
-                    <span>⬅️</span>
-                    <span>前の問題</span>
-                </button>
-                <button class="btn btn-voice" id="voiceBtn" onclick="toggleVoiceInput()">
-                    <span id="voiceIcon">🎤</span>
-                    <span id="voiceText">音声入力</span>
-                </button>
-                <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">
-                    <span>➡️</span>
-                    <span>次の問題</span>
-                </button>
+                <button class="btn btn-secondary" id="showAnswerBtn" onclick="toggleAnswer()">👁️ 正解を見る</button>
+                <button class="btn btn-outline" onclick="toggleVoiceInput()" id="voiceBtn">🎤 音声入力</button>
             </div>
             
-            <button class="btn btn-menu" onclick="returnToMenu()">
-                メインメニューに戻る
-            </button>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="checkAnswer()">✓ 回答をチェック</button>
+            </div>
             
-            <div class="stats">
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="previousQuestion()" id="prevBtn">← 前へ</button>
+                <button class="nav-btn" onclick="nextQuestion()" id="nextBtn">次へ →</button>
+            </div>
+            
+            <div class="stats-box">
                 <div class="stat-item">
-                    <div class="stat-number" id="correct">0</div>
+                    <div class="stat-value" id="correct">0</div>
                     <div class="stat-label">正解</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="incorrect">0</div>
+                    <div class="stat-value" id="incorrect">0</div>
                     <div class="stat-label">不正解</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="accuracy">0%</div>
+                    <div class="stat-value" id="accuracy">0%</div>
                     <div class="stat-label">正解率</div>
                 </div>
             </div>
-        </div>
-        
-        <!-- スピーキング練習画面 -->
-        <div class="speaking-screen hidden" id="speakingScreen">
-            <div class="speaking-title">🎤 スピーキング練習</div>
             
-            <div class="speaking-phrase">
-                <div class="speaking-japanese" id="speakingJapanese">休暇です</div>
-                <div class="speaking-english" id="speakingEnglish">Vacation.</div>
-            </div>
-            
-            <div class="recognition-box">
-                <div class="recognition-placeholder" id="recognitionPlaceholder">マイクボタンを押して話してください</div>
-                <div class="recognition-text hidden" id="recognitionText"></div>
-            </div>
-            
-            <div class="score-display hidden" id="scoreDisplay2">
-                <div class="score-label">発音スコア</div>
-                <div class="score-value" id="scoreValue">0</div>
-                <div class="score-label" id="scoreMessage">録音してください</div>
-            </div>
-            
-            <div class="practice-buttons">
-                <button class="practice-btn practice-btn-record" id="recordBtn" onclick="togglePracticeRecording()">
-                    <span id="recordIcon">🎤</span>
-                    <span id="recordText">録音開始</span>
-                </button>
-                <button class="practice-btn practice-btn-listen" onclick="speakPracticeAnswer()">
-                    🔊 お手本を聞く
-                </button>
-                <button class="practice-btn practice-btn-next" onclick="nextPracticePhrase()">
-                    ➡️ 次のフレーズ
-                </button>
-            </div>
-            
-            <button class="btn btn-menu" onclick="returnToMenu()">
-                メインメニューに戻る
-            </button>
-        </div>
-        
-        <!-- AIチャット画面 -->
-        <div class="aichat-screen hidden" id="aichatScreen">
-            <div class="aichat-title">🤖 AIチャット練習</div>
-            
-            <div class="aichat-setup" id="aichatSetup">
-                <h3>🎬 シーンを選択</h3>
-                <div class="aichat-options">
-                    <div class="aichat-option active" data-aiscene="freetalk" onclick="selectAIScene('freetalk')">🌟 フリートーク</div>
-                    <div class="aichat-option" data-aiscene="airport" onclick="selectAIScene('airport')">✈️ 空港</div>
-                    <div class="aichat-option" data-aiscene="hotel" onclick="selectAIScene('hotel')">🏨 ホテル</div>
-                    <div class="aichat-option" data-aiscene="restaurant" onclick="selectAIScene('restaurant')">🍽️ レストラン</div>
-                    <div class="aichat-option" data-aiscene="shopping" onclick="selectAIScene('shopping')">🛍️ ショッピング</div>
-                    <div class="aichat-option" data-aiscene="sightseeing" onclick="selectAIScene('sightseeing')">🌺 観光</div>
-                </div>
-                
-                <h3 style="margin-top: 15px;">📊 レベルを選択</h3>
-                <div class="aichat-options">
-                    <div class="aichat-option" data-ailevel="beginner" onclick="selectAILevel('beginner')">🟢 初心者</div>
-                    <div class="aichat-option active" data-ailevel="intermediate" onclick="selectAILevel('intermediate')">🟡 中級者</div>
-                    <div class="aichat-option" data-ailevel="advanced" onclick="selectAILevel('advanced')">🔴 上級者</div>
-                </div>
-                
-                <button class="start-btn" style="margin-top: 15px;" onclick="startAIChat()">会話を開始 🚀</button>
-            </div>
-            
-            <div id="aichatActive" class="hidden">
-                <div class="chat-container" id="chatContainer">
-                    <div class="chat-message ai">
-                        こんにちは!会話を始めましょう 😊
-                    </div>
-                </div>
-                
-                <div class="chat-input-wrapper">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="メッセージを入力...">
-                    <button class="chat-send-btn" onclick="sendChatMessage()">送信</button>
-                </div>
-                
-                <button class="btn btn-menu" onclick="returnToMenu()">
-                    メインメニューに戻る
-                </button>
+            <div class="button-group single" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="showMenu()">← メニューに戻る</button>
             </div>
         </div>
         
         <!-- 結果画面 -->
-        <div class="result-screen hidden" id="resultScreen">
-            <div class="result-emoji" id="resultEmoji">🎉</div>
-            <div class="result-title" id="resultTitle">クイズ完了!</div>
+        <div class="results-screen screen" id="resultsScreen">
+            <div class="results-icon">🎉</div>
+            <div class="results-title">お疲れ様でした!</div>
             
-            <div class="result-stats">
-                <div class="result-stat-item">
-                    <div class="result-stat-label">正解数</div>
-                    <div class="result-stat-value" id="finalCorrect">0</div>
+            <div class="results-stats">
+                <div class="result-item">
+                    <span class="result-label">正解数</span>
+                    <span class="result-value" id="finalCorrect">0</span>
                 </div>
-                <div class="result-stat-item">
-                    <div class="result-stat-label">不正解数</div>
-                    <div class="result-stat-value" id="finalIncorrect">0</div>
+                <div class="result-item">
+                    <span class="result-label">不正解数</span>
+                    <span class="result-value" id="finalIncorrect">0</span>
                 </div>
-                <div class="result-stat-item">
-                    <div class="result-stat-label">正解率</div>
-                    <div class="result-stat-value" id="finalAccuracy">0%</div>
+                <div class="result-item">
+                    <span class="result-label">正解率</span>
+                    <span class="result-value" id="finalAccuracy">0%</span>
                 </div>
             </div>
             
-            <button class="start-btn" onclick="startMode()">もう一度チャレンジ 🔄</button>
-            <button class="stats-btn" onclick="returnToMenu()">メインメニューに戻る</button>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="retryQuiz()">🔄 もう一度</button>
+                <button class="btn btn-secondary" onclick="showMenu()">🏠 メニューへ</button>
+            </div>
+        </div>
+        
+        <!-- スピーキング練習画面 -->
+        <div class="practice-screen screen" id="practiceScreen">
+            <div class="practice-box">
+                <div class="practice-japanese" id="practiceJapanese">日本語がここに表示されます</div>
+                <div class="practice-english" id="practiceEnglish">English answer will be shown here</div>
+            </div>
+            
+            <div class="recording-box">
+                <button class="record-btn" id="recordBtn" onclick="togglePracticeRecording()">
+                    <span id="recordIcon">🎤</span>
+                </button>
+                <div class="record-text" id="recordText">録音開始</div>
+                <div class="recognition-result" id="recognitionResult">
+                    ここに音声認識結果が表示されます
+                </div>
+                <div class="score-display hidden" id="scoreDisplay2">
+                    スコア: <span id="practiceScore">0</span>%
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-outline" onclick="speakPracticeAnswer()">🔊 お手本を聞く</button>
+                <button class="btn btn-primary" onclick="nextPracticePhrase()">次のフレーズ →</button>
+            </div>
+            
+            <div class="stats-box">
+                <div class="stat-item">
+                    <div class="stat-value" id="practiceCorrect">0</div>
+                    <div class="stat-label">正解</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="practiceIncorrect">0</div>
+                    <div class="stat-label">不正解</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="practiceAccuracy">0%</div>
+                    <div class="stat-label">正解率</div>
+                </div>
+            </div>
+            
+            <div class="button-group single" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="showMenu()">← メニューに戻る</button>
+            </div>
+        </div>
+        
+        <!-- AIチャット画面 -->
+        <div class="aichat-screen screen" id="aichatScreen">
+            <!-- API設定 -->
+            <div class="api-config">
+                <div class="api-config-title">
+                    ⚙️ Cloudflare Worker URL設定
+                    <span class="api-status disconnected" id="apiStatus">未設定</span>
+                </div>
+                <input 
+                    type="text" 
+                    class="api-input" 
+                    id="workerUrl" 
+                    placeholder="https://hawaii-quiz-ai.YOUR-SUBDOMAIN.workers.dev"
+                    value=""
+                />
+                <div class="api-help-text">
+                    💡 ステップ2で作成したCloudflare Worker URLを入力してください<br>
+                    入力後、自動的に保存されます
+                </div>
+            </div>
+            
+            <!-- 設定画面 -->
+            <div class="aichat-setup" id="aichatSetup">
+                <div class="config-section">
+                    <div class="config-title">🎯 会話シーンを選択</div>
+                    <div class="option-grid three-col">
+                        <button class="option-btn active" data-aiscene="freetalk" onclick="selectAIScene('freetalk')">フリートーク</button>
+                        <button class="option-btn" data-aiscene="airport" onclick="selectAIScene('airport')">空港</button>
+                        <button class="option-btn" data-aiscene="hotel" onclick="selectAIScene('hotel')">ホテル</button>
+                        <button class="option-btn" data-aiscene="restaurant" onclick="selectAIScene('restaurant')">レストラン</button>
+                        <button class="option-btn" data-aiscene="shopping" onclick="selectAIScene('shopping')">ショッピング</button>
+                        <button class="option-btn" data-aiscene="sightseeing" onclick="selectAIScene('sightseeing')">観光</button>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="config-title">📊 難易度を選択</div>
+                    <div class="option-grid">
+                        <button class="option-btn active" data-ailevel="beginner" onclick="selectAILevel('beginner')">初級</button>
+                        <button class="option-btn" data-ailevel="intermediate" onclick="selectAILevel('intermediate')">中級</button>
+                        <button class="option-btn" data-ailevel="advanced" onclick="selectAILevel('advanced')">上級</button>
+                    </div>
+                </div>
+                
+                <button class="start-btn" onclick="startAIChat()">💬 会話を開始</button>
+            </div>
+            
+            <!-- チャット画面 -->
+            <div class="aichat-active hidden" id="aichatActive">
+                <div class="chat-container" id="chatContainer">
+                    <!-- チャットメッセージがここに表示されます -->
+                </div>
+                
+                <div class="chat-input-container">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="メッセージを入力..."
+                    />
+                    <button class="chat-send-btn" id="sendBtn" onclick="sendChatMessage()">📤</button>
+                </div>
+                
+                <div class="button-group single" style="margin-top: 15px;">
+                    <button class="btn btn-secondary" onclick="endAIChat()">← 設定に戻る</button>
+                </div>
+            </div>
+            
+            <div class="button-group single" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="showMenu()">← メニューに戻る</button>
+            </div>
         </div>
         
         <!-- 統計画面 -->
-        <div class="stats-screen hidden" id="statsScreen">
-            <div class="stats-title">📊 学習統計</div>
-            
-            <div class="stats-card">
-                <div class="stats-card-title">総学習回数</div>
-                <div class="stats-card-value" id="totalSessions">0</div>
-            </div>
+        <div class="stats-screen screen" id="statsScreen">
+            <div class="stats-title">📊 あなたの学習統計</div>
             
             <div class="stats-grid">
                 <div class="stats-card">
-                    <div class="stats-card-title">総正解数</div>
-                    <div class="stats-card-value" id="totalCorrectStats">0</div>
+                    <div class="stats-card-value" id="totalSessions">0</div>
+                    <div class="stats-card-label">学習セッション数</div>
                 </div>
+                
                 <div class="stats-card">
-                    <div class="stats-card-title">総問題数</div>
+                    <div class="stats-card-value" id="totalCorrectStats">0</div>
+                    <div class="stats-card-label">累計正解数</div>
+                </div>
+                
+                <div class="stats-card">
                     <div class="stats-card-value" id="totalQuestionsStats">0</div>
+                    <div class="stats-card-label">累計回答数</div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-card-value" id="averageAccuracy">0%</div>
+                    <div class="stats-card-label">平均正解率</div>
                 </div>
             </div>
             
-            <div class="stats-card">
-                <div class="stats-card-title">平均正解率</div>
-                <div class="stats-card-value" id="averageAccuracy">0%</div>
+            <div class="button-group single">
+                <button class="btn btn-secondary" onclick="showMenu()">← メニューに戻る</button>
             </div>
-            
-            <button class="start-btn" onclick="returnToMenu()">メインメニューに戻る</button>
-            <button class="reset-btn" onclick="resetStats()">統計をリセット</button>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // フレーズデータベース（hawaii-phrases-全まとめ更新完了版.htmlから抽出）
-        // ============================================
-const phrasesDatabase = {
-    frequent: [
-        // Can I パターン
-        { japanese: 'メニューをください', english: 'Can I have a menu?', hint: 'Can I have で始まります', level: 'beginner', context: 'レストランで' },
-        { japanese: '試着してもいいですか?', english: 'Can I try it on?', hint: 'Can I try で始まります', level: 'beginner', context: 'お店で洋服を見ているとき' },
-        { japanese: 'カードで払えますか?', english: 'Can I pay by card?', hint: 'Can I pay で始まります', level: 'beginner', context: 'お会計のとき' },
-        { japanese: '写真を撮ってもいいですか?', english: 'Can I take a photo?', hint: 'Can I take で始まります', level: 'beginner' },
-        { japanese: 'ナプキンを追加でもらえますか?', english: 'Can I get extra napkins?', hint: 'Can I get で始まります', level: 'beginner' },
-        { japanese: 'このクーポンは使えますか?', english: 'Can I use this coupon?', hint: 'Can I use で始まります', level: 'advanced' },
-        // Please パターン
-        { japanese: 'これをお願いします', english: 'This one, please.', hint: '3語で答えられます', level: 'beginner', context: '指差しながら' },
-        { japanese: 'お会計をお願いします', english: 'Check, please.', hint: '2語で答えられます', level: 'beginner', context: 'レストランで' },
-        { japanese: 'チケット2枚お願いします', english: 'Two tickets, please.', hint: 'Two tickets で始まります', level: 'beginner' },
-        { japanese: '氷抜きでお願いします', english: 'No ice, please.', hint: 'No ice で始まります', level: 'beginner', context: 'ドリンクを注文するとき' },
-        { japanese: '持ち帰りでお願いします', english: 'To go, please.', hint: 'To go で始まります', level: 'beginner', context: 'ファストフード店で' },
-        { japanese: '赤いのをお願いします', english: 'Red one, please.', hint: 'Red one で始まります', level: 'beginner' },
-        // I'm パターン
-        { japanese: 'お腹がすいています', english: "I'm hungry.", hint: "I'm hungry で始まります", level: 'beginner' },
-        { japanese: '喉が渇いています', english: "I'm thirsty.", hint: "I'm thirsty で始まります", level: 'beginner' },
-        { japanese: 'お腹いっぱいです', english: "I'm full.", hint: "I'm full で始まります", level: 'beginner' },
-        { japanese: '体調が悪いです', english: "I'm not feeling well.", hint: "I'm not で始まります", level: 'beginner' },
-        { japanese: '道に迷いました', english: "I'm lost.", hint: "I'm lost で始まります", level: 'beginner' },
-        { japanese: '○○を探しています', english: "I'm looking for ○○.", hint: "I'm looking で始まります", level: 'beginner', context: '何かを探しているとき' },
-        // It's パターン
-        { japanese: '暑いです', english: "It's hot.", hint: "It's hot で始まります", level: 'beginner' },
-        { japanese: '寒いです', english: "It's cold.", hint: "It's cold で始まります", level: 'beginner' },
-        { japanese: '美味しいです', english: "It's delicious.", hint: "It's delicious で始まります", level: 'beginner' },
-        // その他の頻出
-        { japanese: 'トイレはどこですか?', english: 'Where is the bathroom?', hint: 'Where is で始まります', level: 'beginner' },
-        { japanese: 'これはいくらですか?', english: 'How much is this?', hint: 'How much で始まります', level: 'beginner' },
-        { japanese: 'WiFiはありますか?', english: 'Do you have WiFi?', hint: 'Do you have で始まります', level: 'beginner' },
-        { japanese: 'はい、どうぞ', english: 'Here you go.', hint: '3語で答えられます', level: 'beginner', context: '何かを渡すとき' },
-    ],
-    airport: [
-        // 入国審査
-        { japanese: '観光です', english: 'Sightseeing.', hint: '1語で答えられます', level: 'beginner', context: '訪問の目的は何ですか?' },
-        { japanese: '8日間です', english: 'Eight days.', hint: 'Eight days で始まります', level: 'beginner', context: 'どのくらい滞在しますか?' },
-        { japanese: 'ザ インペリアル ハワイ リゾートです', english: 'At The Imperial Hawaii Resort.', hint: 'At The で始まります', level: 'beginner', context: 'どこに滞在しますか?' },
-        { japanese: 'はい、家族5人です', english: "Yes, we're a family of five.", hint: "Yes, we're で始まります", level: 'advanced', context: '一緒に旅行していますか?' },
-        { japanese: 'はい、5回目です', english: 'Yes, this is our fifth time.', hint: 'Yes, this is で始まります', level: 'advanced', context: 'ハワイに来たことはありますか?' },
-        // 荷物受取
-        { japanese: 'すみません、手荷物受取所はどこですか?', english: "Excuse me, where's the baggage claim?", hint: "Excuse me, where's で始まります", level: 'advanced' },
-        { japanese: '東京からの便はどのターンテーブルですか?', english: 'Which carousel is for the flight from Tokyo?', hint: 'Which carousel で始まります', level: 'beginner' },
-        { japanese: 'すみません、荷物が1つ見つかりません', english: 'Excuse me, our bag is missing.', hint: 'Excuse me, our で始まります', level: 'beginner' },
-        { japanese: '4個預けました', english: 'We checked four bags.', hint: 'We checked で始まります', level: 'beginner', context: '預けた荷物の数を伝える' },
-        { japanese: '紛失荷物の報告はどこでしますか?', english: 'Where do we report lost luggage?', hint: 'Where do we で始まります', level: 'beginner' },
-        // 税関
-        { japanese: 'いいえ、ありません', english: 'No, nothing to declare.', hint: 'No, nothing で始まります', level: 'beginner', context: '申告するものはありますか?' },
-        // タクシー・シャトル
-        { japanese: 'すみません、タクシー乗り場はどこですか?', english: "Excuse me, where's the taxi stand?", hint: "Excuse me, where's で始まります", level: 'advanced' },
-        { japanese: 'ザ インペリアル ハワイ リゾートまでお願いします', english: 'The Imperial Hawaii Resort, please.', hint: 'The Imperial で始まります', level: 'beginner' },
-        { japanese: 'どれくらい時間がかかりますか?', english: 'How long does it take?', hint: 'How long で始まります', level: 'beginner' },
-        { japanese: 'いくらくらいですか?', english: 'How much is it?', hint: 'How much で始まります', level: 'beginner' },
-        { japanese: 'ここでお願いします', english: 'Here, please.', hint: '2語で答えられます', level: 'beginner', context: 'ホテル前で降りるとき' },
-        { japanese: 'おつりは取っておいてください', english: 'Keep the change.', hint: '3語で答えられます', level: 'beginner' },
-        // チェックインカウンター
-        { japanese: '東京です', english: 'Tokyo.', hint: '1語で答えられます', level: 'beginner', context: 'どちらへ飛びますか?' },
-        { japanese: '4個です', english: 'Four bags.', hint: 'Four bags で始まります', level: 'beginner', context: '預ける荷物はいくつですか?' },
-        { japanese: '一緒に座れますか?家族5人です', english: "Can we sit together? We're a family of five.", hint: 'Can we sit で始まります', level: 'advanced' },
-        { japanese: 'はい、どうぞ', english: 'Here you go.', hint: '3語で答えられます', level: 'beginner', context: 'パスポートを渡すとき' },
-    ],
-    hotel: [
-        { japanese: 'チェックイン前に荷物を預けたいです', english: "We'd like to leave our luggage before check-in.", hint: "We'd like to で始まります", level: 'advanced' },
-        { japanese: '佐藤の名前で予約しています', english: 'We have a reservation under Sato.', hint: 'We have a で始まります', level: 'advanced' },
-        { japanese: 'スーツケースが7個あります', english: 'We have seven suitcases.', hint: 'We have seven で始まります', level: 'beginner' },
-        { japanese: '朝食は何時から提供されますか?', english: 'What time is breakfast served?', hint: 'What time で始まります', level: 'beginner' },
-        { japanese: '部屋でWiFiは使えますか?', english: 'Is WiFi available in the rooms?', hint: 'Is WiFi で始まります', level: 'beginner' },
-        { japanese: '1205号室のエアコンが正常に動きません', english: "The AC in room 1205 isn't working properly.", hint: 'The AC で始まります', level: 'advanced' },
-        { japanese: '1205号室にタオルがもっと必要です', english: 'We need more towels in room 1205, please.', hint: 'We need more で始まります', level: 'beginner' },
-        { japanese: 'シャンプーと石鹸をもっともらえますか?', english: 'Could we get some more shampoo and soap?', hint: 'Could we get で始まります', level: 'advanced' },
-        { japanese: 'ビーチタオルを借りられますか?', english: 'Could we get some beach towels, please?', hint: 'Could we get で始まります', level: 'advanced' },
-        { japanese: '借りられる炊飯器はありますか?', english: 'Do you have a rice cooker we could borrow?', hint: 'Do you have で始まります', level: 'advanced' },
-        { japanese: '今日は清掃不要です', english: 'No cleaning needed today, please.', hint: 'No cleaning で始まります', level: 'beginner' },
-        { japanese: 'チェックアウトしたいです。1205号室と1207号室です', english: "We'd like to check out. Rooms 1205 and 1207.", hint: "We'd like to で始まります", level: 'advanced' },
-        { japanese: 'デポジットはいつカードに返金されますか?', english: 'When will the deposit be refunded to my card?', hint: 'When will で始まります', level: 'advanced' },
-        { japanese: 'タクシーを呼んでいただけますか?', english: 'Could you call a taxi for us?', hint: 'Could you call で始まります', level: 'advanced' },
-    ],
-    transport: [
-        { japanese: 'このバスはワイキキへ行きますか?', english: 'Does this bus go to Waikiki?', hint: 'Does this bus で始まります', level: 'beginner' },
-        { japanese: 'アラモアナセンターに着いたら教えていただけますか?', english: 'Could you tell me when we get to Ala Moana Center?', hint: 'Could you tell で始まります', level: 'advanced' },
-        { japanese: 'これは○○のUberですか?', english: 'Is this Uber for ○○?', hint: 'Is this Uber で始まります', level: 'beginner' },
-        { japanese: 'エアコンを強くしていただけますか?', english: 'Can you turn up the AC, please?', hint: 'Can you turn で始まります', level: 'advanced' },
-        { japanese: 'ワイキキビーチまで連れて行ってもらえますか?', english: 'Can you take me to Waikiki Beach?', hint: 'Can you take で始まります', level: 'advanced' },
-        { japanese: 'いくらくらいかかりますか?', english: 'How much will it cost?', hint: 'How much で始まります', level: 'beginner' },
-        { japanese: 'はい、どうぞ。おつりは取っておいてください', english: 'Here you go. Keep the change.', hint: 'Here you go で始まります', level: 'beginner' },
-        { japanese: 'カードで払えますか?', english: 'Can I pay by card?', hint: 'Can I pay で始まります', level: 'beginner' },
-        { japanese: 'レシートをいただけますか?', english: 'Can I have a receipt, please?', hint: 'Can I have で始まります', level: 'beginner' },
-    ],
-    dining: [
-        { japanese: '佐藤で10人の予約をしています', english: 'We have a reservation for ten under Sato.', hint: 'We have a で始まります', level: 'advanced' },
-        { japanese: '10人です。予約はしていません', english: 'Ten people, please. No reservation.', hint: 'Ten people で始まります', level: 'beginner' },
-        { japanese: '待ち時間はどれくらいですか?', english: 'How long is the wait?', hint: 'How long で始まります', level: 'beginner' },
-        { japanese: '外の席をお願いできますか?', english: 'Could we have a table outside, please?', hint: 'Could we have で始まります', level: 'advanced' },
-        { japanese: 'メニューを見せてもらえますか?', english: 'Can I see the menu, please?', hint: 'Can I see で始まります', level: 'beginner' },
-        { japanese: '日本語のメニューはありますか?', english: 'Do you have a Japanese menu?', hint: 'Do you have で始まります', level: 'beginner' },
-        { japanese: '何がおすすめですか?', english: 'What do you recommend?', hint: 'What do you で始まります', level: 'beginner' },
-        { japanese: 'ミディアムでお願いします', english: 'Medium, please.', hint: '2語で答えられます', level: 'beginner', context: '焼き加減を聞かれたとき' },
-        { japanese: 'ソースなしでお願いできますか?', english: 'Can I get that with no sauce?', hint: 'Can I get で始まります', level: 'advanced' },
-        { japanese: 'シェア用の追加の皿をいただけますか?', english: 'Can we get extra plates for sharing?', hint: 'Can we get で始まります', level: 'advanced' },
-        { japanese: '今のところ以上です', english: "No, that's all for now.", hint: "No, that's で始まります", level: 'beginner', context: '他に何かご注文は?' },
-        { japanese: 'お会計をお願いできますか?', english: 'Could we get the check, please?', hint: 'Could we get で始まります', level: 'advanced' },
-        { japanese: '別々の会計でお願いします', english: "We'd like separate checks, please.", hint: "We'd like で始まります", level: 'advanced' },
-        { japanese: 'ビッグマックのセットをお願いします', english: "I'll have a Big Mac meal, please.", hint: "I'll have で始まります", level: 'beginner', context: 'ファストフードで' },
-        { japanese: '3番のコンボをお願いできますか?', english: 'Can I get a number 3 combo?', hint: 'Can I get で始まります', level: 'beginner', context: 'ファストフードで' },
-        { japanese: 'バーガーだけでお願いします', english: 'Just the burger, please.', hint: 'Just the で始まります', level: 'beginner', context: 'セットではなく単品' },
-        { japanese: 'お水のおかわりをいただけますか?', english: 'Could we get some more water, please?', hint: 'Could we get で始まります', level: 'advanced' },
-    ],
-    shopping: [
-        { japanese: 'これはいくらですか?', english: 'How much is this?', hint: 'How much で始まります', level: 'beginner' },
-        { japanese: 'これのLサイズはありますか?', english: 'Do you have this in large?', hint: 'Do you have で始まります', level: 'beginner' },
-        { japanese: 'おすすめはありますか?', english: 'Do you have any recommendations?', hint: 'Do you have で始まります', level: 'beginner' },
-        { japanese: 'クレジットカードは使えますか?', english: 'Do you take credit cards?', hint: 'Do you take で始まります', level: 'beginner' },
-        { japanese: '薬を買う必要があります', english: 'I need to buy medicine.', hint: 'I need to で始まります', level: 'beginner' },
-        { japanese: '近くにドラッグストアはありますか?', english: 'Do you have a drugstore nearby?', hint: 'Do you have で始まります', level: 'beginner' },
-        { japanese: '風邪の薬が必要です', english: 'I need something for a cold.', hint: 'I need で始まります', level: 'beginner' },
-    ],
-    emergency: [
-        { japanese: '911に電話してください!', english: 'Call 911, please!', hint: 'Call 911 で始まります', level: 'beginner' },
-        { japanese: '助けが必要です、お願いします', english: 'I need help, please.', hint: 'I need help で始まります', level: 'beginner' },
-        { japanese: '警察を呼んでください', english: 'Please call the police.', hint: 'Please call で始まります', level: 'beginner' },
-        { japanese: '救急車を呼んでください!', english: 'Call an ambulance, please!', hint: 'Call an で始まります', level: 'beginner' },
-        { japanese: '財布をなくしました', english: 'I lost my wallet.', hint: 'I lost で始まります', level: 'beginner' },
-        { japanese: 'バッグが盗まれました', english: 'My bag was stolen.', hint: 'My bag で始まります', level: 'beginner' },
-        { japanese: '体調が悪いです', english: "I don't feel well.", hint: "I don't feel で始まります", level: 'beginner' },
-        { japanese: '医者に診てもらう必要があります', english: 'I need to see a doctor.', hint: 'I need to で始まります', level: 'beginner' },
-        { japanese: '熱があります', english: 'I have a fever.', hint: 'I have a で始まります', level: 'beginner' },
-        { japanese: '頭が痛いです', english: 'I have a headache.', hint: 'I have a で始まります', level: 'beginner' },
-        { japanese: 'お腹が痛いです', english: 'I have a stomachache.', hint: 'I have a で始まります', level: 'beginner' },
-        { japanese: '最寄りの病院はどこですか?', english: "Where's the nearest hospital?", hint: "Where's the で始まります", level: 'beginner' },
-        { japanese: '薬局はどこですか?', english: "Where's the pharmacy?", hint: "Where's the で始まります", level: 'beginner' },
-    ],
-    smalltalk: [
-        { japanese: 'こんにちは!いい天気ですね!', english: 'Hi! Nice day!', hint: 'Hi! Nice で始まります', level: 'beginner' },
-        { japanese: '休暇ですか?', english: 'Are you on vacation?', hint: 'Are you で始まります', level: 'beginner' },
-        { japanese: 'どこから来たんですか?', english: 'Where are you from?', hint: 'Where are you で始まります', level: 'beginner' },
-        { japanese: 'ハワイは初めてですか?', english: 'First time in Hawaii?', hint: 'First time で始まります', level: 'beginner' },
-        { japanese: 'どのくらい滞在ですか?', english: 'How long are you here?', hint: 'How long で始まります', level: 'beginner' },
-        { japanese: '10日間。初めてです!', english: 'Ten days. First time!', hint: 'Ten days で始まります', level: 'beginner' },
-        { japanese: '子供と旅行中ですか?', english: 'Traveling with kids?', hint: 'Traveling with で始まります', level: 'beginner' },
-        { japanese: '明日は何をしますか?', english: 'What are you doing tomorrow?', hint: 'What are you で始まります', level: 'beginner' },
-        { japanese: 'ハワイで何をすべきですか?', english: 'What should we do in Hawaii?', hint: 'What should で始まります', level: 'beginner' },
-        { japanese: 'すみません。写真を撮ってもらえますか?', english: 'Excuse me, can you take our photo?', hint: 'Excuse me で始まります', level: 'beginner' },
-        { japanese: 'お会いできて良かった!', english: 'It was nice meeting you!', hint: 'It was nice で始まります', level: 'beginner' },
-    ]};
-
 // ============================================
 // グローバル変数
 // ============================================
-let currentMode = 'quiz';
-let selectedScene = 'random';
+
+let currentMode = '';
+let selectedScene = 'all';
 let selectedLevel = 'all';
 let currentQuestions = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
 let incorrectCount = 0;
-let isRecording = false;
-let recognition = null;
-let currentAnswer = '';
 let isAnswerShown = false;
-let isPracticeRecording = false;
-let practiceRecognition = null;
-let currentPracticeIndex = 0;
-let practiceQuestions = [];
 
-// AIチャット用変数
-let aiChatScene = 'freetalk';
-let aiChatLevel = 'intermediate';
-let chatHistory = [];
-
-// ============================================
-// 音声認識の初期化
-// ============================================
+// 音声認識
+let recognition = null;
+let isRecording = false;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -1432,19 +1210,24 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const transcript = event.results[0][0].transcript;
         document.getElementById('answerInput').value = transcript;
         document.getElementById('clearBtn').classList.add('show');
-        stopVoiceInput();
-    };
-    
-    recognition.onerror = function(event) {
-        console.error('Speech recognition error:', event.error);
-        stopVoiceInput();
     };
     
     recognition.onend = function() {
-        stopVoiceInput();
+        isRecording = false;
+        document.getElementById('voiceBtn').textContent = '🎤 音声入力';
     };
-    
-    // スピーキング練習用
+}
+
+// スピーキング練習用
+let practiceQuestions = [];
+let currentPracticeIndex = 0;
+let practiceCorrectCount = 0;
+let practiceIncorrectCount = 0;
+
+let practiceRecognition = null;
+let isPracticeRecording = false;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     practiceRecognition = new SpeechRecognition();
     practiceRecognition.lang = 'en-US';
     practiceRecognition.continuous = false;
@@ -1452,217 +1235,248 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     
     practiceRecognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
-        document.getElementById('recognitionText').textContent = transcript;
-        document.getElementById('recognitionPlaceholder').classList.add('hidden');
-        document.getElementById('recognitionText').classList.remove('hidden');
+        document.getElementById('recognitionResult').textContent = `あなた: "${transcript}"`;
         
-        // 簡単なスコア計算
         const currentPhrase = practiceQuestions[currentPracticeIndex];
-        const similarity = calculateSimilarity(transcript.toLowerCase(), currentPhrase.english.toLowerCase());
-        const score = Math.round(similarity * 100);
-        
-        document.getElementById('scoreDisplay2').classList.remove('hidden');
-        document.getElementById('scoreValue').textContent = score;
-        
-        if (score >= 90) {
-            document.getElementById('scoreMessage').textContent = '素晴らしい発音です! 🎉';
-        } else if (score >= 70) {
-            document.getElementById('scoreMessage').textContent = '良い発音です! 👍';
-        } else if (score >= 50) {
-            document.getElementById('scoreMessage').textContent = 'もう少し練習しましょう 💪';
+        if (isAnswerCorrect(transcript, currentPhrase.english)) {
+            practiceCorrectCount++;
+            document.getElementById('scoreDisplay2').innerHTML = '✅ 正解です! 素晴らしい!';
+            document.getElementById('scoreDisplay2').style.background = '#d1e7dd';
+            document.getElementById('scoreDisplay2').style.color = '#0f5132';
         } else {
-            document.getElementById('scoreMessage').textContent = 'もう一度挑戦! ✨';
+            practiceIncorrectCount++;
+            document.getElementById('scoreDisplay2').innerHTML = `❌ もう一度挑戦!<br>正解: ${currentPhrase.english}`;
+            document.getElementById('scoreDisplay2').style.background = '#f8d7da';
+            document.getElementById('scoreDisplay2').style.color = '#842029';
         }
+        document.getElementById('scoreDisplay2').classList.remove('hidden');
         
-        stopPracticeRecording();
-    };
-    
-    practiceRecognition.onerror = function(event) {
-        console.error('Practice speech recognition error:', event.error);
-        stopPracticeRecording();
+        updatePracticeStats();
     };
     
     practiceRecognition.onend = function() {
-        stopPracticeRecording();
+        isPracticeRecording = false;
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordIcon').textContent = '🎤';
+        document.getElementById('recordText').textContent = '録音開始';
     };
 }
 
-// ============================================
-// ユーティリティ関数
-// ============================================
+// AIチャット用
+let aiChatScene = 'freetalk';
+let aiChatLevel = 'beginner';
+let chatHistory = [];
+let workerApiUrl = '';
 
-// 文字列の類似度を計算 (Levenshtein distance)
-function calculateSimilarity(s1, s2) {
-    const longer = s1.length > s2.length ? s1 : s2;
-    const shorter = s1.length > s2.length ? s2 : s1;
-    const longerLength = longer.length;
-    if (longerLength === 0) {
-        return 1.0;
-    }
-    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
-}
+// シーン名マッピング
+const sceneNames = {
+    frequent: '頻出',
+    airport: '空港',
+    hotel: 'ホテル',
+    transport: '交通',
+    food: '食事',
+    shopping: '買い物',
+    emergency: '緊急',
+    smalltalk: 'スモールトーク'
+};
 
-function editDistance(s1, s2) {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-    const costs = [];
-    for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-            if (i === 0) {
-                costs[j] = j;
-            } else if (j > 0) {
-                let newValue = costs[j - 1];
-                if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                    newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                }
-                costs[j - 1] = lastValue;
-                lastValue = newValue;
-            }
-        }
-        if (i > 0) {
-            costs[s2.length] = lastValue;
-        }
-    }
-    return costs[s2.length];
-}
+// 日本語シーン名マッピング（AIチャット用）
+const aiSceneNames = {
+    freetalk: 'フリートーク',
+    airport: '空港',
+    hotel: 'ホテル',
+    restaurant: 'レストラン',
+    shopping: 'ショッピング',
+    sightseeing: '観光'
+};
 
-// 正規化関数
-function normalizeText(text) {
-    return text
-        .toLowerCase()
-        .replace(/[.,!?;:'"`]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-// 柔軟な正解判定
-function isAnswerCorrect(userAnswer, correctAnswer) {
-    const normalizedUser = normalizeText(userAnswer);
-    const normalizedCorrect = normalizeText(correctAnswer);
-    
-    // 完全一致
-    if (normalizedUser === normalizedCorrect) {
-        return true;
-    }
-    
-    // 同義語・短縮形のマッピング
-    const equivalents = [
-        ['cant', 'cannot', 'can not'],
-        ['dont', 'do not'],
-        ['wont', 'will not'],
-        ['im', 'i am'],
-        ['youre', 'you are'],
-        ['were', 'we are'],
-        ['theyre', 'they are'],
-        ['isnt', 'is not'],
-        ['arent', 'are not'],
-        ['wasnt', 'was not'],
-        ['werent', 'were not'],
-        ['hasnt', 'has not'],
-        ['havent', 'have not'],
-        ['hadnt', 'had not'],
-        ['wouldnt', 'would not'],
-        ['shouldnt', 'should not'],
-        ['couldnt', 'could not'],
-        ['mightnt', 'might not'],
-        ['mustnt', 'must not'],
-        ['shant', 'shall not'],
-        ['whats', 'what is'],
-        ['wheres', 'where is'],
-        ['whos', 'who is'],
-        ['hows', 'how is'],
-        ['thats', 'that is'],
-        ['theres', 'there is'],
-        ['heres', 'here is'],
-        ['id', 'i would', 'i had'],
-        ['youd', 'you would', 'you had'],
-        ['hed', 'he would', 'he had'],
-        ['shed', 'she would', 'she had'],
-        ['wed', 'we would', 'we had'],
-        ['theyd', 'they would', 'they had'],
-        ['ill', 'i will'],
-        ['youll', 'you will'],
-        ['hell', 'he will'],
-        ['shell', 'she will'],
-        ['well', 'we will'],
-        ['theyll', 'they will'],
-        ['ive', 'i have'],
-        ['youve', 'you have'],
-        ['weve', 'we have'],
-        ['theyve', 'they have'],
-        ['meal', 'combo'],
-        ['thats all', 'thats it'],
-        ['thanks', 'thank you'],
-        ['do you accept', 'can i use'],
-        ['ill have that one', 'that one please'],
-    ];
-    
-    // 同義語をチェック
-    for (const group of equivalents) {
-        let userHasVariant = false;
-        let correctHasVariant = false;
-        
-        for (const variant of group) {
-            if (normalizedUser.includes(variant)) {
-                userHasVariant = true;
-            }
-            if (normalizedCorrect.includes(variant)) {
-                correctHasVariant = true;
-            }
-        }
-        
-        if (userHasVariant && correctHasVariant) {
-            // 同義語を置換して再度比較
-            let tempUser = normalizedUser;
-            let tempCorrect = normalizedCorrect;
-            
-            for (const variant of group) {
-                tempUser = tempUser.replace(variant, group[0]);
-                tempCorrect = tempCorrect.replace(variant, group[0]);
-            }
-            
-            if (tempUser === tempCorrect) {
-                return true;
-            }
-        }
-    }
-    
-    // 主語の違いを吸収
-    const subjects = ['i', 'you', 'he', 'she', 'we', 'they'];
-    for (const subj1 of subjects) {
-        for (const subj2 of subjects) {
-            if (normalizedUser.replace(subj1, '___') === normalizedCorrect.replace(subj2, '___')) {
-                return true;
-            }
-        }
-    }
-    
-    // 類似度チェック (90%以上で正解とする)
-    const similarity = calculateSimilarity(normalizedUser, normalizedCorrect);
-    if (similarity >= 0.9) {
-        return true;
-    }
-    
-    return false;
-}
+// 日本語レベル名マッピング（AIチャット用）
+const aiLevelNames = {
+    beginner: '初級',
+    intermediate: '中級',
+    advanced: '上級'
+};
 
 // ============================================
-// メインメニュー関数
+// フレーズデータベース
 // ============================================
 
-function selectMainMode(mode) {
+const phrasesDatabase = {
+    frequent: [
+        { japanese: "すみません", english: "Excuse me", hint: "丁寧に話しかける時", level: "beginner" },
+        { japanese: "ありがとうございます", english: "Thank you", hint: "感謝を伝える", level: "beginner" },
+        { japanese: "お願いします", english: "Please", hint: "依頼する時", level: "beginner" },
+        { japanese: "どういたしまして", english: "You're welcome", hint: "お礼への返答", level: "beginner" },
+        { japanese: "はい", english: "Yes", hint: "肯定の返事", level: "beginner" },
+        { japanese: "いいえ", english: "No", hint: "否定の返事", level: "beginner" },
+        { japanese: "大丈夫です", english: "It's okay", hint: "問題ないと伝える", level: "beginner" },
+        { japanese: "わかりました", english: "I understand", hint: "理解したと伝える", level: "beginner" },
+        { japanese: "ごめんなさい", english: "I'm sorry", hint: "謝罪する時", level: "beginner" },
+        { japanese: "助けてください", english: "Help me, please", hint: "助けを求める", level: "beginner" },
+        { japanese: "もう一度言ってください", english: "Could you say that again?", hint: "聞き返す時", level: "beginner" },
+        { japanese: "ゆっくり話してください", english: "Please speak slowly", hint: "ゆっくり話してほしい時", level: "beginner" },
+        { japanese: "英語が話せません", english: "I don't speak English", hint: "英語が苦手と伝える", level: "beginner" },
+        { japanese: "日本語を話せますか?", english: "Do you speak Japanese?", hint: "日本語対応を確認", level: "beginner" },
+        { japanese: "トイレはどこですか?", english: "Where is the restroom?", hint: "トイレの場所を聞く", level: "beginner" },
+        { japanese: "いくらですか?", english: "How much is it?", hint: "値段を聞く", level: "beginner" },
+        { japanese: "クレジットカードは使えますか?", english: "Do you accept credit cards?", hint: "支払い方法を確認", level: "beginner" },
+        { japanese: "これをください", english: "I'll take this", hint: "商品を選ぶ時", level: "beginner" },
+        { japanese: "写真を撮ってもらえますか?", english: "Could you take a picture?", hint: "写真撮影を依頼", level: "beginner" },
+        { japanese: "おすすめは何ですか?", english: "What do you recommend?", hint: "おすすめを聞く", level: "beginner" },
+        { japanese: "これは何ですか?", english: "What is this?", hint: "物について聞く", level: "beginner" },
+        { japanese: "Wi-Fiはありますか?", english: "Do you have Wi-Fi?", hint: "Wi-Fi環境を確認", level: "beginner" },
+        { japanese: "パスワードは何ですか?", english: "What's the password?", hint: "Wi-Fiパスワードを聞く", level: "beginner" },
+        { japanese: "ここに座ってもいいですか?", english: "Can I sit here?", hint: "座席の使用許可を得る", level: "beginner" },
+        { japanese: "どのくらい時間がかかりますか?", english: "How long does it take?", hint: "所要時間を確認", level: "beginner" }
+    ],
+    airport: [
+        { japanese: "搭乗券はこれです", english: "Here's my boarding pass", hint: "搭乗券を見せる", level: "beginner" },
+        { japanese: "預ける荷物が1つあります", english: "I have one bag to check", hint: "チェックインカウンターで", level: "beginner" },
+        { japanese: "窓側の席をお願いします", english: "I'd like a window seat, please", hint: "座席の希望を伝える", level: "beginner" },
+        { japanese: "通路側の席をお願いします", english: "I'd like an aisle seat, please", hint: "座席の希望を伝える", level: "beginner" },
+        { japanese: "ゲートはどこですか?", english: "Where is the gate?", hint: "搭乗ゲートを探す", level: "beginner" },
+        { japanese: "搭乗時間は何時ですか?", english: "What time is boarding?", hint: "搭乗開始時刻を確認", level: "beginner" },
+        { japanese: "乗り継ぎの案内をお願いします", english: "I need help with my connection", hint: "乗り継ぎサポートを依頼", level: "beginner", context: "乗り継ぎ便がある場合" },
+        { japanese: "荷物が出てきません", english: "My luggage hasn't come out", hint: "荷物の紛失を報告", level: "beginner" },
+        { japanese: "税関申告するものはありません", english: "I have nothing to declare", hint: "税関で申告なしと伝える", level: "beginner" },
+        { japanese: "観光目的です", english: "I'm here for sightseeing", hint: "入国審査で目的を答える", level: "beginner" },
+        { japanese: "5日間滞在します", english: "I'm staying for 5 days", hint: "滞在期間を答える", level: "beginner" },
+        { japanese: "ホテルに泊まります", english: "I'm staying at a hotel", hint: "宿泊先を答える", level: "beginner" },
+        { japanese: "機内持ち込み荷物だけです", english: "I only have carry-on luggage", hint: "預け荷物がない場合", level: "beginner" },
+        { japanese: "液体物を持っています", english: "I have liquids", hint: "保安検査場で申告", level: "beginner", context: "液体物を機内持ち込みする場合" },
+        { japanese: "ノートパソコンを持っています", english: "I have a laptop", hint: "保安検査場で申告", level: "beginner" },
+        { japanese: "靴を脱ぎますか?", english: "Do I need to take off my shoes?", hint: "保安検査での確認", level: "beginner" },
+        { japanese: "ベルトを外しますか?", english: "Do I need to remove my belt?", hint: "保安検査での確認", level: "beginner" },
+        { japanese: "この便は遅れていますか?", english: "Is this flight delayed?", hint: "遅延状況を確認", level: "beginner" },
+        { japanese: "座席を変更できますか?", english: "Can I change my seat?", hint: "座席変更を依頼", level: "advanced" },
+        { japanese: "荷物の重量制限は何キロですか?", english: "What's the baggage weight limit?", hint: "重量制限を確認", level: "advanced" },
+        { japanese: "超過料金はいくらですか?", english: "How much is the excess baggage fee?", hint: "超過料金を聞く", level: "advanced", context: "荷物が重量オーバーの場合" }
+    ],
+    hotel: [
+        { japanese: "チェックインをお願いします", english: "I'd like to check in", hint: "フロントで最初に言う", level: "beginner" },
+        { japanese: "予約しています", english: "I have a reservation", hint: "予約があることを伝える", level: "beginner" },
+        { japanese: "名前は田中です", english: "My name is Tanaka", hint: "名前を伝える", level: "beginner" },
+        { japanese: "部屋の鍵をください", english: "Can I have the room key?", hint: "鍵を受け取る", level: "beginner" },
+        { japanese: "Wi-Fiのパスワードは何ですか?", english: "What's the Wi-Fi password?", hint: "Wi-Fi接続情報を聞く", level: "beginner" },
+        { japanese: "朝食は何時からですか?", english: "What time is breakfast?", hint: "朝食時間を確認", level: "beginner" },
+        { japanese: "プールはありますか?", english: "Do you have a pool?", hint: "施設について聞く", level: "beginner" },
+        { japanese: "タオルをもらえますか?", english: "Can I get some towels?", hint: "追加のタオルを依頼", level: "beginner" },
+        { japanese: "部屋を掃除してください", english: "Please clean my room", hint: "ハウスキーピングを依頼", level: "beginner" },
+        { japanese: "チェックアウトをお願いします", english: "I'd like to check out", hint: "チェックアウト時", level: "beginner" },
+        { japanese: "領収書をください", english: "Can I have a receipt?", hint: "領収書を依頼", level: "beginner" },
+        { japanese: "荷物を預かってもらえますか?", english: "Can you keep my luggage?", hint: "荷物預かりを依頼", level: "beginner", context: "チェックアウト後も観光する場合" },
+        { japanese: "タクシーを呼んでもらえますか?", english: "Can you call a taxi?", hint: "タクシー手配を依頼", level: "beginner" },
+        { japanese: "おすすめのレストランはありますか?", english: "Can you recommend a restaurant?", hint: "レストラン情報を聞く", level: "advanced" }
+    ],
+    transport: [
+        { japanese: "ワイキキまでお願いします", english: "To Waikiki, please", hint: "タクシーで行き先を伝える", level: "beginner" },
+        { japanese: "いくらかかりますか?", english: "How much will it cost?", hint: "料金を事前に確認", level: "beginner" },
+        { japanese: "ここで降ります", english: "I'll get off here", hint: "降車時に伝える", level: "beginner" },
+        { japanese: "お釣りをください", english: "Can I have change?", hint: "お釣りを求める", level: "beginner", context: "現金払いでお釣りが必要な場合" },
+        { japanese: "レシートをください", english: "Can I have a receipt?", hint: "領収書を依頼", level: "beginner" },
+        { japanese: "ダイヤモンドヘッドへはどう行きますか?", english: "How do I get to Diamond Head?", hint: "行き方を尋ねる", level: "beginner" },
+        { japanese: "バス停はどこですか?", english: "Where's the bus stop?", hint: "バス停の場所を聞く", level: "beginner" },
+        { japanese: "このバスはワイキキに行きますか?", english: "Does this bus go to Waikiki?", hint: "バスの行き先を確認", level: "beginner" },
+        { japanese: "1日券をください", english: "One day pass, please", hint: "バスの1日券を購入", level: "advanced", context: "バスを何度も利用する場合" }
+    ],
+    food: [
+        { japanese: "2名でお願いします", english: "Table for two, please", hint: "人数を伝える", level: "beginner" },
+        { japanese: "メニューをください", english: "Can I see the menu?", hint: "メニューを依頼", level: "beginner" },
+        { japanese: "これをください", english: "I'll have this", hint: "メニューを指差して注文", level: "beginner" },
+        { japanese: "水をください", english: "Water, please", hint: "飲み物を注文", level: "beginner" },
+        { japanese: "おすすめは何ですか?", english: "What do you recommend?", hint: "おすすめを聞く", level: "beginner" },
+        { japanese: "お会計をお願いします", english: "Check, please", hint: "会計を依頼", level: "beginner" },
+        { japanese: "クレジットカードで払います", english: "I'll pay by credit card", hint: "支払い方法を伝える", level: "beginner" },
+        { japanese: "別々に払います", english: "We'll pay separately", hint: "個別会計を依頼", level: "beginner", context: "友人と別々に支払う場合" },
+        { japanese: "これは何ですか?", english: "What's this?", hint: "料理について聞く", level: "beginner" },
+        { japanese: "アレルギーがあります", english: "I have allergies", hint: "アレルギーを伝える", level: "beginner", context: "食物アレルギーがある場合" },
+        { japanese: "辛くしないでください", english: "Not spicy, please", hint: "辛さを控えてもらう", level: "beginner" },
+        { japanese: "持ち帰りできますか?", english: "Can I get this to go?", hint: "持ち帰りを依頼", level: "beginner", context: "食べきれない料理がある場合" },
+        { japanese: "これとこれをください", english: "I'll have this and this", hint: "複数の料理を注文", level: "beginner" },
+        { japanese: "ミディアムでお願いします", english: "Medium, please", hint: "肉の焼き加減を指定", level: "advanced", context: "ステーキなどを注文する場合" },
+        { japanese: "デザートメニューはありますか?", english: "Do you have a dessert menu?", hint: "デザートを注文", level: "advanced" },
+        { japanese: "予約していますか?", english: "Do you have a reservation?", hint: "予約の有無を聞かれた時の答え", level: "advanced", context: "レストランで予約の有無を聞かれた場合" },
+        { japanese: "予約はしていません", english: "I don't have a reservation", hint: "予約なしと伝える", level: "advanced" }
+    ],
+    shopping: [
+        { japanese: "見ているだけです", english: "I'm just looking", hint: "声をかけられた時", level: "beginner" },
+        { japanese: "これを試着できますか?", english: "Can I try this on?", hint: "試着を依頼", level: "beginner" },
+        { japanese: "他の色はありますか?", english: "Do you have other colors?", hint: "色違いを聞く", level: "beginner" },
+        { japanese: "もっと安いのはありますか?", english: "Do you have something cheaper?", hint: "安い商品を探す", level: "beginner" },
+        { japanese: "これをください", english: "I'll take this", hint: "購入を決定", level: "beginner" },
+        { japanese: "袋をください", english: "Can I have a bag?", hint: "袋を依頼", level: "beginner", context: "買い物袋が必要な場合" },
+        { japanese: "返品できますか?", english: "Can I return this?", hint: "返品可否を確認", level: "advanced", context: "商品に問題があった場合" }
+    ],
+    emergency: [
+        { japanese: "助けてください", english: "Help me", hint: "緊急時の助けを求める", level: "beginner" },
+        { japanese: "救急車を呼んでください", english: "Call an ambulance", hint: "救急車を要請", level: "beginner" },
+        { japanese: "警察を呼んでください", english: "Call the police", hint: "警察を要請", level: "beginner" },
+        { japanese: "財布を盗まれました", english: "My wallet was stolen", hint: "盗難を報告", level: "beginner" },
+        { japanese: "パスポートをなくしました", english: "I lost my passport", hint: "パスポート紛失を報告", level: "beginner" },
+        { japanese: "気分が悪いです", english: "I feel sick", hint: "体調不良を伝える", level: "beginner" },
+        { japanese: "頭が痛いです", english: "I have a headache", hint: "頭痛を伝える", level: "beginner" },
+        { japanese: "お腹が痛いです", english: "I have a stomachache", hint: "腹痛を伝える", level: "beginner" },
+        { japanese: "熱があります", english: "I have a fever", hint: "発熱を伝える", level: "beginner" },
+        { japanese: "薬をください", english: "I need medicine", hint: "薬を求める", level: "beginner" },
+        { japanese: "病院に行きたいです", english: "I want to go to a hospital", hint: "病院への案内を求める", level: "beginner" },
+        { japanese: "日本語を話せる人はいますか?", english: "Is there anyone who speaks Japanese?", hint: "日本語対応者を探す", level: "beginner" },
+        { japanese: "保険証を持っています", english: "I have insurance", hint: "保険加入を伝える", level: "advanced", context: "医療機関で治療を受ける場合" }
+    ],
+    smalltalk: [
+        { japanese: "こんにちは", english: "Hello", hint: "基本の挨拶", level: "beginner" },
+        { japanese: "調子はどうですか?", english: "How are you?", hint: "相手の様子を聞く", level: "beginner" },
+        { japanese: "元気です", english: "I'm fine", hint: "調子を答える", level: "beginner" },
+        { japanese: "お名前は何ですか?", english: "What's your name?", hint: "名前を聞く", level: "beginner" },
+        { japanese: "私の名前は〜です", english: "My name is~", hint: "名前を伝える", level: "beginner" },
+        { japanese: "どちらから来ましたか?", english: "Where are you from?", hint: "出身地を聞く", level: "beginner" },
+        { japanese: "日本から来ました", english: "I'm from Japan", hint: "出身地を答える", level: "beginner" },
+        { japanese: "天気がいいですね", english: "Nice weather", hint: "天気の話題", level: "beginner" },
+        { japanese: "初めてハワイに来ました", english: "This is my first time in Hawaii", hint: "初訪問を伝える", level: "beginner" },
+        { japanese: "ハワイは美しいですね", english: "Hawaii is beautiful", hint: "感想を伝える", level: "beginner" },
+        { japanese: "楽しんでいます", english: "I'm having a great time", hint: "楽しんでいることを伝える", level: "beginner" }
+    ]
+};
+
+// ============================================
+// メニュー・設定関数
+// ============================================
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    document.getElementById(screenId).classList.add('active');
+}
+
+function showMenu() {
+    showScreen('menuScreen');
+    currentMode = '';
+    document.getElementById('quizSettings').style.display = 'none';
+    
+    // モードカードの選択状態をリセット
+    document.querySelectorAll('.mode-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // プログレスバーとスコアを非表示
+    document.querySelector('.progress-bar').style.display = 'none';
+    document.getElementById('progressText').style.display = 'none';
+    document.getElementById('scoreDisplay').style.display = 'none';
+}
+
+function selectMode(mode) {
     currentMode = mode;
     
-    // モードカードのアクティブ化
+    // モードカードをアクティブ化
     document.querySelectorAll('.mode-card').forEach(card => {
-        card.classList.remove('active');
+        card.classList.remove('selected');
     });
-    document.querySelector(`[data-mainmode="${mode}"]`).classList.add('active');
+    event.target.closest('.mode-card').classList.add('selected');
     
-    // AIチャットの場合は設定を非表示
+    // 設定画面を表示（AIチャットの場合は別画面へ）
     if (mode === 'aichat') {
-        document.getElementById('quizSettings').style.display = 'none';
+        showScreen('aichatScreen');
+        loadWorkerUrl();
     } else {
         document.getElementById('quizSettings').style.display = 'block';
     }
@@ -1671,55 +1485,29 @@ function selectMainMode(mode) {
 function selectScene(scene) {
     selectedScene = scene;
     
-    // シーンボタンのアクティブ化
-    document.querySelectorAll('[data-mode]').forEach(btn => {
+    // シーンボタンをアクティブ化
+    document.querySelectorAll('[data-scene]').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`[data-mode="${scene}"]`).classList.add('active');
+    document.querySelector(`[data-scene="${scene}"]`).classList.add('active');
 }
 
 function selectLevel(level) {
     selectedLevel = level;
     
-    // レベルボタンのアクティブ化
+    // レベルボタンをアクティブ化
     document.querySelectorAll('[data-level]').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-level="${level}"]`).classList.add('active');
 }
 
-function startMode() {
+function startSelectedMode() {
     if (currentMode === 'quiz') {
         startQuiz();
-    } else if (currentMode === 'speaking') {
-        startSpeaking();
-    } else if (currentMode === 'aichat') {
-        // AIチャットの場合は設定画面を表示
-        showScreen('aichatScreen');
-        document.getElementById('aichatSetup').classList.remove('hidden');
-        document.getElementById('aichatActive').classList.add('hidden');
+    } else if (currentMode === 'practice') {
+        startPractice();
     }
-}
-
-function showScreen(screenId) {
-    // 全ての画面を非表示
-    document.querySelectorAll('.menu-screen, .content, .speaking-screen, .result-screen, .stats-screen, .aichat-screen').forEach(screen => {
-        screen.classList.add('hidden');
-    });
-    
-    // 指定された画面を表示
-    document.getElementById(screenId).classList.remove('hidden');
-}
-
-function returnToMenu() {
-    // 状態をリセット
-    currentQuestionIndex = 0;
-    correctCount = 0;
-    incorrectCount = 0;
-    currentPracticeIndex = 0;
-    chatHistory = [];
-    
-    showScreen('mainMenu');
 }
 
 // ============================================
@@ -1727,76 +1515,57 @@ function returnToMenu() {
 // ============================================
 
 function startQuiz() {
-    // 問題を生成
-    currentQuestions = generateQuestions();
+    // 質問をフィルタリング
+    currentQuestions = [];
+    
+    if (selectedScene === 'all') {
+        // 全シーンから質問を集める
+        for (let scene in phrasesDatabase) {
+            currentQuestions = currentQuestions.concat(
+                phrasesDatabase[scene].filter(q => 
+                    selectedLevel === 'all' || q.level === selectedLevel
+                )
+            );
+        }
+    } else {
+        // 選択されたシーンから質問を取得
+        currentQuestions = phrasesDatabase[selectedScene].filter(q => 
+            selectedLevel === 'all' || q.level === selectedLevel
+        );
+    }
     
     if (currentQuestions.length === 0) {
-        alert('選択した条件に合う問題がありません。');
+        alert('選択された条件に該当する問題がありません');
         return;
     }
     
     // シャッフル
-    currentQuestions = shuffleArray(currentQuestions);
+    currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
     
-    // 状態をリセット
+    // カウンターをリセット
     currentQuestionIndex = 0;
     correctCount = 0;
     incorrectCount = 0;
     
     // 画面を表示
     showScreen('quizScreen');
+    
+    // プログレスバーとスコアを表示
+    document.querySelector('.progress-bar').style.display = 'block';
+    document.getElementById('progressText').style.display = 'block';
+    document.getElementById('scoreDisplay').style.display = 'block';
+    
+    // 最初の問題を表示
     displayQuestion();
     updateProgress();
-}
-
-function generateQuestions() {
-    let questions = [];
-    
-    if (selectedScene === 'random') {
-        // 全シーンから選択
-        for (const scene in phrasesDatabase) {
-            questions = questions.concat(phrasesDatabase[scene]);
-        }
-    } else {
-        // 特定のシーンから選択
-        questions = phrasesDatabase[selectedScene] || [];
-    }
-    
-    // レベルでフィルタリング
-    if (selectedLevel !== 'all') {
-        questions = questions.filter(q => q.level === selectedLevel);
-    }
-    
-    return questions;
-}
-
-function shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
 }
 
 function displayQuestion() {
     const question = currentQuestions[currentQuestionIndex];
     
-    // シーンバッジを更新
-    const sceneNames = {
-        frequent: '💡 頻出',
-        airport: '✈️ 空港',
-        hotel: '🏨 ホテル',
-        dining: '🍽️ 食事',
-        shopping: '🛍️ 買い物',
-        transport: '🚗 交通',
-        emergency: '🆘 緊急',
-        smalltalk: '💬 スモールトーク'
-    };
-    
-    // シーンを特定
-    let sceneName = '🌴 ランダム';
-    for (const scene in phrasesDatabase) {
+    // シーン名を取得
+    let sceneName = '全シーン';
+    for (let scene in phrasesDatabase) {
         if (phrasesDatabase[scene].includes(question)) {
             sceneName = sceneNames[scene] || scene;
             break;
@@ -1902,6 +1671,62 @@ function toggleAnswer() {
     }
 }
 
+function isAnswerCorrect(userAnswer, correctAnswer) {
+    // 正規化（小文字変換、前後の空白削除、余分な空白を1つに統一）
+    const normalizeText = (text) => {
+        return text.toLowerCase().trim().replace(/\s+/g, ' ');
+    };
+    
+    const normalizedUser = normalizeText(userAnswer);
+    const normalizedCorrect = normalizeText(correctAnswer);
+    
+    // 完全一致
+    if (normalizedUser === normalizedCorrect) {
+        return true;
+    }
+    
+    // 句読点を除外して比較
+    const removePunctuation = (text) => {
+        return text.replace(/[.,!?;:'"]/g, '');
+    };
+    
+    if (removePunctuation(normalizedUser) === removePunctuation(normalizedCorrect)) {
+        return true;
+    }
+    
+    // 同義語ペアのチェック
+    const synonymPairs = [
+        ['meal', 'combo'],
+        ['that\'s all', 'that\'s it'],
+        ['thanks', 'thank you'],
+        ['do you accept', 'can i use'],
+        ['i\'ll have that one', 'that one please'],
+        ['restroom', 'bathroom'],
+        ['toilet', 'restroom'],
+        ['hi', 'hello'],
+        ['hey', 'hello'],
+        ['check', 'bill'],
+        ['receipt', 'bill']
+    ];
+    
+    for (let [word1, word2] of synonymPairs) {
+        const option1 = normalizedCorrect.replace(word1, word2);
+        const option2 = normalizedCorrect.replace(word2, word1);
+        
+        if (normalizedUser === option1 || normalizedUser === option2) {
+            return true;
+        }
+        
+        // 句読点なしでも比較
+        if (removePunctuation(normalizedUser) === removePunctuation(option1) ||
+            removePunctuation(normalizedUser) === removePunctuation(option2)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 function checkAnswer() {
     const userAnswer = document.getElementById('answerInput').value.trim();
     const question = currentQuestions[currentQuestionIndex];
@@ -1983,6 +1808,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function showResults() {
+    const total = correctCount + incorrectCount;
+    const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    
+    document.getElementById('finalCorrect').textContent = correctCount;
+    document.getElementById('finalIncorrect').textContent = incorrectCount;
+    document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
+    
+    showScreen('resultsScreen');
+    
+    // プログレスバーとスコアを非表示
+    document.querySelector('.progress-bar').style.display = 'none';
+    document.getElementById('progressText').style.display = 'none';
+    document.getElementById('scoreDisplay').style.display = 'none';
+}
+
+function retryQuiz() {
+    startQuiz();
+}
+
 // ============================================
 // 音声入力関数
 // ============================================
@@ -2004,9 +1849,7 @@ function startVoiceInput() {
     try {
         recognition.start();
         isRecording = true;
-        document.getElementById('voiceBtn').classList.add('recording');
-        document.getElementById('voiceIcon').textContent = '🔴';
-        document.getElementById('voiceText').textContent = '録音中...';
+        document.getElementById('voiceBtn').textContent = '🔴 録音中...';
     } catch (error) {
         console.error('Voice input start error:', error);
     }
@@ -2020,85 +1863,69 @@ function stopVoiceInput() {
             console.error('Voice input stop error:', error);
         }
         isRecording = false;
-        document.getElementById('voiceBtn').classList.remove('recording');
-        document.getElementById('voiceIcon').textContent = '🎤';
-        document.getElementById('voiceText').textContent = '音声入力';
+        document.getElementById('voiceBtn').textContent = '🎤 音声入力';
     }
-}
-
-// ============================================
-// 結果表示関数
-// ============================================
-
-function showResults() {
-    const total = correctCount + incorrectCount;
-    const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
-    
-    document.getElementById('finalCorrect').textContent = correctCount;
-    document.getElementById('finalIncorrect').textContent = incorrectCount;
-    document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
-    
-    // 絵文字を選択
-    let emoji = '🎉';
-    let title = 'クイズ完了!';
-    
-    if (accuracy >= 90) {
-        emoji = '🏆';
-        title = '素晴らしい!';
-    } else if (accuracy >= 70) {
-        emoji = '🎉';
-        title = '良くできました!';
-    } else if (accuracy >= 50) {
-        emoji = '👍';
-        title = 'もう少し頑張りましょう!';
-    } else {
-        emoji = '💪';
-        title = '練習あるのみ!';
-    }
-    
-    document.getElementById('resultEmoji').textContent = emoji;
-    document.getElementById('resultTitle').textContent = title;
-    
-    showScreen('resultScreen');
 }
 
 // ============================================
 // スピーキング練習関数
 // ============================================
 
-function startSpeaking() {
-    // 問題を生成
-    practiceQuestions = generateQuestions();
+function startPractice() {
+    // 質問をフィルタリング
+    practiceQuestions = [];
+    
+    if (selectedScene === 'all') {
+        for (let scene in phrasesDatabase) {
+            practiceQuestions = practiceQuestions.concat(
+                phrasesDatabase[scene].filter(q => 
+                    selectedLevel === 'all' || q.level === selectedLevel
+                )
+            );
+        }
+    } else {
+        practiceQuestions = phrasesDatabase[selectedScene].filter(q => 
+            selectedLevel === 'all' || q.level === selectedLevel
+        );
+    }
     
     if (practiceQuestions.length === 0) {
-        alert('選択した条件に合う問題がありません。');
+        alert('選択された条件に該当する問題がありません');
         return;
     }
     
     // シャッフル
-    practiceQuestions = shuffleArray(practiceQuestions);
+    practiceQuestions = practiceQuestions.sort(() => Math.random() - 0.5);
     
-    // 状態をリセット
+    // カウンターをリセット
     currentPracticeIndex = 0;
+    practiceCorrectCount = 0;
+    practiceIncorrectCount = 0;
     
     // 画面を表示
-    showScreen('speakingScreen');
+    showScreen('practiceScreen');
     displayPracticePhrase();
+    updatePracticeStats();
 }
 
 function displayPracticePhrase() {
     const phrase = practiceQuestions[currentPracticeIndex];
     
-    document.getElementById('speakingJapanese').textContent = phrase.japanese;
-    document.getElementById('speakingEnglish').textContent = phrase.english;
-    
-    // 認識結果をリセット
-    document.getElementById('recognitionPlaceholder').classList.remove('hidden');
-    document.getElementById('recognitionText').classList.add('hidden');
-    document.getElementById('recognitionText').textContent = '';
+    document.getElementById('practiceJapanese').textContent = phrase.japanese;
+    document.getElementById('practiceEnglish').textContent = phrase.english;
+    document.getElementById('recognitionResult').textContent = 'ここに音声認識結果が表示されます';
     
     // スコアをリセット
     document.getElementById('scoreDisplay2').classList.add('hidden');
+}
+
+function updatePracticeStats() {
+    document.getElementById('practiceCorrect').textContent = practiceCorrectCount;
+    document.getElementById('practiceIncorrect').textContent = practiceIncorrectCount;
+    
+    const total = practiceCorrectCount + practiceIncorrectCount;
+    const accuracy = total > 0 ? Math.round((practiceCorrectCount / total) * 100) : 0;
+    document.getElementById('practiceAccuracy').textContent = `${accuracy}%`;
 }
 
 function togglePracticeRecording() {
@@ -2159,8 +1986,43 @@ function nextPracticePhrase() {
 }
 
 // ============================================
-// AIチャット関数
+// AIチャット関数（Gemini API統合版）
 // ============================================
+
+// Worker URL設定の読み込みと保存
+function loadWorkerUrl() {
+    const savedUrl = localStorage.getItem('workerApiUrl') || '';
+    workerApiUrl = savedUrl;
+    document.getElementById('workerUrl').value = savedUrl;
+    updateApiStatus();
+}
+
+function saveWorkerUrl(url) {
+    workerApiUrl = url;
+    localStorage.setItem('workerApiUrl', url);
+    updateApiStatus();
+}
+
+function updateApiStatus() {
+    const statusEl = document.getElementById('apiStatus');
+    if (workerApiUrl && workerApiUrl.startsWith('https://')) {
+        statusEl.textContent = '接続済み';
+        statusEl.className = 'api-status connected';
+    } else {
+        statusEl.textContent = '未設定';
+        statusEl.className = 'api-status disconnected';
+    }
+}
+
+// Worker URL入力欄の監視
+document.addEventListener('DOMContentLoaded', function() {
+    const workerUrlInput = document.getElementById('workerUrl');
+    if (workerUrlInput) {
+        workerUrlInput.addEventListener('input', function(e) {
+            saveWorkerUrl(e.target.value.trim());
+        });
+    }
+});
 
 function selectAIScene(scene) {
     aiChatScene = scene;
@@ -2183,6 +2045,12 @@ function selectAILevel(level) {
 }
 
 function startAIChat() {
+    // Worker URLチェック
+    if (!workerApiUrl || !workerApiUrl.startsWith('https://')) {
+        alert('Cloudflare Worker URLを設定してください');
+        return;
+    }
+    
     // チャット履歴をリセット
     chatHistory = [];
     
@@ -2194,43 +2062,19 @@ function startAIChat() {
     const chatContainer = document.getElementById('chatContainer');
     chatContainer.innerHTML = '';
     
-    // 初期メッセージを生成
+    // 初期メッセージを生成（AIから）
     const initialMessage = generateAIInitialMessage();
     addAIChatMessage(initialMessage, 'ai');
 }
 
 function generateAIInitialMessage() {
     const sceneMessages = {
-        freetalk: `こんにちは! 😊 フリートークへようこそ!
-        
-今日はどんな話をしましょうか? 旅行、趣味、日常生活など、何でも英語で話してみましょう!
-        
-まずは簡単な自己紹介から始めませんか?`,
-        airport: `Welcome to the airport! ✈️
-        
-I'm a check-in staff member. How can I help you today?
-        
-(空港のチェックインスタッフです。どのようにお手伝いしましょうか?)`,
-        hotel: `Welcome to our hotel! 🏨
-        
-I'm at the front desk. Are you checking in today?
-        
-(フロントデスクです。本日チェックインされますか?)`,
-        restaurant: `Welcome to our restaurant! 🍽️
-        
-Hi! I'll be your server today. Can I get you started with some drinks?
-        
-(こんにちは!今日のサーバーです。まずお飲み物はいかがですか?)`,
-        shopping: `Welcome! 🛍️
-        
-Hi there! Looking for anything in particular today?
-        
-(こんにちは!何かお探しですか?)`,
-        sightseeing: `Aloha! 🌺
-        
-Welcome to Hawaii! I'm a tour guide. Where would you like to visit today?
-        
-(ハワイへようこそ!ツアーガイドです。今日はどちらへ行きたいですか?)`
+        freetalk: `Hello! 😊 Welcome to free talk!\n\nWhat would you like to talk about today? Travel, hobbies, daily life - anything you'd like to practice in English!\n\nLet's start with a simple self-introduction, shall we?\n\n（こんにちは!今日は何について話したいですか?簡単な自己紹介から始めましょう!）`,
+        airport: `Welcome to the airport! ✈️\n\nI'm a check-in staff member. How can I help you today?\n\n（空港のチェックインスタッフです。どのようにお手伝いしましょうか?）`,
+        hotel: `Welcome to our hotel! 🏨\n\nI'm at the front desk. Are you checking in today?\n\n（フロントデスクです。本日チェックインされますか?）`,
+        restaurant: `Welcome to our restaurant! 🍽️\n\nHi! I'll be your server today. Can I get you started with some drinks?\n\n（こんにちは!今日のサーバーです。まずお飲み物はいかがですか?）`,
+        shopping: `Welcome! 🛍️\n\nHi there! Looking for anything in particular today?\n\n（こんにちは!何かお探しですか?）`,
+        sightseeing: `Aloha! 🌺\n\nWelcome to Hawaii! I'm a tour guide. Where would you like to visit today?\n\n（ハワイへようこそ!ツアーガイドです。今日はどちらへ行きたいですか?）`
     };
     
     return sceneMessages[aiChatScene] || sceneMessages.freetalk;
@@ -2245,14 +2089,43 @@ function addAIChatMessage(message, sender) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
     
     // 履歴に追加
-    chatHistory.push({ sender, message });
+    if (sender === 'user') {
+        chatHistory.push({ role: 'user', content: message });
+    } else {
+        chatHistory.push({ role: 'assistant', content: message });
+    }
 }
 
-function sendChatMessage() {
+function addLoadingMessage() {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message loading';
+    messageDiv.id = 'loadingMessage';
+    messageDiv.textContent = 'AIが応答を生成中...';
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return messageDiv;
+}
+
+function removeLoadingMessage() {
+    const loadingMsg = document.getElementById('loadingMessage');
+    if (loadingMsg) {
+        loadingMsg.remove();
+    }
+}
+
+async function sendChatMessage() {
     const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
     const message = input.value.trim();
     
     if (!message) {
+        return;
+    }
+    
+    // Worker URLチェック
+    if (!workerApiUrl || !workerApiUrl.startsWith('https://')) {
+        alert('Cloudflare Worker URLが設定されていません');
         return;
     }
     
@@ -2260,92 +2133,56 @@ function sendChatMessage() {
     addAIChatMessage(message, 'user');
     input.value = '';
     
-    // AIの応答を生成
-    setTimeout(() => {
-        const aiResponse = generateAIResponse(message);
-        addAIChatMessage(aiResponse, 'ai');
-    }, 500);
+    // 送信ボタンを無効化
+    sendBtn.disabled = true;
+    
+    // ローディング表示
+    const loadingMsg = addLoadingMessage();
+    
+    try {
+        // Cloudflare Workerに送信
+        const response = await fetch(workerApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messages: chatHistory,
+                scene: aiSceneNames[aiChatScene],
+                level: aiLevelNames[aiChatLevel]
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // ローディングを削除
+        removeLoadingMessage();
+        
+        // AIの応答を追加
+        if (data.error) {
+            addAIChatMessage(`エラーが発生しました: ${data.error}\n\nWorker URLとAPIキーの設定を確認してください。`, 'ai');
+        } else {
+            addAIChatMessage(data.message, 'ai');
+        }
+        
+    } catch (error) {
+        console.error('Chat error:', error);
+        removeLoadingMessage();
+        addAIChatMessage(`通信エラーが発生しました: ${error.message}\n\nWorker URLが正しいか確認してください。`, 'ai');
+    } finally {
+        // 送信ボタンを有効化
+        sendBtn.disabled = false;
+    }
 }
 
-function generateAIResponse(userMessage) {
-    const normalizedMessage = userMessage.toLowerCase().trim();
-    
-    // シーン別の応答
-    const sceneResponses = {
-        freetalk: [
-            "That's interesting! Tell me more about it. 😊",
-            "I see! How do you feel about that?",
-            "Great! What else would you like to talk about?",
-            "Nice! Can you explain that a bit more?",
-            "Wonderful! What do you think about that?"
-        ],
-        airport: [
-            "Sure! Can I see your passport and ticket, please?",
-            "How many bags are you checking today?",
-            "Would you like a window or aisle seat?",
-            "Here's your boarding pass. Gate 25, boarding starts at 10:30.",
-            "Your flight is on time. Have a great trip!"
-        ],
-        hotel: [
-            "Perfect! Can I have your name and reservation number?",
-            "We have you in a deluxe room for 3 nights. Is that correct?",
-            "Here are your room keys. You're in room 305 on the third floor.",
-            "Breakfast is served from 7 to 10 AM in the dining room.",
-            "Is there anything else I can help you with?"
-        ],
-        restaurant: [
-            "Great choice! Would you like that medium or well done?",
-            "Perfect! And what would you like to drink with that?",
-            "I'll get that order in for you right away!",
-            "Are you ready for dessert?",
-            "Can I get you anything else?"
-        ],
-        shopping: [
-            "Sure! What size are you looking for?",
-            "That's a great item! Would you like to try it on?",
-            "We have that in blue, red, and black. Which color do you prefer?",
-            "Great! I'll ring that up for you. Cash or card?",
-            "Thank you for shopping with us!"
-        ],
-        sightseeing: [
-            "Wonderful choice! Diamond Head is beautiful this time of year.",
-            "I recommend visiting Waikiki Beach in the morning when it's less crowded.",
-            "The best time to see the sunset is around 6 PM at Ala Moana Beach.",
-            "Would you like to book a tour? We have several options available.",
-            "Don't forget to bring sunscreen and water!"
-        ]
-    };
-    
-    // 挨拶への応答
-    if (normalizedMessage.match(/\b(hi|hello|hey|good morning|good afternoon|good evening)\b/)) {
-        return "Hello! How can I help you today? 😊";
-    }
-    
-    // 感謝への応答
-    if (normalizedMessage.match(/\b(thank you|thanks|thx)\b/)) {
-        return "You're welcome! Is there anything else I can help you with?";
-    }
-    
-    // さようならへの応答
-    if (normalizedMessage.match(/\b(bye|goodbye|see you|farewell)\b/)) {
-        return "Goodbye! Have a wonderful day! 👋";
-    }
-    
-    // シーン別の応答を選択
-    const responses = sceneResponses[aiChatScene] || sceneResponses.freetalk;
-    const randomIndex = Math.floor(Math.random() * responses.length);
-    let response = responses[randomIndex];
-    
-    // レベル別の調整
-    if (aiChatLevel === 'beginner') {
-        // 簡単な英語に調整
-        response += "\n\n(Don't worry, take your time! 😊)";
-    } else if (aiChatLevel === 'advanced') {
-        // より詳細な応答
-        response += "\n\nCould you elaborate on that a bit more?";
-    }
-    
-    return response;
+function endAIChat() {
+    // チャット画面を非表示、設定画面を表示
+    document.getElementById('aichatActive').classList.add('hidden');
+    document.getElementById('aichatSetup').classList.remove('hidden');
 }
 
 // Enterキーでメッセージ送信
@@ -2395,14 +2232,6 @@ function showStats() {
     document.getElementById('averageAccuracy').textContent = `${averageAccuracy}%`;
     
     showScreen('statsScreen');
-}
-
-function resetStats() {
-    if (confirm('本当に統計をリセットしますか? この操作は取り消せません。')) {
-        localStorage.removeItem('quizStats');
-        showStats();
-        alert('統計をリセットしました。');
-    }
 }
 
     </script>
