@@ -649,6 +649,10 @@
         }
         
         .aichat-active {
+            /* display: block; デフォルトで表示 */
+        }
+        
+        .aichat-active.hidden {
             display: none;
         }
         
@@ -2147,7 +2151,7 @@ async function sendChatMessage() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                messages: chatHistory,
+                message: message,
                 scene: aiSceneNames[aiChatScene],
                 level: aiLevelNames[aiChatLevel]
             })
@@ -2166,7 +2170,7 @@ async function sendChatMessage() {
         if (data.error) {
             addAIChatMessage(`エラーが発生しました: ${data.error}\n\nWorker URLとAPIキーの設定を確認してください。`, 'ai');
         } else {
-            addAIChatMessage(data.message, 'ai');
+            addAIChatMessage(data.response, 'ai');
         }
         
     } catch (error) {
