@@ -302,7 +302,8 @@
         .clear-btn {
             position: absolute;
             right: 10px;
-            top: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             background: #6c757d;
             color: white;
             border: none;
@@ -809,10 +810,6 @@
                 grid-template-columns: 1fr 1fr;
             }
             
-            .stats-box {
-                grid-template-columns: 1fr;
-            }
-            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -961,6 +958,12 @@
                 <div class="japanese-text" id="japanese">日本語の質問がここに表示されます</div>
             </div>
             
+            <div class="button-group triple">
+                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
+                <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
+                <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
+            </div>
+            
             <div class="answer-section">
                 <div class="input-wrapper">
                     <textarea 
@@ -974,12 +977,6 @@
                 <div class="hint-box hidden" id="hintBox"></div>
                 <div class="answer-box hidden" id="answerBox"></div>
                 <div class="result-box hidden" id="resultBox"></div>
-            </div>
-            
-            <div class="button-group triple">
-                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
-                <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
-                <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
             </div>
             
             <div class="button-group">
@@ -1094,37 +1091,6 @@
         
         <!-- AIチャット画面 -->
         <div class="aichat-screen screen" id="aichatScreen">
-
-            <!-- Gemini API使用量カウンター -->
-            <div class="api-usage-counter" id="apiUsageCounter" style="background: #e7f3ff; border: 2px solid #0dcaf0; border-radius: 10px; padding: 15px; margin: 15px 0;">
-                <div style="font-size: 14px; font-weight: bold; color: #0c63e4; margin-bottom: 10px;">
-                    📊 Gemini API 使用量
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div style="background: white; padding: 10px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 12px; color: #6c757d;">今日のリクエスト</div>
-                        <div style="font-size: 20px; font-weight: bold; color: #11998e;">
-                            <span id="dailyRequests">0</span> / 1500
-                        </div>
-                        <div style="font-size: 10px; color: #6c757d; margin-top: 5px;">
-                            残り: <span id="dailyRemaining">1500</span>
-                        </div>
-                    </div>
-                    <div style="background: white; padding: 10px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 12px; color: #6c757d;">今月のトークン</div>
-                        <div style="font-size: 20px; font-weight: bold; color: #11998e;">
-                            <span id="monthlyTokens">0</span>K
-                        </div>
-                        <div style="font-size: 10px; color: #6c757d; margin-top: 5px;">
-                            / 1000K (1M)
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top: 10px; font-size: 11px; color: #6c757d; text-align: center;">
-                    💡 無料枠内で安心して使えます
-                </div>
-            </div>
-
             <!-- API設定 -->
             <div class="api-config">
                 <div class="api-config-title">
@@ -1557,11 +1523,11 @@ const phrasesDatabase = {
         { japanese: 'すみません、搭乗は何時ですか?', english: 'Excuse me, what time is boarding?', hint: 'Excuse で始まります', level: 'beginner' },
         { japanese: 'すみません、これは東京行きの便ですか?', english: 'Excuse me, is this flight to Tokyo?', hint: 'Excuse で始まります', level: 'beginner' },
         { japanese: 'すみません、この荷物を手伝っていただけますか?', english: 'Excuse me, can you help me with this bag?', hint: 'Excuse で始まります', level: 'advanced' },
-        { japanese: '家族5人です - 入国審査・チェックインで', english: 'We\'re a family of five.', hint: '1. で始まります', level: 'advanced' },
-        { japanese: 'はい、どうぞ - パスポートや搭乗券を渡すとき', english: 'Here you go.', hint: '2. で始まります', level: 'beginner' },
-        { japanese: 'すみません、○○はどこですか? - 場所確認', english: 'Excuse me, where is ○○?', hint: '3. で始まります', level: 'beginner' },
-        { japanese: 'いいえ、申告するものはありません - 税関で', english: 'No, nothing to declare.', hint: '4. で始まります', level: 'beginner' },
-        { japanese: '4個です - チェックイン時の荷物数', english: 'Four bags. / Four suitcases.', hint: '5. で始まります', level: 'beginner' },
+        { japanese: '家族5人です - 入国審査・チェックインで', english: 'We\'re a family of five.', hint: 'We\ で始まります', level: 'advanced' },
+        { japanese: 'はい、どうぞ - パスポートや搭乗券を渡すとき', english: 'Here you go.', hint: 'Here で始まります', level: 'beginner' },
+        { japanese: 'すみません、○○はどこですか? - 場所確認', english: 'Excuse me, where is ○○?', hint: 'Excuse で始まります', level: 'beginner' },
+        { japanese: 'いいえ、申告するものはありません - 税関で', english: 'No, nothing to declare.', hint: 'No で始まります', level: 'beginner' },
+        { japanese: '4個です - チェックイン時の荷物数', english: 'Four bags. / Four suitcases.', hint: 'Four で始まります', level: 'beginner' },
     ],
     transport: [
         { japanese: 'こんにちは、HOLOカードを購入したいです', english: 'Hi, I\'d like to buy HOLO Cards.', hint: 'Hi, で始まります', level: 'advanced' },
@@ -1618,16 +1584,16 @@ const phrasesDatabase = {
         { japanese: 'すみません、これはワイキキへの正しい道ですか?', english: 'Excuse me, is this the right way to Waikiki?', hint: 'Excuse で始まります', level: 'advanced' },
         { japanese: 'すみません、メーターをつけていただけますか?', english: 'Excuse me, can you turn on the meter?', hint: 'Excuse で始まります', level: 'beginner' },
         { japanese: 'スーツケースが4個あります。大丈夫ですか?', english: 'We have four suitcases. Is that OK?', hint: 'We で始まります', level: 'beginner' },
-        { japanese: 'このバスは○○へ行きますか? - バスで必須', english: 'Does this bus go to ○○?', hint: '1. で始まります', level: 'beginner' },
-        { japanese: '○○に着いたら教えていただけますか? - バスで降車確認', english: 'Could you tell me when we get to ○○?', hint: '2. で始まります', level: 'advanced' },
-        { japanese: '○○までお願いします - タクシー・Uberで目的地を伝える', english: '○○, please.', hint: '3. で始まります', level: 'beginner' },
-        { japanese: 'どれくらい時間がかかりますか? - 所要時間確認', english: 'How long does it take?', hint: '4. で始まります', level: 'beginner' },
-        { japanese: 'いくらくらいかかりますか? - タクシーで料金確認', english: 'How much will it cost?', hint: '5. で始まります', level: 'beginner' },
-        { japanese: 'はい、どうぞ。おつりは取っておいて - チップを渡す', english: 'Here you go. Keep the change.', hint: '6. で始まります', level: 'beginner' },
-        { japanese: 'カードで払えますか? - 支払い方法確認', english: 'Can I pay by card?', hint: '7. で始まります', level: 'beginner' },
-        { japanese: 'ありがとう! - 降りるときのお礼', english: 'Thank you!', hint: '8. で始まります', level: 'beginner' },
-        { japanese: 'シニアカード3枚とユースカード2枚をお願いします - HOLO Card購入', english: 'Three senior cards and two youth cards, please.', hint: '9. で始まります', level: 'advanced' },
-        { japanese: '○○さんですか? - Uberでドライバー確認', english: 'Are you ○○?', hint: '10. で始まります', level: 'beginner' },
+        { japanese: 'このバスは○○へ行きますか? - バスで必須', english: 'Does this bus go to ○○?', hint: 'Does で始まります', level: 'beginner' },
+        { japanese: '○○に着いたら教えていただけますか? - バスで降車確認', english: 'Could you tell me when we get to ○○?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '○○までお願いします - タクシー・Uberで目的地を伝える', english: '○○, please.', hint: '○○ で始まります', level: 'beginner' },
+        { japanese: 'どれくらい時間がかかりますか? - 所要時間確認', english: 'How long does it take?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: 'いくらくらいかかりますか? - タクシーで料金確認', english: 'How much will it cost?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: 'はい、どうぞ。おつりは取っておいて - チップを渡す', english: 'Here you go. Keep the change.', hint: 'Here で始まります', level: 'beginner' },
+        { japanese: 'カードで払えますか? - 支払い方法確認', english: 'Can I pay by card?', hint: 'Can で始まります', level: 'beginner' },
+        { japanese: 'ありがとう! - 降りるときのお礼', english: 'Thank you!', hint: 'Thank で始まります', level: 'beginner' },
+        { japanese: 'シニアカード3枚とユースカード2枚をお願いします - HOLO Card購入', english: 'Three senior cards and two youth cards, please.', hint: 'Three で始まります', level: 'advanced' },
+        { japanese: '○○さんですか? - Uberでドライバー確認', english: 'Are you ○○?', hint: 'Are で始まります', level: 'beginner' },
     ],
     hotel: [
         { japanese: '佐藤です', english: 'It\'s Sato.', hint: 'It\'s で始まります', level: 'advanced' },
@@ -1700,21 +1666,21 @@ const phrasesDatabase = {
         { japanese: 'チェックアウト後、荷物をここに預けられますか?午後5時頃に取りに来ます', english: 'Can we leave our luggage here after checkout? We\'ll pick it up around 5 PM.', hint: 'Can で始まります', level: 'advanced' },
         { japanese: 'タクシーを呼んでいただけますか?空港へ行く必要があります', english: 'Could you call a taxi for us? We need to get to the airport.', hint: 'Could で始まります', level: 'advanced' },
         { japanese: 'Uberのピックアップを待つのに最適な場所はどこですか?', english: 'Where\'s the best place to wait for an Uber pickup?', hint: 'Where\'s で始まります', level: 'advanced' },
-        { japanese: 'チェックイン前に荷物を預けたいです - 荷物預かり', english: 'We\'d like to leave our luggage before check-in.', hint: '1. で始まります', level: 'advanced' },
-        { japanese: '佐藤の名前で予約しています - チェックイン', english: 'We have a reservation under Sato.', hint: '2. で始まります', level: 'beginner' },
-        { japanese: 'スーツケースが7個あります - 荷物の数', english: 'We have seven suitcases.', hint: '3. で始まります', level: 'beginner' },
-        { japanese: '今日8人、明日あと2人です - 遅れてチェックイン', english: 'Eight people today, two more tomorrow.', hint: '4. で始まります', level: 'beginner' },
-        { japanese: 'エアコンが動いていないようです - 故障報告', english: 'The air conditioning doesn\'t seem to be working.', hint: '5. で始まります', level: 'advanced' },
-        { japanese: '部屋から締め出されました - インロック', english: 'I\'m locked out of my room.', hint: '6. で始まります', level: 'advanced' },
-        { japanese: 'タオルを追加でもらえますか? - アメニティ補充', english: 'Could we get some extra towels?', hint: '7. で始まります', level: 'advanced' },
-        { japanese: '借りられる炊飯器はありますか? - 炊飯器貸出', english: 'Do you have a rice cooker we could borrow?', hint: '8. で始まります', level: 'advanced' },
-        { japanese: '清掃は後で来てもらえますか? - 清掃時間変更', english: 'Could you come back later for cleaning?', hint: '9. で始まります', level: 'advanced' },
-        { japanese: 'ビーチタオルを借りられますか? - ビーチタオル', english: 'Could we get some beach towels?', hint: '10. で始まります', level: 'advanced' },
-        { japanese: 'チェックアウトしたいです - チェックアウト', english: 'We\'d like to check out.', hint: '11. で始まります', level: 'advanced' },
-        { japanese: '請求の詳細内訳を見せていただけますか? - 請求確認', english: 'Could I see a detailed breakdown of the charges?', hint: '12. で始まります', level: 'advanced' },
-        { japanese: '少し遅めにチェックアウトできますか? - レイトチェックアウト', english: 'Is it possible to check out a bit later?', hint: '13. で始まります', level: 'advanced' },
-        { japanese: 'タクシーを呼んでいただけますか? - タクシー手配', english: 'Could you call a taxi for us?', hint: '14. で始まります', level: 'advanced' },
-        { japanese: '色々ありがとうございました! - 感謝', english: 'Thank you for everything!', hint: '15. で始まります', level: 'beginner' },
+        { japanese: 'チェックイン前に荷物を預けたいです - 荷物預かり', english: 'We\'d like to leave our luggage before check-in.', hint: 'We\ で始まります', level: 'advanced' },
+        { japanese: '佐藤の名前で予約しています - チェックイン', english: 'We have a reservation under Sato.', hint: 'We で始まります', level: 'beginner' },
+        { japanese: 'スーツケースが7個あります - 荷物の数', english: 'We have seven suitcases.', hint: 'We で始まります', level: 'beginner' },
+        { japanese: '今日8人、明日あと2人です - 遅れてチェックイン', english: 'Eight people today, two more tomorrow.', hint: 'Eight で始まります', level: 'beginner' },
+        { japanese: 'エアコンが動いていないようです - 故障報告', english: 'The air conditioning doesn\'t seem to be working.', hint: 'The で始まります', level: 'advanced' },
+        { japanese: '部屋から締め出されました - インロック', english: 'I\'m locked out of my room.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: 'タオルを追加でもらえますか? - アメニティ補充', english: 'Could we get some extra towels?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '借りられる炊飯器はありますか? - 炊飯器貸出', english: 'Do you have a rice cooker we could borrow?', hint: 'Do で始まります', level: 'advanced' },
+        { japanese: '清掃は後で来てもらえますか? - 清掃時間変更', english: 'Could you come back later for cleaning?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: 'ビーチタオルを借りられますか? - ビーチタオル', english: 'Could we get some beach towels?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: 'チェックアウトしたいです - チェックアウト', english: 'We\'d like to check out.', hint: 'We\ で始まります', level: 'advanced' },
+        { japanese: '請求の詳細内訳を見せていただけますか? - 請求確認', english: 'Could I see a detailed breakdown of the charges?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '少し遅めにチェックアウトできますか? - レイトチェックアウト', english: 'Is it possible to check out a bit later?', hint: 'Is で始まります', level: 'advanced' },
+        { japanese: 'タクシーを呼んでいただけますか? - タクシー手配', english: 'Could you call a taxi for us?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '色々ありがとうございました! - 感謝', english: 'Thank you for everything!', hint: 'Thank で始まります', level: 'beginner' },
     ],
     dining: [
         { japanese: 'はい、佐藤で10人の予約をしています', english: 'Yes, we have a reservation for ten people under Sato.', hint: 'Yes, で始まります', level: 'advanced' },
@@ -1807,30 +1773,30 @@ const phrasesDatabase = {
         { japanese: 'これを持ち帰り用の箱に入れていただけますか?', english: 'Could we get a box for this, please?', hint: 'Could で始まります', level: 'advanced' },
         { japanese: '持ち帰り用の箱をいただけますか?', english: 'Can we have a to-go box?', hint: 'Can で始まります', level: 'beginner' },
         { japanese: 'これを持ち帰りたいです', english: 'We\'d like to take this home, please.', hint: 'We\'d で始まります', level: 'advanced' },
-        { japanese: '佐藤で10人の予約をしています', english: 'We have a reservation for ten under Sato.', hint: '1. で始まります', level: 'advanced' },
-        { japanese: '10人です。予約はしていません', english: 'Ten people, please. No reservation.', hint: '2. で始まります', level: 'beginner' },
-        { japanese: '待ち時間はどれくらいですか?', english: 'How long is the wait?', hint: '3. で始まります', level: 'beginner' },
-        { japanese: '外の席をお願いできますか?', english: 'Could we have a table outside, please?', hint: '4. で始まります', level: 'advanced' },
-        { japanese: '窓際に座れますか?', english: 'Can we sit near the window?', hint: '5. で始まります', level: 'beginner' },
-        { japanese: '何がおすすめですか?', english: 'What do you recommend?', hint: '6. で始まります', level: 'beginner' },
-        { japanese: 'この料理を説明していただけますか?', english: 'Can you explain this dish?', hint: '7. で始まります', level: 'beginner' },
-        { japanese: '辛いですか?', english: 'Is it spicy?', hint: '8. で始まります', level: 'beginner' },
-        { japanese: 'これを3つとあれを2つお願いします', english: 'We\'ll have three of these and two of those.', hint: '9. で始まります', level: 'advanced' },
-        { japanese: 'ミディアムでお願いします', english: 'Medium, please.', hint: '10. で始まります', level: 'beginner' },
-        { japanese: 'ソースなしでお願いできますか?', english: 'Can I get that with no sauce?', hint: '11. で始まります', level: 'beginner' },
-        { japanese: 'どんなソフトドリンクがありますか?', english: 'What kind of soft drinks do you have?', hint: '12. で始まります', level: 'advanced' },
-        { japanese: 'シェア用の追加の皿をいただけますか?', english: 'Can we get extra plates for sharing?', hint: '13. で始まります', level: 'beginner' },
-        { japanese: '今のところ以上です。ありがとうございます!', english: 'That\'s all for now. Thank you!', hint: '14. で始まります', level: 'advanced' },
-        { japanese: 'ビッグマックのセットをお願いします（ファストフード）', english: 'I\'ll have a Big Mac meal, please.', hint: '15. で始まります', level: 'advanced' },
-        { japanese: 'とても美味しいです、ありがとうございます!', english: 'Everything is great, thank you!', hint: '16. で始まります', level: 'beginner' },
-        { japanese: 'ビールをもう1ラウンドいただけますか?', english: 'Could we get another round of beers, please?', hint: '17. で始まります', level: 'advanced' },
-        { japanese: 'これは注文したものと違います', english: 'This isn\'t what I ordered.', hint: '18. で始まります', level: 'advanced' },
-        { japanese: 'これを持ち帰り用の箱に入れていただけますか?', english: 'Could we get a box for this, please?', hint: '19. で始まります', level: 'advanced' },
-        { japanese: 'お会計をお願いできますか?', english: 'Could we get the check, please?', hint: '20. で始まります', level: 'advanced' },
-        { japanese: '一緒に支払います', english: 'We\'ll pay together, please.', hint: '21. で始まります', level: 'advanced' },
-        { japanese: 'カードです', english: 'Here\'s my card.', hint: '22. で始まります', level: 'advanced' },
-        { japanese: 'サービス料は既に含まれていますか?', english: 'Is gratuity already included?', hint: '23. で始まります', level: 'beginner' },
-        { japanese: 'お釣りは取っておいてください', english: 'Keep the change.', hint: '24. で始まります', level: 'beginner' },
+        { japanese: '佐藤で10人の予約をしています', english: 'We have a reservation for ten under Sato.', hint: 'We で始まります', level: 'advanced' },
+        { japanese: '10人です。予約はしていません', english: 'Ten people, please. No reservation.', hint: 'Ten で始まります', level: 'beginner' },
+        { japanese: '待ち時間はどれくらいですか?', english: 'How long is the wait?', hint: 'How で始まります', level: 'beginner' },
+        { japanese: '外の席をお願いできますか?', english: 'Could we have a table outside, please?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '窓際に座れますか?', english: 'Can we sit near the window?', hint: 'Can で始まります', level: 'beginner' },
+        { japanese: '何がおすすめですか?', english: 'What do you recommend?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: 'この料理を説明していただけますか?', english: 'Can you explain this dish?', hint: 'Can で始まります', level: 'beginner' },
+        { japanese: '辛いですか?', english: 'Is it spicy?', hint: 'Is で始まります', level: 'beginner' },
+        { japanese: 'これを3つとあれを2つお願いします', english: 'We\'ll have three of these and two of those.', hint: 'We\ で始まります', level: 'advanced' },
+        { japanese: 'ミディアムでお願いします', english: 'Medium, please.', hint: 'Medium で始まります', level: 'beginner' },
+        { japanese: 'ソースなしでお願いできますか?', english: 'Can I get that with no sauce?', hint: 'Can で始まります', level: 'beginner' },
+        { japanese: 'どんなソフトドリンクがありますか?', english: 'What kind of soft drinks do you have?', hint: 'What で始まります', level: 'advanced' },
+        { japanese: 'シェア用の追加の皿をいただけますか?', english: 'Can we get extra plates for sharing?', hint: 'Can で始まります', level: 'beginner' },
+        { japanese: '今のところ以上です。ありがとうございます!', english: 'That\'s all for now. Thank you!', hint: 'That\ で始まります', level: 'advanced' },
+        { japanese: 'ビッグマックのセットをお願いします（ファストフード）', english: 'I\'ll have a Big Mac meal, please.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: 'とても美味しいです、ありがとうございます!', english: 'Everything is great, thank you!', hint: 'Everything で始まります', level: 'beginner' },
+        { japanese: 'ビールをもう1ラウンドいただけますか?', english: 'Could we get another round of beers, please?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: 'これは注文したものと違います', english: 'This isn\'t what I ordered.', hint: 'This で始まります', level: 'advanced' },
+        { japanese: 'これを持ち帰り用の箱に入れていただけますか?', english: 'Could we get a box for this, please?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: 'お会計をお願いできますか?', english: 'Could we get the check, please?', hint: 'Could で始まります', level: 'advanced' },
+        { japanese: '一緒に支払います', english: 'We\'ll pay together, please.', hint: 'We\ で始まります', level: 'advanced' },
+        { japanese: 'カードです', english: 'Here\'s my card.', hint: 'Here\ で始まります', level: 'advanced' },
+        { japanese: 'サービス料は既に含まれていますか?', english: 'Is gratuity already included?', hint: 'Is で始まります', level: 'beginner' },
+        { japanese: 'お釣りは取っておいてください', english: 'Keep the change.', hint: 'Keep で始まります', level: 'beginner' },
     ],
     shopping: [
         { japanese: '見ているだけです、ありがとう', english: 'I\'m just looking, thanks.', hint: 'I\'m で始まります', level: 'advanced' },
@@ -1924,21 +1890,21 @@ const phrasesDatabase = {
         { japanese: '合計はいくらですか?', english: 'What\'s the total?', hint: 'What\'s で始まります', level: 'advanced' },
         { japanese: '全部でいくらですか?', english: 'How much is it altogether?', hint: 'How で始まります', level: 'beginner' },
         { japanese: '合計をもう一度教えてもらえますか?', english: 'Can you tell me the total again?', hint: 'Can で始まります', level: 'beginner' },
-        { japanese: '見ているだけです、ありがとう', english: 'I\'m just looking, thanks.', hint: '1. で始まります', level: 'advanced' },
-        { japanese: 'これのMサイズはありますか?', english: 'Do you have this in a medium?', hint: '2. で始まります', level: 'beginner' },
-        { japanese: 'これをください', english: 'I\'ll take this.', hint: '3. で始まります', level: 'advanced' },
-        { japanese: '牛乳はどこにありますか?', english: 'Where can I find the milk?', hint: '4. で始まります', level: 'beginner' },
-        { japanese: '新鮮なパイナップルはありますか?', english: 'Do you have fresh pineapples?', hint: '5. で始まります', level: 'beginner' },
-        { japanese: 'いいえ、自分の袋があります', english: 'No, I have my own bag.', hint: '6. で始まります', level: 'beginner' },
-        { japanese: 'パスタソースが見つかりません。手伝ってもらえますか?', english: 'I can\'t find the pasta sauce. Can you help me?', hint: '7. で始まります', level: 'advanced' },
-        { japanese: 'お土産を探しています', english: 'I\'m looking for souvenirs.', hint: '8. で始まります', level: 'advanced' },
-        { japanese: '贈り物に何がおすすめですか?', english: 'What do you recommend for gifts?', hint: '9. で始まります', level: 'beginner' },
-        { japanese: 'これを10個ください', english: 'I\'ll take ten of these.', hint: '10. で始まります', level: 'advanced' },
-        { japanese: 'まとめ買い割引はありますか?', english: 'Do you have a discount for buying in bulk?', hint: '11. で始まります', level: 'advanced' },
-        { japanese: 'これの賞味期限はいつですか?', english: 'When does this expire?', hint: '12. で始まります', level: 'beginner' },
-        { japanese: 'クレジットカードで', english: 'Credit card, please.', hint: '13. で始まります', level: 'beginner' },
-        { japanese: 'クーポンがあります', english: 'I have a coupon.', hint: '14. で始まります', level: 'beginner' },
-        { japanese: '合計はいくらですか?', english: 'What\'s the total?', hint: '15. で始まります', level: 'advanced' },
+        { japanese: '見ているだけです、ありがとう', english: 'I\'m just looking, thanks.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: 'これのMサイズはありますか?', english: 'Do you have this in a medium?', hint: 'Do で始まります', level: 'beginner' },
+        { japanese: 'これをください', english: 'I\'ll take this.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: '牛乳はどこにありますか?', english: 'Where can I find the milk?', hint: 'Where で始まります', level: 'beginner' },
+        { japanese: '新鮮なパイナップルはありますか?', english: 'Do you have fresh pineapples?', hint: 'Do で始まります', level: 'beginner' },
+        { japanese: 'いいえ、自分の袋があります', english: 'No, I have my own bag.', hint: 'No で始まります', level: 'beginner' },
+        { japanese: 'パスタソースが見つかりません。手伝ってもらえますか?', english: 'I can\'t find the pasta sauce. Can you help me?', hint: 'I で始まります', level: 'advanced' },
+        { japanese: 'お土産を探しています', english: 'I\'m looking for souvenirs.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: '贈り物に何がおすすめですか?', english: 'What do you recommend for gifts?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: 'これを10個ください', english: 'I\'ll take ten of these.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: 'まとめ買い割引はありますか?', english: 'Do you have a discount for buying in bulk?', hint: 'Do で始まります', level: 'advanced' },
+        { japanese: 'これの賞味期限はいつですか?', english: 'When does this expire?', hint: 'When で始まります', level: 'beginner' },
+        { japanese: 'クレジットカードで', english: 'Credit card, please.', hint: 'Credit で始まります', level: 'beginner' },
+        { japanese: 'クーポンがあります', english: 'I have a coupon.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '合計はいくらですか?', english: 'What\'s the total?', hint: 'What\ で始まります', level: 'advanced' },
     ],
     emergency: [
         { japanese: '痛み止めが必要です。どれがいいですか?', english: 'I need pain reliever. Which one is good?', hint: 'I で始まります', level: 'beginner' },
@@ -2043,41 +2009,41 @@ const phrasesDatabase = {
         { japanese: 'ここに話してください', english: 'Please speak here. (スマホを指差す)', hint: 'Please で始まります', level: 'beginner' },
         { japanese: '日本大使館に連絡する必要があります', english: 'I need to contact the Japanese Embassy.', hint: 'I で始まります', level: 'beginner' },
         { japanese: '日本領事館はどこですか?', english: 'Where\'s the Japanese Consulate?', hint: 'Where\'s で始まります', level: 'advanced' },
-        { japanese: '助けて!助けて!', english: 'Help! Help!', hint: '1. で始まります', level: 'beginner' },
-        { japanese: '911に電話してください!', english: 'Call 911, please!', hint: '2. で始まります', level: 'beginner' },
-        { japanese: '助けが必要です、お願いします', english: 'I need help, please.', hint: '3. で始まります', level: 'beginner' },
-        { japanese: '警察を呼んでください', english: 'Please call the police.', hint: '4. で始まります', level: 'beginner' },
-        { japanese: '救急車を呼んでください!', english: 'Call an ambulance, please!', hint: '5. で始まります', level: 'beginner' },
-        { japanese: '日本語を話せますか?', english: 'Do you speak Japanese?', hint: '6. で始まります', level: 'beginner' },
-        { japanese: 'ここに日本語を話せる人はいますか?', english: 'Is there anyone here who speaks Japanese?', hint: '7. で始まります', level: 'beginner' },
-        { japanese: '翻訳アプリがあります。このスマホに話してもらえますか?', english: 'I have a translation app. Can you speak into this phone?', hint: '8. で始まります', level: 'advanced' },
-        { japanese: 'このスマホに話してください。翻訳されます', english: 'Please speak into this phone. It will translate.', hint: '9. で始まります', level: 'advanced' },
-        { japanese: '日本大使館に連絡する必要があります', english: 'I need to contact the Japanese Embassy.', hint: '10. で始まります', level: 'beginner' },
-        { japanese: '財布をなくしました', english: 'I lost my wallet.', hint: '11. で始まります', level: 'beginner' },
-        { japanese: 'バッグが盗まれました', english: 'My bag was stolen.', hint: '12. で始まります', level: 'beginner' },
-        { japanese: '警察に届け出をする必要があります', english: 'I need to file a police report.', hint: '13. で始まります', level: 'beginner' },
-        { japanese: 'ここに遺失物センターはありますか?', english: 'Does this place have a lost and found?', hint: '14. で始まります', level: 'advanced' },
-        { japanese: 'パスポートをなくしました。どうすればいいですか?', english: 'I lost my passport. What should I do?', hint: '15. で始まります', level: 'advanced' },
-        { japanese: 'クレジットカードを止める必要があります。盗まれました', english: 'I need to cancel my credit card. It was stolen.', hint: '16. で始まります', level: 'advanced' },
-        { japanese: '体調が悪いです', english: 'I don\'t feel well.', hint: '17. で始まります', level: 'advanced' },
-        { japanese: '医者に診てもらう必要があります', english: 'I need to see a doctor.', hint: '18. で始まります', level: 'beginner' },
-        { japanese: '熱があります', english: 'I have a fever.', hint: '19. で始まります', level: 'beginner' },
-        { japanese: '頭が痛いです', english: 'I have a headache.', hint: '20. で始まります', level: 'beginner' },
-        { japanese: 'お腹が痛いです', english: 'I have a stomachache.', hint: '21. で始まります', level: 'beginner' },
-        { japanese: '吐き気がします', english: 'I feel nauseous.', hint: '22. で始まります', level: 'beginner' },
-        { japanese: '乗り物酔いしています', english: 'I have motion sickness.', hint: '23. で始まります', level: 'beginner' },
-        { japanese: '乗り物酔いの薬はありますか?', english: 'Do you have medicine for motion sickness?', hint: '24. で始まります', level: 'beginner' },
-        { japanese: '怪我をしました', english: 'I\'m injured.', hint: '25. で始まります', level: 'advanced' },
-        { japanese: '出血しています。絆創膏はありますか?', english: 'I\'m bleeding. Do you have a bandage?', hint: '26. で始まります', level: 'advanced' },
-        { japanese: '食物アレルギーがあります', english: 'I have a food allergy.', hint: '27. で始まります', level: 'beginner' },
-        { japanese: '貝類のアレルギーがあります', english: 'I\'m allergic to shellfish.', hint: '28. で始まります', level: 'advanced' },
-        { japanese: '最寄りの病院はどこですか?', english: 'Where\'s the nearest hospital?', hint: '29. で始まります', level: 'advanced' },
-        { japanese: '薬局はどこですか?', english: 'Where\'s the pharmacy?', hint: '30. で始まります', level: 'advanced' },
-        { japanese: '風邪の薬が必要です', english: 'I need something for a cold.', hint: '31. で始まります', level: 'beginner' },
-        { japanese: '頭痛に何がおすすめですか?', english: 'What do you recommend for a headache?', hint: '32. で始まります', level: 'beginner' },
-        { japanese: 'これはどのくらいの頻度で飲めばいいですか?', english: 'How often should I take this?', hint: '33. で始まります', level: 'advanced' },
-        { japanese: '子供が病気です', english: 'My child is sick.', hint: '34. で始まります', level: 'beginner' },
-        { japanese: '日本語が話せる医師はいますか?', english: 'Is there a doctor who speaks Japanese?', hint: '35. で始まります', level: 'beginner' },
+        { japanese: '助けて!助けて!', english: 'Help! Help!', hint: 'Help で始まります', level: 'beginner' },
+        { japanese: '911に電話してください!', english: 'Call 911, please!', hint: 'Call で始まります', level: 'beginner' },
+        { japanese: '助けが必要です、お願いします', english: 'I need help, please.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '警察を呼んでください', english: 'Please call the police.', hint: 'Please で始まります', level: 'beginner' },
+        { japanese: '救急車を呼んでください!', english: 'Call an ambulance, please!', hint: 'Call で始まります', level: 'beginner' },
+        { japanese: '日本語を話せますか?', english: 'Do you speak Japanese?', hint: 'Do で始まります', level: 'beginner' },
+        { japanese: 'ここに日本語を話せる人はいますか?', english: 'Is there anyone here who speaks Japanese?', hint: 'Is で始まります', level: 'beginner' },
+        { japanese: '翻訳アプリがあります。このスマホに話してもらえますか?', english: 'I have a translation app. Can you speak into this phone?', hint: 'I で始まります', level: 'advanced' },
+        { japanese: 'このスマホに話してください。翻訳されます', english: 'Please speak into this phone. It will translate.', hint: 'Please で始まります', level: 'advanced' },
+        { japanese: '日本大使館に連絡する必要があります', english: 'I need to contact the Japanese Embassy.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '財布をなくしました', english: 'I lost my wallet.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'バッグが盗まれました', english: 'My bag was stolen.', hint: 'My で始まります', level: 'beginner' },
+        { japanese: '警察に届け出をする必要があります', english: 'I need to file a police report.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'ここに遺失物センターはありますか?', english: 'Does this place have a lost and found?', hint: 'Does で始まります', level: 'advanced' },
+        { japanese: 'パスポートをなくしました。どうすればいいですか?', english: 'I lost my passport. What should I do?', hint: 'I で始まります', level: 'advanced' },
+        { japanese: 'クレジットカードを止める必要があります。盗まれました', english: 'I need to cancel my credit card. It was stolen.', hint: 'I で始まります', level: 'advanced' },
+        { japanese: '体調が悪いです', english: 'I don\'t feel well.', hint: 'I で始まります', level: 'advanced' },
+        { japanese: '医者に診てもらう必要があります', english: 'I need to see a doctor.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '熱があります', english: 'I have a fever.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '頭が痛いです', english: 'I have a headache.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: 'お腹が痛いです', english: 'I have a stomachache.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '吐き気がします', english: 'I feel nauseous.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '乗り物酔いしています', english: 'I have motion sickness.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '乗り物酔いの薬はありますか?', english: 'Do you have medicine for motion sickness?', hint: 'Do で始まります', level: 'beginner' },
+        { japanese: '怪我をしました', english: 'I\'m injured.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: '出血しています。絆創膏はありますか?', english: 'I\'m bleeding. Do you have a bandage?', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: '食物アレルギーがあります', english: 'I have a food allergy.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '貝類のアレルギーがあります', english: 'I\'m allergic to shellfish.', hint: 'I\ で始まります', level: 'advanced' },
+        { japanese: '最寄りの病院はどこですか?', english: 'Where\'s the nearest hospital?', hint: 'Where\ で始まります', level: 'advanced' },
+        { japanese: '薬局はどこですか?', english: 'Where\'s the pharmacy?', hint: 'Where\ で始まります', level: 'advanced' },
+        { japanese: '風邪の薬が必要です', english: 'I need something for a cold.', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '頭痛に何がおすすめですか?', english: 'What do you recommend for a headache?', hint: 'What で始まります', level: 'beginner' },
+        { japanese: 'これはどのくらいの頻度で飲めばいいですか?', english: 'How often should I take this?', hint: 'How で始まります', level: 'advanced' },
+        { japanese: '子供が病気です', english: 'My child is sick.', hint: 'My で始まります', level: 'beginner' },
+        { japanese: '日本語が話せる医師はいますか?', english: 'Is there a doctor who speaks Japanese?', hint: 'Is で始まります', level: 'beginner' },
     ],
     smalltalk: [
         { japanese: 'こんにちは!いい天気ですね!', english: 'Hi! Nice day!', hint: 'Hi! で始まります', level: 'beginner' },
@@ -2172,13 +2138,13 @@ const phrasesDatabase = {
         { japanese: '東京は楽しい!京都は美しいです!', english: 'Tokyo is fun! Kyoto is beautiful!', hint: 'Tokyo で始まります', level: 'beginner' },
         { japanese: 'はい!とても美しいです!', english: 'Yes! Very beautiful!', hint: 'Yes! で始まります', level: 'beginner' },
         { japanese: '気に入りますよ!', english: 'You\'ll love it!', hint: 'You\'ll で始まります', level: 'advanced' },
-        { japanese: 'いい天気ですね!', english: 'Nice day!', hint: '1. で始まります', level: 'beginner' },
-        { japanese: 'ここは初めてです!', english: 'First time here!', hint: '2. で始まります', level: 'beginner' },
-        { japanese: '日本からです!', english: 'From Japan!', hint: '3. で始まります', level: 'beginner' },
-        { japanese: 'とても美しい!', english: 'So beautiful!', hint: '4. で始まります', level: 'beginner' },
-        { japanese: 'ハワイが大好きです!', english: 'I love Hawaii!', hint: '5. で始まります', level: 'beginner' },
-        { japanese: '本当に素敵!', english: 'Really nice!', hint: '7. で始まります', level: 'beginner' },
-        { japanese: 'どこから来ましたか?', english: 'Where from?', hint: '11. で始まります', level: 'beginner' },
+        { japanese: 'いい天気ですね!', english: 'Nice day!', hint: 'Nice で始まります', level: 'beginner' },
+        { japanese: 'ここは初めてです!', english: 'First time here!', hint: 'First で始まります', level: 'beginner' },
+        { japanese: '日本からです!', english: 'From Japan!', hint: 'From で始まります', level: 'beginner' },
+        { japanese: 'とても美しい!', english: 'So beautiful!', hint: 'So で始まります', level: 'beginner' },
+        { japanese: 'ハワイが大好きです!', english: 'I love Hawaii!', hint: 'I で始まります', level: 'beginner' },
+        { japanese: '本当に素敵!', english: 'Really nice!', hint: 'Really で始まります', level: 'beginner' },
+        { japanese: 'どこから来ましたか?', english: 'Where from?', hint: 'Where で始まります', level: 'beginner' },
         { japanese: 'ビーチに行くんですか?', english: 'Going to the beach?', hint: 'Going で始まります', level: 'beginner' },
         { japanese: 'はい!今日はいい天気ですね!', english: 'Yes! Good weather today!', hint: 'Yes! で始まります', level: 'beginner' },
         { japanese: 'ビーチには完璧な日ですね!どのビーチですか?', english: 'Perfect beach day! Which beach?', hint: 'Perfect で始まります', level: 'beginner' },
@@ -2216,7 +2182,7 @@ const phrasesDatabase = {
         { japanese: 'それは美味しそう!何ですか?', english: 'That looks good! What is it?', hint: 'That で始まります', level: 'beginner' },
         { japanese: '何が入っていますか?', english: 'What\'s in it?', hint: 'What\'s で始まります', level: 'advanced' },
         { japanese: '何を見るべきですか?', english: 'What should I see?', hint: 'What で始まります', level: 'advanced' },
-        { japanese: 'どのくらい滞在ですか?', english: 'How long?', hint: '12. で始まります', level: 'beginner' },
+        { japanese: 'どのくらい滞在ですか?', english: 'How long?', hint: 'How で始まります', level: 'beginner' },
         { japanese: 'それはいいですね!滞在を楽しんでください!', english: 'That\'s great! Enjoy your stay!', hint: 'That\'s で始まります', level: 'advanced' },
         { japanese: 'わかった!それを試してみます!', english: 'OK! I\'ll try that!', hint: 'OK! で始まります', level: 'advanced' },
         { japanese: '車で約30分です', english: 'About 30 minutes by car.', hint: 'About で始まります', level: 'beginner' },
@@ -2464,20 +2430,31 @@ function speakAnswerSlow() {
     // 既存の音声を停止
     speechSynthesis.cancel();
     
+    // iPhone Safari対応: 音声リストを取得してから再生
+    const voices = speechSynthesis.getVoices();
+    
     const utterance = new SpeechSynthesisUtterance(question.english);
     utterance.lang = 'en-US';
-    utterance.rate = 0.5;  // 0.5倍速（最も遅い設定）
-    utterance.pitch = 1.0;  // ピッチは標準
-    utterance.volume = 1.0; // 音量は最大
+    
+    // iPhone Safari対応: voiceを明示的に設定
+    const enVoice = voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) {
+        utterance.voice = enVoice;
+    }
+    
+    // iPhone Safari対応: rate設定（0.1-10の範囲、0.5が最も遅い）
+    utterance.rate = 0.5;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
     
     // デバッグ用：設定をコンソールに表示
     console.log('=== ゆっくり再生 ===');
     console.log('Text:', question.english);
+    console.log('Voice:', utterance.voice ? utterance.voice.name : 'default');
     console.log('Rate:', utterance.rate, '(0.5倍速)');
     console.log('Pitch:', utterance.pitch);
     console.log('Volume:', utterance.volume);
     
-    // 再生開始と終了をログ
     utterance.onstart = function() {
         console.log('ゆっくり再生開始');
     };
@@ -3126,73 +3103,6 @@ function showStats() {
     
     showScreen('statsScreen');
 }
-
-    
-        // ========================================
-        // Gemini API使用量トラッキング
-        // ========================================
-        
-        function getToday() {
-            const now = new Date();
-            return now.toISOString().split('T')[0];
-        }
-        
-        function getCurrentMonth() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        }
-        
-        function getApiUsage() {
-            const today = getToday();
-            const month = getCurrentMonth();
-            const usage = JSON.parse(localStorage.getItem('geminiApiUsage') || '{}');
-            
-            if (usage.lastDate !== today) {
-                usage.dailyRequests = 0;
-                usage.lastDate = today;
-            }
-            
-            if (usage.lastMonth !== month) {
-                usage.monthlyTokens = 0;
-                usage.lastMonth = month;
-            }
-            
-            return {
-                dailyRequests: usage.dailyRequests || 0,
-                monthlyTokens: usage.monthlyTokens || 0,
-                lastDate: usage.lastDate || today,
-                lastMonth: usage.lastMonth || month
-            };
-        }
-        
-        function updateApiUsage(tokensUsed = 0) {
-            const usage = getApiUsage();
-            usage.dailyRequests += 1;
-            usage.monthlyTokens += tokensUsed;
-            localStorage.setItem('geminiApiUsage', JSON.stringify(usage));
-            updateApiUsageDisplay();
-        }
-        
-        function updateApiUsageDisplay() {
-            const usage = getApiUsage();
-            const dailyRequestsEl = document.getElementById('dailyRequests');
-            const dailyRemainingEl = document.getElementById('dailyRemaining');
-            const monthlyTokensEl = document.getElementById('monthlyTokens');
-            
-            if (dailyRequestsEl) dailyRequestsEl.textContent = usage.dailyRequests;
-            if (dailyRemainingEl) {
-                const remaining = Math.max(0, 1500 - usage.dailyRequests);
-                dailyRemainingEl.textContent = remaining;
-                dailyRemainingEl.style.color = remaining < 100 ? '#dc3545' : remaining < 300 ? '#ffc107' : '#28a745';
-            }
-            if (monthlyTokensEl) monthlyTokensEl.textContent = Math.round(usage.monthlyTokens / 1000);
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', updateApiUsageDisplay);
-        } else {
-            updateApiUsageDisplay();
-        }
 
     </script>
 </body>
