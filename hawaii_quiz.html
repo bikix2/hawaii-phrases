@@ -3154,9 +3154,9 @@ async function sendChatMessage() {
             },
             body: JSON.stringify({
                 message: message,
-                scene: aiSceneNames[aiChatScene],
-                level: aiLevelNames[aiChatLevel],
-                history: chatHistory  // 会話履歴を送信（繰り返し防止）
+                scene: aiChatScene,  // 英語のまま送信
+                level: aiChatLevel,  // 英語のまま送信
+                chatHistory: chatHistory  // 会話履歴を送信（繰り返し防止）
             })
         });
         
@@ -3173,7 +3173,7 @@ async function sendChatMessage() {
         if (data.error) {
             addAIChatMessage(`エラーが発生しました: ${data.error}\n\nWorker URLとAPIキーの設定を確認してください。`, 'ai');
         } else {
-            addAIChatMessage(data.response, 'ai');
+            addAIChatMessage(data.message, 'ai');
             
             // API使用量カウンターを更新（関数が存在すれば）
             if (typeof incrementApiCounter === 'function') {
