@@ -475,8 +475,8 @@
             border-radius: 10px;
             margin-top: 20px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
             text-align: center;
         }
         
@@ -1094,27 +1094,7 @@
         
         <!-- AIチャット画面 -->
         <div class="aichat-screen screen" id="aichatScreen">
-            <!-- API設定 -->
-            <div class="api-config">
-                <div class="api-config-title">
-                    ⚙️ Cloudflare Worker URL設定
-                    <span class="api-status disconnected" id="apiStatus">未設定</span>
-                </div>
-                <input 
-                    type="text" 
-                    class="api-input" 
-                    id="workerUrl" 
-                    placeholder="https://hawaii-quiz-ai.YOUR-SUBDOMAIN.workers.dev"
-                    value=""
-                />
-                <div class="api-help-text">
-                    💡 ステップ2で作成したCloudflare Worker URLを入力してください<br>
-                    入力後、自動的に保存されます
-                </div>
-            </div>
-            
-            <!-- 設定画面 -->
-            
+
             <!-- Gemini API使用量カウンター -->
             <div class="api-usage-counter" id="apiUsageCounter" style="background: #e7f3ff; border: 2px solid #0dcaf0; border-radius: 10px; padding: 15px; margin: 15px 0;">
                 <div style="font-size: 14px; font-weight: bold; color: #0c63e4; margin-bottom: 10px;">
@@ -1145,6 +1125,26 @@
                 </div>
             </div>
 
+            <!-- API設定 -->
+            <div class="api-config">
+                <div class="api-config-title">
+                    ⚙️ Cloudflare Worker URL設定
+                    <span class="api-status disconnected" id="apiStatus">未設定</span>
+                </div>
+                <input 
+                    type="text" 
+                    class="api-input" 
+                    id="workerUrl" 
+                    placeholder="https://hawaii-quiz-ai.YOUR-SUBDOMAIN.workers.dev"
+                    value=""
+                />
+                <div class="api-help-text">
+                    💡 ステップ2で作成したCloudflare Worker URLを入力してください<br>
+                    入力後、自動的に保存されます
+                </div>
+            </div>
+            
+            <!-- 設定画面 -->
             <div class="aichat-setup" id="aichatSetup">
                 <div class="config-section">
                     <div class="config-title">🎯 会話シーンを選択</div>
