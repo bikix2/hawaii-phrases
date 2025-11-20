@@ -302,8 +302,7 @@
         .clear-btn {
             position: absolute;
             right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 10px;
             background: #6c757d;
             color: white;
             border: none;
@@ -2430,42 +2429,27 @@ function speakAnswerSlow() {
     // 既存の音声を停止
     speechSynthesis.cancel();
     
-    // iPhone Safari対応: 音声リストを取得してから再生
+    // iPhone Safari対応
     const voices = speechSynthesis.getVoices();
     
     const utterance = new SpeechSynthesisUtterance(question.english);
     utterance.lang = 'en-US';
     
-    // iPhone Safari対応: voiceを明示的に設定
+    // 音声を明示的に設定
     const enVoice = voices.find(v => v.lang.startsWith('en'));
     if (enVoice) {
         utterance.voice = enVoice;
     }
     
-    // iPhone Safari対応: rate設定（0.1-10の範囲、0.5が最も遅い）
-    utterance.rate = 0.5;
+    // 0.3倍速（明らかに遅い）
+    utterance.rate = 0.3;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
     
-    // デバッグ用：設定をコンソールに表示
-    console.log('=== ゆっくり再生 ===');
+    console.log('=== ゆっくり再生 (0.3倍速) ===');
     console.log('Text:', question.english);
     console.log('Voice:', utterance.voice ? utterance.voice.name : 'default');
-    console.log('Rate:', utterance.rate, '(0.5倍速)');
-    console.log('Pitch:', utterance.pitch);
-    console.log('Volume:', utterance.volume);
-    
-    utterance.onstart = function() {
-        console.log('ゆっくり再生開始');
-    };
-    
-    utterance.onend = function() {
-        console.log('ゆっくり再生終了');
-    };
-    
-    utterance.onerror = function(event) {
-        console.error('再生エラー:', event);
-    };
+    console.log('Rate:', utterance.rate);
     
     speechSynthesis.speak(utterance);
 }
@@ -2487,60 +2471,210 @@ function toggleAnswer() {
 }
 
 function isAnswerCorrect(userAnswer, correctAnswer) {
-    // 正規化（小文字変換、前後の空白削除、余分な空白を1つに統一）
-    const normalizeText = (text) => {
-        return text.toLowerCase().trim().replace(/\s+/g, ' ');
-    };
+    // 超柔軟な正解判定（伝わること重視）
     
-    const normalizedUser = normalizeText(userAnswer);
-    const normalizedCorrect = normalizeText(correctAnswer);
-    
-    // 完全一致
-    if (normalizedUser === normalizedCorrect) {
-        return true;
-    }
-    
-    // 句読点を除外して比較
-    const removePunctuation = (text) => {
-        return text.replace(/[.,!?;:'"]/g, '');
-    };
-    
-    if (removePunctuation(normalizedUser) === removePunctuation(normalizedCorrect)) {
-        return true;
-    }
-    
-    // 同義語ペアのチェック
-    const synonymPairs = [
-        ['meal', 'combo'],
-        ['that\'s all', 'that\'s it'],
-        ['thanks', 'thank you'],
-        ['do you accept', 'can i use'],
-        ['i\'ll have that one', 'that one please'],
-        ['restroom', 'bathroom'],
-        ['toilet', 'restroom'],
-        ['hi', 'hello'],
-        ['hey', 'hello'],
-        ['check', 'bill'],
-        ['receipt', 'bill']
-    ];
-    
-    for (let [word1, word2] of synonymPairs) {
-        const option1 = normalizedCorrect.replace(word1, word2);
-        const option2 = normalizedCorrect.replace(word2, word1);
+    function normalizeAnswer(answer) {
+        let normalized = answer.toLowerCase().trim();
+
+        // 【ステップ1】省略形の展開（完全版）
+        const contractions = {
+            // be動詞系
+            "i'm": "i am", "you're": "you are", "he's": "he is", "she's": "she is",
+            "it's": "it is", "we're": "we are", "they're": "they are",
+            "that's": "that is", "there's": "there is", "here's": "here is",
+            "what's": "what is", "where's": "where is", "who's": "who is",
+            "how's": "how is", "when's": "when is", "why's": "why is",
+            
+            // would系
+            "i'd": "i would", "you'd": "you would", "he'd": "he would",
+            "she'd": "she would", "it'd": "it would", "we'd": "we would",
+            "they'd": "they would", "that'd": "that would",
+            
+            // will系
+            "i'll": "i will", "you'll": "you will", "he'll": "he will",
+            "she'll": "she will", "it'll": "it will", "we'll": "we will",
+            "they'll": "they will", "that'll": "that will",
+            
+            // have系
+            "i've": "i have", "you've": "you have", "we've": "we have",
+            "they've": "they have", "could've": "could have",
+            "should've": "should have", "would've": "would have",
+            "might've": "might have", "must've": "must have",
+            
+            // not系
+            "can't": "cannot", "won't": "will not", "don't": "do not",
+            "doesn't": "does not", "didn't": "did not", "isn't": "is not",
+            "aren't": "are not", "wasn't": "was not", "weren't": "were not",
+            "haven't": "have not", "hasn't": "has not", "hadn't": "had not",
+            "couldn't": "could not", "shouldn't": "should not",
+            "wouldn't": "would not", "mightn't": "might not", "mustn't": "must not",
+            
+            // その他
+            "let's": "let us", "gonna": "going to", "wanna": "want to",
+            "gotta": "got to", "gimme": "give me"
+        };
+
+        Object.keys(contractions).forEach(contraction => {
+            const regex = new RegExp('\\b' + contraction.replace("'", "\\'") + '\\b', 'g');
+            normalized = normalized.replace(regex, contractions[contraction]);
+        });
+
+        // 【ステップ2】主語の統一（I/We/You完全互換）
+        normalized = normalized.replace(/\bwe are\b/g, 'i am');
+        normalized = normalized.replace(/\bwe have\b/g, 'i have');
+        normalized = normalized.replace(/\bwe would\b/g, 'i would');
+        normalized = normalized.replace(/\bwe will\b/g, 'i will');
+        normalized = normalized.replace(/\bwe need\b/g, 'i need');
+        normalized = normalized.replace(/\bwe want\b/g, 'i want');
+        normalized = normalized.replace(/\bwe can\b/g, 'i can');
+        normalized = normalized.replace(/\bwe could\b/g, 'i can');
+        normalized = normalized.replace(/\bwe may\b/g, 'i can');
+        normalized = normalized.replace(/\bour\b/g, 'my');
+        normalized = normalized.replace(/\bus\b/g, 'me');
+
+        // 【ステップ3】丁寧さレベルの完全統一
+        normalized = normalized.replace(/\bcould i\b/g, 'can i');
+        normalized = normalized.replace(/\bmay i\b/g, 'can i');
+        normalized = normalized.replace(/\bmight i\b/g, 'can i');
+        normalized = normalized.replace(/\bcould you\b/g, 'can you');
+        normalized = normalized.replace(/\bwould you\b/g, 'can you');
+        normalized = normalized.replace(/\bcould we\b/g, 'can i');
+        normalized = normalized.replace(/\bmay we\b/g, 'can i');
         
-        if (normalizedUser === option1 || normalizedUser === option2) {
-            return true;
-        }
+        // would like → want の統一
+        normalized = normalized.replace(/\bi would like\b/g, 'i want');
+        normalized = normalized.replace(/\bwe would like\b/g, 'i want');
+        normalized = normalized.replace(/\bhe would like\b/g, 'he wants');
+        normalized = normalized.replace(/\bshe would like\b/g, 'she wants');
         
-        // 句読点なしでも比較
-        if (removePunctuation(normalizedUser) === removePunctuation(option1) ||
-            removePunctuation(normalizedUser) === removePunctuation(option2)) {
-            return true;
-        }
+        // please, excuse me, sorry の削除
+        normalized = normalized.replace(/\bplease\b/g, '');
+        normalized = normalized.replace(/\bexcuse me\b/g, '');
+        normalized = normalized.replace(/\bpardon me\b/g, '');
+        normalized = normalized.replace(/\bi am sorry\b/g, '');
+        normalized = normalized.replace(/\bsorry\b/g, '');
+
+        // 【ステップ4】動詞の完全互換
+        // get/have/take/use の統一
+        normalized = normalized.replace(/\bcan i get\b/g, 'can i have');
+        normalized = normalized.replace(/\bcan i take\b/g, 'can i have');
+        normalized = normalized.replace(/\bcan i use\b/g, 'can i have');
+        normalized = normalized.replace(/\bmay i have\b/g, 'can i have');
+        normalized = normalized.replace(/\bmay i get\b/g, 'can i have');
+        
+        // see/have/look at の統一
+        normalized = normalized.replace(/\bcan i see\b/g, 'can i have');
+        normalized = normalized.replace(/\bcan i look at\b/g, 'can i have');
+        normalized = normalized.replace(/\blet me see\b/g, 'can i have');
+        
+        // Do you have → Can I have の統一
+        normalized = normalized.replace(/\bdo you have\b/g, 'can i have');
+        normalized = normalized.replace(/\bdoes this have\b/g, 'can i have');
+        normalized = normalized.replace(/\bis there\b/g, 'can i have');
+        normalized = normalized.replace(/\bare there\b/g, 'can i have');
+        
+        // want/need/would like の統一
+        normalized = normalized.replace(/\bi need\b/g, 'i want');
+        normalized = normalized.replace(/\bi require\b/g, 'i want');
+        normalized = normalized.replace(/\bi wish\b/g, 'i want');
+        
+        // order/get の統一
+        normalized = normalized.replace(/\bi will order\b/g, 'i want');
+        normalized = normalized.replace(/\bi would like to order\b/g, 'i want');
+        normalized = normalized.replace(/\blet me order\b/g, 'i want');
+
+        // 【ステップ5】名詞の完全互換
+        // 場所を尋ねる表現
+        normalized = normalized.replace(/\bwhere is\b/g, 'where');
+        normalized = normalized.replace(/\bwhere are\b/g, 'where');
+        normalized = normalized.replace(/\bwhere can i find\b/g, 'where');
+        normalized = normalized.replace(/\bhow do i get to\b/g, 'where');
+        
+        // トイレ系
+        normalized = normalized.replace(/\brestroom\b/g, 'bathroom');
+        normalized = normalized.replace(/\btoilet\b/g, 'bathroom');
+        normalized = normalized.replace(/\bwashroom\b/g, 'bathroom');
+        normalized = normalized.replace(/\blavatory\b/g, 'bathroom');
+        normalized = normalized.replace(/\bwr\b/g, 'bathroom');
+        
+        // 会計系
+        normalized = normalized.replace(/\bcheck\b/g, 'bill');
+        normalized = normalized.replace(/\breceipt\b/g, 'bill');
+        normalized = normalized.replace(/\btab\b/g, 'bill');
+        
+        // 食事系
+        normalized = normalized.replace(/\bmeal\b/g, 'food');
+        normalized = normalized.replace(/\bdish\b/g, 'food');
+        normalized = normalized.replace(/\bcombo\b/g, 'meal');
+        normalized = normalized.replace(/\bset\b/g, 'meal');
+        
+        // 飲み物系
+        normalized = normalized.replace(/\bbeverage\b/g, 'drink');
+        normalized = normalized.replace(/\bsoda\b/g, 'drink');
+        normalized = normalized.replace(/\bpop\b/g, 'drink');
+        
+        // 袋系
+        normalized = normalized.replace(/\bshopping bag\b/g, 'bag');
+        normalized = normalized.replace(/\bplastic bag\b/g, 'bag');
+        normalized = normalized.replace(/\bpaper bag\b/g, 'bag');
+
+        // 【ステップ6】形容詞・副詞の統一
+        normalized = normalized.replace(/\bgood\b/g, 'nice');
+        normalized = normalized.replace(/\bgreat\b/g, 'nice');
+        normalized = normalized.replace(/\bwonderful\b/g, 'nice');
+        normalized = normalized.replace(/\bawesome\b/g, 'nice');
+        normalized = normalized.replace(/\bexcellent\b/g, 'nice');
+        normalized = normalized.replace(/\bfine\b/g, 'nice');
+        
+        normalized = normalized.replace(/\ba bit\b/g, 'bit');
+        normalized = normalized.replace(/\ba little\b/g, 'bit');
+        normalized = normalized.replace(/\bslightly\b/g, 'bit');
+        normalized = normalized.replace(/\bkind of\b/g, 'bit');
+        normalized = normalized.replace(/\bsort of\b/g, 'bit');
+
+        // 【ステップ7】挨拶・返事の統一
+        normalized = normalized.replace(/\bhello\b/g, 'hi');
+        normalized = normalized.replace(/\bhey\b/g, 'hi');
+        normalized = normalized.replace(/\bhiya\b/g, 'hi');
+        
+        normalized = normalized.replace(/\bthank you\b/g, 'thanks');
+        normalized = normalized.replace(/\bthank you very much\b/g, 'thanks');
+        normalized = normalized.replace(/\bthanks a lot\b/g, 'thanks');
+        normalized = normalized.replace(/\bthank you so much\b/g, 'thanks');
+        
+        normalized = normalized.replace(/\byeah\b/g, 'yes');
+        normalized = normalized.replace(/\byep\b/g, 'yes');
+        normalized = normalized.replace(/\byup\b/g, 'yes');
+        normalized = normalized.replace(/\bsure\b/g, 'yes');
+        normalized = normalized.replace(/\bok\b/g, 'yes');
+        normalized = normalized.replace(/\bokay\b/g, 'yes');
+        normalized = normalized.replace(/\balright\b/g, 'yes');
+        normalized = normalized.replace(/\ball right\b/g, 'yes');
+        
+        normalized = normalized.replace(/\bnope\b/g, 'no');
+        normalized = normalized.replace(/\bnah\b/g, 'no');
+
+        // 【ステップ8】前置詞・冠詞の柔軟性
+        // a/an/the の削除（意味に影響しない）
+        normalized = normalized.replace(/\ba\s/g, ' ');
+        normalized = normalized.replace(/\ban\s/g, ' ');
+        normalized = normalized.replace(/\bthe\s/g, ' ');
+        
+        // 句読点を削除
+        normalized = normalized.replace(/[.,!?;:'"""]/g, '');
+        
+        // 余分な空白を1つに統一
+        normalized = normalized.replace(/\s+/g, ' ').trim();
+
+        return normalized;
     }
-    
-    return false;
+
+    const normalizedUser = normalizeAnswer(userAnswer);
+    const normalizedCorrect = normalizeAnswer(correctAnswer);
+
+    return normalizedUser === normalizedCorrect;
 }
+
 
 function checkAnswer() {
     const userAnswer = document.getElementById('answerInput').value.trim();
