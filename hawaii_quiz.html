@@ -1132,6 +1132,24 @@
                     </div>
                 </div>
                 
+                <!-- API使用量カウンター -->
+                <div class="api-usage-counter" style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 10px; border-left: 4px solid #0d6efd;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">📊 Gemini API使用状況（無料枚制限）</div>
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 14px;">日次リクエスト:</span>
+                        <span id="dailyRequestCount" style="font-weight: bold; color: #11998e;">0</span>
+                        <span style="color: #666;">/ 1,500</span>
+                        <span style="margin-left: 10px; font-size: 12px; color: #666;">(毎日 0:00 リセット)</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 14px;">月次トークン:</span>
+                        <span id="monthlyTokenCount" style="font-weight: bold; color: #11998e;">0</span>
+                        <span style="color: #666;">/ 1,000,000</span>
+                        <span style="margin-left: 10px; font-size: 12px; color: #666;">(毎月 1日 リセット)</span>
+                    </div>
+                    <button style="margin-top: 10px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;" onclick="resetApiCounter()">カウンターをリセット</button>
+                </div>
+                
                 <button class="start-btn" onclick="startAIChat()">💬 会話を開始</button>
             </div>
             
@@ -1280,6 +1298,12 @@ let aiChatLevel = 'beginner';
 let chatHistory = [];
 let workerApiUrl = '';
 
+// API使用量カウンター
+let dailyRequests = 0;
+let monthlyTokens = 0;
+let lastResetDate = '';
+let lastResetMonth = '';
+
 // シーン名マッピング
 const sceneNames = {
     frequent: '頻出',
@@ -1332,8 +1356,8 @@ const phrasesDatabase = {
         { japanese: 'これをお願いします', english: 'This one, please.', hint: 'This で始まります', level: 'beginner' },
         { japanese: 'お会計をお願いします', english: 'Check, please.', hint: 'Check, で始まります', level: 'beginner' },
         { japanese: 'チケット2枚お願いします', english: 'Two tickets, please.', hint: 'Two で始まります', level: 'beginner' },
-        { japanese: '氷抜きでお願いします', english: 'No ice, please.', hint: 'No で始まります', level: 'beginner' },
-        { japanese: '持ち帰りでお願いします', english: 'To go, please.', hint: 'To で始まります', level: 'beginner' },
+        { japanese: '氷抜きでお願いします（飲み物を注文するとき）', english: 'No ice, please.', hint: 'No で始まります', level: 'beginner' },
+        { japanese: '持ち帰りでお願いします（レストランやファストフード店で食事場所を聞かれたとき）', english: 'To go, please.', hint: 'To で始まります', level: 'beginner' },
         { japanese: '袋をください', english: 'Bag, please.', hint: 'Bag, で始まります', level: 'beginner' },
         { japanese: 'おかわりください', english: 'Refill, please.', hint: 'Refill, で始まります', level: 'beginner' },
         { japanese: '赤いのをお願いします', english: 'Red one, please.', hint: 'Red で始まります', level: 'beginner' },
@@ -1409,14 +1433,14 @@ const phrasesDatabase = {
         { japanese: 'それだけです', english: 'That\'s it.', hint: 'That\'s で始まります', level: 'advanced' },
         { japanese: 'いいえ、それで全部です', english: 'No, that\'s all.', hint: 'No, で始まります', level: 'advanced' },
         { japanese: '今はこれで全部です', english: 'That\'s all for now.', hint: 'That\'s で始まります', level: 'advanced' },
-        { japanese: '店内で', english: 'For here, please.', hint: 'For で始まります', level: 'beginner' },
-        { japanese: '玉ねぎ抜きで', english: 'No onions, please.', hint: 'No で始まります', level: 'beginner' },
-        { japanese: '氷少なめで', english: 'Light ice, please.', hint: 'Light で始まります', level: 'beginner' },
+        { japanese: '店内で（レストランやファストフード店で食事場所を聞かれたとき）', english: 'For here, please.', hint: 'For で始まります', level: 'beginner' },
+        { japanese: '玉ねぎ抜きで（ハンバーガーやサラダを注文するとき）', english: 'No onions, please.', hint: 'No で始まります', level: 'beginner' },
+        { japanese: '氷少なめで（飲み物を注文するとき）', english: 'Light ice, please.', hint: 'Light で始まります', level: 'beginner' },
         { japanese: 'ソースを追加でもらえますか?', english: 'Can I have extra sauce?', hint: 'Can で始まります', level: 'beginner' },
-        { japanese: 'チーズ多めで', english: 'Extra cheese, please.', hint: 'Extra で始まります', level: 'beginner' },
-        { japanese: 'S・M・Lサイズ', english: 'Small / Medium / Large', hint: 'Small で始まります', level: 'beginner' },
-        { japanese: '白米で', english: 'White rice, please.', hint: 'White で始まります', level: 'beginner' },
-        { japanese: '玄米で', english: 'Brown rice, please.', hint: 'Brown で始まります', level: 'beginner' },
+        { japanese: 'チーズ多めで（ピザやバーガーを注文するとき）', english: 'Extra cheese, please.', hint: 'Extra で始まります', level: 'beginner' },
+        { japanese: 'S・M・Lサイズ（飲み物や食べ物のサイズを聞かれたとき）', english: 'Small / Medium / Large', hint: 'Small で始まります', level: 'beginner' },
+        { japanese: '白米で（プレートランチでご飯の種類を聞かれたとき）', english: 'White rice, please.', hint: 'White で始まります', level: 'beginner' },
+        { japanese: '玄米で（プレートランチでご飯の種類を聞かれたとき）', english: 'Brown rice, please.', hint: 'Brown で始まります', level: 'beginner' },
         { japanese: 'レアで (生に近い)', english: 'Rare, please.', hint: 'Rare, で始まります', level: 'beginner' },
         { japanese: 'ミディアムレアで (少し赤身が残る)', english: 'Medium rare, please.', hint: 'Medium で始まります', level: 'beginner' },
         { japanese: 'ミディアムで (無難な選択)', english: 'Medium, please.', hint: 'Medium, で始まります', level: 'beginner' },
@@ -2990,6 +3014,64 @@ function nextPracticePhrase() {
 }
 
 // ============================================
+// API使用量カウンター管理
+// ============================================
+
+function loadApiCounter() {
+    const today = new Date().toISOString().split('T')[0];
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    
+    lastResetDate = localStorage.getItem('apiCounterResetDate') || today;
+    lastResetMonth = localStorage.getItem('apiCounterResetMonth') || currentMonth;
+    dailyRequests = parseInt(localStorage.getItem('apiDailyRequests') || '0');
+    monthlyTokens = parseInt(localStorage.getItem('apiMonthlyTokens') || '0');
+    
+    // 日付が変わったら日次カウンターをリセット
+    if (lastResetDate !== today) {
+        dailyRequests = 0;
+        lastResetDate = today;
+        localStorage.setItem('apiCounterResetDate', today);
+        localStorage.setItem('apiDailyRequests', '0');
+    }
+    
+    // 月が変わったら月次カウンターをリセット
+    if (lastResetMonth !== currentMonth) {
+        monthlyTokens = 0;
+        lastResetMonth = currentMonth;
+        localStorage.setItem('apiCounterResetMonth', currentMonth);
+        localStorage.setItem('apiMonthlyTokens', '0');
+    }
+    
+    updateApiCounter();
+}
+
+function updateApiCounter() {
+    const dailyEl = document.getElementById('dailyRequestCount');
+    const monthlyEl = document.getElementById('monthlyTokenCount');
+    if (dailyEl) dailyEl.textContent = dailyRequests;
+    if (monthlyEl) monthlyEl.textContent = monthlyTokens.toLocaleString();
+}
+
+function incrementApiCounter(tokenCount = 500) {
+    dailyRequests++;
+    monthlyTokens += tokenCount;
+    
+    localStorage.setItem('apiDailyRequests', dailyRequests.toString());
+    localStorage.setItem('apiMonthlyTokens', monthlyTokens.toString());
+    
+    updateApiCounter();
+}
+
+function resetApiCounter() {
+    if (confirm('カウンターをリセットしますか？')) {
+        dailyRequests = 0;
+        monthlyTokens = 0;
+        localStorage.setItem('apiDailyRequests', '0');
+        localStorage.setItem('apiMonthlyTokens', '0');
+        updateApiCounter();
+    }
+}
+
 // AIチャット関数（Gemini API統合版）
 // ============================================
 
@@ -2999,6 +3081,9 @@ function loadWorkerUrl() {
     workerApiUrl = savedUrl;
     document.getElementById('workerUrl').value = savedUrl;
     updateApiStatus();
+    
+    // API使用量カウンターを初期化
+    loadApiCounter();
 }
 
 function saveWorkerUrl(url) {
@@ -3153,7 +3238,8 @@ async function sendChatMessage() {
             body: JSON.stringify({
                 message: message,
                 scene: aiSceneNames[aiChatScene],
-                level: aiLevelNames[aiChatLevel]
+                level: aiLevelNames[aiChatLevel],
+                history: chatHistory  // 会話履歴を送信（堀々巡り防止）
             })
         });
         
@@ -3170,7 +3256,16 @@ async function sendChatMessage() {
         if (data.error) {
             addAIChatMessage(`エラーが発生しました: ${data.error}\n\nWorker URLとAPIキーの設定を確認してください。`, 'ai');
         } else {
+            // AIの応答を表示
+            // Worker側で以下を実装できます：
+            // - 初級者向け：スペルミス訂正、模範回答の表示
+            // - historyを活用した会話の継続
             addAIChatMessage(data.response, 'ai');
+            
+            // API使用量カウンターを更新
+            // Worker側から返されるtokenCountを使用するか、デフォルト値を使用
+            const tokenCount = data.tokenCount || 500; // デフォルト500トークン
+            incrementApiCounter(tokenCount);
         }
         
     } catch (error) {
