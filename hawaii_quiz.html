@@ -281,7 +281,7 @@
         
         .answer-input {
             width: 100%;
-            padding: 15px 50px 15px 15px;
+            padding: 15px;
             font-size: 16px;
             border: 2px solid #dee2e6;
             border-radius: 10px;
@@ -301,22 +301,18 @@
         
         .clear-btn {
             position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
+            right: 10px;
+            top: 10px;
             background: #6c757d;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             font-size: 16px;
             cursor: pointer;
             display: none;
-            align-items: center;
-            justify-content: center;
             transition: all 0.2s;
-            z-index: 10;
         }
         
         .clear-btn.show {
@@ -813,7 +809,9 @@
                 grid-template-columns: 1fr 1fr;
             }
             
-            
+            .stats-box {
+                grid-template-columns: 1fr;
+            }
             
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -963,13 +961,6 @@
                 <div class="japanese-text" id="japanese">日本語の質問がここに表示されます</div>
             </div>
             
-            <!-- ヒント・音声ボタンを解答欄の上に移動 -->
-            <div class="button-group triple" style="margin-bottom: 15px;">
-                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
-                <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
-                <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
-            </div>
-            
             <div class="answer-section">
                 <div class="input-wrapper">
                     <textarea 
@@ -985,7 +976,11 @@
                 <div class="result-box hidden" id="resultBox"></div>
             </div>
             
-            
+            <div class="button-group triple">
+                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
+                <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
+                <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
+            </div>
             
             <div class="button-group">
                 <button class="btn btn-secondary" id="showAnswerBtn" onclick="toggleAnswer()">👁️ 正解を見る</button>
@@ -1290,7 +1285,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         document.getElementById('recognitionResult').textContent = `あなた: "${transcript}"`;
         
         const currentPhrase = practiceQuestions[currentPracticeIndex];
-        if (isAnswerCorrect(transcript, currentPhrase.alternatives || [currentPhrase.english])) {
+        if (isAnswerCorrect(transcript, currentPhrase.english)) {
             practiceCorrectCount++;
             document.getElementById('scoreDisplay2').innerHTML = '✅ 正解です! 素晴らしい!';
             document.getElementById('scoreDisplay2').style.background = '#d1e7dd';
@@ -2464,30 +2459,28 @@ function speakAnswer() {
 }
 
 function speakAnswerSlow() {
-            const currentPhrase = currentQuestions[currentQuestionIndex];
-            if (!currentPhrase) return;
-            
-            const answers = currentPhrase.alternatives || [currentPhrase.english];
-            const textToSpeak = answers[0];
-            
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.5; // 0.5倍速
-                
-                // iPhone Safari対応: 少し待ってから再生
-                setTimeout(() => {
-                    window.speechSynthesis.speak(utterance);
-                }, 100);
-                
-                const btn = document.getElementById('speakSlowBtn');
-                if (btn) {
-                    btn.classList.add('speaking');
-                    utterance.onend = () => btn.classList.remove('speaking');
-                }
-            }
-        };
+    const question = currentQuestions[currentQuestionIndex];
+    
+    // 既存の音声を停止
+    speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(question.english);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.5;  // 0.5倍速（最も遅い設定）
+    utterance.pitch = 1.0;  // ピッチは標準
+    utterance.volume = 1.0; // 音量は最大
+    
+    // デバッグ用：設定をコンソールに表示
+    console.log('=== ゆっくり再生 ===');
+    console.log('Text:', question.english);
+    console.log('Rate:', utterance.rate, '(0.5倍速)');
+    console.log('Pitch:', utterance.pitch);
+    console.log('Volume:', utterance.volume);
+    
+    // 再生開始と終了をログ
+    utterance.onstart = function() {
+        console.log('ゆっくり再生開始');
+    };
     
     utterance.onend = function() {
         console.log('ゆっくり再生終了');
@@ -2516,105 +2509,56 @@ function toggleAnswer() {
     }
 }
 
-function isAnswerCorrect(userAnswer, correctAnswers) {
-    // 正規化関数
-    const normalize = (str) => {
-        return str
-            .toLowerCase()
-            .replace(/[.,!?;:'"\-]/g, '')
-            .replace(/\s+/g, ' ')
-            .trim();
+function isAnswerCorrect(userAnswer, correctAnswer) {
+    // 正規化（小文字変換、前後の空白削除、余分な空白を1つに統一）
+    const normalizeText = (text) => {
+        return text.toLowerCase().trim().replace(/\s+/g, ' ');
     };
     
-    const user = normalize(userAnswer);
+    const normalizedUser = normalizeText(userAnswer);
+    const normalizedCorrect = normalizeText(correctAnswer);
     
-    // correctAnswersを配列として扱う（後方互換性のため）
-    const answers = Array.isArray(correctAnswers) ? correctAnswers : [correctAnswers];
-    
-    // 完全一致チェック
-    for (let answer of answers) {
-        if (user === normalize(answer)) {
-            return true;
-        }
+    // 完全一致
+    if (normalizedUser === normalizedCorrect) {
+        return true;
     }
     
-    // 柔軟な判定パターン（大幅拡張）
-    const patterns = [
-        { from: /\bnice\b/g, to: 'good' },
-        { from: /\bgood\b/g, to: 'nice' },
-        { from: /\bcould\b/g, to: 'can' },
-        { from: /\bcan\b/g, to: 'could' },
-        { from: /\ba bit\b/g, to: 'bit' },
-        { from: /\bbit\b/g, to: 'a bit' },
-        { from: /\bi\b/g, to: 'we' },
-        { from: /\bwe\b/g, to: 'i' },
-        { from: /\bwed like to check out\b/g, to: 'check out please' },
-        { from: /\bcheck out please\b/g, to: 'wed like to check out' },
-        { from: /\bplease\b/g, to: '' },
-        { from: /\bthanks\b/g, to: 'thank you' },
-        { from: /\bthank you\b/g, to: 'thanks' },
-        { from: /\bsorry\b/g, to: 'excuse me' },
-        { from: /\bexcuse me\b/g, to: 'sorry' },
-        { from: /\bwanna\b/g, to: 'want to' },
-        { from: /\bgonna\b/g, to: 'going to' },
-        { from: /\bgotta\b/g, to: 'got to' },
-        { from: /\bkinda\b/g, to: 'kind of' },
-        { from: /\bsorta\b/g, to: 'sort of' },
-        { from: /\bid like\b/g, to: 'i want' },
-        { from: /\bi want\b/g, to: 'id like' },
-        { from: /\bwed like\b/g, to: 'we want' },
-        { from: /\bwe want\b/g, to: 'wed like' },
-        { from: /\bcan i get\b/g, to: 'can i have' },
-        { from: /\bcan i have\b/g, to: 'can i get' },
-        { from: /\bcan we get\b/g, to: 'can we have' },
-        { from: /\bcan we have\b/g, to: 'can we get' },
-        { from: /\bhow much is it\b/g, to: 'how much' },
-        { from: /\bwheres\b/g, to: 'where is' },
-        { from: /\bwhats\b/g, to: 'what is' },
-        { from: /\bim\b/g, to: 'i am' },
-        { from: /\bwere\b/g, to: 'we are' },
-        { from: /\bisnt\b/g, to: 'is not' },
-        { from: /\barent\b/g, to: 'are not' },
-        { from: /\bdont\b/g, to: 'do not' },
-        { from: /\bdoesnt\b/g, to: 'does not' },
-        { from: /\bwont\b/g, to: 'will not' },
-        { from: /\bcant\b/g, to: 'cannot' },
-        { from: /\bive got\b/g, to: 'i have' },
-        { from: /\bweve got\b/g, to: 'we have' },
-        { from: /\bmeal\b/g, to: 'combo' },
-        { from: /\bthat s all\b/g, to: 'that s it' },
-        { from: /\bdo you accept\b/g, to: 'can i use' },
-        { from: /\brestroom\b/g, to: 'bathroom' },
-        { from: /\btoilet\b/g, to: 'bathroom' },
+    // 句読点を除外して比較
+    const removePunctuation = (text) => {
+        return text.replace(/[.,!?;:'"]/g, '');
+    };
+    
+    if (removePunctuation(normalizedUser) === removePunctuation(normalizedCorrect)) {
+        return true;
+    }
+    
+    // 同義語ペアのチェック
+    const synonymPairs = [
+        ['meal', 'combo'],
+        ['that\'s all', 'that\'s it'],
+        ['thanks', 'thank you'],
+        ['do you accept', 'can i use'],
+        ['i\'ll have that one', 'that one please'],
+        ['restroom', 'bathroom'],
+        ['toilet', 'restroom'],
+        ['hi', 'hello'],
+        ['hey', 'hello'],
+        ['check', 'bill'],
+        ['receipt', 'bill']
     ];
     
-    // パターンマッチング（双方向）
-    for (let answer of answers) {
-        let flexAnswer = normalize(answer);
-        let flexUser = user;
+    for (let [word1, word2] of synonymPairs) {
+        const option1 = normalizedCorrect.replace(word1, word2);
+        const option2 = normalizedCorrect.replace(word2, word1);
         
-        for (let p of patterns) {
-            flexAnswer = flexAnswer.replace(p.from, p.to);
-            flexUser = flexUser.replace(p.from, p.to);
-        }
-        
-        if (flexUser === flexAnswer || user === flexAnswer) {
+        if (normalizedUser === option1 || normalizedUser === option2) {
             return true;
         }
-    }
-    
-    // キーワード部分一致（70%以上）
-    for (let answer of answers) {
-        const answerWords = normalize(answer).split(' ').filter(w => w.length > 2);
-        const userWords = user.split(' ').filter(w => w.length > 2);
         
-        if (answerWords.length > 0 && userWords.length > 0) {
-            const matchCount = answerWords.filter(w => userWords.includes(w)).length;
-            const matchRatio = matchCount / answerWords.length;
-            
-            if (matchRatio >= 0.7) {
-                return true;
-            }
+        // 句読点なしでも比較
+        if (removePunctuation(normalizedUser) === removePunctuation(option1) ||
+            removePunctuation(normalizedUser) === removePunctuation(option2)) {
+            return true;
         }
     }
     
@@ -3190,27 +3134,24 @@ function showStats() {
         
         function getToday() {
             const now = new Date();
-            return now.toISOString().split('T')[0]; // YYYY-MM-DD
+            return now.toISOString().split('T')[0];
         }
         
         function getCurrentMonth() {
             const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
         
         function getApiUsage() {
             const today = getToday();
             const month = getCurrentMonth();
-            
             const usage = JSON.parse(localStorage.getItem('geminiApiUsage') || '{}');
             
-            // 日付が変わったらリセット
             if (usage.lastDate !== today) {
                 usage.dailyRequests = 0;
                 usage.lastDate = today;
             }
             
-            // 月が変わったらリセット
             if (usage.lastMonth !== month) {
                 usage.monthlyTokens = 0;
                 usage.lastMonth = month;
@@ -3228,42 +3169,25 @@ function showStats() {
             const usage = getApiUsage();
             usage.dailyRequests += 1;
             usage.monthlyTokens += tokensUsed;
-            
             localStorage.setItem('geminiApiUsage', JSON.stringify(usage));
             updateApiUsageDisplay();
         }
         
         function updateApiUsageDisplay() {
             const usage = getApiUsage();
-            
             const dailyRequestsEl = document.getElementById('dailyRequests');
             const dailyRemainingEl = document.getElementById('dailyRemaining');
             const monthlyTokensEl = document.getElementById('monthlyTokens');
             
-            if (dailyRequestsEl) {
-                dailyRequestsEl.textContent = usage.dailyRequests;
-            }
-            
+            if (dailyRequestsEl) dailyRequestsEl.textContent = usage.dailyRequests;
             if (dailyRemainingEl) {
                 const remaining = Math.max(0, 1500 - usage.dailyRequests);
                 dailyRemainingEl.textContent = remaining;
-                
-                // 残りが少なくなったら色を変える
-                if (remaining < 100) {
-                    dailyRemainingEl.style.color = '#dc3545';
-                } else if (remaining < 300) {
-                    dailyRemainingEl.style.color = '#ffc107';
-                } else {
-                    dailyRemainingEl.style.color = '#28a745';
-                }
+                dailyRemainingEl.style.color = remaining < 100 ? '#dc3545' : remaining < 300 ? '#ffc107' : '#28a745';
             }
-            
-            if (monthlyTokensEl) {
-                monthlyTokensEl.textContent = Math.round(usage.monthlyTokens / 1000);
-            }
+            if (monthlyTokensEl) monthlyTokensEl.textContent = Math.round(usage.monthlyTokens / 1000);
         }
         
-        // 初回表示時に更新
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', updateApiUsageDisplay);
         } else {
