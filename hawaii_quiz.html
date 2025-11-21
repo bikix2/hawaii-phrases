@@ -79,7 +79,8 @@
             font-size: 18px;
             font-weight: bold;
             margin-top: 10px;
-        }
+            display: none !important;
+}
         
         /* メニュー画面 */
         .menu-screen {
@@ -919,8 +920,8 @@
                         <button class="option-btn" data-scene="frequent" onclick="selectScene('frequent')">頻出</button>
                         <button class="option-btn" data-scene="airport" onclick="selectScene('airport')">空港</button>
                         <button class="option-btn" data-scene="hotel" onclick="selectScene('hotel')">ホテル</button>
-                        <button class="option-btn" data-scene="transport" onclick="selectScene('transport')">交通</button>
-                        <button class="option-btn" data-scene="food" onclick="selectScene('food')">食事</button>
+                        <button class="option-btn" data-scene="transportation" onclick="selectScene('transportation')">交通</button>
+                        <button class="option-btn" data-scene="dining" onclick="selectScene('dining')">食事</button>
                         <button class="option-btn" data-scene="shopping" onclick="selectScene('shopping')">買い物</button>
                         <button class="option-btn" data-scene="emergency" onclick="selectScene('emergency')">緊急</button>
                         <button class="option-btn" data-scene="smalltalk" onclick="selectScene('smalltalk')">スモールトーク</button>
@@ -957,10 +958,15 @@
                 <div class="japanese-text" id="japanese">日本語の質問がここに表示されます</div>
             </div>
             
-            <div class="button-group triple">
-                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒント</button>
+            <div class="button-group">
                 <button class="btn btn-outline" onclick="speakAnswer()">🔊 聞く</button>
                 <button class="btn btn-outline" onclick="speakAnswerSlow()">🐢 ゆっくり</button>
+            </div>
+            
+            <div class="hint-box hidden" id="hintBox"></div>
+            
+            <div class="button-group single" style="margin: 10px 0;">
+                <button class="btn btn-outline" id="hintBtn" onclick="toggleHint()">💡 ヒントを表示</button>
             </div>
             
             <div class="answer-section">
@@ -973,7 +979,6 @@
                     ></textarea>
                     <button class="clear-btn" id="clearBtn" onclick="clearInput()">✕</button>
                 </div>
-                <div class="hint-box hidden" id="hintBox"></div>
                 <div class="answer-box hidden" id="answerBox"></div>
                 <div class="result-box hidden" id="resultBox"></div>
             </div>
@@ -983,12 +988,11 @@
                 <button class="btn btn-outline" onclick="toggleVoiceInput()" id="voiceBtn">🎤 音声入力</button>
             </div>
             
-            <div class="button-group">
-                <button class="btn btn-primary" onclick="checkAnswer()">✓ 回答をチェック</button>
-            </div>
             
-            <div class="navigation-buttons">
+            
+            <div class="navigation-buttons" style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; align-items: center;">
                 <button class="nav-btn" onclick="previousQuestion()" id="prevBtn">← 前へ</button>
+                <button class="btn btn-primary" onclick="checkAnswer()" style="font-size: 16px; padding: 14px 20px;">✓ 回答をチェック</button>
                 <button class="nav-btn" onclick="nextQuestion()" id="nextBtn">次へ →</button>
             </div>
             
@@ -1103,10 +1107,7 @@
                     placeholder="https://hawaii-quiz-ai.YOUR-SUBDOMAIN.workers.dev"
                     value=""
                 />
-                <div class="api-help-text">
-                    💡 ステップ2で作成したCloudflare Worker URLを入力してください<br>
-                    入力後、自動的に保存されます
-                </div>
+                
             </div>
             
             <!-- 設定画面 -->
@@ -1414,7 +1415,7 @@ const phrasesDatabase = {
         { japanese: '氷少なめで', english: 'Light ice, please.', hint: 'Light で始まります', level: 'beginner' },
         { japanese: 'ソースを追加でもらえますか?', english: 'Can I have extra sauce?', hint: 'Can で始まります', level: 'beginner' },
         { japanese: 'チーズ多めで', english: 'Extra cheese, please.', hint: 'Extra で始まります', level: 'beginner' },
-        { japanese: 'S・M・Lサイズ', english: 'Small / Medium / Large', hint: 'Small で始まります', level: 'beginner' },
+        { japanese: 'S・M・Lサイズ', english: 'Small', flexibleAnswers: ["Medium", "Large"], hint: 'Small で始まります', level: 'beginner' },
         { japanese: '白米で', english: 'White rice, please.', hint: 'White で始まります', level: 'beginner' },
         { japanese: '玄米で', english: 'Brown rice, please.', hint: 'Brown で始まります', level: 'beginner' },
         { japanese: 'レアで (生に近い)', english: 'Rare, please.', hint: 'Rare, で始まります', level: 'beginner' },
@@ -1439,13 +1440,13 @@ const phrasesDatabase = {
         { japanese: 'トール（一番小さい）', english: 'Tall (12oz)', hint: 'Tall で始まります', level: 'beginner' },
         { japanese: 'グランデ（中サイズ）', english: 'Grande (16oz)', hint: 'Grande で始まります', level: 'beginner' },
         { japanese: 'ベンティ（大サイズ）', english: 'Venti (20oz)', hint: 'Venti で始まります', level: 'beginner' },
-        { japanese: 'カフェラテ / カプチーノ / アメリカーノ', english: 'Café latte / Cappuccino / Americano', hint: 'Café で始まります', level: 'beginner' },
-        { japanese: 'キャラメルマキアート / モカ', english: 'Caramel macchiato / Mocha', hint: 'Caramel で始まります', level: 'beginner' },
+        { japanese: 'カフェラテ / カプチーノ / アメリカーノ', english: 'Café latte', flexibleAnswers: ["Cappuccino", "Americano"], hint: 'Café で始まります', level: 'beginner' },
+        { japanese: 'キャラメルマキアート / モカ', english: 'Caramel macchiato', flexibleAnswers: ["Mocha"], hint: 'Caramel で始まります', level: 'beginner' },
         { japanese: 'フラペチーノ（各種フレーバー）', english: 'Frappuccino (any flavor)', hint: 'Frappuccino で始まります', level: 'beginner' },
-        { japanese: 'アイスコーヒー / アイスティー', english: 'Iced coffee / Iced tea', hint: 'Iced で始まります', level: 'beginner' },
-        { japanese: 'クロワッサン / マフィン', english: 'Croissant / Muffin', hint: 'Croissant で始まります', level: 'beginner' },
-        { japanese: 'サンドイッチ / クッキー', english: 'Sandwich / Cookie', hint: 'Sandwich で始まります', level: 'beginner' },
-        { japanese: 'ケーキポップ / ブラウニー', english: 'Cake pop / Brownie', hint: 'Cake で始まります', level: 'beginner' },
+        { japanese: 'アイスコーヒー / アイスティー', english: 'Iced coffee', flexibleAnswers: ["Iced tea"], hint: 'Iced で始まります', level: 'beginner' },
+        { japanese: 'クロワッサン / マフィン', english: 'Croissant', flexibleAnswers: ["Muffin"], hint: 'Croissant で始まります', level: 'beginner' },
+        { japanese: 'サンドイッチ / クッキー', english: 'Sandwich', flexibleAnswers: ["Cookie"], hint: 'Sandwich で始まります', level: 'beginner' },
+        { japanese: 'ケーキポップ / ブラウニー', english: 'Cake pop', flexibleAnswers: ["Brownie"], hint: 'Cake で始まります', level: 'beginner' },
         { japanese: 'アイスカフェラテのグランデ', english: 'Iced café latte, grande.', hint: 'Iced で始まります', level: 'beginner' },
         { japanese: 'ホットコーヒーのトール', english: 'Hot coffee, tall.', hint: 'Hot で始まります', level: 'beginner' },
         { japanese: '抹茶フラペチーノのベンティ', english: 'Matcha frappuccino, venti.', hint: 'Matcha で始まります', level: 'beginner' },
@@ -1455,7 +1456,7 @@ const phrasesDatabase = {
         { japanese: 'それにします/それを買います', english: 'I\'ll take it.', hint: 'I\'ll で始まります', level: 'advanced' },
         { japanese: 'はい、お願いします', english: 'Yes, please.', hint: 'Yes, で始まります', level: 'beginner' },
         { japanese: 'いいえ、結構です', english: 'No, thank you.', hint: 'No, で始まります', level: 'beginner' },
-        { japanese: 'カード / 現金', english: 'Cash or card? と聞かれたら → Card, please. / Cash.', hint: 'Cash で始まります', level: 'advanced' },
+        { japanese: 'カード / 現金', english: 'Cash or card? と聞かれたら → Card, please.', flexibleAnswers: ["Cash."], hint: 'Cash で始まります', level: 'advanced' },
         { japanese: '別々に会計してください', english: 'Separate checks, please.', hint: 'Separate で始まります', level: 'beginner' },
         { japanese: '一緒に会計してください', english: 'Together, please.', hint: 'Together, で始まります', level: 'beginner' },
         { japanese: '割り勘にできますか?', english: 'Can we split the bill?', hint: 'Can で始まります', level: 'beginner' },
@@ -1483,15 +1484,15 @@ const phrasesDatabase = {
         { japanese: 'お先にどうぞ', english: 'Go ahead.', hint: 'Go で始まります', level: 'beginner' },
     ],
     airport: [
-        { japanese: '観光です', english: 'Sightseeing. / For sightseeing.', hint: 'Sightseeing. で始まります', level: 'beginner' },
-        { japanese: '8日間です / 1週間です', english: 'Eight days. / One week.', hint: 'Eight で始まります', level: 'beginner' },
+        { japanese: '観光です', english: 'Sightseeing.', flexibleAnswers: ["For sightseeing."], hint: 'Sightseeing. で始まります', level: 'beginner' },
+        { japanese: '8日間です / 1週間です', english: 'Eight days.', flexibleAnswers: ["One week."], hint: 'Eight で始まります', level: 'beginner' },
         { japanese: 'ザ インペリアル ハワイ リゾートです', english: 'At The Imperial Hawaii Resort.', hint: 'At で始まります', level: 'beginner' },
         { japanese: 'はい、家族5人です', english: 'Yes, we\'re a family of five.', hint: 'Yes, で始まります', level: 'advanced' },
-        { japanese: 'はい、5回目です / はい、5回くらいです', english: 'Yes, this is our fifth time. / Yes, about five times.', hint: 'Yes, で始まります', level: 'advanced' },
+        { japanese: 'はい、5回目です / はい、5回くらいです', english: 'Yes, this is our fifth time.', flexibleAnswers: ["Yes, about five times."], hint: 'Yes, で始まります', level: 'advanced' },
         { japanese: 'ありがとうございます!', english: 'Thank you!', hint: 'Thank で始まります', level: 'beginner' },
         { japanese: 'いいえ、ありません', english: 'No, nothing to declare.', hint: 'No, で始まります', level: 'beginner' },
         { japanese: 'いいえ', english: 'No.', hint: 'No. で始まります', level: 'beginner' },
-        { japanese: 'はい、わかりました', english: 'Sure. / OK.', hint: 'Sure. で始まります', level: 'beginner' },
+        { japanese: 'はい、わかりました', english: 'Sure.', flexibleAnswers: ["OK."], hint: 'Sure. で始まります', level: 'beginner' },
         { japanese: 'はい、妻と母と子供2人です', english: 'Yes, my wife, mother, and two kids.', hint: 'Yes, で始まります', level: 'beginner' },
         { japanese: 'はい、一緒に旅行しています', english: 'Yes, we\'re traveling together.', hint: 'Yes, で始まります', level: 'advanced' },
         { japanese: 'はい、何度も', english: 'Yes, many times.', hint: 'Yes, で始まります', level: 'beginner' },
@@ -1509,13 +1510,13 @@ const phrasesDatabase = {
         { japanese: 'おつりは取っておいてください', english: 'Keep the change.', hint: 'Keep で始まります', level: 'beginner' },
         { japanese: 'すみません、インペリアル ハワイ リゾート行きのシャトルバスはどこですか?', english: 'Excuse me, where\'s the shuttle bus for The Imperial Hawaii Resort?', hint: 'Excuse で始まります', level: 'advanced' },
         { japanese: 'これはインペリアル ハワイ リゾート行きのシャトルですか?', english: 'Is this the shuttle to The Imperial Hawaii Resort?', hint: 'Is で始まります', level: 'advanced' },
-        { japanese: '東京です / 成田です', english: 'Tokyo. / Narita.', hint: 'Tokyo. で始まります', level: 'beginner' },
+        { japanese: '東京です / 成田です', english: 'Tokyo.', flexibleAnswers: ["Narita."], hint: 'Tokyo. で始まります', level: 'beginner' },
         { japanese: 'はい、どうぞ（5人分のパスポートを渡す）', english: 'Here you go.', hint: 'Here で始まります', level: 'beginner' },
-        { japanese: '4個です', english: 'Four bags. / Four suitcases.', hint: 'Four で始まります', level: 'beginner' },
+        { japanese: '4個です', english: 'Four bags.', flexibleAnswers: ["Four suitcases."], hint: 'Four で始まります', level: 'beginner' },
         { japanese: 'はい', english: 'Yes.', hint: 'Yes. で始まります', level: 'beginner' },
-        { japanese: 'いいえ / 預ける荷物の中だけです', english: 'No. / Just in checked bags.', hint: 'No. で始まります', level: 'beginner' },
+        { japanese: 'いいえ / 預ける荷物の中だけです', english: 'No.', flexibleAnswers: ["Just in checked bags."], hint: 'No. で始まります', level: 'beginner' },
         { japanese: 'ありがとうございます', english: 'Thank you.', hint: 'Thank で始まります', level: 'beginner' },
-        { japanese: 'いいえ / この小さなボトルだけです', english: 'No. / Just this small bottle.', hint: 'No. で始まります', level: 'beginner' },
+        { japanese: 'いいえ / この小さなボトルだけです', english: 'No.', flexibleAnswers: ["Just this small bottle."], hint: 'No. で始まります', level: 'beginner' },
         { japanese: 'はい', english: 'OK.', hint: 'OK. で始まります', level: 'beginner' },
         { japanese: '預ける荷物が4個あります', english: 'We have four bags to check.', hint: 'We で始まります', level: 'beginner' },
         { japanese: '一緒に座れますか?家族5人です', english: 'Can we sit together? We\'re a family of five.', hint: 'Can で始まります', level: 'advanced' },
@@ -1526,9 +1527,9 @@ const phrasesDatabase = {
         { japanese: 'はい、どうぞ - パスポートや搭乗券を渡すとき', english: 'Here you go.', hint: 'Here で始まります', level: 'beginner' },
         { japanese: 'すみません、○○はどこですか? - 場所確認', english: 'Excuse me, where is ○○?', hint: 'Excuse で始まります', level: 'beginner' },
         { japanese: 'いいえ、申告するものはありません - 税関で', english: 'No, nothing to declare.', hint: 'No で始まります', level: 'beginner' },
-        { japanese: '4個です - チェックイン時の荷物数', english: 'Four bags. / Four suitcases.', hint: 'Four で始まります', level: 'beginner' },
+        { japanese: '4個です - チェックイン時の荷物数', english: 'Four bags.', flexibleAnswers: ["Four suitcases."], hint: 'Four で始まります', level: 'beginner' },
     ],
-    transport: [
+    transportation: [
         { japanese: 'こんにちは、HOLOカードを購入したいです', english: 'Hi, I\'d like to buy HOLO Cards.', hint: 'Hi, で始まります', level: 'advanced' },
         { japanese: 'シニアカード3枚とユースカード2枚をお願いします', english: 'I need three senior cards and two youth cards, please.', hint: 'I で始まります', level: 'advanced' },
         { japanese: 'はい、各カードに3ドルずつお願いします', english: 'Yes, $3 on each card, please.', hint: 'Yes, で始まります', level: 'beginner' },
@@ -1707,7 +1708,7 @@ const phrasesDatabase = {
         { japanese: 'コナビッグウェーブを3つお願いします', english: 'We\'ll take three Kona Big Waves, please.', hint: 'We\'ll で始まります', level: 'advanced' },
         { japanese: 'いいえ、今のところ以上です。ありがとうございます!', english: 'No, that\'s all for now. Thank you!', hint: 'No, で始まります', level: 'advanced' },
         { japanese: 'ビッグマックのセットをお願いします', english: 'I\'ll have a Big Mac meal, please.', hint: 'I\'ll で始まります', level: 'advanced' },
-        { japanese: 'はい、お願いします / いいえ、ミディアムで大丈夫です', english: 'Yes, please. / No, medium is fine.', hint: 'Yes, で始まります', level: 'beginner' },
+        { japanese: 'はい、お願いします / いいえ、ミディアムで大丈夫です', english: 'Yes, please.', flexibleAnswers: ["No, medium is fine."], hint: 'Yes, で始まります', level: 'beginner' },
         { japanese: 'バーガーだけでお願いします。セットではなく', english: 'Just the burger, please. No combo.', hint: 'Just で始まります', level: 'beginner' },
         { japanese: '単品でお願いします', english: 'À la carte, please.', hint: 'À で始まります', level: 'beginner' },
         { japanese: 'ビッグマックのセット3つ、チキンナゲットのセット2つ、チーズバーガー5つをお願いします', english: 'I\'d like three Big Mac meals, two chicken nugget meals, and five cheeseburgers, please.', hint: 'I\'d で始まります', level: 'advanced' },
@@ -2232,7 +2233,14 @@ function selectMode(mode) {
     document.querySelectorAll('.mode-card').forEach(card => {
         card.classList.remove('selected');
     });
-    event.target.closest('.mode-card').classList.add('selected');
+    
+    if (mode === 'quiz') {
+        document.querySelectorAll('.mode-card')[0].classList.add('selected');
+    } else if (mode === 'practice') {
+        document.querySelectorAll('.mode-card')[1].classList.add('selected');
+    } else if (mode === 'aichat') {
+        document.querySelectorAll('.mode-card')[2].classList.add('selected');
+    }
     
     // 設定画面を表示（AIチャットの場合は別画面へ）
     if (mode === 'aichat') {
@@ -2368,6 +2376,16 @@ function displayQuestion() {
     document.getElementById('answerBox').classList.add('hidden');
     isAnswerShown = false;
     
+    // ヒント・正解ボタンのテキストをリセット
+    const hintBtn = document.getElementById('hintBtn');
+    if (hintBtn) {
+        hintBtn.textContent = '💡 ヒントを表示';
+    }
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    if (showAnswerBtn) {
+        showAnswerBtn.textContent = '👁️ 正解を見る';
+    }
+    
     // 統計を更新
     updateStats();
 }
@@ -2392,15 +2410,20 @@ function updateStats() {
 
 function toggleHint() {
     const hintBox = document.getElementById('hintBox');
-    const question = currentQuestions[currentQuestionIndex];
+    const hintBtn = document.getElementById('hintBtn');
+    const currentQuestion = currentQuestions[currentQuestionIndex];
     
     if (hintBox.classList.contains('hidden')) {
-        hintBox.textContent = question.hint;
-        hintBox.classList.remove('hidden');
-        document.getElementById('hintBtn').textContent = '💡 ヒントを隠す';
+        // ヒントを表示
+        if (currentQuestion && currentQuestion.hint) {
+            hintBox.textContent = '💡 ' + currentQuestion.hint;
+            hintBox.classList.remove('hidden');
+            hintBtn.textContent = '🙈 ヒントを隠す';
+        }
     } else {
+        // ヒントを非表示
         hintBox.classList.add('hidden');
-        document.getElementById('hintBtn').textContent = '💡 ヒントを見る';
+        hintBtn.textContent = '💡 ヒントを表示';
     }
 }
 
@@ -2474,6 +2497,11 @@ function isAnswerCorrect(userAnswer, correctAnswer) {
     // 超柔軟な正解判定（伝わること重視）
     
     function normalizeAnswer(answer) {
+        // answerが文字列でない場合は空文字を返す
+        if (typeof answer !== 'string') {
+            console.warn('normalizeAnswer received non-string:', answer);
+            return '';
+        }
         let normalized = answer.toLowerCase().trim();
 
         // 【ステップ1】省略形の展開（完全版）
@@ -2670,16 +2698,38 @@ function isAnswerCorrect(userAnswer, correctAnswer) {
     }
 
     const normalizedUser = normalizeAnswer(userAnswer);
+    
+    // correctAnswerがオブジェクトの場合（questionオブジェクト全体が渡された場合）
+    if (typeof correctAnswer === 'object' && correctAnswer.english) {
+        const normalizedCorrect = normalizeAnswer(correctAnswer.english);
+        if (normalizedUser === normalizedCorrect) return true;
+        
+        if (correctAnswer.flexibleAnswers && Array.isArray(correctAnswer.flexibleAnswers)) {
+            for (const flexible of correctAnswer.flexibleAnswers) {
+                if (normalizedUser === normalizeAnswer(flexible)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // correctAnswerが文字列の場合
     const normalizedCorrect = normalizeAnswer(correctAnswer);
-
     return normalizedUser === normalizedCorrect;
 }
 
 
 function checkAnswer() {
-    const userAnswer = document.getElementById('answerInput').value.trim();
+    console.log("=== checkAnswer CALLED ===");
+    const answerInput = document.getElementById('answerInput');
+    console.log('answerInput element:', answerInput);
+    const userAnswer = answerInput ? answerInput.value.trim() : '';
+    console.log('userAnswer:', userAnswer);
     const question = currentQuestions[currentQuestionIndex];
+    console.log('current question:', question);
     const resultBox = document.getElementById('resultBox');
+    console.log('resultBox element:', resultBox);
     
     if (!userAnswer) {
         resultBox.innerHTML = '<div class="result warning">⚠️ 回答を入力してください</div>';
@@ -2689,7 +2739,7 @@ function checkAnswer() {
     
     // この問題が未回答の場合のみカウント
     if (!hasAnswered[currentQuestionIndex]) {
-        if (isAnswerCorrect(userAnswer, question.english)) {
+        if (isAnswerCorrect(userAnswer, question)) {
             correctCount++;
             resultBox.innerHTML = `
                 <div class="result correct">
@@ -2701,14 +2751,17 @@ function checkAnswer() {
             resultBox.innerHTML = `
                 <div class="result incorrect">
                     ❌ 不正解です
-                    <div class="correct-answer">正解: ${question.english}</div>
+                    <div class="correct-answer">
+                        正解: ${question.english}
+                        ${question.flexibleAnswers && question.flexibleAnswers.length > 0 ? '<br>または: ' + question.flexibleAnswers.join(', ') : ''}
+                    </div>
                 </div>
             `;
         }
         hasAnswered[currentQuestionIndex] = true;
     } else {
         // 既に回答済みの場合は結果のみ表示
-        if (isAnswerCorrect(userAnswer, question.english)) {
+        if (isAnswerCorrect(userAnswer, question)) {
             resultBox.innerHTML = `
                 <div class="result correct">
                     ✅ 正解です!（回答済み）
@@ -2718,13 +2771,27 @@ function checkAnswer() {
             resultBox.innerHTML = `
                 <div class="result incorrect">
                     ❌ 不正解です（回答済み）
-                    <div class="correct-answer">正解: ${question.english}</div>
+                    <div class="correct-answer">
+                        正解: ${question.english}
+                        ${question.flexibleAnswers && question.flexibleAnswers.length > 0 ? '<br>または: ' + question.flexibleAnswers.join(', ') : ''}
+                    </div>
                 </div>
             `;
         }
     }
     
+    console.log('About to show resultBox');
+    console.log('resultBox HTML before show:', resultBox.innerHTML);
+    console.log('resultBox classes before:', resultBox.className);
     resultBox.classList.remove('hidden');
+    console.log('resultBox classes after:', resultBox.className);
+    
+    // 強制的に表示を確実にする
+    resultBox.style.display = 'block';
+    resultBox.style.visibility = 'visible';
+    resultBox.style.opacity = '1';
+    
+    console.log('=== resultBox SHOULD BE VISIBLE NOW ===');
     updateStats();
     updateProgress();
     
@@ -3066,8 +3133,35 @@ function startAIChat() {
     const chatContainer = document.getElementById('chatContainer');
     chatContainer.innerHTML = '';
     
-    // 初期メッセージを生成（AIから）- 履歴には含めない
-    const initialMessage = generateAIInitialMessage();
+    // 初期メッセージを生成（ローカル） - 履歴には含めない
+    const initialMessages = {
+        beginner: {
+            freetalk: 'Hello! What do you want to talk about?',
+            airport: 'Hello! Do you have a ticket?',
+            hotel: 'Hello! Do you have a booking?',
+            restaurant: 'Hello! Table for how many?',
+            shopping: 'Hello! What do you need?',
+            sightseeing: 'Hello! Where do you want to go?'
+        },
+        intermediate: {
+            freetalk: 'Hi! Welcome to free talk. What would you like to discuss today?',
+            airport: 'Good morning! Welcome to the airport. How can I help you?',
+            hotel: 'Good evening! Welcome to our hotel. Are you checking in?',
+            restaurant: 'Good afternoon! Welcome. How many in your party?',
+            shopping: 'Hi there! Looking for anything specific today?',
+            sightseeing: 'Aloha! Welcome to Hawaii. What attractions interest you?'
+        },
+        advanced: {
+            freetalk: 'Hello! I\'d be delighted to have a conversation with you. What topics interest you?',
+            airport: 'Good day! Welcome to our airport. How may I assist you with your travel today?',
+            hotel: 'Good evening and welcome to our hotel. May I help you with check-in or reservations?',
+            restaurant: 'Good afternoon! Welcome to our restaurant. May I show you to a table?',
+            shopping: 'Welcome! I\'d be happy to help you find what you\'re looking for today.',
+            sightseeing: 'Aloha and welcome! I\'m excited to help you explore the beautiful islands. What would you like to experience?'
+        }
+    };
+    
+    const initialMessage = initialMessages[aiChatLevel]?.[aiChatScene] || initialMessages.intermediate.freetalk;
     addAIChatMessage(initialMessage, 'ai', false);
 }
 
@@ -3095,9 +3189,9 @@ function addAIChatMessage(message, sender, addToHistory = true) {
     // 履歴に追加（初期メッセージは履歴に含めない）
     if (addToHistory) {
         if (sender === 'user') {
-            chatHistory.push({ role: 'user', content: message });
+            chatHistory.push({ role: 'user', text: message });
         } else {
-            chatHistory.push({ role: 'assistant', content: message });
+            chatHistory.push({ role: 'model', text: message });
         }
     }
 }
