@@ -1468,38 +1468,47 @@ let isChatRecording = false;
 let speechSynthesis = window.speechSynthesis;
 let currentSpeakingBtn = null;
 
-// AIチャット用音声認識の初期化
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    chatVoiceRecognition = new SpeechRecognition();
-    chatVoiceRecognition.lang = 'ja-JP'; // デフォルトは日本語
-    chatVoiceRecognition.continuous = false;
-    chatVoiceRecognition.interimResults = false;
+// AIチャット用音声認識の初期化関数
+function initChatVoiceRecognition() {
+    if (chatVoiceRecognition) {
+        return; // すでに初期化済み
+    }
     
-    chatVoiceRecognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById('chatInput').value = transcript;
-    };
-    
-    chatVoiceRecognition.onend = function() {
-        isChatRecording = false;
-        const voiceBtn = document.getElementById('voiceInputBtn');
-        if (voiceBtn) {
-            voiceBtn.classList.remove('recording');
-        }
-    };
-    
-    chatVoiceRecognition.onerror = function(event) {
-        console.error('音声認識エラー:', event.error);
-        isChatRecording = false;
-        const voiceBtn = document.getElementById('voiceInputBtn');
-        if (voiceBtn) {
-            voiceBtn.classList.remove('recording');
-        }
-        if (event.error === 'not-allowed') {
-            alert('マイクへのアクセスが許可されていません。ブラウザの設定を確認してください。');
-        }
-    };
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        chatVoiceRecognition = new SpeechRecognition();
+        chatVoiceRecognition.lang = 'ja-JP'; // デフォルトは日本語
+        chatVoiceRecognition.continuous = false;
+        chatVoiceRecognition.interimResults = false;
+        
+        chatVoiceRecognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.value = transcript;
+            }
+        };
+        
+        chatVoiceRecognition.onend = function() {
+            isChatRecording = false;
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            if (voiceBtn) {
+                voiceBtn.classList.remove('recording');
+            }
+        };
+        
+        chatVoiceRecognition.onerror = function(event) {
+            console.error('音声認識エラー:', event.error);
+            isChatRecording = false;
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            if (voiceBtn) {
+                voiceBtn.classList.remove('recording');
+            }
+            if (event.error === 'not-allowed') {
+                alert('マイクへのアクセスが許可されていません。ブラウザの設定を確認してください。');
+            }
+        };
+    }
 }
 
 // シーン名マッピング
@@ -2437,12 +2446,22 @@ function showScreen(screenId) {
 
 // 音声入力のトグル
 function toggleVoiceInput() {
+    // 音声認識が未初期化の場合は初期化
+    if (!chatVoiceRecognition) {
+        initChatVoiceRecognition();
+    }
+    
+    // 初期化後も認識オブジェクトがない場合は非対応
     if (!chatVoiceRecognition) {
         alert('このブラウザは音声認識に対応していません。ChromeまたはEdgeをお試しください。');
         return;
     }
     
     const voiceBtn = document.getElementById('voiceInputBtn');
+    if (!voiceBtn) {
+        console.error('音声入力ボタンが見つかりません');
+        return;
+    }
     
     if (isChatRecording) {
         // 録音中の場合は停止
@@ -2457,9 +2476,12 @@ function toggleVoiceInput() {
             chatVoiceRecognition.start();
             isChatRecording = true;
             voiceBtn.classList.add('recording');
+            console.log('音声認識を開始しました');
         } catch (error) {
             console.error('音声認識開始エラー:', error);
-            alert('音声認識を開始できませんでした。');
+            isChatRecording = false;
+            voiceBtn.classList.remove('recording');
+            alert('音声認識を開始できませんでした。\nエラー: ' + error.message);
         }
     }
 }
