@@ -927,6 +927,78 @@
             background: #f8d7da;
             color: #842029;
         }
+    
+        /* ============================================
+           AIチャット用の追加CSS
+           ============================================ */
+        
+        /* ユーザー入力へのフィードバック */
+        .user-feedback {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #ff9800;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .user-feedback strong {
+            color: #e65100;
+            display: block;
+            margin-bottom: 0;
+        }
+        
+        .user-feedback .feedback-better {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .user-feedback .feedback-tips {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .feedback-jp {
+            color: #666;
+            font-size: 0.9em;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* 簡単な回答例 */
+        .ai-examples {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #42a5f5;
+            margin-top: 12px;
+            line-height: 1.2;
+        }
+        
+        .ai-examples strong {
+            color: #1976d2;
+            display: inline-block;
+            margin-bottom: 0;
+        }
+        
+        /* 日本語訳 */
+        .japanese-translation {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #1976d2;
+        }
+        
+        .japanese-translation strong {
+            color: #1565c0;
+        }
+
     </style>
 </head>
 <body>
@@ -3235,23 +3307,29 @@ async function sendChatMessage() {
     
     const isJapaneseInput = isJapanese(message);
     
+    // ユーザーメッセージを表示
     addChatMessage('user', message);
-    input.value = '';
     
-    document.getElementById('sendBtn').disabled = true;
+    // 送信後1秒で自動クリア（入力欄のみ、会話エリアは保持）
+    setTimeout(() => {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.value = '';
+        }
+    }, 1000);
     
-    const messageToSend = isJapaneseInput ? 
-        `[USER_SPOKE_JAPANESE: "${message}"] Please translate this to English and include it in feedback.` : 
-        message;
+    // 日本語入力の場合、特別なマーカーを追加
+    let sendMessage = message;
+    if (isJapaneseInput && aiChatLevel === 'beginner') {
+        sendMessage = `[USER_SPOKE_JAPANESE: "${message}"]`;
+    }
     
-    await getAIResponse(messageToSend, message, isJapaneseInput);
-    
-    document.getElementById('sendBtn').disabled = false;
-    input.focus();
+    // AIの応答を取得
+    await getAIResponse(sendMessage, message, isJapaneseInput);
 }
 
 async function getAIResponse(userMessage, originalMessage = null, wasJapanese = false) {
-    const loadingId = addChatMessage('ai', 'AIが考え中...', true);
+    const loadingId = addChatMessage('ai', 'AI が考え中...', true);
     
     try {
         const response = await fetch(workerApiUrl, {
@@ -3273,16 +3351,24 @@ async function getAIResponse(userMessage, originalMessage = null, wasJapanese = 
         if (loadingMsg) loadingMsg.remove();
         
         if (response.ok && data.message) {
-            // 日本語入力の場合、フィードバックに追加
-            if (wasJapanese && aiChatLevel === 'beginner' && data.feedback) {
-                if (!data.feedback.englishTranslation) {
-                    data.feedback.wasJapanese = true;
-                    data.feedback.japaneseInput = originalMessage;
-                }
+            // 表示順序を変更: フィードバック → AI応答
+            
+            // 1. ユーザー入力のフィードバックを表示（ユーザーメッセージの下、会話開始時以外）
+            if (data.userFeedback) {
+                addUserFeedback(data.userFeedback);
             }
             
-            addChatMessage('ai', data.message, false, data.japanese, data.feedback);
+            // 2. AI応答を表示（日本語訳と回答例を含む）
+            addChatMessage(
+                'ai', 
+                data.message, 
+                false, 
+                data.japanese,           // 日本語訳
+                null,                    // フィードバックは別途表示
+                data.examples            // 簡単な回答例
+            );
             
+            // 履歴に追加
             chatHistory.push(
                 { role: 'user', text: originalMessage || userMessage },
                 { role: 'ai', text: data.message }
@@ -3299,7 +3385,7 @@ async function getAIResponse(userMessage, originalMessage = null, wasJapanese = 
     }
 }
 
-function addChatMessage(sender, text, isLoading = false, japanese = null, feedback = null) {
+function addChatMessage(sender, text, isLoading = false, japanese = null, userFeedback = null, examples = null) {
     const container = document.getElementById('chatContainer');
     const messageDiv = document.createElement('div');
     const msgId = 'msg-' + Date.now();
@@ -3312,48 +3398,57 @@ function addChatMessage(sender, text, isLoading = false, japanese = null, feedba
     
     messageDiv.textContent = text;
     
-    // 初級モード: 日本語訳
+    // AI応答の日本語訳（初級モードのみ）
     if (sender === 'ai' && japanese && aiChatLevel === 'beginner') {
         const translation = document.createElement('div');
         translation.className = 'japanese-translation';
-        translation.innerHTML = `<strong>🇯🇵 日本語訳:</strong> ${japanese}`;
+        translation.innerHTML = `<strong>📝 日本語訳:</strong> ${japanese}`;
         messageDiv.appendChild(translation);
     }
     
-    // 初級モード: フィードバック
-    if (sender === 'ai' && feedback && aiChatLevel === 'beginner') {
-        const feedbackBox = document.createElement('div');
-        feedbackBox.className = 'feedback-box';
-        
-        let feedbackHTML = '<h4>💡 フィードバック</h4>';
-        
-        // 日本語入力の場合
-        if (feedback.wasJapanese && feedback.japaneseInput) {
-            feedbackHTML += `<div class="english-translation"><strong>🌏 あなたの日本語:</strong> "${feedback.japaneseInput}"<br><strong>📝 英語で:</strong> AIの応答を参考にしてください</div>`;
-        } else if (feedback.englishTranslation) {
-            feedbackHTML += `<div class="english-translation"><strong>📝 英語で言うと:</strong><br>${feedback.englishTranslation}</div>`;
-        }
-        
-        if (feedback.betterWay) {
-            feedbackHTML += `<div class="better-way"><strong>✨ より良い言い方:</strong><br>${feedback.betterWay}`;
-            if (feedback.betterWayJP) {
-                feedbackHTML += `<br><em>${feedback.betterWayJP}</em>`;
-            }
-            feedbackHTML += '</div>';
-        }
-        
-        if (feedback.tips) {
-            feedbackHTML += `<div class="tips"><strong>📝 ワンポイント:</strong> ${feedback.tips}</div>`;
-        }
-        
-        feedbackBox.innerHTML = feedbackHTML;
-        messageDiv.appendChild(feedbackBox);
+    // 簡単な回答例（初級モードのみ）- AI応答にのみ表示
+    if (sender === 'ai' && examples && examples.length > 0 && aiChatLevel === 'beginner') {
+        const examplesBox = document.createElement('div');
+        examplesBox.className = 'ai-examples';
+        examplesBox.innerHTML = '<strong>💬 簡単な回答例:</strong><br>' + 
+            examples.slice(0, 2).map(ex => `・${ex}`).join('<br>');
+        messageDiv.appendChild(examplesBox);
     }
     
     container.appendChild(messageDiv);
     container.scrollTop = container.scrollHeight;
     
     return msgId;
+}
+
+// ユーザーメッセージの下にフィードバックを追加する新しい関数
+function addUserFeedback(userFeedback) {
+    if (!userFeedback || aiChatLevel !== 'beginner') return;
+    
+    const container = document.getElementById('chatContainer');
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.className = 'user-feedback';
+    
+    let feedbackHTML = '';
+    
+    feedbackHTML += '<div class="feedback-better">';
+    feedbackHTML += '<strong>✨ より良い言い方:</strong><br>';
+    feedbackHTML += userFeedback.betterWay;
+    if (userFeedback.betterWayJP) {
+        feedbackHTML += `<br><span class="feedback-jp">${userFeedback.betterWayJP}</span>`;
+    }
+    feedbackHTML += '</div>';
+    
+    if (userFeedback.tips) {
+        feedbackHTML += '<div class="feedback-tips">';
+        feedbackHTML += '<strong>🎯 ワンポイント:</strong><br>';
+        feedbackHTML += userFeedback.tips;
+        feedbackHTML += '</div>';
+    }
+    
+    feedbackDiv.innerHTML = feedbackHTML;
+    container.appendChild(feedbackDiv);
+    container.scrollTop = container.scrollHeight;
 }
 
 
@@ -3408,4 +3503,4 @@ function showStats() {
 
     </script>
 </body>
-</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
