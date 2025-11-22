@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ ハワイ英会話クイズ - V7 音声機能付き (866フレーズ)</title>
+    <title>🏝️ ハワイ英会話クイズ - 完全版 (866フレーズ)</title>
     <style>
         * {
             margin: 0;
@@ -766,7 +766,8 @@
         
         .chat-input-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
         }
         
         .chat-input {
@@ -824,6 +825,33 @@
         .voice-input-btn.recording {
             background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
             animation: pulse 1s infinite;
+        }
+        
+        /* 英語音声入力ボタン */
+        .voice-input-btn.english {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .voice-input-btn.english.recording {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            animation: pulse 1s infinite;
+        }
+        
+        /* クリアボタン */
+        .clear-input-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .clear-input-btn:hover {
+            transform: scale(1.05);
         }
         
         @keyframes pulse {
@@ -1328,7 +1356,9 @@
                         id="chatInput" 
                         placeholder="英語または日本語で入力..."
                     />
-                    <button class="voice-input-btn" id="voiceInputBtn" onclick="toggleVoiceInput()" title="音声入力">🎤</button>
+                    <button class="voice-input-btn" id="voiceInputBtnJa" onclick="toggleChatVoice('ja')" title="日本語音声入力">🇯🇵</button>
+                    <button class="voice-input-btn english" id="voiceInputBtnEn" onclick="toggleChatVoice('en')" title="英語音声入力">🇺🇸</button>
+                    <button class="clear-input-btn" id="clearInputBtn" onclick="clearChatInput()" title="入力をクリア">❌</button>
                     <button class="chat-send-btn" id="sendBtn" onclick="sendChatMessage()">📤</button>
                 </div>
                 
@@ -1463,53 +1493,10 @@ let turnCount = 0;
 let workerApiUrl = '';
 
 // AIチャット音声機能用
-let chatVoiceRecognition = null;
-let isChatRecording = false;
-let speechSynthesis = window.speechSynthesis;
-let currentSpeakingBtn = null;
-
-// AIチャット用音声認識の初期化関数
-function initChatVoiceRecognition() {
-    if (chatVoiceRecognition) {
-        return; // すでに初期化済み
-    }
-    
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        chatVoiceRecognition = new SpeechRecognition();
-        chatVoiceRecognition.lang = 'ja-JP'; // デフォルトは日本語
-        chatVoiceRecognition.continuous = false;
-        chatVoiceRecognition.interimResults = false;
-        
-        chatVoiceRecognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            const chatInput = document.getElementById('chatInput');
-            if (chatInput) {
-                chatInput.value = transcript;
-            }
-        };
-        
-        chatVoiceRecognition.onend = function() {
-            isChatRecording = false;
-            const voiceBtn = document.getElementById('voiceInputBtn');
-            if (voiceBtn) {
-                voiceBtn.classList.remove('recording');
-            }
-        };
-        
-        chatVoiceRecognition.onerror = function(event) {
-            console.error('音声認識エラー:', event.error);
-            isChatRecording = false;
-            const voiceBtn = document.getElementById('voiceInputBtn');
-            if (voiceBtn) {
-                voiceBtn.classList.remove('recording');
-            }
-            if (event.error === 'not-allowed') {
-                alert('マイクへのアクセスが許可されていません。ブラウザの設定を確認してください。');
-            }
-        };
-    }
-}
+let chatVoiceRecognitionJa = null;
+let chatVoiceRecognitionEn = null;
+let isChatRecordingJa = false;
+let isChatRecordingEn = false;
 
 // シーン名マッピング
 const sceneNames = {
@@ -2439,104 +2426,6 @@ function showScreen(screenId) {
     });
     document.getElementById(screenId).classList.add('active');
 }
-
-// ============================================
-// AIチャット音声機能
-// ============================================
-
-// 音声入力のトグル
-function toggleVoiceInput() {
-    // 音声認識が未初期化の場合は初期化
-    if (!chatVoiceRecognition) {
-        initChatVoiceRecognition();
-    }
-    
-    // 初期化後も認識オブジェクトがない場合は非対応
-    if (!chatVoiceRecognition) {
-        alert('このブラウザは音声認識に対応していません。ChromeまたはEdgeをお試しください。');
-        return;
-    }
-    
-    const voiceBtn = document.getElementById('voiceInputBtn');
-    if (!voiceBtn) {
-        console.error('音声入力ボタンが見つかりません');
-        return;
-    }
-    
-    if (isChatRecording) {
-        // 録音中の場合は停止
-        chatVoiceRecognition.stop();
-        isChatRecording = false;
-        voiceBtn.classList.remove('recording');
-    } else {
-        // 録音開始
-        try {
-            // 言語を自動判定（日本語・英語のどちらでもOK）
-            chatVoiceRecognition.lang = 'ja-JP'; // デフォルトは日本語
-            chatVoiceRecognition.start();
-            isChatRecording = true;
-            voiceBtn.classList.add('recording');
-            console.log('音声認識を開始しました');
-        } catch (error) {
-            console.error('音声認識開始エラー:', error);
-            isChatRecording = false;
-            voiceBtn.classList.remove('recording');
-            alert('音声認識を開始できませんでした。\nエラー: ' + error.message);
-        }
-    }
-}
-
-// AI応答の音声再生
-function speakAIResponse(text, button) {
-    if (!speechSynthesis) {
-        alert('このブラウザは音声再生に対応していません。');
-        return;
-    }
-    
-    // すでに再生中の場合は停止
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-        if (currentSpeakingBtn) {
-            currentSpeakingBtn.classList.remove('speaking');
-        }
-        if (currentSpeakingBtn === button) {
-            currentSpeakingBtn = null;
-            return;
-        }
-    }
-    
-    // 新しい音声を作成
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // 英語で読み上げ
-    utterance.rate = 0.9; // 少しゆっくり
-    utterance.pitch = 1.0;
-    
-    // 再生開始時
-    utterance.onstart = function() {
-        button.classList.add('speaking');
-        currentSpeakingBtn = button;
-    };
-    
-    // 再生終了時
-    utterance.onend = function() {
-        button.classList.remove('speaking');
-        currentSpeakingBtn = null;
-    };
-    
-    // エラー時
-    utterance.onerror = function(event) {
-        console.error('音声再生エラー:', event);
-        button.classList.remove('speaking');
-        currentSpeakingBtn = null;
-    };
-    
-    // 再生
-    speechSynthesis.speak(utterance);
-}
-
-// ============================================
-// 画面表示関数
-// ============================================
 
 function showMenu() {
     showScreen('menuScreen');
@@ -3716,6 +3605,182 @@ function showStats() {
     document.getElementById('averageAccuracy').textContent = `${averageAccuracy}%`;
     
     showScreen('statsScreen');
+}
+
+// ============================================
+// AIチャット音声機能
+// ============================================
+
+// AIチャット用音声入力のトグル
+function toggleChatVoice(lang) {
+    console.log('toggleChatVoiceが呼ばれました - 言語:', lang);
+    
+    const isJapanese = (lang === 'ja');
+    const recognition = isJapanese ? chatVoiceRecognitionJa : chatVoiceRecognitionEn;
+    const isRecording = isJapanese ? isChatRecordingJa : isChatRecordingEn;
+    const voiceBtnId = isJapanese ? 'voiceInputBtnJa' : 'voiceInputBtnEn';
+    const otherBtnId = isJapanese ? 'voiceInputBtnEn' : 'voiceInputBtnJa';
+    const langCode = isJapanese ? 'ja-JP' : 'en-US';
+    const langName = isJapanese ? '日本語' : '英語';
+    
+    // 他方の言語が録音中の場合は停止
+    const otherRecording = isJapanese ? isChatRecordingEn : isChatRecordingJa;
+    const otherRecognition = isJapanese ? chatVoiceRecognitionEn : chatVoiceRecognitionJa;
+    if (otherRecording && otherRecognition) {
+        console.log('他方の言語の録音を停止します');
+        otherRecognition.stop();
+        if (isJapanese) {
+            isChatRecordingEn = false;
+        } else {
+            isChatRecordingJa = false;
+        }
+        const otherBtn = document.getElementById(otherBtnId);
+        if (otherBtn) otherBtn.classList.remove('recording');
+    }
+    
+    // 初回呼び出し時に音声認識を初期化
+    if (!recognition) {
+        console.log(langName + '音声認識を初期化します');
+        
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('このブラウザは音声認識に対応していません。ChromeまたはEdgeをお試しください。');
+            return;
+        }
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const newRecognition = new SpeechRecognition();
+        newRecognition.lang = langCode;
+        newRecognition.continuous = false;
+        newRecognition.interimResults = false;
+        
+        newRecognition.onstart = function() {
+            console.log(langName + '音声認識が開始されました');
+        };
+        
+        newRecognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            console.log(langName + '認識結果:', transcript);
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.value = transcript;
+            }
+        };
+        
+        newRecognition.onend = function() {
+            console.log(langName + '音声認識が終了しました');
+            if (isJapanese) {
+                isChatRecordingJa = false;
+            } else {
+                isChatRecordingEn = false;
+            }
+            const voiceBtn = document.getElementById(voiceBtnId);
+            if (voiceBtn) {
+                voiceBtn.classList.remove('recording');
+            }
+        };
+        
+        newRecognition.onerror = function(event) {
+            console.error(langName + '音声認識エラー:', event.error);
+            if (isJapanese) {
+                isChatRecordingJa = false;
+            } else {
+                isChatRecordingEn = false;
+            }
+            const voiceBtn = document.getElementById(voiceBtnId);
+            if (voiceBtn) {
+                voiceBtn.classList.remove('recording');
+            }
+            if (event.error === 'not-allowed') {
+                alert('マイクへのアクセスが許可されていません。ブラウザの設定を確認してください。');
+            }
+        };
+        
+        if (isJapanese) {
+            chatVoiceRecognitionJa = newRecognition;
+        } else {
+            chatVoiceRecognitionEn = newRecognition;
+        }
+        
+        console.log(langName + '音声認識オブジェクトを作成しました');
+    }
+    
+    const voiceBtn = document.getElementById(voiceBtnId);
+    if (!voiceBtn) {
+        console.error('音声入力ボタンが見つかりません');
+        return;
+    }
+    
+    const currentRecognition = isJapanese ? chatVoiceRecognitionJa : chatVoiceRecognitionEn;
+    const currentRecording = isJapanese ? isChatRecordingJa : isChatRecordingEn;
+    
+    if (currentRecording) {
+        console.log(langName + '録音を停止します');
+        currentRecognition.stop();
+        if (isJapanese) {
+            isChatRecordingJa = false;
+        } else {
+            isChatRecordingEn = false;
+        }
+        voiceBtn.classList.remove('recording');
+    } else {
+        console.log(langName + '録音を開始します');
+        try {
+            currentRecognition.start();
+            if (isJapanese) {
+                isChatRecordingJa = true;
+            } else {
+                isChatRecordingEn = true;
+            }
+            voiceBtn.classList.add('recording');
+        } catch (error) {
+            console.error(langName + '音声認識開始エラー:', error);
+            alert(langName + '音声認識を開始できませんでした。');
+        }
+    }
+}
+
+// 入力欄をクリア
+function clearChatInput() {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.value = '';
+        chatInput.focus();
+        console.log('入力欄をクリアしました');
+    }
+}
+
+// AI応答の音声再生
+function speakAIResponse(text, button) {
+    if (!window.speechSynthesis) {
+        alert('このブラウザは音声再生に対応していません。');
+        return;
+    }
+    
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        if (button) button.classList.remove('speaking');
+        return;
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    
+    utterance.onstart = function() {
+        if (button) button.classList.add('speaking');
+    };
+    
+    utterance.onend = function() {
+        if (button) button.classList.remove('speaking');
+    };
+    
+    utterance.onerror = function(event) {
+        console.error('音声再生エラー:', event);
+        if (button) button.classList.remove('speaking');
+    };
+    
+    window.speechSynthesis.speak(utterance);
 }
 
     </script>
