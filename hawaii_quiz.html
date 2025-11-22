@@ -1016,37 +1016,20 @@
         /* ユーザー入力へのフィードバック */
         .user-feedback {
             background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-            padding: 15px;
+            padding: 12px 15px;
             border-radius: 12px;
             border-left: 4px solid #ff9800;
-            margin-top: 12px;
-            margin-bottom: 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 0.95em;
         }
         
         .user-feedback strong {
             color: #e65100;
-            display: block;
-            margin-bottom: 0;
-        }
-        
-        .user-feedback .feedback-better {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 8px;
-        }
-        
-        .user-feedback .feedback-tips {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 8px;
-        }
-        
-        .feedback-jp {
-            color: #666;
-            font-size: 0.9em;
-            display: block;
-            margin-top: 5px;
+            display: inline-block;
+            margin-bottom: 4px;
+            font-size: 0.95em;
         }
         
         /* 簡単な回答例 */
@@ -1078,6 +1061,86 @@
         
         .japanese-translation strong {
             color: #1565c0;
+        }
+
+    
+        /* API使用量カウンター */
+        .api-counter {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-left: 4px solid #5c6bc0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+        }
+        
+        .api-counter-title {
+            font-weight: bold;
+            color: #3949ab;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+        
+        .api-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .api-stat-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 6px 8px;
+            border-radius: 5px;
+        }
+        
+        .api-stat-label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .api-stat-value {
+            font-weight: bold;
+            color: #3949ab;
+            font-size: 0.95em;
+        }
+        
+        .api-stat-bar {
+            background: #e0e0e0;
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 3px;
+            overflow: hidden;
+        }
+        
+        .api-stat-fill {
+            background: linear-gradient(90deg, #5c6bc0 0%, #7986cb 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .api-stat-fill.warning {
+            background: linear-gradient(90deg, #ff9800 0%, #ffb74d 100%);
+        }
+        
+        .api-stat-fill.danger {
+            background: linear-gradient(90deg, #f44336 0%, #ef5350 100%);
+        }
+        
+        .reset-btn {
+            background: #9fa8da;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+        
+        .reset-btn:hover {
+            background: #7986cb;
         }
 
     </style>
@@ -1318,6 +1381,33 @@
             </div>
             
             <!-- 設定画面 -->
+            
+            <!-- API使用量カウンター -->
+            <div class="api-counter">
+                <div class="api-counter-title">📊 API使用量 (Gemini 無料枠)</div>
+                <div class="api-stats">
+                    <div class="api-stat-item">
+                        <div class="api-stat-label">今日のリクエスト</div>
+                        <div class="api-stat-value">
+                            <span id="dailyCount">0</span> / 1,500
+                        </div>
+                        <div class="api-stat-bar">
+                            <div class="api-stat-fill" id="dailyBar"></div>
+                        </div>
+                    </div>
+                    <div class="api-stat-item">
+                        <div class="api-stat-label">今月のトークン</div>
+                        <div class="api-stat-value">
+                            <span id="monthlyCount">0</span>k / 1,000k
+                        </div>
+                        <div class="api-stat-bar">
+                            <div class="api-stat-fill" id="monthlyBar"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="reset-btn" onclick="resetApiCounter()">🔄 カウンターリセット</button>
+            </div>
+
             <div class="aichat-setup" id="aichatSetup">
                 <div class="config-section">
                     <div class="config-title">🎯 会話シーンを選択</div>
@@ -1336,7 +1426,6 @@
                     <div class="option-grid">
                         <button class="option-btn active" data-ailevel="beginner" onclick="selectAILevel('beginner')">初級</button>
                         <button class="option-btn" data-ailevel="intermediate" onclick="selectAILevel('intermediate')">中級</button>
-                        <button class="option-btn" data-ailevel="advanced" onclick="selectAILevel('advanced')">上級</button>
                     </div>
                 </div>
                 
@@ -3397,16 +3486,14 @@ async function sendChatMessage() {
     
     const isJapaneseInput = isJapanese(message);
     
+    // 入力欄を即座にクリア（メッセージ消失対策）
+    input.value = '';
+    
     // ユーザーメッセージを表示
     addChatMessage('user', message);
     
-    // 送信後1秒で自動クリア（入力欄のみ、会話エリアは保持）
-    setTimeout(() => {
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) {
-            chatInput.value = '';
-        }
-    }, 1000);
+    // DOM更新を確実化（50ms待機）
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     // 日本語入力の場合、特別なマーカーを追加
     let sendMessage = message;
@@ -3465,6 +3552,9 @@ async function getAIResponse(userMessage, originalMessage = null, wasJapanese = 
             );
             
             turnCount++;
+            
+            // API使用量をカウント
+            incrementApiUsage(500); // 平均500トークンと推定
         } else {
             addChatMessage('ai', `エラー: ${data.error || 'Unknown error'}`);
         }
@@ -3527,7 +3617,7 @@ function addChatMessage(sender, text, isLoading = false, japanese = null, userFe
     return msgId;
 }
 
-// ユーザーメッセージの下にフィードバックを追加する新しい関数
+// ユーザーメッセージの下にフィードバックを追加する関数（統一フォーマット）
 function addUserFeedback(userFeedback) {
     if (!userFeedback || aiChatLevel !== 'beginner') return;
     
@@ -3535,24 +3625,9 @@ function addUserFeedback(userFeedback) {
     const feedbackDiv = document.createElement('div');
     feedbackDiv.className = 'user-feedback';
     
-    let feedbackHTML = '';
+    // 統一フォーマット: 簡潔な日本語フィードバックのみ
+    feedbackDiv.innerHTML = `<strong>💡 フィードバック:</strong><br>${userFeedback}`;
     
-    feedbackHTML += '<div class="feedback-better">';
-    feedbackHTML += '<strong>✨ より良い言い方:</strong><br>';
-    feedbackHTML += userFeedback.betterWay;
-    if (userFeedback.betterWayJP) {
-        feedbackHTML += `<br><span class="feedback-jp">${userFeedback.betterWayJP}</span>`;
-    }
-    feedbackHTML += '</div>';
-    
-    if (userFeedback.tips) {
-        feedbackHTML += '<div class="feedback-tips">';
-        feedbackHTML += '<strong>🎯 ワンポイント:</strong><br>';
-        feedbackHTML += userFeedback.tips;
-        feedbackHTML += '</div>';
-    }
-    
-    feedbackDiv.innerHTML = feedbackHTML;
     container.appendChild(feedbackDiv);
     container.scrollTop = container.scrollHeight;
 }
@@ -3782,6 +3857,126 @@ function speakAIResponse(text, button) {
     
     window.speechSynthesis.speak(utterance);
 }
+
+    
+// ============================================
+// API使用量カウンター機能
+// ============================================
+
+// APIカウンターの初期化と読み込み
+function initApiCounter() {
+    updateApiCounterDisplay();
+}
+
+// API使用量を記録
+function incrementApiUsage(estimatedTokens = 500) {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+    
+    // LocalStorageからデータを取得
+    let apiData = JSON.parse(localStorage.getItem('apiUsageData') || '{}');
+    
+    // 日付が変わったらリセット
+    if (apiData.lastDate !== today) {
+        apiData.dailyRequests = 0;
+        apiData.lastDate = today;
+    }
+    
+    // 月が変わったらリセット
+    if (apiData.lastMonth !== currentMonth) {
+        apiData.monthlyTokens = 0;
+        apiData.lastMonth = currentMonth;
+    }
+    
+    // カウントを増加
+    apiData.dailyRequests = (apiData.dailyRequests || 0) + 1;
+    apiData.monthlyTokens = (apiData.monthlyTokens || 0) + estimatedTokens;
+    
+    // 保存
+    localStorage.setItem('apiUsageData', JSON.stringify(apiData));
+    
+    // 表示を更新
+    updateApiCounterDisplay();
+    
+    // 警告チェック
+    checkApiLimits(apiData);
+}
+
+// カウンター表示を更新
+function updateApiCounterDisplay() {
+    const today = new Date().toISOString().split('T')[0];
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    
+    let apiData = JSON.parse(localStorage.getItem('apiUsageData') || '{}');
+    
+    // 日付チェック
+    if (apiData.lastDate !== today) {
+        apiData.dailyRequests = 0;
+    }
+    if (apiData.lastMonth !== currentMonth) {
+        apiData.monthlyTokens = 0;
+    }
+    
+    const dailyRequests = apiData.dailyRequests || 0;
+    const monthlyTokens = apiData.monthlyTokens || 0;
+    
+    // 表示を更新
+    const dailyCountEl = document.getElementById('dailyCount');
+    const monthlyCountEl = document.getElementById('monthlyCount');
+    const dailyBarEl = document.getElementById('dailyBar');
+    const monthlyBarEl = document.getElementById('monthlyBar');
+    
+    if (dailyCountEl) dailyCountEl.textContent = dailyRequests;
+    if (monthlyCountEl) monthlyCountEl.textContent = Math.round(monthlyTokens / 1000);
+    
+    // プログレスバーを更新
+    const dailyPercent = Math.min((dailyRequests / 1500) * 100, 100);
+    const monthlyPercent = Math.min((monthlyTokens / 1000000) * 100, 100);
+    
+    if (dailyBarEl) {
+        dailyBarEl.style.width = dailyPercent + '%';
+        dailyBarEl.className = 'api-stat-fill';
+        if (dailyPercent >= 80) dailyBarEl.classList.add('danger');
+        else if (dailyPercent >= 60) dailyBarEl.classList.add('warning');
+    }
+    
+    if (monthlyBarEl) {
+        monthlyBarEl.style.width = monthlyPercent + '%';
+        monthlyBarEl.className = 'api-stat-fill';
+        if (monthlyPercent >= 80) monthlyBarEl.classList.add('danger');
+        else if (monthlyPercent >= 60) monthlyBarEl.classList.add('warning');
+    }
+}
+
+// 制限チェック
+function checkApiLimits(apiData) {
+    const dailyRequests = apiData.dailyRequests || 0;
+    const monthlyTokens = apiData.monthlyTokens || 0;
+    
+    // 80%到達で警告
+    if (dailyRequests >= 1200 && dailyRequests % 100 === 0) {
+        console.warn(`⚠️ 日次制限の ${Math.round((dailyRequests/1500)*100)}% に到達しました`);
+    }
+    
+    if (monthlyTokens >= 800000 && monthlyTokens % 50000 < 1000) {
+        console.warn(`⚠️ 月次制限の ${Math.round((monthlyTokens/1000000)*100)}% に到達しました`);
+    }
+}
+
+// カウンターをリセット
+function resetApiCounter() {
+    if (confirm('API使用量カウンターをリセットしますか？')) {
+        localStorage.removeItem('apiUsageData');
+        updateApiCounterDisplay();
+        alert('カウンターをリセットしました');
+    }
+}
+
+// ページ読み込み時にカウンター初期化
+document.addEventListener('DOMContentLoaded', function() {
+    initApiCounter();
+});
+
 
     </script>
 </body>
