@@ -1445,10 +1445,13 @@
                         id="chatInput" 
                         placeholder="英語または日本語で入力..."
                     />
-                    <button class="voice-input-btn" id="voiceInputBtnJa" onclick="toggleChatVoice('ja')" title="日本語音声入力">🇯🇵</button>
-                    <button class="voice-input-btn english" id="voiceInputBtnEn" onclick="toggleChatVoice('en')" title="英語音声入力">🇺🇸</button>
-                    <button class="clear-input-btn" id="clearInputBtn" onclick="clearChatInput()" title="入力をクリア">❌</button>
                     <button class="chat-send-btn" id="sendBtn" onclick="sendChatMessage()">📤</button>
+                </div>
+                
+                <div class="button-group" style="margin-top: 10px; grid-template-columns: 1fr 1fr 1fr;">
+                    <button class="voice-input-btn" id="voiceInputBtnJa" onclick="toggleChatVoice('ja')" title="日本語音声入力" style="width: 100%; height: 50px;">🇯🇵 日本語</button>
+                    <button class="voice-input-btn english" id="voiceInputBtnEn" onclick="toggleChatVoice('en')" title="英語音声入力" style="width: 100%; height: 50px;">🇺🇸 英語</button>
+                    <button class="clear-input-btn" id="clearInputBtn" onclick="clearChatInput()" title="入力をクリア" style="width: 100%; height: 50px;">❌ クリア</button>
                 </div>
                 
                 <div class="button-group single" style="margin-top: 15px;">
