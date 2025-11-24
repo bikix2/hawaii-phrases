@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ ハワイ英会話クイズ - 完全版 (866フレーズ)</title>
+    <title>🏝️ ハワイ英会話クイズ - 完全版 (整理済みフレーズ)</title>
     <style>
         * {
             margin: 0;
@@ -1270,6 +1270,7 @@
                 <div class="stat-item">
                     <div class="stat-value" id="incorrect">0</div>
                     <div class="stat-label">不正解</div>
+                
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="accuracy">0%</div>
@@ -1302,8 +1303,8 @@
             </div>
             
             <div class="button-group">
-                <button class="btn btn-primary" onclick="retryQuiz()">🔄 もう一度</button>
                 <button class="btn btn-secondary" onclick="showMenu()">🏠 メニューへ</button>
+                <button class="btn btn-primary" onclick="retryQuiz()">🔄 もう一度</button>
             </div>
         </div>
         
@@ -1624,18 +1625,17 @@ const aiLevelNames = {
 };
 
 // ============================================
-// フレーズデータベース (★★★★ 修正済み ★★★★)
+// フレーズデータベース (★★★★ 重複を削除し整理済み ★★★★)
 // ============================================
 
 const phrasesDatabase = {
     frequent: [
-        // 修正3: ○○の省略を許容
-        { japanese: '→ 何かが欲しいとき', english: 'Can I get ○○?', flexibleAnswers: ["Can I get?"], hint: 'Can... get ○○', level: 'beginner' },
-        { japanese: '→ 何かをもらいたいとき', english: 'Can I have ○○?', flexibleAnswers: ["Can I have?"], hint: 'Can... have ○○', level: 'beginner' },
-        { japanese: '→ 試したいとき', english: 'Can I try ○○?', flexibleAnswers: ["Can I try?"], hint: 'Can... try ○○', level: 'beginner' },
-        { japanese: '→ 見たいとき', english: 'Can I see ○○?', flexibleAnswers: ["Can I see?"], hint: 'Can... see ○○', level: 'beginner' },
-        { japanese: '→ 使いたいとき', english: 'Can I use ○○?', flexibleAnswers: ["Can I use?"], hint: 'Can... use ○○', level: 'beginner' },
-        { japanese: '→ 支払い方法を確認するとき', english: 'Can I pay ○○?', flexibleAnswers: ["Can I pay?"], hint: 'Can... pay ○○', level: 'beginner' },
+        { japanese: '何かが欲しいとき', english: 'Can I get ○○?', flexibleAnswers: ["Can I get?"], hint: 'Can... get ○○', level: 'beginner' },
+        { japanese: '何かをもらいたいとき', english: 'Can I have ○○?', flexibleAnswers: ["Can I have?"], hint: 'Can... have ○○', level: 'beginner' },
+        { japanese: '試したいとき', english: 'Can I try ○○?', flexibleAnswers: ["Can I try?"], hint: 'Can... try ○○', level: 'beginner' },
+        { japanese: '見たいとき', english: 'Can I see ○○?', flexibleAnswers: ["Can I see?"], hint: 'Can... see ○○', level: 'beginner' },
+        { japanese: '使いたいとき', english: 'Can I use ○○?', flexibleAnswers: ["Can I use?"], hint: 'Can... use ○○', level: 'beginner' },
+        { japanese: '支払い方法を確認するとき', english: 'Can I pay ○○?', flexibleAnswers: ["Can I pay?"], hint: 'Can... pay ○○', level: 'beginner' },
         { japanese: 'お水をください', english: 'Can I get water?', hint: 'Can... get water', level: 'beginner' },
         { japanese: 'メニューをください', english: 'Can I have a menu?', hint: 'Can... have a menu', level: 'beginner' },
         { japanese: '試着してもいいですか?', english: 'Can I try it on?', hint: 'Can... try it on', level: 'beginner' },
@@ -1669,15 +1669,14 @@ const phrasesDatabase = {
         { japanese: 'ビーチはどこですか?', english: 'Where is the beach?', hint: 'Where... the beach', level: 'beginner' },
         { japanese: '私の部屋はどこですか?', english: 'Where is my room?', hint: 'Where... my room', level: 'beginner' },
         { japanese: '出口はどこですか?', english: 'Where is the exit?', hint: 'Where... the exit', level: 'beginner' },
-        { japanese: '→ 値段を聞く', english: 'How much?', hint: 'How... much', level: 'beginner' },
-        { japanese: '→ 時間を聞く', english: 'How long?', hint: 'How... long', level: 'beginner' },
-        { japanese: '→ 距離を聞く', english: 'How far?', hint: 'How... far', level: 'beginner' },
-        { japanese: '→ 数を聞く', english: 'How many?', hint: 'How... many', level: 'beginner' },
+        { japanese: '値段を聞く', english: 'How much?', hint: 'How... much', level: 'beginner' },
+        { japanese: '時間を聞く', english: 'How long?', hint: 'How... long', level: 'beginner' },
+        { japanese: '距離を聞く', english: 'How far?', hint: 'How... far', level: 'beginner' },
+        { japanese: '数を聞く', english: 'How many?', hint: 'How... many', level: 'beginner' },
         { japanese: 'これはいくらですか?', english: 'How much is this?', hint: 'How... much is this', level: 'beginner' },
         { japanese: '元気ですか? (挨拶)', english: 'How are you?', hint: 'How... are you', level: 'beginner' },
         { japanese: 'ワイキキへはどうやって行きますか?', english: 'How do I get to Waikiki?', hint: 'How... get to Waikiki', level: 'beginner' },
         { japanese: '日本から来ました', english: 'I\'m from Japan.', hint: 'I\'m... from Japan', level: 'advanced' },
-        // 修正3: ○○の省略を許容
         { japanese: '○○を探しています', english: 'I\'m looking for ○○.', flexibleAnswers: ["I'm looking for."], hint: 'I\'m... looking for ○○', level: 'advanced' },
         { japanese: 'お腹が空きました', english: 'I\'m hungry.', hint: 'I\'m... hungry', level: 'advanced' },
         { japanese: 'のどが渇きました', english: 'I\'m thirsty.', hint: 'I\'m... thirsty', level: 'advanced' },
@@ -1708,7 +1707,6 @@ const phrasesDatabase = {
         { japanese: '動きません/壊れています', english: 'It\'s not working.', hint: 'It\'s... not working', level: 'advanced' },
         { japanese: '大きすぎます', english: 'It\'s too big.', hint: 'It\'s... too big', level: 'advanced' },
         { japanese: '小さすぎます', english: 'It\'s too small.', hint: 'It\'s... too small', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'はい、どうぞ (お金やチケットを渡す)', english: 'Here.', hint: 'Here... (お金・チケット)', level: 'beginner' },
         { japanese: 'はい、どうぞ (何かを渡す)', english: 'Here you go.', flexibleAnswers: ["Here you are."], hint: 'Here... you go', level: 'beginner' },
         { japanese: 'パスポートです', english: 'Here\'s my passport.', hint: 'Here\'s... my passport', level: 'advanced' },
@@ -1718,9 +1716,6 @@ const phrasesDatabase = {
         { japanese: 'チーズバーガーのセットをください', english: 'Cheeseburger meal, please.', hint: 'Cheeseburger... meal, please', level: 'beginner' },
         { japanese: '2番のセットで', english: 'Number 2 as a combo.', hint: 'Number... 2 as a combo', level: 'beginner' },
         { japanese: 'チーズバーガー単品で', english: 'Just a cheeseburger, please.', hint: 'Just... a cheeseburger', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'これをください（指さしながら）', english: 'This one, please.', hint: 'This... one, please', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'これにします（メニューを指さして）', english: 'I\'ll have this.', hint: 'I\'ll... have this', level: 'advanced' },
         { japanese: 'ビールのお代わりをください', english: 'Another beer, please.', hint: 'Another... beer, please', level: 'beginner' },
         { japanese: 'ビールをもう1杯ください', english: 'One more beer, please.', hint: 'One... more beer, please', level: 'beginner' },
@@ -1733,19 +1728,10 @@ const phrasesDatabase = {
         { japanese: '氷少なめで', english: 'Light ice, please.', hint: 'Light... ice, please', level: 'beginner' },
         { japanese: 'ソースを追加でもらえますか?', english: 'Can I have extra sauce?', hint: 'Can... have extra sauce', level: 'beginner' },
         { japanese: 'チーズ多めで', english: 'Extra cheese, please.', hint: 'Extra... cheese, please', level: 'beginner' },
-        { japanese: 'S・M・Lサイズ', english: 'Small', flexibleAnswers: ["Medium", "Large", "Tall", "Grande", "Venti"], hint: 'Small... Medium... Large', level: 'beginner' },
         { japanese: '白米で', english: 'White rice, please.', hint: 'White... rice, please', level: 'beginner' },
         { japanese: '玄米で', english: 'Brown rice, please.', hint: 'Brown... rice, please', level: 'beginner' },
         { japanese: 'レアで (生に近い)', english: 'Rare, please.', hint: 'Rare... please', level: 'beginner' },
         { japanese: 'ミディアムレアで (少し赤身が残る)', english: 'Medium rare, please.', hint: 'Medium... rare, please', level: 'beginner' },
-        { japanese: 'ミディアムで (無難な選択)', english: 'Medium, please.', hint: 'Medium... please', level: 'beginner' },
-        { japanese: 'ミディアムウェルで (しっかりめ)', english: 'Medium well, please.', hint: 'Medium... well, please', level: 'beginner' },
-        { japanese: 'ウェルダンで (完全に火を通す)', english: 'Well done, please.', hint: 'Well... done, please', level: 'beginner' },
-        { japanese: 'スクランブルエッグ', english: 'Scrambled', hint: 'Scrambled... egg', level: 'beginner' },
-        { japanese: '片面焼き目玉焼き', english: 'Sunny-side up', hint: 'Sunny-side... up', level: 'beginner' },
-        { japanese: '半熟目玉焼き(両面焼き)', english: 'Over easy', hint: 'Over... easy', level: 'beginner' },
-        { japanese: 'ミディアム目玉焼き', english: 'Over medium', hint: 'Over... medium', level: 'beginner' },
-        { japanese: '固焼き目玉焼き', english: 'Over hard', hint: 'Over... hard', level: 'beginner' },
         { japanese: '水道水で (無料のことが多い)', english: 'Tap water, please.', hint: 'Tap... water, please', level: 'beginner' },
         { japanese: 'ミネラルウォーターで', english: 'Bottled water, please.', hint: 'Bottled... water, please', level: 'beginner' },
         { japanese: 'メニューを見せてください', english: 'Can I see the menu, please?', hint: 'Can... see the menu', level: 'beginner' },
@@ -1755,32 +1741,10 @@ const phrasesDatabase = {
         { japanese: 'シェアします', english: 'We\'d like to share.', hint: 'We\'d... like to share', level: 'advanced' },
         { japanese: '持ち帰り袋ください', english: 'Doggy bag, please.', hint: 'Doggy... bag, please', level: 'beginner' },
         { japanese: 'おつりは取っておいて (チップとして)', english: 'Keep the change.', hint: 'Keep... the change', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'トール（一番小さい）', english: 'Tall', flexibleAnswers: ["Small", "12oz"], hint: 'Tall... size', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'グランデ（中サイズ）', english: 'Grande', flexibleAnswers: ["Medium", "16oz"], hint: 'Grande... size', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'ベンティ（大サイズ）', english: 'Venti', flexibleAnswers: ["Large", "20oz"], hint: 'Venti... size', level: 'beginner' },
-        { japanese: 'カフェラテ / カプチーノ / アメリカーノ', english: 'Café latte', flexibleAnswers: ["Cappuccino", "Americano"], hint: 'Café... latte', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'キャラメルマキアート / モカ', english: 'Caramel macchiato', flexibleAnswers: ["Mocha"], hint: 'Caramel... macchiato', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'フラペチーノ（各種フレーバー）', english: 'Frappuccino', flexibleAnswers: ["Frappuccino (any flavor)"], hint: 'Frappuccino... flavor', level: 'beginner' },
-        { japanese: 'アイスコーヒー / アイスティー', english: 'Iced coffee', flexibleAnswers: ["Iced tea"], hint: 'Iced... coffee / tea', level: 'beginner' },
-        { japanese: 'クロワッサン / マフィン', english: 'Croissant', flexibleAnswers: ["Muffin"], hint: 'Croissant... Muffin', level: 'beginner' },
-        { japanese: 'サンドイッチ / クッキー', english: 'Sandwich', flexibleAnswers: ["Cookie"], hint: 'Sandwich... Cookie', level: 'beginner' },
-        { japanese: 'ケーキポップ / ブラウニー', english: 'Cake pop', flexibleAnswers: ["Brownie"], hint: 'Cake... pop', level: 'beginner' },
-        { japanese: 'アイスカフェラテのグランデ', english: 'Iced café latte, grande.', hint: 'Iced... latte, grande', level: 'beginner' },
-        { japanese: 'ホットコーヒーのトール', english: 'Hot coffee, tall.', hint: 'Hot... coffee, tall', level: 'beginner' },
-        { japanese: '抹茶フラペチーノのベンティ', english: 'Matcha frappuccino, venti.', hint: 'Matcha... venti', level: 'beginner' },
-        { japanese: 'アイスコーヒーのグランデと、抹茶ラテのトール', english: 'Iced coffee, grande, and matcha latte, tall.', hint: 'Iced... grande, and matcha... tall', level: 'beginner' },
-        { japanese: '私の名前はケンです', english: 'My name is Ken.', hint: 'My... name is Ken', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: '見ているだけです', english: 'Just looking, thank you.', flexibleAnswers: ["I'm just looking, thank you.", "I'm just looking, thanks."], hint: 'Just... looking, thanks', level: 'beginner' },
         { japanese: 'それにします/それを買います', english: 'I\'ll take it.', hint: 'I\'ll... take it', level: 'advanced' },
         { japanese: 'はい、お願いします', english: 'Yes, please.', hint: 'Yes... please', level: 'beginner' },
         { japanese: 'いいえ、結構です', english: 'No, thank you.', hint: 'No... thank you', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'カード / 現金', english: 'Card, please.', flexibleAnswers: ["Cash, please.", "Cash."], hint: 'Card... please / Cash', level: 'advanced' },
         { japanese: '別々に会計してください', english: 'Separate checks, please.', hint: 'Separate... checks, please', level: 'beginner' },
         { japanese: '一緒に会計してください', english: 'Together, please.', hint: 'Together... please', level: 'beginner' },
@@ -1849,20 +1813,15 @@ const phrasesDatabase = {
         { japanese: 'すみません、これは東京行きの便ですか?', english: 'Excuse me, is this flight to Tokyo?', hint: 'Excuse... is this flight to Tokyo', level: 'beginner' },
         { japanese: 'すみません、この荷物を手伝っていただけますか?', english: 'Excuse me, can you help me with this bag?', hint: 'Excuse... can you help me', level: 'advanced' },
         { japanese: '家族5人です - 入国審査・チェックインで', english: 'We\'re a family of five.', flexibleAnswers: ["We are a family of five."], hint: 'We\'re... family of five', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'はい、どうぞ - パスポートや搭乗券を渡すとき', english: 'Here you go.', flexibleAnswers: ["Here you are."], hint: 'Here... you go', level: 'beginner' },
-        // 修正3: ○○の省略を許容
         { japanese: 'すみません、○○はどこですか? - 場所確認', english: 'Excuse me, where is ○○?', flexibleAnswers: ["Excuse me, where is?"], hint: 'Excuse... where is ○○', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'いいえ、申告するものはありません - 税関で', english: 'No, nothing to declare.', hint: 'No... nothing to declare', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: '4個です - チェックイン時の荷物数', english: 'Four bags.', flexibleAnswers: ["Four suitcases."], hint: 'Four... bags', level: 'beginner' },
     ],
     transportation: [
         { japanese: 'こんにちは、HOLOカードを購入したいです', english: 'Hi, I\'d like to buy HOLO Cards.', flexibleAnswers: ["Hi, I would like to buy HOLO Cards."], hint: 'Hi... I\'d like to buy HOLO Cards', level: 'advanced' },
         { japanese: 'シニアカード3枚とユースカード2枚をお願いします', english: 'I need three senior cards and two youth cards, please.', hint: 'I... three senior cards and two youth cards', level: 'advanced' },
         { japanese: 'はい、各カードに3ドルずつお願いします', english: 'Yes, $3 on each card, please.', flexibleAnswers: ["Yes, 3 dollars on each card, please."], hint: 'Yes... $3 on each card', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'はい、どうぞ（現金またはカードを渡す）', english: 'OK, here you go.', flexibleAnswers: ["OK, here you are."], hint: 'OK... here you go', level: 'beginner' },
         { japanese: 'ありがとうございます!後でお金を追加するにはどうすればいいですか?', english: 'Thank you! How do I add more money later?', hint: 'Thank... How do I add more money later', level: 'advanced' },
         { japanese: 'わかりました。ありがとうございます!', english: 'Got it. Thank you!', flexibleAnswers: ["I got it. Thank you."], hint: 'Got... thank you', level: 'beginner' },
@@ -1887,9 +1846,7 @@ const phrasesDatabase = {
         { japanese: 'ありがとうございます!すぐ戻ります、5分だけです', english: 'Thank you! I\'ll be quick, just 5 minutes.', flexibleAnswers: ["Thank you! I will be quick, just 5 minutes."], hint: 'Thank... I\'ll be quick, just 5 minutes', level: 'advanced' },
         { japanese: 'ありがとうございました!', english: 'Thank you very much!', flexibleAnswers: ["Thank you so much!"], hint: 'Thank... very much', level: 'beginner' },
         { japanese: 'あなたもね!', english: 'You too!', hint: 'You... too', level: 'beginner' },
-        // 修正3: ○○の省略を許容
         { japanese: 'こんにちは、○○さんですか?', english: 'Hi, are you ○○?', flexibleAnswers: ["Hi, are you?"], hint: 'Hi... are you ○○ (ドライバー名)?', level: 'beginner' },
-        // 修正3: ○○の省略を許容
         { japanese: 'これは○○のUberですか?', english: 'Is this Uber for ○○?', flexibleAnswers: ["Is this Uber for?"], hint: 'Is... Uber for ○○ (あなたの名前)?', level: 'beginner' },
         { japanese: 'どれくらい時間がかかりますか?', english: 'How long does it take?', hint: 'How... long does it take', level: 'beginner' },
         { japanese: '今日は渋滞していますか?', english: 'Is there a lot of traffic today?', hint: 'Is... a lot of traffic today', level: 'beginner' },
@@ -1916,31 +1873,21 @@ const phrasesDatabase = {
         { japanese: 'すみません、これはワイキキへの正しい道ですか?', english: 'Excuse me, is this the right way to Waikiki?', hint: 'Excuse... is this the right way to Waikiki', level: 'advanced' },
         { japanese: 'すみません、メーターをつけていただけますか?', english: 'Excuse me, can you turn on the meter?', hint: 'Excuse... can you turn on the meter', level: 'beginner' },
         { japanese: 'スーツケースが4個あります。大丈夫ですか?', english: 'We have four suitcases. Is that OK?', hint: 'We... have four suitcases', level: 'beginner' },
-        // 修正3: ○○の省略を許容
         { japanese: 'このバスは○○へ行きますか? - バスで必須', english: 'Does this bus go to ○○?', flexibleAnswers: ["Does this bus go?"], hint: 'Does... this bus go to ○○', level: 'beginner' },
-        // 修正3: ○○の省略を許容
         { japanese: '○○に着いたら教えていただけますか? - バスで降車確認', english: 'Could you tell me when we get to ○○?', flexibleAnswers: ["Could you tell me when we get there?"], hint: 'Could... tell me when we get to ○○', level: 'advanced' },
-        // 修正3: ○○の省略を許容
         { japanese: '○○までお願いします - タクシー・Uberで目的地を伝える', english: '○○, please.', flexibleAnswers: ["Please take me there."], hint: '○○... please', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'どれくらい時間がかかりますか? - 所要時間確認', english: 'How long does it take?', hint: 'How... long does it take', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'いくらくらいかかりますか? - タクシーで料金確認', english: 'How much will it cost?', hint: 'How... much will it cost', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'はい、どうぞ。おつりは取っておいて - チップを渡す', english: 'Here you go. Keep the change.', flexibleAnswers: ["Here you are. Keep the change."], hint: 'Here... keep the change', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'カードで払えますか? - 支払い方法確認', english: 'Can I pay by card?', hint: 'Can... pay by card', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'ありがとう! - 降りるときのお礼', english: 'Thank you!', flexibleAnswers: ["Thank you very much."], hint: 'Thank... you', level: 'beginner' },
         { japanese: 'シニアカード3枚とユースカード2枚をお願いします - HOLO Card購入', english: 'Three senior cards and two youth cards, please.', hint: 'Three... senior cards and two youth cards', level: 'advanced' },
-        // 修正3: ○○の省略を許容
         { japanese: '○○さんですか? - Uberでドライバー確認', english: 'Are you ○○?', flexibleAnswers: ["Are you?"], hint: 'Are... you ○○', level: 'beginner' },
     ],
     hotel: [
         { japanese: '佐藤です', english: 'It\'s Sato.', flexibleAnswers: ["My name is Sato."], hint: 'It\'s... Sato', level: 'advanced' },
         { japanese: 'スーツケースが7個あります', english: 'We have seven suitcases.', hint: 'We... seven suitcases', level: 'beginner' },
         { japanese: 'ありがとうございます!後で部屋に持ってきてもらえますか?', english: 'Thank you! Can you bring them to our room later?', flexibleAnswers: ["Thank you! Could you bring them to our room later?"], hint: 'Thank... bring them to our room later', level: 'advanced' },
-        // 修正2: Thank you so much -> Thank you very much
         { japanese: '完璧です!ありがとうございます!', english: 'Perfect! Thank you so much!', flexibleAnswers: ["Perfect! Thank you very much!"], hint: 'Perfect... thank you so much', level: 'beginner' },
         { japanese: 'はい、どうぞ', english: 'Here you go.', flexibleAnswers: ["Here you are."], hint: 'Here... you go', level: 'beginner' },
         { japanese: 'こんにちは、チェックイン前に荷物を預けたいです', english: 'Hi, we\'d like to leave our luggage before check-in.', flexibleAnswers: ["Hi, we would like to leave our luggage before check-in."], hint: 'Hi... leave our luggage before check-in', level: 'advanced' },
@@ -1967,8 +1914,6 @@ const phrasesDatabase = {
         { japanese: 'はい、パスポートです', english: 'Sure, here\'s my passport.', flexibleAnswers: ["Sure, here is my passport."], hint: 'Sure... my passport', level: 'advanced' },
         { japanese: 'バスタオル4枚とハンドタオル4枚をお願いします', english: 'Four bath towels and four hand towels, please.', hint: 'Four... bath towels and four hand towels', level: 'beginner' },
         { japanese: '8枚お願いします', english: 'Eight, please.', hint: 'Eight... please', level: 'beginner' },
-        // 修正2: Thank you so much -> Thank you very much
-        { japanese: 'ありがとうございます!', english: 'Thank you so much!', flexibleAnswers: ["Thank you very much!"], hint: 'Thank... so much', level: 'beginner' },
         { japanese: '1205号室にお願いします', english: 'Room 1205, please.', hint: 'Room... 1205, please', level: 'beginner' },
         { japanese: 'ここに置いていきます。使わせてくれてありがとう!', english: 'I\'ll leave it here. Thanks for letting us use it!', flexibleAnswers: ["I will leave it here. Thanks for letting us use it!"], hint: 'I\'ll... leave it here', level: 'advanced' },
         { japanese: '午後2時頃に来てもらえますか?', english: 'Could you come around 2 PM?', flexibleAnswers: ["Can you come around 2 PM?"], hint: 'Could... come around 2 PM', level: 'advanced' },
@@ -1986,7 +1931,7 @@ const phrasesDatabase = {
         { japanese: 'シャンプーと石鹸をもっともらえますか?', english: 'Could we get some more shampoo and soap?', hint: 'Could... get some more shampoo and soap', level: 'advanced' },
         { japanese: 'トイレタリー用品を追加でお願いします', english: 'We need some extra toiletries, please.', hint: 'We... need some extra toiletries', level: 'beginner' },
         { japanese: 'コーヒーとティーバッグを追加でもらえますか?', english: 'Could we get some extra coffee and tea bags?', hint: 'Could... get some extra coffee and tea bags', level: 'advanced' },
-        { japanese: 'ビーチタオルを借りられますか?', english: 'Could we get some beach towels, please?', hint: 'Could... get some beach towels', level: 'advanced' },
+        { japanese: 'ビーチタオルを借りられますか?', english: 'Could we get some beach towels, please.', hint: 'Could... get some beach towels', level: 'advanced' },
         { japanese: '借りられる炊飯器はありますか?', english: 'Do you have a rice cooker we could borrow?', hint: 'Do... a rice cooker we could borrow', level: 'advanced' },
         { japanese: 'こんにちは、1205号室の炊飯器を返却したいのですが', english: 'Hi, we\'d like to return the rice cooker from room 1205.', flexibleAnswers: ["Hi, we would like to return the rice cooker from room 1205."], hint: 'Hi... return the rice cooker', level: 'advanced' },
         { japanese: '清掃は後で来てもらえますか?まだ休んでいます', english: 'Could you come back later for cleaning? We\'re still resting.', flexibleAnswers: ["Could you come back later for cleaning? We are still resting."], hint: 'Could... come back later for cleaning', level: 'advanced' },
@@ -1997,11 +1942,7 @@ const phrasesDatabase = {
         { japanese: '素晴らしかったです!良い時間を過ごせました。ありがとうございます!', english: 'It was wonderful! We had a great time. Thank you!', flexibleAnswers: ["It was wonderful! We had a great time. Thank you so much!", "It was wonderful! We had a great time. Thank you very much!"], hint: 'It... had a great time', level: 'advanced' },
         { japanese: '修正してくれてありがとうございます!', english: 'Thank you for fixing that!', flexibleAnswers: ["Thank you very much for fixing that!"], hint: 'Thank... for fixing that', level: 'beginner' },
         { japanese: 'はい、完璧です。ありがとうございます!', english: 'Yes, that works perfectly. Thank you!', flexibleAnswers: ["Yes, that works perfectly. Thank you so much!", "Yes, that works perfectly. Thank you very much!"], hint: 'Yes... works perfectly', level: 'beginner' },
-        // 修正2: Thank you so much -> Thank you very much
         { japanese: 'それは素晴らしい!ありがとうございます!', english: 'That\'s wonderful! Thank you so much!', flexibleAnswers: ["That's wonderful! Thank you very much!"], hint: 'That\'s... wonderful! Thank you so much', level: 'advanced' },
-        { japanese: 'スーツケース7個です', english: 'Seven suitcases.', hint: 'Seven... suitcases', level: 'beginner' },
-        { japanese: '10人でスーツケース7個です', english: 'Ten people with seven suitcases.', hint: 'Ten... with seven suitcases', level: 'beginner' },
-        { japanese: '完璧です、ありがとうございます!', english: 'Perfect, thank you!', flexibleAnswers: ["Perfect, thank you so much!", "Perfect, thank you very much!"], hint: 'Perfect... thank you', level: 'beginner' },
         { japanese: 'チェックアウトしたいです。1205号室と1207号室です', english: 'We\'d like to check out. Rooms 1205 and 1207.', flexibleAnswers: ["We would like to check out. Rooms 1205 and 1207."], hint: 'We\'d... check out', level: 'advanced' },
         { japanese: '請求の詳細内訳を見せていただけますか?', english: 'Could I see a detailed breakdown of the charges?', hint: 'Could... see a detailed breakdown of the charges', level: 'advanced' },
         { japanese: 'ここに20ドルの請求があります。ミニバーは使っていません', english: 'I see a $20 charge here. We didn\'t use the minibar.', flexibleAnswers: ["I see a 20 dollar charge here. We did not use the minibar."], hint: 'I... $20 charge here. We didn\'t use the minibar', level: 'advanced' },
@@ -2010,35 +1951,16 @@ const phrasesDatabase = {
         { japanese: 'チェックアウト後、荷物をここに預けられますか?午後5時頃に取りに来ます', english: 'Can we leave our luggage here after checkout? We\'ll pick it up around 5 PM.', flexibleAnswers: ["Can we leave our luggage here after checkout? We will pick it up around 5 PM."], hint: 'Can... leave our luggage here after checkout', level: 'advanced' },
         { japanese: 'タクシーを呼んでいただけますか?空港へ行く必要があります', english: 'Could you call a taxi for us? We need to get to the airport.', hint: 'Could... call a taxi for us', level: 'advanced' },
         { japanese: 'Uberのピックアップを待つのに最適な場所はどこですか?', english: 'Where\'s the best place to wait for an Uber pickup?', flexibleAnswers: ["Where is the best place to wait for an Uber pickup?"], hint: 'Where\'s... best place to wait for an Uber pickup', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'チェックイン前に荷物を預けたいです - 荷物預かり', english: 'We\'d like to leave our luggage before check-in.', flexibleAnswers: ["We would like to leave our luggage before check-in."], hint: 'We\'d... leave our luggage before check-in', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: '佐藤の名前で予約しています - チェックイン', english: 'We have a reservation under Sato.', hint: 'We... reservation under Sato', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: 'スーツケースが7個あります - 荷物の数', english: 'We have seven suitcases.', hint: 'We... seven suitcases', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: '今日8人、明日あと2人です - 遅れてチェックイン', english: 'Eight people today, two more tomorrow.', hint: 'Eight... two more tomorrow', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'エアコンが動いていないようです - 故障報告', english: 'The air conditioning doesn\'t seem to be working.', flexibleAnswers: ["The air conditioning does not seem to be working."], hint: 'The... air conditioning doesn\'t seem to be working', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: '部屋から締め出されました - インロック', english: 'I\'m locked out of my room.', flexibleAnswers: ["I am locked out of my room."], hint: 'I\'m... locked out of my room', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'タオルを追加でもらえますか? - アメニティ補充', english: 'Could we get some extra towels?', hint: 'Could... get some extra towels', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: '借りられる炊飯器はありますか? - 炊飯器貸出', english: 'Do you have a rice cooker we could borrow?', hint: 'Do... a rice cooker we could borrow', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: '清掃は後で来てもらえますか? - 清掃時間変更', english: 'Could you come back later for cleaning?', hint: 'Could... come back later for cleaning', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'ビーチタオルを借りられますか? - ビーチタオル', english: 'Could we get some beach towels?', hint: 'Could... get some beach towels', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'チェックアウトしたいです - チェックアウト', english: 'We\'d like to check out.', flexibleAnswers: ["We would like to check out."], hint: 'We\'d... like to check out', level: 'advanced' },
-        // 修正1: ()の削除
-        { japanese: '請求の詳細内訳を見せていただけますか? - 請求確認', english: 'Could I see a detailed breakdown of the charges?', hint: 'Could... see a detailed breakdown of the charges', level: 'advanced' },
-        // 修正1: ()の削除
-        { japanese: '少し遅めにチェックアウトできますか? - レイトチェックアウト', english: 'Is it possible to check out a bit later?', hint: 'Is... check out a bit later', level: 'advanced' },
-        // 修正1: ()の削除
-        { japanese: 'タクシーを呼んでいただけますか? - タクシー手配', english: 'Could you call a taxi for us?', hint: 'Could... call a taxi for us', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: '色々ありがとうございました! - 感謝', english: 'Thank you for everything!', flexibleAnswers: ["Thank you so much for everything!", "Thank you very much for everything!"], hint: 'Thank... for everything', level: 'beginner' },
     ],
     dining: [
@@ -2046,11 +1968,9 @@ const phrasesDatabase = {
         { japanese: 'ありがとうございます!', english: 'Thank you!', flexibleAnswers: ["Thank you very much."], hint: 'Thank... you', level: 'beginner' },
         { japanese: '10人です。予約はしていません。テーブルはありますか?', english: 'We have ten people. We don\'t have a reservation. Is there a table available?', flexibleAnswers: ["We have ten people. We do not have a reservation. Is there a table available?"], hint: 'We... ten people. Is there a table available', level: 'advanced' },
         { japanese: 'はい、大丈夫です。待ちます', english: 'Yes, that\'s fine. We\'ll wait.', flexibleAnswers: ["Yes, that is fine. We will wait."], hint: 'Yes... that\'s fine. We\'ll wait', level: 'advanced' },
-        { japanese: '佐藤です。S-A-T-O', english: 'Sato. S-A-T-O.', hint: 'Sato... S-A-T-O', level: 'beginner' },
-        // 修正2: Thank you so much -> Thank you very much
+        { japanese: '佐藤です。', english: 'Sato.', hint: 'Sato... ', level: 'beginner' },
         { japanese: '完璧です!ありがとうございます!', english: 'Perfect! Thank you so much!', flexibleAnswers: ["Perfect! Thank you very much!"], hint: 'Perfect... thank you so much', level: 'beginner' },
         { japanese: '午後7時に佐藤で10人の予約をしています', english: 'We have a reservation for ten at 7 PM under Sato.', hint: 'We... reservation for ten at 7 PM under Sato', level: 'advanced' },
-        { japanese: '佐藤で10人の予約です', english: 'Reservation for ten, under the name Sato.', hint: 'Reservation... for ten, under the name Sato', level: 'beginner' },
         { japanese: '10人です。予約はしていません', english: 'Ten people, please. No reservation.', hint: 'Ten... please. No reservation', level: 'beginner' },
         { japanese: '10人のグループは入れますか?', english: 'Can you accommodate a party of ten?', hint: 'Can... accommodate a party of ten', level: 'beginner' },
         { japanese: '10人のテーブルの待ち時間はどれくらいですか?', english: 'How long is the wait for a table for ten?', hint: 'How... long is the wait for a table for ten', level: 'advanced' },
@@ -2098,21 +2018,15 @@ const phrasesDatabase = {
         { japanese: 'バーガーのセットでフライドポテトとコーラをお願いします', english: 'I\'ll take the burger meal with fries and a Coke.', flexibleAnswers: ["I will take the burger meal with fries and a Coke."], hint: 'I\'ll... the burger meal with fries and a Coke', level: 'advanced' },
         { japanese: 'ピクルス抜きでお願いします', english: 'No pickles, please.', hint: 'No... pickles, please', level: 'beginner' },
         { japanese: 'チーズ多めでお願いします', english: 'Extra cheese, please.', hint: 'Extra... cheese, please', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'あれをお願いします（指差しながら）', english: 'I\'ll have that one.', flexibleAnswers: ["I will have that one."], hint: 'I\'ll... have that one', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'これをいただけますか?（メニューボードを指差しながら）', english: 'Can I get this?', hint: 'Can... get this', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: 'この4人で1つ、この3人で1つ、この3人で1つでお願いします', english: 'These four people together, these three together, and these three together, please.', hint: 'These... three separate checks', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'カードです（カードを渡す）', english: 'Here\'s my card.', flexibleAnswers: ["Here is my card."], hint: 'Here\'s... my card', level: 'advanced' },
         { japanese: 'すみません、サービス料は既に含まれていますか?', english: 'Excuse me, is gratuity already included?', flexibleAnswers: ["Excuse me, is the tip already included?"], hint: 'Excuse... is gratuity already included', level: 'beginner' },
         { japanese: '現金で払えますか?', english: 'Can I pay in cash?', hint: 'Can... pay in cash', level: 'beginner' },
-        // 修正1: ()の削除
         { japanese: '400ドルです。お釣りは取っておいてください（= チップとして）', english: 'Here\'s $400. Keep the change.', flexibleAnswers: ["Here is 400 dollars. Keep the change."], hint: 'Here\'s... $400. Keep the change', level: 'advanced' },
         { japanese: 'ありがとうございます!料理が素晴らしかったです!', english: 'Thank you! The food was excellent!', flexibleAnswers: ["Thank you very much! The food was excellent!", "Thank you so much! The food was excellent!"], hint: 'Thank... food was excellent', level: 'beginner' },
         { japanese: 'お会計をお願いできますか?', english: 'Could we get the check, please?', flexibleAnswers: ["Can we get the check, please?"], hint: 'Could... get the check', level: 'advanced' },
-        { japanese: 'お勘定をいただけますか?', english: 'Can we have the bill, please?', hint: 'Can... have the bill', level: 'beginner' },
         { japanese: '別々の会計でお願いします', english: 'We\'d like separate checks, please.', flexibleAnswers: ["We would like separate checks, please."], hint: 'We\'d... separate checks', level: 'advanced' },
         { japanese: '3つの会計に分けていただけますか?', english: 'Could you split it into three checks?', hint: 'Could... split it into three checks', level: 'advanced' },
         { japanese: '10人で均等に割っていただけますか?', english: 'Can we split it evenly among all ten of us?', hint: 'Can... split it evenly among all ten of us', level: 'advanced' },
@@ -2138,33 +2052,9 @@ const phrasesDatabase = {
         { japanese: 'これを持ち帰り用の箱に入れていただけますか?', english: 'Could we get a box for this, please?', hint: 'Could... get a box for this', level: 'advanced' },
         { japanese: '持ち帰り用の箱をいただけますか?', english: 'Can we have a to-go box?', hint: 'Can... a to-go box', level: 'beginner' },
         { japanese: 'これを持ち帰りたいです', english: 'We\'d like to take this home, please.', flexibleAnswers: ["We would like to take this home, please."], hint: 'We\'d... like to take this home', level: 'advanced' },
-        { japanese: '佐藤で10人の予約をしています', english: 'We have a reservation for ten under Sato.', hint: 'We... reservation for ten under Sato', level: 'advanced' },
-        { japanese: '10人です。予約はしていません', english: 'Ten people, please. No reservation.', hint: 'Ten... No reservation', level: 'beginner' },
-        { japanese: '待ち時間はどれくらいですか?', english: 'How long is the wait?', hint: 'How... long is the wait', level: 'beginner' },
-        { japanese: '外の席をお願いできますか?', english: 'Could we have a table outside, please?', hint: 'Could... a table outside', level: 'advanced' },
-        { japanese: '窓際に座れますか?', english: 'Can we sit near the window?', hint: 'Can... sit near the window', level: 'beginner' },
-        { japanese: '何がおすすめですか?', english: 'What do you recommend?', hint: 'What... do you recommend', level: 'beginner' },
-        { japanese: 'この料理を説明していただけますか?', english: 'Can you explain this dish?', hint: 'Can... explain this dish', level: 'beginner' },
-        { japanese: '辛いですか?', english: 'Is it spicy?', hint: 'Is... it spicy', level: 'beginner' },
-        { japanese: 'これを3つとあれを2つお願いします', english: 'We\'ll have three of these and two of those.', flexibleAnswers: ["We will have three of these and two of those."], hint: 'We\'ll... three of these and two of those', level: 'advanced' },
-        { japanese: 'ミディアムでお願いします', english: 'Medium, please.', hint: 'Medium... please', level: 'beginner' },
-        { japanese: 'ソースなしでお願いできますか?', english: 'Can I get that with no sauce?', hint: 'Can... that with no sauce', level: 'beginner' },
-        { japanese: 'どんなソフトドリンクがありますか?', english: 'What kind of soft drinks do you have?', hint: 'What... kind of soft drinks do you have', level: 'advanced' },
-        { japanese: 'シェア用の追加の皿をいただけますか?', english: 'Can we get extra plates for sharing?', hint: 'Can... extra plates for sharing', level: 'beginner' },
-        { japanese: '今のところ以上です。ありがとうございます!', english: 'That\'s all for now. Thank you!', flexibleAnswers: ["That is all for now. Thank you so much!", "That is all for now. Thank you very much!"], hint: 'That\'s... all for now. Thank you', level: 'advanced' },
-        { japanese: 'ビッグマックのセットをお願いします（ファストフード）', english: 'I\'ll have a Big Mac meal, please.', flexibleAnswers: ["I will have a Big Mac meal, please."], hint: 'I\'ll... a Big Mac meal', level: 'advanced' },
-        { japanese: 'とても美味しいです、ありがとうございます!', english: 'Everything is great, thank you!', flexibleAnswers: ["Everything is great, thank you so much!", "Everything is great, thank you very much!"], hint: 'Everything... is great', level: 'beginner' },
-        { japanese: 'ビールをもう1ラウンドいただけますか?', english: 'Could we get another round of beers, please?', hint: 'Could... another round of beers', level: 'advanced' },
-        { japanese: 'これは注文したものと違います', english: 'This isn\'t what I ordered.', flexibleAnswers: ["This is not what I ordered."], hint: 'This... isn\'t what I ordered', level: 'advanced' },
-        { japanese: 'これを持ち帰り用の箱に入れていただけますか?', english: 'Could we get a box for this, please.', hint: 'Could... get a box for this', level: 'advanced' },
-        { japanese: 'お会計をお願いできますか?', english: 'Could we get the check, please.', flexibleAnswers: ["Can we get the check, please?"], hint: 'Could... get the check', level: 'advanced' },
-        { japanese: '一緒に支払います', english: 'We\'ll pay together, please.', flexibleAnswers: ["We will pay together, please."], hint: 'We\'ll... pay together', level: 'advanced' },
-        { japanese: 'カードです', english: 'Here\'s my card.', flexibleAnswers: ["Here is my card."], hint: 'Here\'s... my card', level: 'advanced' },
-        { japanese: 'サービス料は既に含まれていますか?', english: 'Is gratuity already included?', flexibleAnswers: ["Is the tip already included?"], hint: 'Is... gratuity already included', level: 'beginner' },
-        { japanese: 'お釣りは取っておいてください', english: 'Keep the change.', hint: 'Keep... the change', level: 'beginner' },
+        { japanese: 'お勘定をいただけますか?', english: 'Can we have the bill, please?', hint: 'Can... have the bill', level: 'beginner' },
     ],
     shopping: [
-        // 修正1: ()の削除
         { japanese: '見ているだけです、ありがとう', english: 'I\'m just looking, thanks.', flexibleAnswers: ["I'm just looking, thank you."], hint: 'I\'m... just looking, thanks', level: 'advanced' },
         { japanese: 'はい、Tシャツを探しています', english: 'Yes, I\'m looking for a T-shirt.', flexibleAnswers: ["Yes, I am looking for a T-shirt."], hint: 'Yes... looking for a T-shirt', level: 'advanced' },
         { japanese: 'ワンピースはありますか?', english: 'Do you have any dresses?', hint: 'Do... any dresses', level: 'beginner' },
@@ -2242,7 +2132,6 @@ const phrasesDatabase = {
         { japanese: 'コピーをもらえますか?', english: 'Can I get a copy?', hint: 'Can... get a copy', level: 'beginner' },
         { japanese: '別のカードを使います', english: 'Let me use a different card.', hint: 'Let... use a different card', level: 'beginner' },
         { japanese: '代わりに現金で払います', english: 'I\'ll pay cash instead.', flexibleAnswers: ["I will pay cash instead."], hint: 'I\'ll... pay cash instead', level: 'advanced' },
-        { japanese: 'いいえ、自分のがあります', english: 'No, I have my own.', hint: 'No... I have my own', level: 'beginner' },
         { japanese: '袋1つだけお願いします', english: 'Just one bag, please.', hint: 'Just... one bag, please', level: 'beginner' },
         { japanese: '袋を2つもらえますか?', english: 'Can I get two bags?', hint: 'Can... get two bags', level: 'beginner' },
         { japanese: 'これはセール中だと思ったのですが', english: 'I thought this was on sale.', hint: 'I... thought this was on sale', level: 'beginner' },
@@ -2256,22 +2145,7 @@ const phrasesDatabase = {
         { japanese: '合計はいくらですか?', english: 'What\'s the total?', flexibleAnswers: ["What is the total?"], hint: 'What\'s... the total', level: 'advanced' },
         { japanese: '全部でいくらですか?', english: 'How much is it altogether?', hint: 'How... much is it altogether', level: 'beginner' },
         { japanese: '合計をもう一度教えてもらえますか?', english: 'Can you tell me the total again?', hint: 'Can... tell me the total again', level: 'beginner' },
-        // 修正1: ()の削除
-        { japanese: '見ているだけです、ありがとう', english: 'I\'m just looking, thanks.', flexibleAnswers: ["I'm just looking, thank you."], hint: 'I\'m... just looking, thanks', level: 'advanced' },
-        { japanese: 'これのMサイズはありますか?', english: 'Do you have this in a medium?', hint: 'Do... this in a medium', level: 'beginner' },
-        { japanese: 'これをください', english: 'I\'ll take this.', flexibleAnswers: ["I will take this."], hint: 'I\'ll... take this', level: 'advanced' },
-        { japanese: '牛乳はどこにありますか?', english: 'Where can I find the milk?', hint: 'Where... can I find the milk', level: 'beginner' },
-        { japanese: '新鮮なパイナップルはありますか?', english: 'Do you have fresh pineapples?', hint: 'Do... have fresh pineapples', level: 'beginner' },
-        { japanese: 'いいえ、自分の袋があります', english: 'No, I have my own bag.', hint: 'No... I have my own bag', level: 'beginner' },
-        { japanese: 'パスタソースが見つかりません。手伝ってもらえますか?', english: 'I can\'t find the pasta sauce. Can you help me?', flexibleAnswers: ["I cannot find the pasta sauce. Can you help me?"], hint: 'I... can\'t find the pasta sauce', level: 'advanced' },
-        { japanese: 'お土産を探しています', english: 'I\'m looking for souvenirs.', flexibleAnswers: ["I am looking for souvenirs."], hint: 'I\'m... looking for souvenirs', level: 'advanced' },
         { japanese: '贈り物に何がおすすめですか?', english: 'What do you recommend for gifts?', hint: 'What... do you recommend for gifts', level: 'beginner' },
-        { japanese: 'これを10個ください', english: 'I\'ll take ten of these.', flexibleAnswers: ["I will take ten of these."], hint: 'I\'ll... take ten of these', level: 'advanced' },
-        { japanese: 'まとめ買い割引はありますか?', english: 'Do you have a discount for buying in bulk?', hint: 'Do... a discount for buying in bulk', level: 'advanced' },
-        { japanese: 'これの賞味期限はいつですか?', english: 'When does this expire?', hint: 'When... does this expire', level: 'beginner' },
-        { japanese: 'クレジットカードで', english: 'Credit card, please.', hint: 'Credit... card, please', level: 'beginner' },
-        { japanese: 'クーポンがあります', english: 'I have a coupon.', hint: 'I... have a coupon', level: 'beginner' },
-        { japanese: '合計はいくらですか?', english: 'What\'s the total?', flexibleAnswers: ["What is the total?"], hint: 'What\'s... the total', level: 'advanced' },
     ],
     emergency: [
         { japanese: '痛み止めが必要です。どれがいいですか?', english: 'I need pain reliever. Which one is good?', hint: 'I... pain reliever. Which one is good', level: 'beginner' },
@@ -2291,7 +2165,6 @@ const phrasesDatabase = {
         { japanese: '下痢をしています', english: 'I have diarrhea.', hint: 'I... have diarrhea', level: 'beginner' },
         { japanese: '咳が出ます', english: 'I have a cough.', hint: 'I... have a cough', level: 'beginner' },
         { japanese: '喉が痛いです', english: 'I have a sore throat.', hint: 'I... have a sore throat', level: 'beginner' },
-        { japanese: 'うまく呼吸できません', english: 'I can\'t breathe well.', flexibleAnswers: ["I cannot breathe well."], hint: 'I... can\'t breathe well', level: 'advanced' },
         { japanese: '乗り物酔いしています', english: 'I have motion sickness.', hint: 'I... have motion sickness', level: 'beginner' },
         { japanese: '車酔いしています', english: 'I feel carsick.', hint: 'I... feel carsick', level: 'beginner' },
         { japanese: '乗り物酔いしやすいです', english: 'I get motion sickness easily.', hint: 'I... get motion sickness easily', level: 'beginner' },
@@ -2308,7 +2181,6 @@ const phrasesDatabase = {
         { japanese: '絆創膏が必要です', english: 'I need a Band-Aid.', hint: 'I... need a Band-Aid', level: 'beginner' },
         { japanese: '食物アレルギーがあります', english: 'I have a food allergy.', hint: 'I... have a food allergy', level: 'beginner' },
         { japanese: 'ピーナッツアレルギーです', english: 'I\'m allergic to peanuts.', flexibleAnswers: ["I am allergic to peanuts."], hint: 'I\'m... allergic to peanuts', level: 'advanced' },
-        { japanese: 'エピペンが必要です!緊急です!', english: 'I need an EpiPen! It\'s an emergency!', flexibleAnswers: ["I need an EpiPen! It is an emergency!"], hint: 'I... an EpiPen! It\'s an emergency', level: 'advanced' },
         { japanese: '最寄りの病院はどこですか?', english: 'Where\'s the nearest hospital?', flexibleAnswers: ["Where is the nearest hospital?"], hint: 'Where\'s... the nearest hospital', level: 'advanced' },
         { japanese: '医者のところに連れて行ってもらえますか?', english: 'Can you take me to a doctor?', hint: 'Can... take me to a doctor', level: 'beginner' },
         { japanese: '近くにクリニックはありますか?', english: 'Is there a clinic nearby?', hint: 'Is... a clinic nearby', level: 'beginner' },
@@ -2324,7 +2196,6 @@ const phrasesDatabase = {
         { japanese: '子供が病気です', english: 'My child is sick.', hint: 'My... child is sick', level: 'beginner' },
         { japanese: '息子が高熱を出しています', english: 'My son has a high fever.', hint: 'My... son has a high fever', level: 'beginner' },
         { japanese: '娘が転んで腕を怪我しました', english: 'My daughter fell and hurt her arm.', hint: 'My... daughter fell and hurt her arm', level: 'beginner' },
-        { japanese: '高血圧です', english: 'I have high blood pressure.', hint: 'I... high blood pressure', level: 'beginner' },
         { japanese: '心臓の薬を飲んでいます', english: 'I take medication for my heart.', hint: 'I... medication for my heart', level: 'beginner' },
         { japanese: '日本語が話せる医師はいますか?', english: 'Is there a doctor who speaks Japanese?', hint: 'Is... a doctor who speaks Japanese', level: 'beginner' },
         { japanese: 'パスポート、財布、スマホです', english: 'My passport, wallet, and phone.', hint: 'My... passport, wallet, and phone', level: 'beginner' },
@@ -2371,47 +2242,14 @@ const phrasesDatabase = {
         { japanese: 'ここに日本語を話せる人はいますか?', english: 'Is there anyone here who speaks Japanese?', hint: 'Is... anyone here who speaks Japanese', level: 'beginner' },
         { japanese: '日本語が話せる人が必要です', english: 'I need someone who can speak Japanese.', hint: 'I... someone who can speak Japanese', level: 'beginner' },
         { japanese: '翻訳アプリがあります。このスマホに話してもらえますか?', english: 'I have a translation app. Can you speak into this phone?', hint: 'I... a translation app. Can you speak into this phone', level: 'advanced' },
-        { japanese: 'このスマホに話してください。翻訳されます', english: 'Please speak into this phone. It will translate.', hint: 'Please... speak into this phone. It will translate', level: 'beginner' },
+        { japanese: 'このスマホに話してください。翻訳されます', english: 'Please speak into this phone. It will translate.', hint: 'Please... speak into this phone. It will translate', level: 'advanced' },
         { japanese: '翻訳アプリを使っています。ここに話してください', english: 'I\'m using a translator app. Please talk here.', flexibleAnswers: ["I am using a translator app. Please talk here."], hint: 'I\'m... using a translator app. Please talk here', level: 'advanced' },
-        // 修正1: ()の削除
         { japanese: 'ここに話してください', english: 'Please speak here.', hint: 'Please... speak here', level: 'beginner' },
         { japanese: '日本大使館に連絡する必要があります', english: 'I need to contact the Japanese Embassy.', hint: 'I... contact the Japanese Embassy', level: 'beginner' },
         { japanese: '日本領事館はどこですか?', english: 'Where\'s the Japanese Consulate?', flexibleAnswers: ["Where is the Japanese Consulate?"], hint: 'Where\'s... the Japanese Consulate', level: 'advanced' },
-        { japanese: '助けて!助けて!', english: 'Help! Help!', hint: 'Help... Help', level: 'beginner' },
-        { japanese: '911に電話してください!', english: 'Call 911, please!', hint: 'Call... 911', level: 'beginner' },
-        { japanese: '助けが必要です、お願いします', english: 'I need help, please.', hint: 'I... need help', level: 'beginner' },
-        { japanese: '警察を呼んでください', english: 'Please call the police.', hint: 'Please... call the police', level: 'beginner' },
-        { japanese: '救急車を呼んでください!', english: 'Call an ambulance, please!', hint: 'Call... an ambulance', level: 'beginner' },
-        { japanese: '日本語を話せますか?', english: 'Do you speak Japanese?', hint: 'Do... speak Japanese', level: 'beginner' },
-        { japanese: 'ここに日本語を話せる人はいますか?', english: 'Is there anyone here who speaks Japanese?', hint: 'Is... anyone here who speaks Japanese', level: 'beginner' },
-        { japanese: '翻訳アプリがあります。このスマホに話してもらえますか?', english: 'I have a translation app. Can you speak into this phone?', hint: 'I... a translation app. Can you speak into this phone', level: 'advanced' },
-        { japanese: 'このスマホに話してください。翻訳されます', english: 'Please speak into this phone. It will translate.', hint: 'Please... speak into this phone. It will translate', level: 'advanced' },
-        { japanese: '日本大使館に連絡する必要があります', english: 'I need to contact the Japanese Embassy.', hint: 'I... contact the Japanese Embassy', level: 'beginner' },
-        { japanese: '財布をなくしました', english: 'I lost my wallet.', hint: 'I... lost my wallet', level: 'beginner' },
-        { japanese: 'バッグが盗まれました', english: 'My bag was stolen.', hint: 'My... bag was stolen', level: 'beginner' },
-        { japanese: '警察に届け出をする必要があります', english: 'I need to file a police report.', hint: 'I... file a police report', level: 'beginner' },
-        { japanese: 'ここに遺失物センターはありますか?', english: 'Does this place have a lost and found?', hint: 'Does... have a lost and found', level: 'advanced' },
-        { japanese: 'パスポートをなくしました。どうすればいいですか?', english: 'I lost my passport. What should I do?', hint: 'I... lost my passport. What should I do', level: 'advanced' },
         { japanese: 'クレジットカードを止める必要があります。盗まれました', english: 'I need to cancel my credit card. It was stolen.', hint: 'I... cancel my credit card. It was stolen', level: 'advanced' },
-        { japanese: '体調が悪いです', english: 'I don\'t feel well.', flexibleAnswers: ["I do not feel well."], hint: 'I... don\'t feel well', level: 'advanced' },
-        { japanese: '医者に診てもらう必要があります', english: 'I need to see a doctor.', hint: 'I... need to see a doctor', level: 'beginner' },
-        { japanese: '熱があります', english: 'I have a fever.', hint: 'I... have a fever', level: 'beginner' },
-        { japanese: '頭が痛いです', english: 'I have a headache.', hint: 'I... have a headache', level: 'beginner' },
-        { japanese: 'お腹が痛いです', english: 'I have a stomachache.', hint: 'I... have a stomachache', level: 'beginner' },
-        { japanese: '吐き気がします', english: 'I feel nauseous.', hint: 'I... feel nauseous', level: 'beginner' },
-        { japanese: '乗り物酔いしています', english: 'I have motion sickness.', hint: 'I... have motion sickness', level: 'beginner' },
-        { japanese: '乗り物酔いの薬はありますか?', english: 'Do you have medicine for motion sickness?', hint: 'Do... medicine for motion sickness', level: 'beginner' },
-        { japanese: '怪我をしました', english: 'I\'m injured.', flexibleAnswers: ["I am injured."], hint: 'I\'m... injured', level: 'advanced' },
-        { japanese: '出血しています。絆創膏はありますか?', english: 'I\'m bleeding. Do you have a bandage?', flexibleAnswers: ["I am bleeding. Do you have a bandage?"], hint: 'I\'m... bleeding. Do you have a bandage', level: 'advanced' },
-        { japanese: '食物アレルギーがあります', english: 'I have a food allergy.', hint: 'I... have a food allergy', level: 'beginner' },
         { japanese: '貝類のアレルギーがあります', english: 'I\'m allergic to shellfish.', flexibleAnswers: ["I am allergic to shellfish."], hint: 'I\'m... allergic to shellfish', level: 'advanced' },
-        { japanese: '最寄りの病院はどこですか?', english: 'Where\'s the nearest hospital?', flexibleAnswers: ["Where is the nearest hospital?"], hint: 'Where\'s... the nearest hospital', level: 'advanced' },
-        { japanese: '薬局はどこですか?', english: 'Where\'s the pharmacy?', flexibleAnswers: ["Where is the pharmacy?"], hint: 'Where\'s... the pharmacy', level: 'advanced' },
-        { japanese: '風邪の薬が必要です', english: 'I need something for a cold.', hint: 'I... something for a cold', level: 'beginner' },
         { japanese: '頭痛に何がおすすめですか?', english: 'What do you recommend for a headache?', hint: 'What... recommend for a headache', level: 'beginner' },
-        { japanese: 'これはどのくらいの頻度で飲めばいいですか?', english: 'How often should I take this?', hint: 'How... often should I take this', level: 'advanced' },
-        { japanese: '子供が病気です', english: 'My child is sick.', hint: 'My... child is sick', level: 'beginner' },
-        { japanese: '日本語が話せる医師はいますか?', english: 'Is there a doctor who speaks Japanese?', hint: 'Is... a doctor who speaks Japanese', level: 'beginner' },
     ],
     smalltalk: [
         { japanese: 'こんにちは!いい天気ですね!', english: 'Hi! Nice day!', hint: 'Hi... Nice day', level: 'beginner' },
@@ -2457,7 +2295,6 @@ const phrasesDatabase = {
         { japanese: 'ハナウマ湾を試してください!子供にいいですよ!', english: 'Try Hanauma Bay! Good for kids!', hint: 'Try... Hanauma Bay! Good for kids', level: 'beginner' },
         { japanese: '子供もできますか?', english: 'Kids can do it?', hint: 'Kids... can do it', level: 'beginner' },
         { japanese: 'わかりました!ありがとう!', english: 'OK! Thank you!', flexibleAnswers: ["OK! Thank you very much!"], hint: 'OK... Thank you', level: 'beginner' },
-        { japanese: 'ここは初めてですか?', english: 'First time here?', hint: 'First... time here', level: 'beginner' },
         { japanese: 'いい選択!気に入りますよ!', english: 'Good choice! You\'ll love it!', flexibleAnswers: ["Good choice! You will love it!"], hint: 'Good... choice! You\'ll love it', level: 'advanced' },
         { japanese: '子供には?', english: 'And for kids?', hint: 'And... for kids', level: 'beginner' },
         { japanese: '美しい景色ですね!', english: 'Beautiful view!', hint: 'Beautiful... view', level: 'beginner' },
@@ -2483,7 +2320,6 @@ const phrasesDatabase = {
         { japanese: 'はい!2人います!', english: 'Yes! Two kids!', hint: 'Yes... Two kids', level: 'beginner' },
         { japanese: 'いいですよ!サイズは?', english: 'It\'s nice! What size?', flexibleAnswers: ["It is nice! What size?"], hint: 'It\'s... nice! What size', level: 'advanced' },
         { japanese: 'いいえ、以上です。ありがとう!', english: 'No, that\'s all. Thank you!', flexibleAnswers: ["No, that is all. Thank you."], hint: 'No... that\'s all. Thank you', level: 'advanced' },
-        { japanese: 'はい!大家族なんです!', english: 'Yes! Big family!', hint: 'Yes... Big family', level: 'beginner' },
         { japanese: '本当に?ありがとう!', english: 'Really? Thank you!', flexibleAnswers: ["Really? Thank you very much!"], hint: 'Really... Thank you', level: 'beginner' },
         { japanese: 'はい、ありがとう!', english: 'Yes, thank you!', flexibleAnswers: ["Yes, thank you very much!"], hint: 'Yes... thank you', level: 'beginner' },
         { japanese: 'もう行きます。お話しできて良かった!', english: 'We\'re going now. Nice talking to you!', flexibleAnswers: ["We are going now. Nice talking to you!"], hint: 'We\'re... Nice talking to you', level: 'advanced' },
@@ -2495,7 +2331,6 @@ const phrasesDatabase = {
         { japanese: '楽しんでいます!ありがとう!さようなら!', english: 'I am! Thank you! Bye!', flexibleAnswers: ["I am! Thank you very much! Bye!"], hint: 'I... Thank you! Bye', level: 'beginner' },
         { japanese: 'はい!彼は日本人です!', english: 'Yes! He\'s Japanese!', flexibleAnswers: ["Yes! He is Japanese!"], hint: 'Yes... He\'s Japanese', level: 'advanced' },
         { japanese: '知っています!日本の方ですか?', english: 'I know! You from Japan?', hint: 'I... You from Japan', level: 'beginner' },
-        // 修正3: 二重引用符の有無を許容
         { japanese: 'いいドジャースシャツですね!', english: 'Nice Dodgers shirt!', flexibleAnswers: ["Nice \"Dodgers\" shirt!"], hint: 'Nice... Dodgers shirt', level: 'beginner' },
         { japanese: 'ありがとう!大谷と山本が好きなんです!', english: 'Thank you! I like Ohtani and Yamamoto!', flexibleAnswers: ["Thank you very much! I like Ohtani and Yamamoto!"], hint: 'Thank... I like Ohtani and Yamamoto', level: 'beginner' },
         { japanese: '1つのチームに2人の日本人スター!', english: 'Two Japanese stars on one team!', hint: 'Two... Japanese stars on one team', level: 'beginner' },
@@ -2507,13 +2342,6 @@ const phrasesDatabase = {
         { japanese: '東京は楽しい!京都は美しいです!', english: 'Tokyo is fun! Kyoto is beautiful!', hint: 'Tokyo... Kyoto is beautiful', level: 'beginner' },
         { japanese: 'はい!とても美しいです!', english: 'Yes! Very beautiful!', hint: 'Yes... Very beautiful', level: 'beginner' },
         { japanese: '気に入りますよ!', english: 'You\'ll love it!', flexibleAnswers: ["You will love it!"], hint: 'You\'ll... love it', level: 'advanced' },
-        { japanese: 'いい天気ですね!', english: 'Nice day!', hint: 'Nice... day', level: 'beginner' },
-        { japanese: 'ここは初めてです!', english: 'First time here!', hint: 'First... time here', level: 'beginner' },
-        { japanese: '日本からです!', english: 'From Japan!', hint: 'From... Japan', level: 'beginner' },
-        { japanese: 'とても美しい!', english: 'So beautiful!', hint: 'So... beautiful', level: 'beginner' },
-        { japanese: 'ハワイが大好きです!', english: 'I love Hawaii!', hint: 'I... love Hawaii', level: 'beginner' },
-        { japanese: '本当に素敵!', english: 'Really nice!', hint: 'Really... nice', level: 'beginner' },
-        { japanese: 'どこから来ましたか?', english: 'Where from?', hint: 'Where... from', level: 'beginner' },
         { japanese: 'ビーチに行くんですか?', english: 'Going to the beach?', hint: 'Going... to the beach', level: 'beginner' },
         { japanese: 'はい!今日はいい天気ですね!', english: 'Yes! Good weather today!', hint: 'Yes... Good weather today', level: 'beginner' },
         { japanese: 'ビーチには完璧な日ですね!どのビーチですか?', english: 'Perfect beach day! Which beach?', hint: 'Perfect... Which beach', level: 'beginner' },
@@ -2779,6 +2607,7 @@ function updateStats() {
 
 // ============================================
 // ★★★ 修正箇所: toggleHint関数のロジックを変更 (開始) ★★★
+// アポストロフィを保持するように修正
 // ============================================
 function toggleHint() {
     const hintBox = document.getElementById('hintBox');
@@ -2795,14 +2624,13 @@ function toggleHint() {
         // 1. ヒントに「...」が含まれている場合（開始単語とキーフレーズ）
         if (hintText.includes('...')) {
             const parts = hintText.split('...');
-            // バックスラッシュエスケープを削除して表示（I\'d -> I'd）
-            // ユーザーフィードバックに基づき、キーフレーズが「伝わりすぎ」なため、
-            // 2つ目のパーツ（キーフレーズ）はよりヒントになるよう、最初の数単語に制限する
-            const startWord = parts[0].trim().replace(/['\\]/g, ''); 
             
-            let keyPhrase = parts[1].trim();
-            // キーフレーズをスペースで区切り、最初の3単語だけ表示する（絞り込みの代替案）
-            // 例: 'tell me when we get to Ala Moana Center' -> 'tell me when'
+            // 修正: バックスラッシュエスケープ（\）だけを削除し、アポストロフィ（'）は保持
+            const startWord = parts[0].trim().replace(/\\/g, ''); 
+            
+            let keyPhrase = parts[1].trim().replace(/\\/g, ''); 
+
+            // キーフレーズをスペースで区切り、最初の3単語だけ表示する
             const keyPhraseWords = keyPhrase.split(/\s+/).slice(0, 3);
             const truncatedKeyPhrase = keyPhraseWords.join(' ');
 
@@ -2830,7 +2658,7 @@ function toggleHint() {
             displayHint = 'ヒントがありません。文脈から想像してみましょう。';
         }
         
-        // プレフィックス「🔑 キーワードヒント: 」を削除し、内容のみを表示
+        // ヒントの内容を表示
         hintBox.innerHTML = displayHint;
         hintBox.classList.remove('hidden');
         hintBtn.textContent = '🙈 ヒントを隠す';
@@ -3016,7 +2844,7 @@ function isAnswerCorrect(userAnswer, correctAnswer) {
         // Do you have → Can I have の統一
         normalized = normalized.replace(/\bdo you have\b/g, 'can i have');
         normalized = normalized.replace(/\bdoes this have\b/g, 'can i have');
-        normalized = normalized.replace(/\bis there\b/g, 'can i have');
+        normalized = normalized.replaced(/\bis there\b/g, 'can i have');
         normalized = normalized.replace(/\bare there\b/g, 'can i have');
         
         // want/need/would like の統一
