@@ -746,7 +746,6 @@
             padding: 8px 12px;
             border-radius: 5px;
             margin: 8px 0;
-            color: #6a1b9a;
             font-style: italic;
             font-size: 0.85em;
         }
@@ -1270,7 +1269,6 @@
                 <div class="stat-item">
                     <div class="stat-value" id="incorrect">0</div>
                     <div class="stat-label">不正解</div>
-                
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="accuracy">0%</div>
@@ -1306,7 +1304,7 @@
                 <button class="btn btn-secondary" onclick="showMenu()">🏠 メニューへ</button>
                 <button class="btn btn-primary" onclick="retryQuiz()">🔄 もう一度</button>
             </div>
-        </div>
+            </div>
         
         <div class="practice-screen screen" id="practiceScreen">
             <div class="quiz-header">
@@ -1957,7 +1955,6 @@ const phrasesDatabase = {
         { japanese: 'エアコンが動いていないようです - 故障報告', english: 'The air conditioning doesn\'t seem to be working.', flexibleAnswers: ["The air conditioning does not seem to be working."], hint: 'The... air conditioning doesn\'t seem to be working', level: 'advanced' },
         { japanese: '部屋から締め出されました - インロック', english: 'I\'m locked out of my room.', flexibleAnswers: ["I am locked out of my room."], hint: 'I\'m... locked out of my room', level: 'advanced' },
         { japanese: 'タオルを追加でもらえますか? - アメニティ補充', english: 'Could we get some extra towels?', hint: 'Could... get some extra towels', level: 'advanced' },
-        { japanese: '借りられる炊飯器はありますか? - 炊飯器貸出', english: 'Do you have a rice cooker we could borrow?', hint: 'Do... a rice cooker we could borrow', level: 'advanced' },
         { japanese: '清掃は後で来てもらえますか? - 清掃時間変更', english: 'Could you come back later for cleaning?', hint: 'Could... come back later for cleaning', level: 'advanced' },
         { japanese: 'ビーチタオルを借りられますか? - ビーチタオル', english: 'Could we get some beach towels?', hint: 'Could... get some beach towels', level: 'advanced' },
         { japanese: 'チェックアウトしたいです - チェックアウト', english: 'We\'d like to check out.', flexibleAnswers: ["We would like to check out."], hint: 'We\'d... like to check out', level: 'advanced' },
@@ -2262,7 +2259,7 @@ const phrasesDatabase = {
         { japanese: '日本です。東京', english: 'Japan. Tokyo.', hint: 'Japan... Tokyo', level: 'beginner' },
         { japanese: 'いいですね!ハワイは初めてですか?', english: 'Nice! First time in Hawaii?', hint: 'Nice... First time in Hawaii', level: 'beginner' },
         { japanese: 'はい!ここが大好きです!', english: 'Yes! I love it here!', hint: 'Yes... I love it here', level: 'beginner' },
-        { japanese: 'はい、とてもいいですよ!でも混んでます', english: 'Yes, very nice! But crowded.', hint: 'Yes... very nice! But crowded', level: 'beginner' },
+        { japanese: 'はい!とてもいいですよ!でも混んでます', english: 'Yes, very nice! But crowded.', hint: 'Yes... very nice! But crowded', level: 'beginner' },
         { japanese: 'ありがとう!どのくらい遠いですか?', english: 'Thank you! How far?', hint: 'Thank... How far', level: 'beginner' },
         { japanese: 'とても暑い!でもいいですね!', english: 'Very hot! But nice!', hint: 'Very... hot! But nice', level: 'beginner' },
         { japanese: 'はい!とてもいいです!', english: 'Yes! So nice!', hint: 'Yes... So nice', level: 'beginner' },
@@ -2395,6 +2392,7 @@ const phrasesDatabase = {
         { japanese: 'そう、ここの雨は短いです!', english: 'Yeah, rain is quick here!', hint: 'Yeah... rain is quick here', level: 'beginner' },
     ],
 };
+
 
 // ============================================
 // メニュー・設定関数
@@ -2606,9 +2604,20 @@ function updateStats() {
 }
 
 // ============================================
-// ★★★ 修正箇所: toggleHint関数のロジックを変更 (開始) ★★★
-// アポストロフィを保持するように修正
+// ★★★ 修正箇所: toggleHint関数のロジックを変更 (開始) --- 修正版 ★★★
 // ============================================
+// 省略形とフルワードのマッピング
+const HINT_EXPANSIONS = {
+    "It's": "It is", "Its": "It is", // Its (所有格)もIt is (短縮形)と誤認する可能性を考慮して展開
+    "Here's": "Here is", "Heres": "Here is", // Heres (タイポ)もHere is (短縮形)と誤認する可能性を考慮して展開
+    "I'm": "I am", "Im": "I am", // Im (タイポ)もI am (短縮形)と誤認する可能性を考慮して展開
+    "I'd": "I would", "I'll": "I will",
+    "We're": "We are", "We'd": "We would", "We'll": "We will",
+    "That's": "That is", "That'll": "That will",
+    "Where's": "Where is", "What's": "What is",
+    // 他の省略形があればここに追加
+};
+
 function toggleHint() {
     const hintBox = document.getElementById('hintBox');
     const hintBtn = document.getElementById('hintBtn');
@@ -2624,29 +2633,39 @@ function toggleHint() {
         // 1. ヒントに「...」が含まれている場合（開始単語とキーフレーズ）
         if (hintText.includes('...')) {
             const parts = hintText.split('...');
-            
-            // 修正: バックスラッシュエスケープ（\）だけを削除し、アポストロフィ（'）は保持
-            const startWord = parts[0].trim().replace(/\\/g, ''); 
-            
-            let keyPhrase = parts[1].trim().replace(/\\/g, ''); 
+            let startWord = parts[0].trim().replace(/['\\]/g, ''); // バックスラッシュエスケープを削除
 
-            // キーフレーズをスペースで区切り、最初の3単語だけ表示する
+            // ★★★ 修正箇所: ここで省略形を展開 ★★★
+            const originalStartWord = startWord;
+            if (HINT_EXPANSIONS[originalStartWord]) {
+                startWord = HINT_EXPANSIONS[originalStartWord];
+            } else if (HINT_EXPANSIONS[originalStartWord.replace(/'/, '')]) {
+                // ' がないタイポもチェック
+                startWord = HINT_EXPANSIONS[originalStartWord.replace(/'/, '')];
+            }
+            // ★★★ -------------------------- ★★★
+            
+            let keyPhrase = parts[1].trim();
+            // キーフレーズの頭出し（3単語まで）
             const keyPhraseWords = keyPhrase.split(/\s+/).slice(0, 3);
             const truncatedKeyPhrase = keyPhraseWords.join(' ');
-
-
+            
+            // 展開後の最初の単語が複数語になる場合がある (例: I am)
+            // const firstWords = startWord.split(/\s+/);
+            // const displayStartWord = firstWords.length > 1 ? `**${firstWords.join(' ')}**` : `**${firstWords[0]}**`;
+            
             if (keyPhrase) {
                 // キーフレーズがある場合
-                displayHint = `最初の単語は **${startWord}** 、キーフレーズは **${truncatedKeyPhrase}...** です。`;
+                displayHint = `最初のフレーズは **${startWord}** から始まります。続くキーフレーズは **${truncatedKeyPhrase}...** です。`;
                 
-                // 元のヒントが短すぎる場合は...を付けない
+                // 元のキーフレーズが短い場合は...を付けない
                 if (keyPhraseWords.length < 3 && keyPhraseWords.join(' ') === keyPhrase) {
-                     displayHint = `最初の単語は **${startWord}** 、キーフレーズは **${truncatedKeyPhrase}** です。`;
+                     displayHint = `最初のフレーズは **${startWord}** から始まります。続くキーフレーズは **${truncatedKeyPhrase}** です。`;
                 }
 
             } else {
                 // キーフレーズがない場合（最初の単語のみ）
-                displayHint = `最初の単語は **${startWord}** です。`;
+                displayHint = `最初のフレーズは **${startWord}** から始まります。`;
             }
         
         // 2. その他のヒントがある場合（簡潔なキーワード）
@@ -2658,7 +2677,7 @@ function toggleHint() {
             displayHint = 'ヒントがありません。文脈から想像してみましょう。';
         }
         
-        // ヒントの内容を表示
+        // プレフィックス「🔑 キーワードヒント: 」を削除し、内容のみを表示
         hintBox.innerHTML = displayHint;
         hintBox.classList.remove('hidden');
         hintBtn.textContent = '🙈 ヒントを隠す';
@@ -2670,7 +2689,7 @@ function toggleHint() {
     }
 }
 // ============================================
-// ★★★ 修正箇所: toggleHint関数のロジックを変更 (終了) ★★★
+// ★★★ 修正箇所: toggleHint関数のロジックを変更 (終了) --- 修正版 ★★★
 // ============================================
 
 function speakAnswer() {
@@ -2844,7 +2863,7 @@ function isAnswerCorrect(userAnswer, correctAnswer) {
         // Do you have → Can I have の統一
         normalized = normalized.replace(/\bdo you have\b/g, 'can i have');
         normalized = normalized.replace(/\bdoes this have\b/g, 'can i have');
-        normalized = normalized.replaced(/\bis there\b/g, 'can i have');
+        normalized = normalized.replace(/\bis there\b/g, 'can i have');
         normalized = normalized.replace(/\bare there\b/g, 'can i have');
         
         // want/need/would like の統一
@@ -3398,7 +3417,7 @@ function addLoadingMessage() {
     messageDiv.id = 'loadingMessage';
     messageDiv.textContent = 'AIが応答を生成中...';
     chatContainer.appendChild(messageDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    container.scrollTop = container.scrollHeight;
     return messageDiv.id;
 }
 
