@@ -2605,18 +2605,7 @@ function updateStats() {
 
 // ============================================
 // ★★★ 修正箇所: toggleHint関数のロジックを変更 (開始) --- 修正版 ★★★
-// ============================================
-// 省略形とフルワードのマッピング
-const HINT_EXPANSIONS = {
-    "It's": "It is", "Its": "It is", // Its (所有格)もIt is (短縮形)と誤認する可能性を考慮して展開
-    "Here's": "Here is", "Heres": "Here is", // Heres (タイポ)もHere is (短縮形)と誤認する可能性を考慮して展開
-    "I'm": "I am", "Im": "I am", // Im (タイポ)もI am (短縮形)と誤認する可能性を考慮して展開
-    "I'd": "I would", "I'll": "I will",
-    "We're": "We are", "We'd": "We would", "We'll": "We will",
-    "That's": "That is", "That'll": "That will",
-    "Where's": "Where is", "What's": "What is",
-    // 他の省略形があればここに追加
-};
+// 短縮形/元の形式での表示に戻すためにロジックを簡素化
 
 function toggleHint() {
     const hintBox = document.getElementById('hintBox');
@@ -2633,26 +2622,14 @@ function toggleHint() {
         // 1. ヒントに「...」が含まれている場合（開始単語とキーフレーズ）
         if (hintText.includes('...')) {
             const parts = hintText.split('...');
-            let startWord = parts[0].trim().replace(/['\\]/g, ''); // バックスラッシュエスケープを削除
-
-            // ★★★ 修正箇所: ここで省略形を展開 ★★★
-            const originalStartWord = startWord;
-            if (HINT_EXPANSIONS[originalStartWord]) {
-                startWord = HINT_EXPANSIONS[originalStartWord];
-            } else if (HINT_EXPANSIONS[originalStartWord.replace(/'/, '')]) {
-                // ' がないタイポもチェック
-                startWord = HINT_EXPANSIONS[originalStartWord.replace(/'/, '')];
-            }
-            // ★★★ -------------------------- ★★★
+            
+            // **元の短縮形をそのまま表示**
+            let startWord = parts[0].trim();
             
             let keyPhrase = parts[1].trim();
             // キーフレーズの頭出し（3単語まで）
             const keyPhraseWords = keyPhrase.split(/\s+/).slice(0, 3);
             const truncatedKeyPhrase = keyPhraseWords.join(' ');
-            
-            // 展開後の最初の単語が複数語になる場合がある (例: I am)
-            // const firstWords = startWord.split(/\s+/);
-            // const displayStartWord = firstWords.length > 1 ? `**${firstWords.join(' ')}**` : `**${firstWords[0]}**`;
             
             if (keyPhrase) {
                 // キーフレーズがある場合
@@ -2677,7 +2654,7 @@ function toggleHint() {
             displayHint = 'ヒントがありません。文脈から想像してみましょう。';
         }
         
-        // プレフィックス「🔑 キーワードヒント: 」を削除し、内容のみを表示
+        // 表示
         hintBox.innerHTML = displayHint;
         hintBox.classList.remove('hidden');
         hintBtn.textContent = '🙈 ヒントを隠す';
