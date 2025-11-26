@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V11</title>
+    <title>CrossTalk V12</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -93,7 +93,7 @@
         .custom-option:hover { background: #444; }
         .custom-select.open .custom-options { display: block; }
 
-        /* シーン選択 (右寄せ) */
+        /* シーン選択 */
         #scenario-select {
             background: #333; color: white; border: 1px solid #555;
             font-weight: bold; margin-left: auto;
@@ -106,7 +106,7 @@
 
         /* 自動読み上げボタン */
         #autoplay-btn {
-            width: 80px; font-weight: bold;
+            width: 80px; font-weight: bold; color: var(--sub-text); border-color: var(--sub-text);
         }
         #autoplay-btn.active {
             background-color: #f1c40f; color: black; border-color: #f1c40f;
@@ -139,7 +139,7 @@
         .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
         .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
 
-        /* 再生ボタン (吹き出しの横) */
+        /* 再生ボタン */
         .replay-btn {
             background: var(--bubble-bg); border: 1px solid var(--border-color);
             border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0;
@@ -198,7 +198,7 @@
         }
         .partner-area .live-monitor { color: var(--bubble-partner); }
 
-        /* ユーティリティ (半透明) */
+        /* ユーティリティ */
         .utility-btns {
             position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
             display: flex; flex-direction: column; gap: 15px; z-index: 100;
@@ -310,8 +310,8 @@
                 <option value="vi-VN">Vietnamese</option>
             </select>
             
-            <button id="autoplay-btn" class="icon-btn active" onclick="toggleAutoPlay()">
-                🔊 Auto
+            <button id="autoplay-btn" class="icon-btn" onclick="toggleAutoPlay()">
+                🔇 Off
             </button>
 
             <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">
@@ -345,7 +345,7 @@
     const MODEL_ID = "gemini-2.5-flash"; 
     
     let isConsultMode = false; 
-    let isAutoPlay = true; // 自動読み上げフラグ
+    let isAutoPlay = false; // デフォルトOFF
     let chatLog = [];
     
     const LANG_MAP = {
@@ -384,6 +384,15 @@
         } else {
             btn.classList.remove('active');
             btn.innerText = "🔇 Off";
+        }
+    }
+
+    // 音声エンジンのウォームアップ (iOS対策)
+    function unlockAudio() {
+        if ('speechSynthesis' in window) {
+            const u = new SpeechSynthesisUtterance("");
+            u.volume = 0; // 無音
+            window.speechSynthesis.speak(u);
         }
     }
 
@@ -502,19 +511,17 @@
         
         bubble.innerHTML = html;
         
-        // 再生ボタン
+        // 再生ボタン配置
         let showReplay = false;
         let textToSpeak = "";
         let langToSpeak = "";
 
         if (!isForPartnerScreen) {
             if (speakerType === 'self') {
-                // 自分の翻訳後（相手の言語）を再生
                 showReplay = true;
                 textToSpeak = result.translation;
                 langToSpeak = document.getElementById('partner-lang').value;
             } else if (speakerType === 'partner' || isAI) {
-                // 相手の言葉（原文）or AIの言葉（回答）を再生
                 showReplay = true;
                 textToSpeak = isAI ? result.translation : result.original; 
                 langToSpeak = isAI ? 'ja-JP' : document.getElementById('partner-lang').value;
@@ -522,12 +529,12 @@
         }
 
         if (showReplay && textToSpeak) {
-             const safeText = textToSpeak.replace(/'/g, "\\'");
+             const safeText = textToSpeak.replace(/'/g, "\\'").replace(/"/g, '\\"');
              const btn = document.createElement('button');
              btn.className = 'replay-btn';
              btn.innerHTML = '🔊';
              btn.onclick = function() { speakText(safeText, langToSpeak); };
-             // 自分画面の自分発言(右寄せ)は左にボタン、それ以外は右にボタン
+             
              if (speakerType === 'self' && !isForPartnerScreen) {
                  row.appendChild(btn);
                  row.appendChild(bubble);
@@ -702,6 +709,9 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
+            // 重要: マイクを押した瞬間に無音再生してオーディオエンジンを起こす
+            unlockAudio();
+
             if (isConsultMode && !isSelf) return;
 
             if (!audioContext) await initAudio();
@@ -779,10 +789,9 @@
                     result.original = newFinal;
                     if (isConsultMode && isSelf) {
                         addLogToUI(result, 'partner'); 
-                        // AIモードは自動再生しない（手動のみ）
                     } else {
                         addLogToUI(result, isSelf ? 'self' : 'partner');
-                        // 自動読み上げモードがONなら再生
+                        // 自動読み上げONなら再生
                         if (isAutoPlay) {
                             speakText(result.translation, tCode);
                         }
