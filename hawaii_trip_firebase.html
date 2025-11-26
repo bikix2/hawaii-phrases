@@ -42,6 +42,11 @@
         .attached-image { height: 100px; width: auto; border-radius: 5px; cursor: pointer; border: 2px solid #ddd; object-fit: cover; }
         .attached-image:hover { border-color: #FF6B6B; }
 
+        /* ノート用ギャラリー（削除ボタン付き） */
+        .gallery-item { position: relative; display: inline-block; margin-right: 10px; margin-bottom: 10px; }
+        .gallery-item img { height: 100px; width: auto; border-radius: 5px; border: 2px solid #ddd; object-fit: cover; }
+        .delete-img-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 20px; font-size: 12px; cursor: pointer; border: 1px solid white; box-shadow: 0 2px 2px rgba(0,0,0,0.3); }
+
         /* ボタン類 */
         .link-btn { display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; }
         .link-btn.ref { background: #9C27B0; }
@@ -55,10 +60,24 @@
 
         .add-button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 16px; }
 
-        /* ノートタブ用スタイル */
-        .note-container { background: #E3F2FD; padding: 15px; border-radius: 8px; min-height: 300px; }
-        .note-textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #90CAF9; border-radius: 5px; font-size: 14px; margin-bottom: 10px; }
-        .note-save-btn { background: #0277BD; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        /* 付箋（Sticky Note）スタイル */
+        .note-controls { display: flex; gap: 5px; margin-bottom: 15px; align-items: center; background: #eee; padding: 10px; border-radius: 8px; }
+        .color-picker { display: flex; gap: 5px; }
+        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .color-dot.selected { border-color: #555; transform: scale(1.1); }
+        
+        .sticky-notes-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 10px 0; }
+        .sticky-note { position: relative; padding: 15px; padding-top: 25px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; min-height: 150px; display: flex; flex-direction: column; }
+        .sticky-note:hover { transform: translateY(-2px); box-shadow: 3px 3px 8px rgba(0,0,0,0.2); }
+        .note-delete-btn { position: absolute; top: 5px; right: 5px; background: transparent; border: none; color: rgba(0,0,0,0.4); font-size: 16px; cursor: pointer; }
+        .note-delete-btn:hover { color: #d32f2f; }
+        .note-content { width: 100%; flex-grow: 1; background: transparent; border: none; resize: none; font-size: 14px; outline: none; line-height: 1.5; font-family: inherit; }
+
+        /* ノートの色定義 */
+        .note-yellow { background-color: #fff740; }
+        .note-pink   { background-color: #ffccbc; }
+        .note-blue   { background-color: #b3e5fc; }
+        .note-green  { background-color: #c8e6c9; }
 
         /* 編集フォーム */
         .edit-form { background: #f0f8ff; border: 2px solid #4A90E2; padding: 20px; margin-top: 15px; border-radius: 8px; }
@@ -108,14 +127,26 @@
         <div id="day8" class="tab-content"></div>
         
         <div id="day99" class="tab-content">
-            <h2 class="day-title">📝 共有ノート & フォトギャラリー</h2>
+            <h2 class="day-title">📝 共有付箋ノート & フォト</h2>
+            
             <div class="note-container">
-                <p style="margin-bottom:5px; font-size:12px; color:#666;">旅のメモ、持ち物リスト、感想などを自由に書いてください</p>
-                <textarea id="shared-note" class="note-textarea" placeholder="ここに自由に書き込んでください..."></textarea>
-                <button onclick="saveNote()" class="note-save-btn">💾 ノートを保存</button>
+                <div class="note-controls">
+                    <span style="font-size:12px; font-weight:bold;">色を選択:</span>
+                    <div class="color-picker">
+                        <div class="color-dot note-yellow selected" onclick="selectNoteColor('yellow', this)"></div>
+                        <div class="color-dot note-pink" onclick="selectNoteColor('pink', this)"></div>
+                        <div class="color-dot note-blue" onclick="selectNoteColor('blue', this)"></div>
+                        <div class="color-dot note-green" onclick="selectNoteColor('green', this)"></div>
+                    </div>
+                    <button onclick="addStickyNote()" style="margin-left:auto; padding:5px 15px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">＋ 付箋を追加</button>
+                </div>
+                
+                <p style="font-size:11px; color:#666; margin-bottom:5px;">※文字を入力して外側をタップすると自動保存されます</p>
+                <div id="sticky-notes-area" class="sticky-notes-container">
+                    </div>
                 
                 <hr style="margin: 20px 0;">
-                <h3>📸 共有アルバム (簡易版)</h3>
+                <h3>📸 共有アルバム</h3>
                 <p style="font-size:12px; color:#666;">画像をアップロードして共有できます</p>
                 <div style="margin: 10px 0;">
                     <input type="file" id="note-image-upload" accept="image/*">
@@ -129,7 +160,7 @@
     
     <script>
         // ==========================================================
-        // 1. Firebase設定 【重要】ご自身のキーに書き換えてください
+        // 1. Firebase設定
         // ==========================================================
         const firebaseConfig = {
              apiKey: "AIzaSyCiqsqaImSG8DeBD_KAc9OUKd6ZY_QKV8I",
@@ -148,6 +179,8 @@
 
         let currentDay = 0; 
         let scheduleData = {}; 
+        let noteData = { notes: [] }; // 付箋データの保持用
+        let selectedColor = 'yellow'; // デフォルト付箋色
 
         function toggleLoader(show) {
             document.getElementById('global-loader').style.display = show ? 'flex' : 'none';
@@ -160,34 +193,50 @@
             // スケジュール同期
             db.collection('trip-schedule').onSnapshot(snapshot => {
                 snapshot.forEach(doc => {
-                    scheduleData[doc.id] = doc.data();
+                    if (doc.id !== 'note-data') {
+                        scheduleData[doc.id] = doc.data();
+                    }
                 });
                 if (currentDay !== 99) {
                     renderSchedule(currentDay);
                 }
             });
 
-            // ノート同期
+            // ノート同期（構造変更に対応）
             db.collection('trip-schedule').doc('note-data').onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
-                    if (document.activeElement.id !== 'shared-note') {
-                        document.getElementById('shared-note').value = data.content || '';
+                    
+                    // 旧データ(content文字列)がある場合、付箋に移行する処理（初回のみ）
+                    if (data.content && (!data.notes || data.notes.length === 0)) {
+                        const migratedNote = {
+                            id: Date.now(),
+                            text: data.content,
+                            color: 'yellow'
+                        };
+                        // DB更新
+                        db.collection('trip-schedule').doc('note-data').update({
+                            notes: [migratedNote],
+                            content: firebase.firestore.FieldValue.delete() // 古いフィールド削除
+                        });
+                        return; // 更新後に再通知が来るのでここで終了
                     }
+
+                    noteData.notes = data.notes || [];
+                    renderStickyNotes();
                     renderNoteImages(data.images || []);
                 }
             });
         }
 
         // ==========================================================
-        // 3. スケジュール描画（時間順自動ソート機能付き）
+        // 3. スケジュール描画
         // ==========================================================
         function renderSchedule(dayNum) {
             const dayKey = `day${dayNum}`;
             const contentDiv = document.getElementById(dayKey);
             const dayData = scheduleData[dayKey] || {};
             
-            // ▼ 時間で並び替え (例: "09:00" < "13:00")
             let events = dayData.events || [];
             events.sort((a, b) => {
                 const timeA = (a.time || '').toString();
@@ -202,7 +251,6 @@
             }
 
             events.forEach((item, index) => {
-                // リンクボタン生成
                 let mapButtonsHtml = '';
                 if (item.refUrl1 || item.refUrl2 || item.refUrl3 || item.mapUrl_place || item.mapUrl_bus_board || item.mapUrl_bus_drop) {
                      mapButtonsHtml = '<div style="margin-top:8px;">';
@@ -215,7 +263,6 @@
                      mapButtonsHtml += '</div>';
                 }
 
-                // 画像表示
                 let imagesHtml = '';
                 if (item.imgUrl1 || item.imgUrl2) {
                     imagesHtml = '<div class="image-gallery">';
@@ -248,18 +295,82 @@
         }
 
         // ==========================================================
-        // 4. ノート機能
+        // 4. 付箋ノート機能 (Sticky Notes)
         // ==========================================================
-        function saveNote() {
-            const content = document.getElementById('shared-note').value;
-            toggleLoader(true);
-            db.collection('trip-schedule').doc('note-data').set({
-                content: content
-            }, { merge: true }) 
-            .then(() => { toggleLoader(false); alert("ノートを保存しました"); })
-            .catch(err => { toggleLoader(false); alert("エラー: " + err); });
+        function selectNoteColor(color, el) {
+            selectedColor = color;
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
         }
 
+        function renderStickyNotes() {
+            const container = document.getElementById('sticky-notes-area');
+            if (noteData.notes.length === 0) {
+                container.innerHTML = '<p style="color:#aaa; width:100%;">付箋を追加してください...</p>';
+                return;
+            }
+
+            let html = '';
+            // 新しい順に表示したい場合は reverse() などを入れる
+            const sortedNotes = [...noteData.notes].sort((a,b) => b.id - a.id);
+
+            sortedNotes.forEach(note => {
+                html += `
+                    <div class="sticky-note note-${note.color}">
+                        <button class="note-delete-btn" onclick="deleteStickyNote(${note.id})">×</button>
+                        <textarea 
+                            class="note-content" 
+                            onblur="updateStickyNote(${note.id}, this.value)"
+                            placeholder="メモを入力...">${note.text || ''}</textarea>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function addStickyNote() {
+            const newNote = {
+                id: Date.now(), // 一意のIDとしてタイムスタンプ使用
+                text: "",
+                color: selectedColor
+            };
+            
+            // 配列に追加して更新
+            const newNotes = [...noteData.notes, newNote];
+            
+            db.collection('trip-schedule').doc('note-data').set({
+                notes: newNotes
+            }, { merge: true })
+            .catch(err => alert("追加エラー: " + err));
+        }
+
+        function updateStickyNote(id, text) {
+            // ローカルのデータと比較して変更がなければ何もしない
+            const target = noteData.notes.find(n => n.id === id);
+            if(target && target.text === text) return;
+
+            const updatedNotes = noteData.notes.map(n => {
+                if (n.id === id) return { ...n, text: text };
+                return n;
+            });
+
+            db.collection('trip-schedule').doc('note-data').update({
+                notes: updatedNotes
+            }).catch(err => console.error("保存エラー", err));
+        }
+
+        function deleteStickyNote(id) {
+            if(!confirm("この付箋を削除しますか？")) return;
+            
+            const filteredNotes = noteData.notes.filter(n => n.id !== id);
+            db.collection('trip-schedule').doc('note-data').update({
+                notes: filteredNotes
+            }).catch(err => alert("削除エラー: " + err));
+        }
+
+        // ==========================================================
+        // 5. 共有アルバム機能（アップロード・削除）
+        // ==========================================================
         async function uploadNoteImage() {
             const fileInput = document.getElementById('note-image-upload');
             if (fileInput.files.length === 0) return alert("ファイルを選択してください");
@@ -278,7 +389,7 @@
                 toggleLoader(false);
             } catch (error) {
                 if (error.code === 'not-found' || error.message.includes('No document')) {
-                     await db.collection('trip-schedule').doc('note-data').set({ images: [url] }, { merge: true });
+                     await db.collection('trip-schedule').doc('note-data').set({ images: [url], notes: [] }, { merge: true });
                      toggleLoader(false);
                 } else {
                     alert("アップロード失敗: " + error.message);
@@ -292,13 +403,44 @@
             if (!images || images.length === 0) { container.innerHTML = ''; return; }
             let html = '';
             images.forEach(url => {
-                html += `<a href="${url}" target="_blank"><img src="${url}" class="attached-image"></a>`;
+                html += `
+                <div class="gallery-item">
+                    <a href="${url}" target="_blank"><img src="${url}"></a>
+                    <div class="delete-img-btn" onclick="deleteUploadedImage('${url}')">×</div>
+                </div>`;
             });
             container.innerHTML = html;
         }
 
+        async function deleteUploadedImage(url) {
+            if(!confirm("この画像を削除しますか？\n（元に戻せません）")) return;
+
+            toggleLoader(true);
+            try {
+                // 1. Firestore配列から削除
+                await db.collection('trip-schedule').doc('note-data').update({
+                    images: firebase.firestore.FieldValue.arrayRemove(url)
+                });
+
+                // 2. Storageから実ファイルを削除
+                // URLから参照を作成して削除
+                const fileRef = firebase.storage().refFromURL(url);
+                await fileRef.delete();
+
+                toggleLoader(false);
+                alert("削除しました");
+
+            } catch (error) {
+                console.error(error);
+                // Firestoreからは消えたがStorageでエラー、あるいはその逆の可能性も考慮
+                // ここでは簡易的にFirestore更新が済んでいればOKとするケースが多いが、念のためアラート
+                alert("削除処理中にエラーが発生しました（既に削除されている可能性があります）: " + error.message);
+                toggleLoader(false);
+            }
+        }
+
         // ==========================================================
-        // 5. 編集フォームと保存
+        // 6. 編集フォームと保存（スケジュール用）
         // ==========================================================
         function showForm(dayNum, itemIndex) {
             const dayKey = `day${dayNum}`;
