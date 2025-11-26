@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V14</title>
+    <title>CrossTalk V16</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -232,7 +232,6 @@
             border-radius: 8px; border: 1px solid #555; background: #111; color: white;
         }
 
-        /* エラーバー */
         #error-bar {
             display: none; position: fixed; top: 0; left: 0; width: 100%;
             background: #ff4757; color: white; text-align: center;
@@ -368,17 +367,6 @@
         'ar-SA': 'اضغط للتحدث', 'vi-VN': 'Nhấn giữ để nói'
     };
 
-    // 重要：画面のどこかをタップした時に音声を「事前許可」させる処理
-    let audioUnlocked = false;
-    document.addEventListener('touchstart', function() {
-        if (!audioUnlocked) {
-            const u = new SpeechSynthesisUtterance("");
-            u.volume = 0;
-            window.speechSynthesis.speak(u);
-            audioUnlocked = true;
-        }
-    }, { once: true });
-
     window.onload = function() {
         loadSettings();
         checkApiKey();
@@ -398,10 +386,24 @@
         setTimeout(() => { bar.style.display = 'none'; }, 5000);
     }
 
+    // iOS対策: マイクとは切り離し、ボタンクリックで音声をアンロックする
+    function unlockAudio() {
+        if ('speechSynthesis' in window) {
+            const u = new SpeechSynthesisUtterance(" "); 
+            u.volume = 0;
+            window.speechSynthesis.speak(u);
+        }
+    }
+
+    // Autoボタンを押したときにアンロックを実行する
     function toggleAutoPlay() {
         isAutoPlay = !isAutoPlay;
         updateAutoPlayUI();
+        if(isAutoPlay) {
+            unlockAudio(); // ここでアンロック！
+        }
     }
+    
     function updateAutoPlayUI() {
         const btn = document.getElementById('autoplay-btn');
         if (isAutoPlay) {
@@ -576,6 +578,8 @@
         if (storedKey) {
             API_KEY = storedKey;
             document.getElementById('key-modal').style.display = 'none';
+            // 起動時に一回アンロックを試みる（Setup画面のStartボタン用）
+            unlockAudio();
         } else { document.getElementById('key-modal').style.display = 'flex'; }
     }
     function saveApiKey() {
@@ -584,6 +588,7 @@
             localStorage.setItem('crosstalk_api_key', input);
             API_KEY = input;
             document.getElementById('key-modal').style.display = 'none';
+            unlockAudio(); // Startボタンでアンロック
         } else { alert("Valid API Key required"); }
     }
     function resetApp() { if(confirm("アプリを終了（リセット）しますか？")) { location.reload(); } }
@@ -626,10 +631,9 @@
         a.click();
     }
 
-    // 音声関連処理
+    // Audio
     let audioContext, analyser, dataArray, microphone, animationId;
-    
-    // マイクが使えない場合のエラーハンドリングを強化
+    let isAudioInit = false;
     async function initAudio() {
         try {
             if (!audioContext) {
@@ -641,14 +645,14 @@
             microphone = audioContext.createMediaStreamSource(stream);
             microphone.connect(analyser);
             dataArray = new Uint8Array(analyser.frequencyBinCount);
-        } catch (e) {
+            isAudioInit = true;
+        } catch (e) { 
             console.error("Audio Init Failed", e);
-            showError("Microphone Access Denied or Not Supported.");
+            // Visualizerが動かなくてもマイクは動く場合があるのでエラーは出さない
         }
     }
-
     function updateVisualizer(ringId) {
-        if (!analyser) return;
+        if (!isAudioInit) return;
         analyser.getByteFrequencyData(dataArray);
         let sum = 0;
         for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
@@ -730,7 +734,6 @@
         recognition.interimResults = true;
         recognition.continuous = true;
         
-        // エラーハンドリング
         recognition.onerror = (event) => {
             console.error("Speech Error:", event.error);
             if(event.error === 'not-allowed') {
@@ -747,9 +750,9 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
-            // マイク起動時の余計な処理を排除し、シンプルに
+            // マイク起動時は余計なことをしない（重要）
             if (!audioContext) await initAudio();
-            if (audioContext.state === 'suspended') await audioContext.resume();
+            if (audioContext && audioContext.state === 'suspended') await audioContext.resume();
 
             if (isConsultMode && !isSelf) return;
 
