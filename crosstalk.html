@@ -6,107 +6,116 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk AI V4 (Safe)</title>
-    <link rel="manifest" href="manifest.json">
+    <title>CrossTalk V6</title>
+    
+    <link rel="icon" href="icon.jpg">
+    <link rel="apple-touch-icon" href="icon.jpg">
 
     <style>
         :root {
             --bg-color: #000000;
             --bg-partner: #111111;
             --text-color: #ffffff;
-            --sub-text: #888888;
+            --sub-text: #aaaaaa;
+            --bubble-self: #2ed573;
+            --bubble-partner: #ff4757;
             --bubble-bg: #222222;
-            --accent-partner: #ff4757;
-            --accent-self: #2ed573;
-            --advice-color: #f1c40f;
             --border-color: #333;
         }
 
         [data-theme="light"] {
-            --bg-color: #f5f5f7;
-            --bg-partner: #e5e5e7;
-            --text-color: #1d1d1f;
-            --sub-text: #86868b;
+            --bg-color: #f2f2f7;
+            --bg-partner: #e5e5ea;
+            --text-color: #000000;
+            --sub-text: #666666;
+            --bubble-self: #34c759;
+            --bubble-partner: #ff3b30;
             --bubble-bg: #ffffff;
-            --border-color: #d2d2d7;
+            --border-color: #d1d1d6;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg-color); color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
             overflow: hidden; touch-action: manipulation;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .container { display: flex; flex-direction: column; height: 100vh; }
+        .container { 
+            display: flex; flex-direction: column; 
+            height: 100svh; width: 100%;
+        }
 
         .area {
-            flex: 1; display: flex; flex-direction: column; padding: 10px;
-            position: relative; overflow: hidden; transition: background-color 0.3s;
+            flex: 1; display: flex; flex-direction: column; 
+            padding: 10px; position: relative; overflow: hidden; 
         }
 
         .partner-area {
-            background-color: var(--bg-partner); transform: rotate(180deg);
-            border-bottom: 2px solid var(--border-color);
+            background-color: var(--bg-partner); 
+            transform: rotate(180deg);
+            border-bottom: 1px solid var(--border-color);
         }
+
         .self-area { background-color: var(--bg-color); }
 
         /* コントロールバー */
         .controls-bar {
-            display: flex; gap: 8px; justify-content: center; align-items: center;
-            margin-bottom: 5px; z-index: 20; flex-wrap: wrap;
+            display: flex; gap: 8px; align-items: center;
+            margin-bottom: 8px; z-index: 20; min-height: 40px;
+            /* 要素を横並びにする */
+            flex-direction: row;
         }
 
         select, button.icon-btn {
-            padding: 6px 12px; font-size: 0.85rem; background-color: var(--bubble-bg);
+            padding: 8px 12px; font-size: 0.9rem; background-color: var(--bubble-bg);
             color: var(--text-color); border: 1px solid var(--border-color);
-            border-radius: 18px; outline: none; appearance: none;
+            border-radius: 20px; outline: none; appearance: none;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        /* 履歴エリア */
-        .history-container {
-            flex: 1; width: 100%; overflow-y: auto; display: flex;
-            flex-direction: column-reverse; padding-bottom: 120px;
-            mask-image: linear-gradient(to top, black 85%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 85%, transparent 100%);
+        
+        /* シーン選択ボタン (右側に配置) */
+        #scenario-select {
+            background: #333; color: white; border: 1px solid #555;
+            font-weight: bold;
+            margin-left: auto; /* これで右端に押されます */
         }
+
+        /* 履歴表示エリア */
+        .history-container {
+            flex: 1; width: 100%; overflow-y: auto; 
+            display: flex; flex-direction: column;
+            padding-bottom: 110px;
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .history-container::-webkit-scrollbar { display: none; }
+
+        .message-row { display: flex; width: 100%; margin-bottom: 10px; }
+        .row-self { justify-content: flex-end; }
+        .row-partner { justify-content: flex-start; }
 
         .message-bubble {
-            background-color: var(--bubble-bg); border-radius: 16px;
-            padding: 12px 16px; margin: 6px 10px;
-            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-left: 4px solid #555;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            word-wrap: break-word;
+            max-width: 80%; border-radius: 18px; padding: 12px 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word;
         }
+
+        .bubble-self { background-color: var(--bubble-bg); border-right: 4px solid var(--bubble-self); }
+        .bubble-partner { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-partner); }
+
+        .original-text { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; }
+        .translated-text { font-size: 1.4rem; font-weight: bold; line-height: 1.3; }
+        .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
         
-        .partner-area .message-bubble { border-left-color: var(--accent-partner); }
-        .self-area .message-bubble { border-left-color: var(--accent-self); }
-
-        .original-text { font-size: 0.85rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; }
-        .translated-text { font-size: 1.35rem; font-weight: 700; line-height: 1.3; letter-spacing: 0.02em; }
-        .corrected-mark { color: var(--accent-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
-
         .advice-box {
-            margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color);
-            font-size: 0.9rem; color: var(--advice-color); display: flex; align-items: start; gap: 6px;
+            margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color);
+            font-size: 0.85rem; color: var(--advice-color); display: flex; align-items: start; gap: 5px;
         }
-
-        @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-        /* リアルタイム字幕 */
-        .live-monitor {
-            position: absolute; bottom: 100px; left: 20px; right: 20px;
-            text-align: center; font-size: 1.2rem; font-weight: 600;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5); min-height: 1.5em;
-            pointer-events: none; z-index: 15; color: var(--accent-self);
-        }
-        .partner-area .live-monitor { color: var(--accent-partner); }
 
         /* マイクボタン */
         .mic-wrapper {
-            position: absolute; bottom: 20px; left: 0; right: 0;
+            position: absolute; bottom: 30px; left: 0; right: 0;
             display: flex; justify-content: center; align-items: center;
             pointer-events: none; z-index: 30;
         }
@@ -115,13 +124,13 @@
             width: 80px; height: 80px; border-radius: 50%; border: none;
             font-size: 32px; cursor: pointer; pointer-events: auto;
             display: flex; justify-content: center; align-items: center;
-            position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            position: relative; box-shadow: 0 6px 15px rgba(0,0,0,0.3);
             transition: transform 0.1s; background: white;
             -webkit-tap-highlight-color: transparent;
         }
         
-        #btn-partner { background: linear-gradient(135deg, #ff6b81, #ff4757); color: white; }
-        #btn-self { background: linear-gradient(135deg, #7bed9f, #2ed573); color: white; }
+        #btn-partner { background: var(--bubble-partner); color: white; }
+        #btn-self { background: var(--bubble-self); color: white; }
         .mic-btn:active { transform: scale(0.92); }
 
         /* ビジュアライザー */
@@ -130,34 +139,34 @@
             width: 100%; height: 100%; border-radius: 50%;
             border: 4px solid currentColor; opacity: 0.4; pointer-events: none;
         }
-        #btn-partner .visualizer-ring { color: rgba(255, 71, 87, 0.6); }
-        #btn-self .visualizer-ring { color: rgba(46, 213, 115, 0.6); }
+        #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.6); }
+        #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.6); }
 
         .status-text {
-            position: absolute; bottom: 5px; width: 100%; text-align: center;
-            font-size: 0.7rem; color: var(--sub-text);
+            position: absolute; bottom: 10px; width: 100%; text-align: center;
+            font-size: 0.75rem; color: var(--sub-text);
         }
 
-        /* ユーティリティ & シチュエーション */
+        .live-monitor {
+            position: absolute; bottom: 120px; left: 20px; right: 20px;
+            text-align: center; font-size: 1.2rem; font-weight: 600;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5); min-height: 1.5em;
+            pointer-events: none; z-index: 15; color: var(--bubble-self);
+        }
+        .partner-area .live-monitor { color: var(--bubble-partner); }
+
+        /* ユーティリティ */
         .utility-btns {
-            position: fixed; bottom: 20px; right: 20px;
+            position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
             display: flex; flex-direction: column; gap: 10px; z-index: 100;
         }
         .fab {
-            width: 44px; height: 44px; border-radius: 50%; background: #333; color: white;
-            border: 1px solid #555; font-size: 1.2rem; cursor: pointer;
+            width: 44px; height: 44px; border-radius: 50%; background: #222; color: white;
+            border: 1px solid #444; font-size: 1.2rem; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
         }
         
-        #context-overlay {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 20px;
-            z-index: 100; backdrop-filter: blur(5px); display: flex; gap: 10px;
-            border: 1px solid #444; white-space: nowrap;
-        }
-        .context-badge { font-size: 0.8rem; color: #ccc; display: flex; align-items: center; gap: 5px;}
-
-        /* モーダル共通 */
+        /* モーダル */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center;
@@ -166,15 +175,10 @@
         .modal-content {
             background: var(--bubble-bg); color: var(--text-color); padding: 25px;
             border-radius: 20px; max-width: 90%; width: 320px; border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
         }
-        .modal-content h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
-        .help-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 0.9rem; align-items: center; text-align: left;}
-        .help-icon { font-size: 1.5rem; width: 30px; text-align: center;}
-        
         .btn-primary { 
-            width: 100%; padding: 12px; background: var(--accent-self); border: none; 
+            width: 100%; padding: 12px; background: var(--bubble-self); border: none; 
             border-radius: 10px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px;
         }
         .input-key {
@@ -187,63 +191,29 @@
 
 <div id="key-modal" class="modal-overlay" style="display: flex;">
     <div class="modal-content">
-        <h2>Initial Setup</h2>
-        <p style="font-size: 0.9rem; color: #ccc; text-align: left;">
-            Google Gemini APIキーを入力してください。<br>
-            ※キーはブラウザ内にのみ保存されます。
-        </p>
+        <h2>Setup</h2>
+        <p style="font-size: 0.9rem; color: #888;">Gemini APIキーを入力してください。</p>
         <input type="password" id="api-key-input" class="input-key" placeholder="Paste API Key here...">
-        <button class="btn-primary" onclick="saveApiKey()">Start App</button>
+        <button class="btn-primary" onclick="saveApiKey()">Start</button>
         <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">
             <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #666;">Get API Key Here</a>
         </p>
     </div>
 </div>
 
-<div id="help-modal" class="modal-overlay" onclick="toggleHelp()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2>機能説明</h2>
-        <div class="help-item">
-            <span class="help-icon">🔑</span>
-            <div><strong>API Key</strong><br>右下の設定ボタンからキーの変更・削除ができます。</div>
-        </div>
-        <div class="help-item">
-            <span class="help-icon">📍</span>
-            <div><strong>Scene (場面)</strong><br>「旅行」などを選ぶと、AIが空気を読んで翻訳します。</div>
-        </div>
-        <div class="help-item">
-            <span class="help-icon">👨‍🏫</span>
-            <div><strong>Coach (学習)</strong><br>ONにすると、より自然な言い回しをアドバイスします。</div>
-        </div>
-        <button class="btn-primary" onclick="toggleHelp()">Close</button>
-    </div>
-</div>
-
 <div id="reset-modal" class="modal-overlay">
     <div class="modal-content">
-        <h2>Reset Settings</h2>
-        <p>APIキーと設定を削除しますか？</p>
-        <button class="btn-primary" style="background:#ff4757" onclick="resetAll()">Reset & Reload</button>
+        <h2>Reset App</h2>
+        <p>設定と履歴を消去しますか？</p>
+        <button class="btn-primary" style="background:#ff4757" onclick="resetAll()">Reset All</button>
         <button class="btn-primary" style="background:#555; margin-top:10px" onclick="document.getElementById('reset-modal').style.display='none'">Cancel</button>
     </div>
 </div>
 
-<div id="context-overlay">
-    <span class="context-badge">📍 Scene:</span>
-    <select id="scenario-select" onchange="saveSettings()" style="background:transparent; border:none; color:white; padding:0;">
-        <option value="general">Daily (日常)</option>
-        <option value="travel">Travel (旅行)</option>
-        <option value="business">Business (仕事)</option>
-        <option value="medical">Medical (病院)</option>
-        <option value="restaurant">Dining (食事)</option>
-    </select>
-</div>
-
 <div class="utility-btns">
-    <button class="fab" onclick="toggleHelp()" title="ヘルプ">❓</button>
-    <button class="fab" onclick="document.getElementById('reset-modal').style.display='flex'" title="設定リセット">⚙️</button>
+    <button class="fab" onclick="document.getElementById('reset-modal').style.display='flex'" title="設定">⚙️</button>
     <button class="fab" onclick="toggleTheme()" title="テーマ切替">🌓</button>
-    <button class="fab" onclick="downloadLog()" title="ログ保存">💾</button>
+    <button class="fab" onclick="downloadLog()" title="保存">💾</button>
 </div>
 
 <div class="container">
@@ -258,12 +228,12 @@
                 <option value="fr-FR">French (フランス語)</option>
                 <option value="es-ES">Spanish (スペイン語)</option>
                 <option value="ar-SA">Arabic (アラビア語)</option>
+                <option value="vi-VN">Vietnamese (ベトナム語)</option>
             </select>
         </div>
         
         <div class="history-container" id="partner-history"></div>
         <div id="partner-live" class="live-monitor"></div>
-
         <div class="mic-wrapper">
             <button id="btn-partner" class="mic-btn">
                 <div class="visualizer-ring" id="ring-partner"></div>
@@ -284,53 +254,141 @@
                 <option value="fr-FR">French (フランス語)</option>
                 <option value="es-ES">Spanish (スペイン語)</option>
                 <option value="ar-SA">Arabic (アラビア語)</option>
+                <option value="vi-VN">Vietnamese (ベトナム語)</option>
             </select>
             
-            <select id="tone-select" onchange="saveSettings()">
-                <option value="normal">Standard</option>
-                <option value="polite">Polite (丁寧)</option>
-                <option value="casual">Casual (フランク)</option>
-            </select>
-
             <button id="coach-toggle" class="icon-btn" onclick="toggleCoachMode()" style="opacity: 0.5;">
                 👨‍🏫 OFF
             </button>
+
+             <select id="scenario-select" onchange="saveSettings()">
+                <option value="general">Daily (日常)</option>
+                <option value="travel">Travel (旅行)</option>
+                <option value="business">Business (仕事)</option>
+                <option value="medical">Medical (病院)</option>
+                <option value="restaurant">Dining (食事)</option>
+            </select>
         </div>
 
         <div class="history-container" id="self-history"></div>
         <div id="self-live" class="live-monitor"></div>
-
         <div class="mic-wrapper">
             <button id="btn-self" class="mic-btn">
                 <div class="visualizer-ring" id="ring-self"></div>
                 🎙️
             </button>
         </div>
-        <div id="self-status" class="status-text">長押しして話す</div>
+        <div id="self-status" class="status-text">Hold to speak</div>
     </div>
 </div>
 
 <script>
     // ==========================================
-    // 設定 & APIキー管理 (セキュア版)
+    // 設定 & APIキー
     // ==========================================
-    let API_KEY = ""; // コードには書かない
+    let API_KEY = ""; 
     const MODEL_ID = "gemini-2.5-flash"; 
     
     let isCoachMode = false;
     let chatLog = [];
     
+    // 全言語対応マップ
     const LANG_MAP = {
         'ja-JP': 'Japanese', 'en-US': 'English', 'zh-CN': 'Chinese', 'ko-KR': 'Korean',
-        'de-DE': 'German', 'fr-FR': 'French', 'es-ES': 'Spanish', 'ar-SA': 'Arabic'
+        'de-DE': 'German', 'fr-FR': 'French', 'es-ES': 'Spanish', 'ar-SA': 'Arabic', 'vi-VN': 'Vietnamese'
     };
 
-    // 起動時処理
     window.onload = function() {
         loadSettings();
         checkApiKey();
+        setupScrollObserver('self-history');
+        setupScrollObserver('partner-history');
     };
 
+    // ==========================================
+    // 履歴管理 (相互表示ロジック)
+    // ==========================================
+    function addLogToUI(result, speakerType) {
+        const selfContainer = document.getElementById('self-history');
+        const selfBubble = createBubble(result, speakerType, false);
+        selfContainer.appendChild(selfBubble);
+        scrollToBottom(selfContainer);
+
+        const partnerContainer = document.getElementById('partner-history');
+        const partnerBubble = createBubble(result, speakerType, true);
+        partnerContainer.appendChild(partnerBubble);
+        scrollToBottom(partnerContainer);
+
+        chatLog.push({
+            time: new Date().toLocaleTimeString(),
+            speaker: speakerType,
+            original: result.corrected_source || result.original,
+            translated: result.translation
+        });
+    }
+
+    function createBubble(result, speakerType, isForPartnerScreen) {
+        const row = document.createElement('div');
+        row.className = 'message-row';
+
+        let bubbleClass = '';
+        let rowClass = '';
+
+        if (!isForPartnerScreen) {
+            // 自分画面
+            if (speakerType === 'self') {
+                rowClass = 'row-self';
+                bubbleClass = 'bubble-self';
+            } else {
+                rowClass = 'row-partner';
+                bubbleClass = 'bubble-partner';
+            }
+        } else {
+            // 相手画面
+            if (speakerType === 'partner') {
+                rowClass = 'row-self'; 
+                bubbleClass = 'bubble-partner'; 
+            } else {
+                rowClass = 'row-partner'; 
+                bubbleClass = 'bubble-self'; 
+            }
+        }
+
+        row.classList.add(rowClass);
+
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble ${bubbleClass}`;
+
+        const isCorrected = result.corrected_source && result.corrected_source.toLowerCase() !== result.original.toLowerCase().trim();
+        const sourceDisplay = isCorrected 
+            ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
+            : result.original;
+
+        let html = `
+            <div class="original-text">${sourceDisplay}</div>
+            <div class="translated-text">${result.translation}</div>
+        `;
+
+        // アドバイスは自分の発言かつ、自分の画面にのみ表示
+        if (result.advice && speakerType === 'self' && !isForPartnerScreen) {
+            html += `<div class="advice-box"><span>👨‍🏫 ${result.advice}</span></div>`;
+        }
+
+        bubble.innerHTML = html;
+        row.appendChild(bubble);
+        return row;
+    }
+
+    function scrollToBottom(element) { element.scrollTop = element.scrollHeight; }
+    function setupScrollObserver(id) {
+        const target = document.getElementById(id);
+        const observer = new MutationObserver(() => scrollToBottom(target));
+        observer.observe(target, { childList: true });
+    }
+
+    // ==========================================
+    // 基本機能
+    // ==========================================
     function checkApiKey() {
         const storedKey = localStorage.getItem('crosstalk_api_key');
         if (storedKey) {
@@ -348,28 +406,16 @@
             API_KEY = input;
             document.getElementById('key-modal').style.display = 'none';
         } else {
-            alert("Please enter a valid API Key");
+            alert("Valid API Key required");
         }
     }
 
-    function resetAll() {
-        localStorage.removeItem('crosstalk_api_key');
-        localStorage.removeItem('crosstalk_settings');
-        location.reload();
-    }
+    function resetAll() { localStorage.clear(); location.reload(); }
 
-    // ヘルプ表示切替
-    function toggleHelp() {
-        const modal = document.getElementById('help-modal');
-        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    // 設定保存・読み込み
     function saveSettings() {
         const settings = {
             partnerLang: document.getElementById('partner-lang').value,
             selfLang: document.getElementById('self-lang').value,
-            tone: document.getElementById('tone-select').value,
             scenario: document.getElementById('scenario-select').value,
             theme: document.documentElement.getAttribute('data-theme')
         };
@@ -383,31 +429,17 @@
                 const s = JSON.parse(saved);
                 if(s.partnerLang) document.getElementById('partner-lang').value = s.partnerLang;
                 if(s.selfLang) document.getElementById('self-lang').value = s.selfLang;
-                if(s.tone) document.getElementById('tone-select').value = s.tone;
                 if(s.scenario) document.getElementById('scenario-select').value = s.scenario;
                 if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
             } catch(e) {}
-        } else {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
         }
     }
 
     function toggleCoachMode() {
         isCoachMode = !isCoachMode;
         const btn = document.getElementById('coach-toggle');
-        if (isCoachMode) {
-            btn.innerHTML = "👨‍🏫 ON";
-            btn.style.opacity = "1";
-            btn.style.backgroundColor = "#f1c40f";
-            btn.style.color = "black";
-        } else {
-            btn.innerHTML = "👨‍🏫 OFF";
-            btn.style.opacity = "0.5";
-            btn.style.backgroundColor = "";
-            btn.style.color = "";
-        }
+        btn.innerHTML = isCoachMode ? "👨‍🏫 ON" : "👨‍🏫 OFF";
+        btn.style.opacity = isCoachMode ? "1" : "0.5";
     }
 
     function toggleTheme() {
@@ -417,17 +449,16 @@
     }
 
     function downloadLog() {
-        if (chatLog.length === 0) { alert("履歴がありません"); return; }
-        const textContent = chatLog.map(l => `[${l.time}] ${l.speaker}: ${l.original} -> ${l.translated}`).join("\n");
-        const blob = new Blob([textContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
+        if (chatLog.length === 0) { alert("履歴なし"); return; }
+        const text = chatLog.map(l => `[${l.time}] ${l.speaker}: ${l.original} -> ${l.translated}`).join("\n");
+        const blob = new Blob([text], { type: 'text/plain' });
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `log_${new Date().toISOString().slice(0,19).replace(/[-T:]/g,'')}.txt`;
+        a.href = URL.createObjectURL(blob);
+        a.download = `log_${new Date().toISOString().slice(0,10)}.txt`;
         a.click();
     }
 
-    // Audio Visualizer
+    // Audio
     let audioContext, analyser, dataArray, microphone, animationId;
     let isAudioInit = false;
 
@@ -462,33 +493,20 @@
         animationId = requestAnimationFrame(() => updateVisualizer(ringId));
     }
 
-    // Gemini API Logic
-    async function translateWithGemini(text, sourceCode, targetCode, tone, scenario) {
+    // Gemini API
+    async function translateWithGemini(text, sourceCode, targetCode, scenario) {
         if (!text) return null;
         const sName = LANG_MAP[sourceCode] || sourceCode;
         const tName = LANG_MAP[targetCode] || targetCode;
 
         const prompt = `
-        Role: Professional Interpreter & Language Coach.
+        Role: Professional Interpreter.
         Context: ${scenario} setting.
-        Source Language: ${sName}
-        Target Language: ${tName}
-        Desired Tone: ${tone}
-
-        Instruction:
-        1. "Correction": Identify potential speech recognition errors based on context. If no error, keep same.
-        2. "Translation": Translate the (Corrected) Source Text to Target Language.
-        3. "Advice": (Only if enabled) Provide brief advice for the speaker in ${sName}.
-
-        Source Text: "${text}"
+        Source: ${sName}, Target: ${tName}.
+        Task: 1.Correct errors. 2.Translate naturally. 3.Advice(only if enabled for ${sName}).
+        Input: "${text}"
         Coach Mode: ${isCoachMode}
-
-        Output Format: JSON ONLY.
-        {
-            "corrected_source": "string",
-            "translation": "string",
-            "advice": "string or null"
-        }
+        JSON Output: { "corrected_source": "string", "translation": "string", "advice": "string" }
         `;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -501,14 +519,10 @@
             });
             const data = await response.json();
             const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-
-            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-            const jsonText = jsonMatch ? jsonMatch[0] : "{}";
-
+            const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
             return JSON.parse(jsonText);
         } catch (e) {
-            console.error("Translation Error:", e);
-            return { translation: "(Check API Key)", corrected_source: text, advice: "API Error" };
+            return { translation: "Error", corrected_source: text, advice: null };
         }
     }
 
@@ -517,50 +531,18 @@
         window.speechSynthesis.cancel();
         const uttr = new SpeechSynthesisUtterance(text);
         uttr.lang = langCode;
-        uttr.rate = 1.0; 
         window.speechSynthesis.speak(uttr);
     }
 
-    function addHistory(historyId, resultObj, speaker) {
-        const container = document.getElementById(historyId);
-        const div = document.createElement('div');
-        div.className = 'message-bubble';
-        
-        const isCorrected = resultObj.corrected_source.trim().toLowerCase() !== resultObj.original.trim().toLowerCase();
-        
-        const sourceDisplay = isCorrected 
-            ? `<span style="text-decoration:line-through; opacity:0.6">${resultObj.original}</span> <span class="corrected-mark">➤ ${resultObj.corrected_source}</span>`
-            : resultObj.original;
-
-        let html = `
-            <div class="original-text">${sourceDisplay}</div>
-            <div class="translated-text">${resultObj.translation}</div>
-        `;
-
-        if (resultObj.advice) {
-            html += `<div class="advice-box"><span>👨‍🏫 ${resultObj.advice}</span></div>`;
-        }
-
-        div.innerHTML = html;
-        container.insertBefore(div, container.firstChild);
-
-        chatLog.push({
-            time: new Date().toLocaleTimeString(),
-            speaker: speaker,
-            original: resultObj.corrected_source,
-            translated: resultObj.translation
-        });
-    }
-
-    // 音声認識
+    // Speech Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    function setupRecognition(btnId, langSelectId, historyId, statusId, liveId, ringId, isSelf) {
+    function setupRecognition(btnId, langSelectId, liveId, ringId, isSelf) {
         const btn = document.getElementById(btnId);
         const langSelect = document.getElementById(langSelectId);
         const targetLangSelect = isSelf ? document.getElementById('partner-lang') : document.getElementById('self-lang');
-        const statusEl = document.getElementById(statusId);
         const liveEl = document.getElementById(liveId);
+        const statusEl = document.getElementById(isSelf ? 'self-status' : 'partner-status');
         
         const recognition = new SpeechRecognition();
         recognition.interimResults = true;
@@ -570,7 +552,7 @@
 
         const startRec = async (e) => {
             e.preventDefault();
-            if (!API_KEY) { alert("Please set API Key first."); return; }
+            if (!API_KEY) return;
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
 
@@ -611,27 +593,26 @@
             if (newFinal) {
                 finalTranscript += newFinal;
                 liveEl.innerText = "";
-                statusEl.innerText = "Gemini thinking...";
+                statusEl.innerText = "Thinking...";
                 
                 const sCode = langSelect.value;
                 const tCode = targetLangSelect.value;
-                const tone = isSelf ? document.getElementById('tone-select').value : "normal";
                 const scenario = document.getElementById('scenario-select').value;
 
-                const result = await translateWithGemini(newFinal, sCode, tCode, tone, scenario);
+                const result = await translateWithGemini(newFinal, sCode, tCode, scenario);
                 statusEl.innerText = "";
 
                 if (result) {
                     result.original = newFinal;
-                    addHistory(historyId, result, isSelf ? "Self" : "Partner");
+                    addLogToUI(result, isSelf ? 'self' : 'partner');
                     speakText(result.translation, tCode);
                 }
             }
         };
     }
 
-    setupRecognition('btn-self', 'self-lang', 'self-history', 'self-status', 'self-live', 'ring-self', true);
-    setupRecognition('btn-partner', 'partner-lang', 'partner-history', 'partner-status', 'partner-live', 'ring-partner', false);
+    setupRecognition('btn-self', 'self-lang', 'self-live', 'ring-self', true);
+    setupRecognition('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
 
 </script>
 </body>
