@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚌ハワイ旅行プラン【完全版】</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; line-height: 1.7; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; min-height: 80vh;}
+        
+        /* ヘッダー */
+        .header { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 20px; margin-bottom: 5px; }
+        .header .dates { font-size: 14px; opacity: 0.95; }
+        
+        /* タブエリア */
+        .tabs { display: flex; background: #f5f5f5; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab { flex: 1; min-width: 80px; padding: 12px 5px; text-align: center; background: #e0e0e0; border: none; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.3s; border-right: 1px solid #ccc; flex-shrink: 0; }
+        .tab.active { background: white; color: #FF6B6B; border-bottom: 3px solid #FF6B6B; }
+        .tab.note-tab { background: #E1F5FE; color: #0277BD; } 
+        .tab.note-tab.active { border-bottom: 3px solid #0277BD; background: white; }
+
+        /* コンテンツエリア */
+        .tab-content { display: none; padding: 20px; animation: fadeIn 0.5s; padding-bottom: 100px; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* スケジュール項目 */
+        .day-title { color: #FF6B6B; font-size: 20px; margin-bottom: 15px; border-bottom: 3px solid #FF6B6B; }
+        .schedule-item { background: #f9f9f9; border-left: 4px solid #4ECDC4; padding: 15px; margin-bottom: 20px; border-radius: 8px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .time { font-weight: bold; color: #FF6B6B; font-size: 15px; }
+        .location { font-size: 18px; font-weight: bold; color: #333; margin: 5px 0; }
+        .details { color: #555; font-size: 14px; white-space: pre-wrap; margin-bottom: 10px; }
+
+        /* 画像表示エリア */
+        .image-gallery { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .attached-image { height: 100px; width: auto; border-radius: 5px; cursor: pointer; border: 2px solid #ddd; object-fit: cover; }
+        .attached-image:hover { border-color: #FF6B6B; }
+
+        /* ボタン類 */
+        .link-btn { display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; }
+        .link-btn.ref { background: #9C27B0; }
+        .link-btn.place { background: #34A853; }
+        .link-btn.bus-board { background: #2196F3; }
+        .link-btn.bus-drop { background: #FF9800; }
+
+        .edit-controls { position: absolute; top: 10px; right: 10px; }
+        .edit-controls button { background: #4A90E2; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-left: 3px; }
+        .edit-controls .delete-btn { background: #FF6B6B; }
+
+        .add-button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 16px; }
+
+        /* ノートタブ用スタイル */
+        .note-container { background: #E3F2FD; padding: 15px; border-radius: 8px; min-height: 300px; }
+        .note-textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #90CAF9; border-radius: 5px; font-size: 14px; margin-bottom: 10px; }
+        .note-save-btn { background: #0277BD; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+        /* 編集フォーム */
+        .edit-form { background: #f0f8ff; border: 2px solid #4A90E2; padding: 20px; margin-top: 15px; border-radius: 8px; }
+        .edit-form label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; color: #333; }
+        .edit-form input[type="text"], .edit-form textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .file-input-group { background: white; padding: 10px; border: 1px dashed #999; margin-top: 5px; border-radius: 4px; }
+        
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="global-loader">
+        <div class="loader"></div>
+        <div style="margin-top: 10px; font-weight:bold; color:#333;">処理中...そのままお待ちください</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌺 ハワイ旅行プラン 🌺</h1>
+            <div class="dates">Day0: 12/12(金) 出発 〜 Day8: 12/19(金) 帰国</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-day="0">Day0<br>12/12金</button>
+            <button class="tab" data-day="1">Day1<br>12/12金</button>
+            <button class="tab" data-day="2">Day2<br>12/13土</button>
+            <button class="tab" data-day="3">Day3<br>12/14日</button>
+            <button class="tab" data-day="4">Day4<br>12/15月</button>
+            <button class="tab" data-day="5">Day5<br>12/16火</button>
+            <button class="tab" data-day="6">Day6<br>12/17水</button>
+            <button class="tab" data-day="7">Day7<br>12/18木</button>
+            <button class="tab" data-day="8">Day8<br>12/19金</button>
+            <button class="tab note-tab" data-day="99">📝<br>ノート</button>
+        </div>
+        
+        <div id="day0" class="tab-content active"><div class="loading-message">読み込み中...</div></div>
+        <div id="day1" class="tab-content"></div>
+        <div id="day2" class="tab-content"></div>
+        <div id="day3" class="tab-content"></div>
+        <div id="day4" class="tab-content"></div>
+        <div id="day5" class="tab-content"></div>
+        <div id="day6" class="tab-content"></div>
+        <div id="day7" class="tab-content"></div>
+        <div id="day8" class="tab-content"></div>
+        
+        <div id="day99" class="tab-content">
+            <h2 class="day-title">📝 共有ノート & フォトギャラリー</h2>
+            <div class="note-container">
+                <p style="margin-bottom:5px; font-size:12px; color:#666;">旅のメモ、持ち物リスト、感想などを自由に書いてください</p>
+                <textarea id="shared-note" class="note-textarea" placeholder="ここに自由に書き込んでください..."></textarea>
+                <button onclick="saveNote()" class="note-save-btn">💾 ノートを保存</button>
+                
+                <hr style="margin: 20px 0;">
+                <h3>📸 共有アルバム (簡易版)</h3>
+                <p style="font-size:12px; color:#666;">画像をアップロードして共有できます</p>
+                <div style="margin: 10px 0;">
+                    <input type="file" id="note-image-upload" accept="image/*">
+                    <button onclick="uploadNoteImage()" style="padding:5px 10px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer;">アップロード</button>
+                </div>
+                <div id="note-images" class="image-gallery">
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==========================================================
+        // 1. Firebase設定 【重要】ご自身のキーに書き換えてください
+        // ==========================================================
+        const firebaseConfig = {
+             apiKey: "AIzaSyCiqsqaImSG8DeBD_KAc9OUKd6ZY_QKV8I",
+             authDomain: "hawaii-trip-planner.firebaseapp.com",
+             projectId: "hawaii-trip-planner",
+             storageBucket: "hawaii-trip-planner.firebasestorage.app", 
+             messagingSenderId: "785694777772",
+             appId: "1:785694777772:web:cac69c49d3386c663c5a09"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let currentDay = 0; 
+        let scheduleData = {}; 
+
+        function toggleLoader(show) {
+            document.getElementById('global-loader').style.display = show ? 'flex' : 'none';
+        }
+
+        // ==========================================================
+        // 2. リアルタイム同期開始
+        // ==========================================================
+        function startRealtimeListener() {
+            // スケジュール同期
+            db.collection('trip-schedule').onSnapshot(snapshot => {
+                snapshot.forEach(doc => {
+                    scheduleData[doc.id] = doc.data();
+                });
+                if (currentDay !== 99) {
+                    renderSchedule(currentDay);
+                }
+            });
+
+            // ノート同期
+            db.collection('trip-schedule').doc('note-data').onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (document.activeElement.id !== 'shared-note') {
+                        document.getElementById('shared-note').value = data.content || '';
+                    }
+                    renderNoteImages(data.images || []);
+                }
+            });
+        }
+
+        // ==========================================================
+        // 3. スケジュール描画（時間順自動ソート機能付き）
+        // ==========================================================
+        function renderSchedule(dayNum) {
+            const dayKey = `day${dayNum}`;
+            const contentDiv = document.getElementById(dayKey);
+            const dayData = scheduleData[dayKey] || {};
+            
+            // ▼ 時間で並び替え (例: "09:00" < "13:00")
+            let events = dayData.events || [];
+            events.sort((a, b) => {
+                const timeA = (a.time || '').toString();
+                const timeB = (b.time || '').toString();
+                return timeA.localeCompare(timeB);
+            });
+
+            let html = `<h2 class="day-title">${dayData.title || (dayNum + '日目')}</h2>`;
+            
+            if (events.length === 0) {
+                html += '<p style="text-align:center; color:#888;">予定がまだありません。</p>';
+            }
+
+            events.forEach((item, index) => {
+                // リンクボタン生成
+                let mapButtonsHtml = '';
+                if (item.refUrl1 || item.refUrl2 || item.refUrl3 || item.mapUrl_place || item.mapUrl_bus_board || item.mapUrl_bus_drop) {
+                     mapButtonsHtml = '<div style="margin-top:8px;">';
+                     if (item.refUrl1) mapButtonsHtml += `<a href="${item.refUrl1}" class="link-btn ref" target="_blank">🏠 参考1</a>`;
+                     if (item.refUrl2) mapButtonsHtml += `<a href="${item.refUrl2}" class="link-btn ref" target="_blank">🏠 参考2</a>`;
+                     if (item.refUrl3) mapButtonsHtml += `<a href="${item.refUrl3}" class="link-btn ref" target="_blank">🏠 参考3</a>`;
+                     if (item.mapUrl_place) mapButtonsHtml += `<a href="${item.mapUrl_place}" class="link-btn place" target="_blank">🗺️ 場所</a>`;
+                     if (item.mapUrl_bus_board) mapButtonsHtml += `<a href="${item.mapUrl_bus_board}" class="link-btn bus-board" target="_blank">🚏 乗車</a>`;
+                     if (item.mapUrl_bus_drop) mapButtonsHtml += `<a href="${item.mapUrl_bus_drop}" class="link-btn bus-drop" target="_blank">🏁 降車</a>`;
+                     mapButtonsHtml += '</div>';
+                }
+
+                // 画像表示
+                let imagesHtml = '';
+                if (item.imgUrl1 || item.imgUrl2) {
+                    imagesHtml = '<div class="image-gallery">';
+                    if (item.imgUrl1) imagesHtml += `<a href="${item.imgUrl1}" target="_blank"><img src="${item.imgUrl1}" class="attached-image"></a>`;
+                    if (item.imgUrl2) imagesHtml += `<a href="${item.imgUrl2}" target="_blank"><img src="${item.imgUrl2}" class="attached-image"></a>`;
+                    imagesHtml += '</div>';
+                }
+
+                const formattedDetails = (item.details || '').replace(/\n/g, '<br>');
+
+                html += `
+                    <div class="schedule-item">
+                        <div class="edit-controls">
+                            <button onclick="showForm(${dayNum}, ${index})">✏️ 編集</button>
+                            <button onclick="deleteEvent(${dayNum}, ${index}, '${item.location}')" class="delete-btn">🗑️</button>
+                        </div>
+                        <div class="time">${item.time || ''}</div>
+                        <div class="location">${item.location || ''}</div>
+                        <div class="details">${formattedDetails}</div>
+                        ${mapButtonsHtml}
+                        ${imagesHtml}
+                    </div>
+                `;
+            });
+            
+            html += `<button class="add-button" onclick="showForm(${dayNum}, -1)">➕ 新しい予定を追加</button>`;
+            html += `<div id="form-container-${dayNum}"></div>`; 
+
+            contentDiv.innerHTML = html;
+        }
+
+        // ==========================================================
+        // 4. ノート機能
+        // ==========================================================
+        function saveNote() {
+            const content = document.getElementById('shared-note').value;
+            toggleLoader(true);
+            db.collection('trip-schedule').doc('note-data').set({
+                content: content
+            }, { merge: true }) 
+            .then(() => { toggleLoader(false); alert("ノートを保存しました"); })
+            .catch(err => { toggleLoader(false); alert("エラー: " + err); });
+        }
+
+        async function uploadNoteImage() {
+            const fileInput = document.getElementById('note-image-upload');
+            if (fileInput.files.length === 0) return alert("ファイルを選択してください");
+            
+            toggleLoader(true);
+            const file = fileInput.files[0];
+            const storageRef = storage.ref(`note_images/${Date.now()}_${file.name}`);
+            
+            try {
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                await db.collection('trip-schedule').doc('note-data').update({
+                    images: firebase.firestore.FieldValue.arrayUnion(url)
+                });
+                fileInput.value = '';
+                toggleLoader(false);
+            } catch (error) {
+                if (error.code === 'not-found' || error.message.includes('No document')) {
+                     await db.collection('trip-schedule').doc('note-data').set({ images: [url] }, { merge: true });
+                     toggleLoader(false);
+                } else {
+                    alert("アップロード失敗: " + error.message);
+                    toggleLoader(false);
+                }
+            }
+        }
+
+        function renderNoteImages(images) {
+            const container = document.getElementById('note-images');
+            if (!images || images.length === 0) { container.innerHTML = ''; return; }
+            let html = '';
+            images.forEach(url => {
+                html += `<a href="${url}" target="_blank"><img src="${url}" class="attached-image"></a>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ==========================================================
+        // 5. 編集フォームと保存
+        // ==========================================================
+        function showForm(dayNum, itemIndex) {
+            const dayKey = `day${dayNum}`;
+            const isNew = itemIndex === -1;
+            let item = { 
+                time: '', location: '', details: '', 
+                refUrl1: '', refUrl2: '', refUrl3: '', 
+                mapUrl_place: '', mapUrl_bus_board: '', mapUrl_bus_drop: '',
+                imgUrl1: '', imgUrl2: '' 
+            };
+            
+            if (!isNew && scheduleData[dayKey] && scheduleData[dayKey].events[itemIndex]) {
+                item = scheduleData[dayKey].events[itemIndex];
+            }
+
+            const formHtml = `
+                <div class="edit-form">
+                    <h3>${isNew ? '予定追加' : '編集'}</h3>
+                    <label>時間 (例: 09:00, 14:00-16:00)</label>
+                    <input type="text" id="edit-time" value="${item.time}" placeholder="例: 10:00 - 12:00">
+                    
+                    <label>場所/タイトル</label>
+                    <input type="text" id="edit-location" value="${item.location}" placeholder="場所名">
+                    
+                    <label>詳細メモ</label>
+                    <textarea id="edit-details" rows="4">${item.details}</textarea>
+                    
+                    <div style="background:#e8f5e9; padding:10px; margin-top:10px; border-radius:5px;">
+                        <label>📎 画像添付 (最大2つ)</label>
+                        <div class="file-input-group">
+                            <span>ファイル1: </span>
+                            <input type="file" id="edit-file1" accept="image/*,application/pdf">
+                            ${item.imgUrl1 ? `<br><small>※設定済: <a href="${item.imgUrl1}" target="_blank">確認</a></small>` : ''}
+                        </div>
+                        <div class="file-input-group">
+                            <span>ファイル2: </span>
+                            <input type="file" id="edit-file2" accept="image/*,application/pdf">
+                            ${item.imgUrl2 ? `<br><small>※設定済: <a href="${item.imgUrl2}" target="_blank">確認</a></small>` : ''}
+                        </div>
+                    </div>
+
+                    <label style="margin-top:15px;">🔗 参考・地図リンク (任意)</label>
+                    <input type="text" id="edit-refUrl1" value="${item.refUrl1}" placeholder="参考サイトURL 1">
+                    <input type="text" id="edit-refUrl2" value="${item.refUrl2}" placeholder="参考サイトURL 2">
+                    <input type="text" id="edit-refUrl3" value="${item.refUrl3}" placeholder="参考サイトURL 3">
+                    
+                    <div style="margin-top:5px; padding-top:5px; border-top:1px dashed #ccc;">
+                        <input type="text" id="edit-mapUrl_place" value="${item.mapUrl_place}" placeholder="🗺️ 場所の地図 URL">
+                        <input type="text" id="edit-mapUrl_bus_board" value="${item.mapUrl_bus_board}" placeholder="🚏 乗車バス停 URL">
+                        <input type="text" id="edit-mapUrl_bus_drop" value="${item.mapUrl_bus_drop}" placeholder="🏁 降車バス停 URL">
+                    </div>
+
+                    <div style="margin-top:20px; display:flex; gap:10px;">
+                        <button onclick="saveEventWithImage(${dayNum}, ${itemIndex})" class="add-button" style="margin:0;">💾 保存</button>
+                        <button onclick="hideForm(${dayNum})" style="background:#999; border:none; color:white; padding:10px; border-radius:8px; cursor:pointer;">キャンセル</button>
+                    </div>
+                    <input type="hidden" id="current-imgUrl1" value="${item.imgUrl1}">
+                    <input type="hidden" id="current-imgUrl2" value="${item.imgUrl2}">
+                </div>
+            `;
+            document.querySelectorAll('[id^="form-container-"]').forEach(c => c.innerHTML = '');
+            document.getElementById(`form-container-${dayNum}`).innerHTML = formHtml;
+        }
+
+        function hideForm(dayNum) {
+            document.getElementById(`form-container-${dayNum}`).innerHTML = '';
+        }
+
+        async function saveEventWithImage(dayNum, itemIndex) {
+            const time = document.getElementById('edit-time').value.trim();
+            const location = document.getElementById('edit-location').value.trim();
+            if (!time || !location) return alert("時間と場所は必須です");
+
+            toggleLoader(true);
+            try {
+                const file1 = document.getElementById('edit-file1').files[0];
+                const file2 = document.getElementById('edit-file2').files[0];
+                
+                let imgUrl1 = document.getElementById('current-imgUrl1').value;
+                let imgUrl2 = document.getElementById('current-imgUrl2').value;
+
+                if (file1) {
+                    const ref = storage.ref(`schedule_images/${Date.now()}_1_${file1.name}`);
+                    await ref.put(file1);
+                    imgUrl1 = await ref.getDownloadURL();
+                }
+                if (file2) {
+                    const ref = storage.ref(`schedule_images/${Date.now()}_2_${file2.name}`);
+                    await ref.put(file2);
+                    imgUrl2 = await ref.getDownloadURL();
+                }
+
+                const newEvent = {
+                    time, location,
+                    details: document.getElementById('edit-details').value,
+                    refUrl1: document.getElementById('edit-refUrl1').value.trim(),
+                    refUrl2: document.getElementById('edit-refUrl2').value.trim(),
+                    refUrl3: document.getElementById('edit-refUrl3').value.trim(),
+                    mapUrl_place: document.getElementById('edit-mapUrl_place').value.trim(),
+                    mapUrl_bus_board: document.getElementById('edit-mapUrl_bus_board').value.trim(),
+                    mapUrl_bus_drop: document.getElementById('edit-mapUrl_bus_drop').value.trim(),
+                    imgUrl1, imgUrl2
+                };
+
+                const dayKey = `day${dayNum}`;
+                let events = (scheduleData[dayKey] && scheduleData[dayKey].events) ? [...scheduleData[dayKey].events] : [];
+                
+                if (itemIndex === -1) {
+                    events.push(newEvent);
+                } else {
+                    events[itemIndex] = { ...events[itemIndex], ...newEvent };
+                }
+                await db.collection('trip-schedule').doc(dayKey).set({ events: events }, { merge: true });
+                toggleLoader(false);
+                hideForm(dayNum);
+
+            } catch (error) {
+                console.error(error);
+                alert("保存に失敗しました: " + error.message);
+                toggleLoader(false);
+            }
+        }
+
+        function deleteEvent(dayNum, itemIndex, title) {
+            if(!confirm(`「${title}」を削除しますか？`)) return;
+            const dayKey = `day${dayNum}`;
+            const events = [...scheduleData[dayKey].events];
+            events.splice(itemIndex, 1);
+            db.collection('trip-schedule').doc(dayKey).update({ events: events });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const dayVal = parseInt(e.currentTarget.getAttribute('data-day'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    document.getElementById('day' + dayVal).classList.add('active');
+                    currentDay = dayVal;
+                    if(dayVal !== 99) renderSchedule(dayVal);
+                });
+            });
+            startRealtimeListener();
+        });
+    </script>
+</body>
+</html>
