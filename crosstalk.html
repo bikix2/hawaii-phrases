@@ -6,8 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V7</title>
-    
+    <title>CrossTalk V8</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -39,7 +38,6 @@
             background-color: var(--bg-color); color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
             overflow: hidden; touch-action: manipulation;
-            /* iPhoneの切り欠き対応 */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -50,17 +48,15 @@
             position: fixed; top: 0; left: 0; bottom: 0; right: 0;
         }
 
-        /* エリア共通設定 */
         .area {
             flex: 1; display: flex; flex-direction: column; 
             padding: 10px; position: relative; overflow: hidden; 
         }
 
-        /* 相手側（上半分）：180度回転 */
-        /* コンテナごと回転させることでプルダウンも確実に反転させます */
+        /* 相手側エリア（全体を回転） */
         .partner-area {
             background-color: var(--bg-partner); 
-            transform: rotate(180deg);
+            transform: rotate(180deg); /* これでプルダウンも一緒に回るはず */
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -69,8 +65,7 @@
         /* コントロールバー */
         .controls-bar {
             display: flex; gap: 8px; align-items: center;
-            margin-bottom: 8px; z-index: 20; min-height: 44px;
-            width: 100%;
+            margin-bottom: 8px; z-index: 20; min-height: 44px; width: 100%;
         }
 
         select, button.icon-btn {
@@ -83,24 +78,21 @@
         /* 終了ボタン */
         .exit-btn {
             background-color: #333; color: #ff4757; border: 1px solid #ff4757;
-            font-weight: bold; width: 44px; text-align: center; padding: 10px 0;
+            font-weight: bold; padding: 10px 15px;
         }
         
-        /* シーン選択ボタン (右側に配置) */
+        /* シーン選択 (右寄せ) */
         #scenario-select {
             background: #333; color: white; border: 1px solid #555;
-            font-weight: bold;
-            margin-left: auto; /* 右端へ */
+            font-weight: bold; margin-left: auto;
         }
 
         /* 履歴表示エリア */
         .history-container {
             flex: 1; width: 100%; overflow-y: auto; 
             display: flex; flex-direction: column;
-            /* マイクボタンに重ならないように下の余白を確保 */
             padding-bottom: 140px; 
             -ms-overflow-style: none; scrollbar-width: none;
-            /* タッチスクロールを滑らかに */
             -webkit-overflow-scrolling: touch;
         }
         .history-container::-webkit-scrollbar { display: none; }
@@ -117,10 +109,8 @@
         .bubble-self { background-color: var(--bubble-bg); border-right: 5px solid var(--bubble-self); }
         .bubble-partner { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-partner); }
 
-        /* 文字サイズロジック (CSSクラスで制御) */
         .text-primary { font-size: 1.6rem; font-weight: bold; line-height: 1.2; display: block; }
         .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
-        
         .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
         
         .advice-box {
@@ -128,39 +118,32 @@
             font-size: 0.85rem; color: var(--advice-color); display: flex; align-items: start; gap: 5px;
         }
 
-        /* マイクボタンとステータスを画面端に絶対固定 */
+        /* 下部固定エリア */
         .bottom-fixed-wrapper {
-            position: absolute; 
-            bottom: 0; left: 0; right: 0;
-            height: 130px; /* 固定エリアの高さ */
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 130px; 
             display: flex; flex-direction: column; 
             justify-content: flex-end; align-items: center;
             padding-bottom: 20px;
             background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%);
-            z-index: 50;
-            pointer-events: none; /* ボタン以外はクリック透過 */
+            z-index: 50; pointer-events: none;
         }
         .partner-area .bottom-fixed-wrapper {
             background: linear-gradient(to top, var(--bg-partner) 20%, transparent 100%);
         }
 
         .mic-btn {
-            width: 85px; height: 85px; border-radius: 50%; border: none;
-            font-size: 36px; cursor: pointer; pointer-events: auto;
+            width: 90px; height: 90px; border-radius: 50%; border: none;
+            font-size: 38px; cursor: pointer; pointer-events: auto;
             display: flex; justify-content: center; align-items: center;
             position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             transition: transform 0.1s, filter 0.1s; background: white;
-            -webkit-tap-highlight-color: transparent;
-            /* タッチ操作の遅延をなくす */
-            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
         }
-        
         .mic-btn.active { transform: scale(0.9); filter: brightness(0.8); }
-
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
 
-        /* ビジュアライザー */
         .visualizer-ring {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; border-radius: 50%;
@@ -169,7 +152,7 @@
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
 
-        /* ステータス文字（大きく見やすく） */
+        /* ステータス文字 */
         .status-text {
             font-size: 1.1rem; font-weight: bold; color: var(--sub-text);
             margin-top: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
@@ -183,18 +166,21 @@
         }
         .partner-area .live-monitor { color: var(--bubble-partner); }
 
-        /* ユーティリティ */
+        /* ユーティリティ (半透明化) */
         .utility-btns {
             position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
             display: flex; flex-direction: column; gap: 15px; z-index: 100;
+            opacity: 0.3; transition: opacity 0.3s;
         }
+        /* タッチ/ホバーで不透明に */
+        .utility-btns:hover, .utility-btns:active { opacity: 1.0; }
+
         .fab {
             width: 48px; height: 48px; border-radius: 50%; background: #222; color: white;
             border: 1px solid #444; font-size: 1.4rem; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
         }
         
-        /* モーダル */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center;
@@ -236,15 +222,15 @@
         <h2>Help</h2>
         <div class="help-item">
             <span class="help-icon">🚪</span>
-            <div><strong>Exit (終了)</strong><br>アプリをリセットして最初の画面に戻ります。</div>
+            <div><strong>Exit</strong><br>アプリを終了(リセット)します。</div>
         </div>
         <div class="help-item">
             <span class="help-icon">🎙️</span>
-            <div><strong>Hold to Speak</strong><br>ボタンを押している間だけ声を拾います。</div>
+            <div><strong>Hold to Speak</strong><br>長押ししている間だけ録音します。</div>
         </div>
         <div class="help-item">
-            <span class="help-icon">📍</span>
-            <div><strong>Scene</strong><br>場面を選ぶと翻訳精度が上がります。</div>
+            <span class="help-icon">👨‍🏫</span>
+            <div><strong>Coach Mode</strong><br>あなたが外国語を話すと日本語でアドバイスします。</div>
         </div>
         <button class="btn-primary" onclick="toggleHelp()">Close</button>
     </div>
@@ -259,16 +245,16 @@
 <div class="container">
     <div class="partner-area area">
         <div class="controls-bar">
-            <select id="partner-lang" onchange="saveSettings()">
-                <option value="en-US">English (英語)</option>
-                <option value="zh-CN">Chinese (中国語)</option>
-                <option value="ko-KR">Korean (韓国語)</option>
-                <option value="ja-JP">Japanese (日本語)</option>
-                <option value="de-DE">German (ドイツ語)</option>
-                <option value="fr-FR">French (フランス語)</option>
-                <option value="es-ES">Spanish (スペイン語)</option>
-                <option value="ar-SA">Arabic (アラビア語)</option>
-                <option value="vi-VN">Vietnamese (ベトナム語)</option>
+            <select id="partner-lang" onchange="handleLangChange()">
+                <option value="en-US">English</option>
+                <option value="zh-CN">Chinese</option>
+                <option value="ko-KR">Korean</option>
+                <option value="ja-JP">Japanese</option>
+                <option value="de-DE">German</option>
+                <option value="fr-FR">French</option>
+                <option value="es-ES">Spanish</option>
+                <option value="ar-SA">Arabic</option>
+                <option value="vi-VN">Vietnamese</option>
             </select>
         </div>
         
@@ -286,18 +272,18 @@
 
     <div class="self-area area">
         <div class="controls-bar">
-            <button class="icon-btn exit-btn" onclick="resetApp()" title="終了">✖</button>
+            <button class="exit-btn" onclick="resetApp()" title="Exit">Exit</button>
 
-            <select id="self-lang" onchange="saveSettings()">
-                <option value="ja-JP" selected>Japanese (日本語)</option>
-                <option value="en-US">English (英語)</option>
-                <option value="zh-CN">Chinese (中国語)</option>
-                <option value="ko-KR">Korean (韓国語)</option>
-                <option value="de-DE">German (ドイツ語)</option>
-                <option value="fr-FR">French (フランス語)</option>
-                <option value="es-ES">Spanish (スペイン語)</option>
-                <option value="ar-SA">Arabic (アラビア語)</option>
-                <option value="vi-VN">Vietnamese (ベトナム語)</option>
+            <select id="self-lang" onchange="handleLangChange()">
+                <option value="ja-JP" selected>Japanese</option>
+                <option value="en-US">English</option>
+                <option value="zh-CN">Chinese</option>
+                <option value="ko-KR">Korean</option>
+                <option value="de-DE">German</option>
+                <option value="fr-FR">French</option>
+                <option value="es-ES">Spanish</option>
+                <option value="ar-SA">Arabic</option>
+                <option value="vi-VN">Vietnamese</option>
             </select>
             
             <button id="coach-toggle" class="icon-btn" onclick="toggleCoachMode()" style="opacity: 0.5;">
@@ -321,15 +307,12 @@
                 <div class="visualizer-ring" id="ring-self"></div>
                 🎙️
             </button>
-            <div id="self-status" class="status-text">Hold to speak</div>
+            <div id="self-status" class="status-text">長押しで話す</div>
         </div>
     </div>
 </div>
 
 <script>
-    // ==========================================
-    // 設定 & APIキー
-    // ==========================================
     let API_KEY = ""; 
     const MODEL_ID = "gemini-2.5-flash"; 
     
@@ -341,6 +324,19 @@
         'de-DE': 'German', 'fr-FR': 'French', 'es-ES': 'Spanish', 'ar-SA': 'Arabic', 'vi-VN': 'Vietnamese'
     };
 
+    // Hold to speak の翻訳辞書
+    const UI_TEXT = {
+        'ja-JP': '長押しで話す',
+        'en-US': 'Hold to speak',
+        'zh-CN': '长按说话',
+        'ko-KR': '길게 눌러 말하기',
+        'de-DE': 'Zum Sprechen halten',
+        'fr-FR': 'Maintenir pour parler',
+        'es-ES': 'Mantener para hablar',
+        'ar-SA': 'اضغط للتحدث',
+        'vi-VN': 'Nhấn giữ để nói'
+    };
+
     window.onload = function() {
         loadSettings();
         checkApiKey();
@@ -348,29 +344,29 @@
         setupScrollObserver('partner-history');
         setupMicEvents('btn-self', 'self-lang', 'self-live', 'ring-self', true);
         setupMicEvents('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
+        handleLangChange(); // 初期のUIテキスト設定
     };
 
-    // ==========================================
-    // 履歴管理 & 文字サイズロジック
-    // ==========================================
+    function handleLangChange() {
+        saveSettings();
+        const selfLang = document.getElementById('self-lang').value;
+        const partnerLang = document.getElementById('partner-lang').value;
+        
+        // ステータス文字を更新
+        document.getElementById('self-status').innerText = UI_TEXT[selfLang] || "Hold to speak";
+        document.getElementById('partner-status').innerText = UI_TEXT[partnerLang] || "Hold to speak";
+    }
+
     function addLogToUI(result, speakerType) {
-        // 自分側の履歴
+        // 自分側の画面
         const selfContainer = document.getElementById('self-history');
-        // 自分側の画面: 自分の言語(selfLang)が大きく見たい
-        // speakerTypeがselfなら: Original(自分の言語)を大きく
-        // speakerTypeがpartnerなら: Translation(自分の言語)を大きく
-        const selfPrimaryIsOriginal = (speakerType === 'self');
-        const selfBubble = createBubble(result, speakerType, selfPrimaryIsOriginal, false);
+        const selfBubble = createBubble(result, speakerType, (speakerType === 'self'), false);
         selfContainer.appendChild(selfBubble);
         scrollToBottom(selfContainer);
 
-        // 相手側の履歴
+        // 相手側の画面
         const partnerContainer = document.getElementById('partner-history');
-        // 相手側の画面: 相手の言語(partnerLang)が大きく見たい
-        // speakerTypeがpartnerなら: Original(相手の言語)を大きく
-        // speakerTypeがselfなら: Translation(相手の言語)を大きく
-        const partnerPrimaryIsOriginal = (speakerType === 'partner');
-        const partnerBubble = createBubble(result, speakerType, partnerPrimaryIsOriginal, true);
+        const partnerBubble = createBubble(result, speakerType, (speakerType === 'partner'), true);
         partnerContainer.appendChild(partnerBubble);
         scrollToBottom(partnerContainer);
 
@@ -382,8 +378,6 @@
         });
     }
 
-    // bubble作成
-    // isPrimaryOriginal: trueなら原文を大きく、falseなら訳文を大きく
     function createBubble(result, speakerType, isPrimaryOriginal, isForPartnerScreen) {
         const row = document.createElement('div');
         row.className = 'message-row';
@@ -416,16 +410,19 @@
         
         const translatedText = result.translation;
 
-        // 文字サイズクラスの割り当て
         const originalClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
         const translatedClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
 
-        // 表示順序（大きい方を下に表示するのが一般的だが、ここでは固定順でクラスを変える）
         let html = `
             <div class="${originalClass}">${originalText}</div>
             <div class="${translatedClass}">${translatedText}</div>
         `;
 
+        // アドバイス表示の条件: 
+        // 1. コーチモードON (result.adviceがある)
+        // 2. 自分が発言者 (speakerType === 'self')
+        // 3. 自分側の画面 (!isForPartnerScreen)
+        // 4. 日本語以外を話した時 (result.adviceがnullでない)
         if (result.advice && speakerType === 'self' && !isForPartnerScreen) {
             html += `<div class="advice-box"><span>👨‍🏫 ${result.advice}</span></div>`;
         }
@@ -442,9 +439,6 @@
         observer.observe(target, { childList: true });
     }
 
-    // ==========================================
-    // 基本機能
-    // ==========================================
     function checkApiKey() {
         const storedKey = localStorage.getItem('crosstalk_api_key');
         if (storedKey) {
@@ -464,9 +458,8 @@
         } else { alert("Valid API Key required"); }
     }
 
-    // アプリリセット（終了ボタン）
     function resetApp() {
-        if(confirm("アプリをリセットして初期画面に戻りますか？")) {
+        if(confirm("アプリを終了（リセット）しますか？")) {
             location.reload();
         }
     }
@@ -522,7 +515,6 @@
         a.click();
     }
 
-    // Audio & Visualizer
     let audioContext, analyser, dataArray, microphone, animationId;
     let isAudioInit = false;
 
@@ -557,20 +549,28 @@
         animationId = requestAnimationFrame(() => updateVisualizer(ringId));
     }
 
-    // Gemini API
-    async function translateWithGemini(text, sourceCode, targetCode, scenario) {
+    // Gemini API - コーチング修正版
+    async function translateWithGemini(text, sourceCode, targetCode, scenario, isSelf) {
         if (!text) return null;
         const sName = LANG_MAP[sourceCode] || sourceCode;
         const tName = LANG_MAP[targetCode] || targetCode;
+
+        // コーチング条件: コーチモードON かつ 自分 かつ 日本語以外
+        const needAdvice = isCoachMode && isSelf && sourceCode !== 'ja-JP';
 
         const prompt = `
         Role: Professional Interpreter.
         Context: ${scenario} setting.
         Source: ${sName}, Target: ${tName}.
-        Task: 1.Correct errors. 2.Translate naturally. 3.Advice(only if enabled for ${sName}).
+        
+        Task:
+        1. Correct errors.
+        2. Translate naturally.
+        3. Advice: ${needAdvice ? "Provide brief advice in Japanese on how to say the source text more naturally/native-like." : "null"}
+
         Input: "${text}"
-        Coach Mode: ${isCoachMode}
-        JSON Output: { "corrected_source": "string", "translation": "string", "advice": "string" }
+
+        JSON Output: { "corrected_source": "string", "translation": "string", "advice": "string or null" }
         `;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -598,7 +598,6 @@
         window.speechSynthesis.speak(uttr);
     }
 
-    // Speech Recognition (マイク改良版)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     function setupMicEvents(btnId, langSelectId, liveId, ringId, isSelf) {
@@ -614,19 +613,21 @@
 
         let finalTranscript = '';
 
-        // マイク起動ロジック
         const startRec = async (e) => {
-            if(e.cancelable) e.preventDefault(); // スクロール等の干渉防止
+            if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
-            // AudioContext再開 (iOS対策)
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
 
             recognition.lang = langSelect.value;
             btn.classList.add('active');
-            statusEl.innerText = "Listening...";
+            
+            // 録音中のテキスト更新
+            const currentLang = langSelect.value;
+            statusEl.innerText = (UI_TEXT[currentLang] || "Listening").replace("Hold to speak", "Listening").replace("長押しで話す", "聞いています");
             statusEl.style.color = isSelf ? "var(--bubble-self)" : "var(--bubble-partner)";
+            
             liveEl.innerText = "";
             updateVisualizer(ringId);
             try { recognition.start(); } catch(e) {}
@@ -636,8 +637,12 @@
         const stopRec = (e) => {
             if(e.cancelable) e.preventDefault();
             btn.classList.remove('active');
-            statusEl.innerText = "Hold to speak";
+            
+            // テキスト戻す
+            const currentLang = langSelect.value;
+            statusEl.innerText = UI_TEXT[currentLang] || "Hold to speak";
             statusEl.style.color = "var(--sub-text)";
+            
             liveEl.innerText = "";
             if(animationId) cancelAnimationFrame(animationId);
             const ring = document.getElementById(ringId);
@@ -645,11 +650,9 @@
             try { recognition.stop(); } catch(e) {}
         };
 
-        // タッチイベントとマウスイベントの両方を登録
         btn.addEventListener('mousedown', startRec);
         btn.addEventListener('mouseup', stopRec);
         btn.addEventListener('mouseleave', stopRec);
-        
         btn.addEventListener('touchstart', startRec, {passive: false});
         btn.addEventListener('touchend', stopRec, {passive: false});
 
@@ -671,8 +674,11 @@
                 const tCode = targetLangSelect.value;
                 const scenario = document.getElementById('scenario-select').value;
 
-                const result = await translateWithGemini(newFinal, sCode, tCode, scenario);
-                statusEl.innerText = "Hold to speak";
+                // isSelfフラグを渡す
+                const result = await translateWithGemini(newFinal, sCode, tCode, scenario, isSelf);
+                
+                const currentLang = langSelect.value;
+                statusEl.innerText = UI_TEXT[currentLang] || "Hold to speak";
 
                 if (result) {
                     result.original = newFinal;
