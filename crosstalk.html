@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V16</title>
+    <title>CrossTalk V15</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -171,19 +171,29 @@
             transition: transform 0.1s, filter 0.1s; background: white;
             -webkit-tap-highlight-color: transparent; touch-action: manipulation;
         }
-        .mic-btn.active { transform: scale(0.9); filter: brightness(0.8); }
+        .mic-btn.active { transform: scale(0.95); filter: brightness(0.9); }
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
-        
         #btn-self.consult-mode { background: var(--bubble-ai); }
 
+        /* 安全なCSSアニメーションビジュアライザー */
         .visualizer-ring {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; border-radius: 50%;
-            border: 5px solid currentColor; opacity: 0.5; pointer-events: none;
+            border: 4px solid currentColor; opacity: 0; pointer-events: none;
         }
-        #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
-        #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
+        /* ボタンがactiveの時だけ動くCSSアニメーション */
+        .mic-btn.active .visualizer-ring {
+            animation: pulseRing 1.5s infinite;
+            opacity: 1;
+        }
+        @keyframes pulseRing {
+            0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; }
+            100% { width: 160%; height: 160%; opacity: 0; border-width: 0px; }
+        }
+
+        #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
+        #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
 
         .status-text {
             font-size: 1.1rem; font-weight: bold; color: var(--sub-text);
@@ -296,7 +306,7 @@
 
         <div class="bottom-fixed-wrapper">
             <button id="btn-partner" class="mic-btn">
-                <div class="visualizer-ring" id="ring-partner"></div>
+                <div class="visualizer-ring"></div>
                 🎙️
             </button>
             <div id="partner-status" class="status-text">Hold to speak</div>
@@ -340,7 +350,7 @@
 
         <div class="bottom-fixed-wrapper">
             <button id="btn-self" class="mic-btn">
-                <div class="visualizer-ring" id="ring-self"></div>
+                <div class="visualizer-ring"></div>
                 🎙️
             </button>
             <div id="self-status" class="status-text">長押しで話す</div>
@@ -386,7 +396,7 @@
         setTimeout(() => { bar.style.display = 'none'; }, 5000);
     }
 
-    // iOS対策: マイクとは切り離し、ボタンクリックで音声をアンロックする
+    // 音声アンロック（マイクとは完全に分離）
     function unlockAudio() {
         if ('speechSynthesis' in window) {
             const u = new SpeechSynthesisUtterance(" "); 
@@ -395,12 +405,12 @@
         }
     }
 
-    // Autoボタンを押したときにアンロックを実行する
+    // Autoボタンを押したときにアンロック
     function toggleAutoPlay() {
         isAutoPlay = !isAutoPlay;
         updateAutoPlayUI();
         if(isAutoPlay) {
-            unlockAudio(); // ここでアンロック！
+            unlockAudio(); 
         }
     }
     
@@ -578,8 +588,6 @@
         if (storedKey) {
             API_KEY = storedKey;
             document.getElementById('key-modal').style.display = 'none';
-            // 起動時に一回アンロックを試みる（Setup画面のStartボタン用）
-            unlockAudio();
         } else { document.getElementById('key-modal').style.display = 'flex'; }
     }
     function saveApiKey() {
@@ -588,7 +596,6 @@
             localStorage.setItem('crosstalk_api_key', input);
             API_KEY = input;
             document.getElementById('key-modal').style.display = 'none';
-            unlockAudio(); // Startボタンでアンロック
         } else { alert("Valid API Key required"); }
     }
     function resetApp() { if(confirm("アプリを終了（リセット）しますか？")) { location.reload(); } }
@@ -629,42 +636,6 @@
         a.href = URL.createObjectURL(blob);
         a.download = `log_${new Date().toISOString().slice(0,10)}.txt`;
         a.click();
-    }
-
-    // Audio
-    let audioContext, analyser, dataArray, microphone, animationId;
-    let isAudioInit = false;
-    async function initAudio() {
-        try {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 128;
-            microphone = audioContext.createMediaStreamSource(stream);
-            microphone.connect(analyser);
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            isAudioInit = true;
-        } catch (e) { 
-            console.error("Audio Init Failed", e);
-            // Visualizerが動かなくてもマイクは動く場合があるのでエラーは出さない
-        }
-    }
-    function updateVisualizer(ringId) {
-        if (!isAudioInit) return;
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-        let vol = sum / dataArray.length;
-        let scale = 1 + (vol / 40); 
-        const ring = document.getElementById(ringId);
-        if (ring) {
-            ring.style.width = `${100 * scale}%`;
-            ring.style.height = `${100 * scale}%`;
-            ring.style.opacity = `${0.4 + (vol / 200)}`;
-        }
-        animationId = requestAnimationFrame(() => updateVisualizer(ringId));
     }
 
     async function translateWithGemini(text, sourceCode, targetCode, scenario, isSelf) {
@@ -750,10 +721,6 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
-            // マイク起動時は余計なことをしない（重要）
-            if (!audioContext) await initAudio();
-            if (audioContext && audioContext.state === 'suspended') await audioContext.resume();
-
             if (isConsultMode && !isSelf) return;
 
             recognition.lang = langSelect.value;
@@ -766,7 +733,6 @@
             statusEl.style.color = isSelf ? (isConsultMode ? "var(--bubble-ai)" : "var(--bubble-self)") : "var(--bubble-partner)";
             
             liveEl.innerText = "";
-            updateVisualizer(ringId);
             try { recognition.start(); } catch(e) { console.log("Mic already started"); }
             finalTranscript = '';
         };
@@ -786,9 +752,6 @@
             }
             
             liveEl.innerText = "";
-            if(animationId) cancelAnimationFrame(animationId);
-            const ring = document.getElementById(ringId);
-            if(ring) { ring.style.width = '100%'; ring.style.height = '100%'; ring.style.opacity = '0'; }
             try { recognition.stop(); } catch(e) {}
         };
 
