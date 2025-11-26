@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V12</title>
+    <title>CrossTalk V13</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -371,7 +371,6 @@
         updateAutoPlayUI();
     };
 
-    // 自動読み上げ切替
     function toggleAutoPlay() {
         isAutoPlay = !isAutoPlay;
         updateAutoPlayUI();
@@ -384,15 +383,6 @@
         } else {
             btn.classList.remove('active');
             btn.innerText = "🔇 Off";
-        }
-    }
-
-    // 音声エンジンのウォームアップ (iOS対策)
-    function unlockAudio() {
-        if ('speechSynthesis' in window) {
-            const u = new SpeechSynthesisUtterance("");
-            u.volume = 0; // 無音
-            window.speechSynthesis.speak(u);
         }
     }
 
@@ -511,7 +501,6 @@
         
         bubble.innerHTML = html;
         
-        // 再生ボタン配置
         let showReplay = false;
         let textToSpeak = "";
         let langToSpeak = "";
@@ -702,6 +691,14 @@
         const recognition = new SpeechRecognition();
         recognition.interimResults = true;
         recognition.continuous = true;
+        
+        // エラーハンドリング追加
+        recognition.onerror = (event) => {
+            console.error("Speech Error:", event.error);
+            statusEl.innerText = "Mic Error: " + event.error;
+            statusEl.style.color = "red";
+            btn.classList.remove('active');
+        };
 
         let finalTranscript = '';
 
@@ -709,13 +706,11 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
-            // 重要: マイクを押した瞬間に無音再生してオーディオエンジンを起こす
-            unlockAudio();
-
-            if (isConsultMode && !isSelf) return;
-
+            // 修正: 音声再生の裏技はstartRec内では行わず、AudioContextのみ再開
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
+
+            if (isConsultMode && !isSelf) return;
 
             recognition.lang = langSelect.value;
             btn.classList.add('active');
@@ -791,7 +786,7 @@
                         addLogToUI(result, 'partner'); 
                     } else {
                         addLogToUI(result, isSelf ? 'self' : 'partner');
-                        // 自動読み上げONなら再生
+                        // Auto PlayがONなら再生
                         if (isAutoPlay) {
                             speakText(result.translation, tCode);
                         }
