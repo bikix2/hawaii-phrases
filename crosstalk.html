@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk AI V3</title>
+    <title>CrossTalk AI V4 (Safe)</title>
     <link rel="manifest" href="manifest.json">
 
     <style>
@@ -157,60 +157,74 @@
         }
         .context-badge { font-size: 0.8rem; color: #ccc; display: flex; align-items: center; gap: 5px;}
 
-        /* ヘルプモーダル */
-        #help-modal {
+        /* モーダル共通 */
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
         }
-        .help-content {
+        .modal-content {
             background: var(--bubble-bg); color: var(--text-color); padding: 25px;
             border-radius: 20px; max-width: 90%; width: 320px; border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
         }
-        .help-content h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
-        .help-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 0.9rem; align-items: center;}
+        .modal-content h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+        .help-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 0.9rem; align-items: center; text-align: left;}
         .help-icon { font-size: 1.5rem; width: 30px; text-align: center;}
-        .close-btn { 
-            width: 100%; padding: 10px; background: var(--accent-self); border: none; 
-            border-radius: 10px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px;
+        
+        .btn-primary { 
+            width: 100%; padding: 12px; background: var(--accent-self); border: none; 
+            border-radius: 10px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px;
+        }
+        .input-key {
+            width: 90%; padding: 10px; margin-top: 10px; font-size: 1rem;
+            border-radius: 8px; border: 1px solid #555; background: #111; color: white;
         }
     </style>
 </head>
 <body>
 
-<div id="help-modal" onclick="toggleHelp()">
-    <div class="help-content" onclick="event.stopPropagation()">
+<div id="key-modal" class="modal-overlay" style="display: flex;">
+    <div class="modal-content">
+        <h2>Initial Setup</h2>
+        <p style="font-size: 0.9rem; color: #ccc; text-align: left;">
+            Google Gemini APIキーを入力してください。<br>
+            ※キーはブラウザ内にのみ保存されます。
+        </p>
+        <input type="password" id="api-key-input" class="input-key" placeholder="Paste API Key here...">
+        <button class="btn-primary" onclick="saveApiKey()">Start App</button>
+        <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #666;">Get API Key Here</a>
+        </p>
+    </div>
+</div>
+
+<div id="help-modal" class="modal-overlay" onclick="toggleHelp()">
+    <div class="modal-content" onclick="event.stopPropagation()">
         <h2>機能説明</h2>
         <div class="help-item">
+            <span class="help-icon">🔑</span>
+            <div><strong>API Key</strong><br>右下の設定ボタンからキーの変更・削除ができます。</div>
+        </div>
+        <div class="help-item">
             <span class="help-icon">📍</span>
-            <div>
-                <strong>Scene (場面設定)</strong><br>
-                「旅行」「ビジネス」など場面を選ぶと、AIが空気を読んで翻訳します。
-            </div>
+            <div><strong>Scene (場面)</strong><br>「旅行」などを選ぶと、AIが空気を読んで翻訳します。</div>
         </div>
         <div class="help-item">
             <span class="help-icon">👨‍🏫</span>
-            <div>
-                <strong>Coach (学習モード)</strong><br>
-                ONにすると、あなたの発言に対して「こう言った方が自然だよ」とアドバイスをくれます。
-            </div>
+            <div><strong>Coach (学習)</strong><br>ONにすると、より自然な言い回しをアドバイスします。</div>
         </div>
-        <div class="help-item">
-            <span class="help-icon">🗣️</span>
-            <div>
-                <strong>Tone (口調)</strong><br>
-                「Polite(丁寧)」「Casual(友達)」を選ぶと、翻訳のニュアンスが変わります。
-            </div>
-        </div>
-        <div class="help-item">
-            <span class="help-icon">🎙️</span>
-            <div>
-                <strong>マイクボタン</strong><br>
-                ボタンを押している間だけ音声を聞き取ります。
-            </div>
-        </div>
-        <button class="close-btn" onclick="toggleHelp()">閉じる</button>
+        <button class="btn-primary" onclick="toggleHelp()">Close</button>
+    </div>
+</div>
+
+<div id="reset-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Reset Settings</h2>
+        <p>APIキーと設定を削除しますか？</p>
+        <button class="btn-primary" style="background:#ff4757" onclick="resetAll()">Reset & Reload</button>
+        <button class="btn-primary" style="background:#555; margin-top:10px" onclick="document.getElementById('reset-modal').style.display='none'">Cancel</button>
     </div>
 </div>
 
@@ -227,6 +241,7 @@
 
 <div class="utility-btns">
     <button class="fab" onclick="toggleHelp()" title="ヘルプ">❓</button>
+    <button class="fab" onclick="document.getElementById('reset-modal').style.display='flex'" title="設定リセット">⚙️</button>
     <button class="fab" onclick="toggleTheme()" title="テーマ切替">🌓</button>
     <button class="fab" onclick="downloadLog()" title="ログ保存">💾</button>
 </div>
@@ -297,32 +312,59 @@
 
 <script>
     // ==========================================
-    // 設定エリア (API Key & Model)
+    // 設定 & APIキー管理 (セキュア版)
     // ==========================================
-    const API_KEY = "AIzaSyC7btqE6M4vmasUQAFRy_payId1C_7t0GI"; 
+    let API_KEY = ""; // コードには書かない
     const MODEL_ID = "gemini-2.5-flash"; 
-    // ==========================================
-
+    
     let isCoachMode = false;
     let chatLog = [];
     
-    // 設定のロード
-    window.onload = loadSettings;
-
     const LANG_MAP = {
         'ja-JP': 'Japanese', 'en-US': 'English', 'zh-CN': 'Chinese', 'ko-KR': 'Korean',
         'de-DE': 'German', 'fr-FR': 'French', 'es-ES': 'Spanish', 'ar-SA': 'Arabic'
     };
 
-    // ヘルプの表示切替
+    // 起動時処理
+    window.onload = function() {
+        loadSettings();
+        checkApiKey();
+    };
+
+    function checkApiKey() {
+        const storedKey = localStorage.getItem('crosstalk_api_key');
+        if (storedKey) {
+            API_KEY = storedKey;
+            document.getElementById('key-modal').style.display = 'none';
+        } else {
+            document.getElementById('key-modal').style.display = 'flex';
+        }
+    }
+
+    function saveApiKey() {
+        const input = document.getElementById('api-key-input').value.trim();
+        if (input.length > 10) {
+            localStorage.setItem('crosstalk_api_key', input);
+            API_KEY = input;
+            document.getElementById('key-modal').style.display = 'none';
+        } else {
+            alert("Please enter a valid API Key");
+        }
+    }
+
+    function resetAll() {
+        localStorage.removeItem('crosstalk_api_key');
+        localStorage.removeItem('crosstalk_settings');
+        location.reload();
+    }
+
+    // ヘルプ表示切替
     function toggleHelp() {
         const modal = document.getElementById('help-modal');
         modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
     }
 
-    // ==========================================
-    // 設定保存・読み込み (Local Storage)
-    // ==========================================
+    // 設定保存・読み込み
     function saveSettings() {
         const settings = {
             partnerLang: document.getElementById('partner-lang').value,
@@ -344,9 +386,8 @@
                 if(s.tone) document.getElementById('tone-select').value = s.tone;
                 if(s.scenario) document.getElementById('scenario-select').value = s.scenario;
                 if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
-            } catch(e) { console.log("Settings reset"); }
+            } catch(e) {}
         } else {
-            // デフォルトテーマ
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
                 document.documentElement.setAttribute('data-theme', 'light');
             }
@@ -386,9 +427,7 @@
         a.click();
     }
 
-    // ==========================================
     // Audio Visualizer
-    // ==========================================
     let audioContext, analyser, dataArray, microphone, animationId;
     let isAudioInit = false;
 
@@ -423,9 +462,7 @@
         animationId = requestAnimationFrame(() => updateVisualizer(ringId));
     }
 
-    // ==========================================
-    // Gemini API Logic (修正版: JSON抽出強化)
-    // ==========================================
+    // Gemini API Logic
     async function translateWithGemini(text, sourceCode, targetCode, tone, scenario) {
         if (!text) return null;
         const sName = LANG_MAP[sourceCode] || sourceCode;
@@ -439,7 +476,7 @@
         Desired Tone: ${tone}
 
         Instruction:
-        1. "Correction": Identify potential speech recognition errors based on context. (e.g. "eat sheet" -> "eat sweets"). If no error, keep same.
+        1. "Correction": Identify potential speech recognition errors based on context. If no error, keep same.
         2. "Translation": Translate the (Corrected) Source Text to Target Language.
         3. "Advice": (Only if enabled) Provide brief advice for the speaker in ${sName}.
 
@@ -471,7 +508,7 @@
             return JSON.parse(jsonText);
         } catch (e) {
             console.error("Translation Error:", e);
-            return { translation: "(Error)", corrected_source: text, advice: null };
+            return { translation: "(Check API Key)", corrected_source: text, advice: "API Error" };
         }
     }
 
@@ -515,9 +552,7 @@
         });
     }
 
-    // ==========================================
     // 音声認識
-    // ==========================================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     function setupRecognition(btnId, langSelectId, historyId, statusId, liveId, ringId, isSelf) {
@@ -535,6 +570,7 @@
 
         const startRec = async (e) => {
             e.preventDefault();
+            if (!API_KEY) { alert("Please set API Key first."); return; }
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
 
@@ -586,7 +622,7 @@
                 statusEl.innerText = "";
 
                 if (result) {
-                    result.original = newFinal; // 元のテキストを保持
+                    result.original = newFinal;
                     addHistory(historyId, result, isSelf ? "Self" : "Partner");
                     speakText(result.translation, tCode);
                 }
