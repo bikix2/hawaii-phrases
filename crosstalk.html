@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V6</title>
+    <title>CrossTalk V7</title>
     
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
@@ -16,7 +16,7 @@
             --bg-color: #000000;
             --bg-partner: #111111;
             --text-color: #ffffff;
-            --sub-text: #aaaaaa;
+            --sub-text: #888888;
             --bubble-self: #2ed573;
             --bubble-partner: #ff4757;
             --bubble-bg: #222222;
@@ -39,20 +39,25 @@
             background-color: var(--bg-color); color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif;
             overflow: hidden; touch-action: manipulation;
+            /* iPhoneの切り欠き対応 */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
 
         .container { 
             display: flex; flex-direction: column; 
-            height: 100svh; width: 100%;
+            height: 100%; width: 100%;
+            position: fixed; top: 0; left: 0; bottom: 0; right: 0;
         }
 
+        /* エリア共通設定 */
         .area {
             flex: 1; display: flex; flex-direction: column; 
             padding: 10px; position: relative; overflow: hidden; 
         }
 
+        /* 相手側（上半分）：180度回転 */
+        /* コンテナごと回転させることでプルダウンも確実に反転させます */
         .partner-area {
             background-color: var(--bg-partner); 
             transform: rotate(180deg);
@@ -64,48 +69,58 @@
         /* コントロールバー */
         .controls-bar {
             display: flex; gap: 8px; align-items: center;
-            margin-bottom: 8px; z-index: 20; min-height: 40px;
-            /* 要素を横並びにする */
-            flex-direction: row;
+            margin-bottom: 8px; z-index: 20; min-height: 44px;
+            width: 100%;
         }
 
         select, button.icon-btn {
-            padding: 8px 12px; font-size: 0.9rem; background-color: var(--bubble-bg);
+            padding: 10px 12px; font-size: 0.95rem; background-color: var(--bubble-bg);
             color: var(--text-color); border: 1px solid var(--border-color);
             border-radius: 20px; outline: none; appearance: none;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* 終了ボタン */
+        .exit-btn {
+            background-color: #333; color: #ff4757; border: 1px solid #ff4757;
+            font-weight: bold; width: 44px; text-align: center; padding: 10px 0;
         }
         
         /* シーン選択ボタン (右側に配置) */
         #scenario-select {
             background: #333; color: white; border: 1px solid #555;
             font-weight: bold;
-            margin-left: auto; /* これで右端に押されます */
+            margin-left: auto; /* 右端へ */
         }
 
         /* 履歴表示エリア */
         .history-container {
             flex: 1; width: 100%; overflow-y: auto; 
             display: flex; flex-direction: column;
-            padding-bottom: 110px;
+            /* マイクボタンに重ならないように下の余白を確保 */
+            padding-bottom: 140px; 
             -ms-overflow-style: none; scrollbar-width: none;
+            /* タッチスクロールを滑らかに */
+            -webkit-overflow-scrolling: touch;
         }
         .history-container::-webkit-scrollbar { display: none; }
 
-        .message-row { display: flex; width: 100%; margin-bottom: 10px; }
+        .message-row { display: flex; width: 100%; margin-bottom: 12px; }
         .row-self { justify-content: flex-end; }
         .row-partner { justify-content: flex-start; }
 
         .message-bubble {
-            max-width: 80%; border-radius: 18px; padding: 12px 16px;
+            max-width: 85%; border-radius: 18px; padding: 14px 18px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word;
         }
 
-        .bubble-self { background-color: var(--bubble-bg); border-right: 4px solid var(--bubble-self); }
-        .bubble-partner { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-partner); }
+        .bubble-self { background-color: var(--bubble-bg); border-right: 5px solid var(--bubble-self); }
+        .bubble-partner { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-partner); }
 
-        .original-text { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; }
-        .translated-text { font-size: 1.4rem; font-weight: bold; line-height: 1.3; }
+        /* 文字サイズロジック (CSSクラスで制御) */
+        .text-primary { font-size: 1.6rem; font-weight: bold; line-height: 1.2; display: block; }
+        .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
+        
         .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
         
         .advice-box {
@@ -113,56 +128,69 @@
             font-size: 0.85rem; color: var(--advice-color); display: flex; align-items: start; gap: 5px;
         }
 
-        /* マイクボタン */
-        .mic-wrapper {
-            position: absolute; bottom: 30px; left: 0; right: 0;
-            display: flex; justify-content: center; align-items: center;
-            pointer-events: none; z-index: 30;
+        /* マイクボタンとステータスを画面端に絶対固定 */
+        .bottom-fixed-wrapper {
+            position: absolute; 
+            bottom: 0; left: 0; right: 0;
+            height: 130px; /* 固定エリアの高さ */
+            display: flex; flex-direction: column; 
+            justify-content: flex-end; align-items: center;
+            padding-bottom: 20px;
+            background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%);
+            z-index: 50;
+            pointer-events: none; /* ボタン以外はクリック透過 */
+        }
+        .partner-area .bottom-fixed-wrapper {
+            background: linear-gradient(to top, var(--bg-partner) 20%, transparent 100%);
         }
 
         .mic-btn {
-            width: 80px; height: 80px; border-radius: 50%; border: none;
-            font-size: 32px; cursor: pointer; pointer-events: auto;
+            width: 85px; height: 85px; border-radius: 50%; border: none;
+            font-size: 36px; cursor: pointer; pointer-events: auto;
             display: flex; justify-content: center; align-items: center;
-            position: relative; box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s; background: white;
+            position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: transform 0.1s, filter 0.1s; background: white;
             -webkit-tap-highlight-color: transparent;
+            /* タッチ操作の遅延をなくす */
+            touch-action: manipulation;
         }
         
+        .mic-btn.active { transform: scale(0.9); filter: brightness(0.8); }
+
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
-        .mic-btn:active { transform: scale(0.92); }
 
         /* ビジュアライザー */
         .visualizer-ring {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; border-radius: 50%;
-            border: 4px solid currentColor; opacity: 0.4; pointer-events: none;
+            border: 5px solid currentColor; opacity: 0.5; pointer-events: none;
         }
-        #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.6); }
-        #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.6); }
+        #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
+        #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.7); }
 
+        /* ステータス文字（大きく見やすく） */
         .status-text {
-            position: absolute; bottom: 10px; width: 100%; text-align: center;
-            font-size: 0.75rem; color: var(--sub-text);
+            font-size: 1.1rem; font-weight: bold; color: var(--sub-text);
+            margin-top: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
         .live-monitor {
-            position: absolute; bottom: 120px; left: 20px; right: 20px;
-            text-align: center; font-size: 1.2rem; font-weight: 600;
+            position: absolute; bottom: 130px; left: 20px; right: 20px;
+            text-align: center; font-size: 1.3rem; font-weight: 600;
             text-shadow: 0 0 10px rgba(0,0,0,0.5); min-height: 1.5em;
-            pointer-events: none; z-index: 15; color: var(--bubble-self);
+            pointer-events: none; z-index: 40; color: var(--bubble-self);
         }
         .partner-area .live-monitor { color: var(--bubble-partner); }
 
         /* ユーティリティ */
         .utility-btns {
             position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
-            display: flex; flex-direction: column; gap: 10px; z-index: 100;
+            display: flex; flex-direction: column; gap: 15px; z-index: 100;
         }
         .fab {
-            width: 44px; height: 44px; border-radius: 50%; background: #222; color: white;
-            border: 1px solid #444; font-size: 1.2rem; cursor: pointer;
+            width: 48px; height: 48px; border-radius: 50%; background: #222; color: white;
+            border: 1px solid #444; font-size: 1.4rem; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
         }
         
@@ -178,13 +206,15 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
         }
         .btn-primary { 
-            width: 100%; padding: 12px; background: var(--bubble-self); border: none; 
-            border-radius: 10px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px;
+            width: 100%; padding: 14px; background: var(--bubble-self); border: none; 
+            border-radius: 12px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px;
         }
         .input-key {
-            width: 90%; padding: 10px; margin-top: 10px; font-size: 1rem;
+            width: 90%; padding: 12px; margin-top: 10px; font-size: 1rem;
             border-radius: 8px; border: 1px solid #555; background: #111; color: white;
         }
+        .help-item { display: flex; gap: 15px; margin-bottom: 15px; font-size: 1rem; align-items: center; text-align: left;}
+        .help-icon { font-size: 1.8rem; width: 40px; text-align: center;}
     </style>
 </head>
 <body>
@@ -194,24 +224,34 @@
         <h2>Setup</h2>
         <p style="font-size: 0.9rem; color: #888;">Gemini APIキーを入力してください。</p>
         <input type="password" id="api-key-input" class="input-key" placeholder="Paste API Key here...">
-        <button class="btn-primary" onclick="saveApiKey()">Start</button>
+        <button class="btn-primary" onclick="saveApiKey()">Start App</button>
         <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">
             <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #666;">Get API Key Here</a>
         </p>
     </div>
 </div>
 
-<div id="reset-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h2>Reset App</h2>
-        <p>設定と履歴を消去しますか？</p>
-        <button class="btn-primary" style="background:#ff4757" onclick="resetAll()">Reset All</button>
-        <button class="btn-primary" style="background:#555; margin-top:10px" onclick="document.getElementById('reset-modal').style.display='none'">Cancel</button>
+<div id="help-modal" class="modal-overlay" onclick="toggleHelp()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2>Help</h2>
+        <div class="help-item">
+            <span class="help-icon">🚪</span>
+            <div><strong>Exit (終了)</strong><br>アプリをリセットして最初の画面に戻ります。</div>
+        </div>
+        <div class="help-item">
+            <span class="help-icon">🎙️</span>
+            <div><strong>Hold to Speak</strong><br>ボタンを押している間だけ声を拾います。</div>
+        </div>
+        <div class="help-item">
+            <span class="help-icon">📍</span>
+            <div><strong>Scene</strong><br>場面を選ぶと翻訳精度が上がります。</div>
+        </div>
+        <button class="btn-primary" onclick="toggleHelp()">Close</button>
     </div>
 </div>
 
 <div class="utility-btns">
-    <button class="fab" onclick="document.getElementById('reset-modal').style.display='flex'" title="設定">⚙️</button>
+    <button class="fab" onclick="toggleHelp()" title="ヘルプ">❓</button>
     <button class="fab" onclick="toggleTheme()" title="テーマ切替">🌓</button>
     <button class="fab" onclick="downloadLog()" title="保存">💾</button>
 </div>
@@ -234,17 +274,20 @@
         
         <div class="history-container" id="partner-history"></div>
         <div id="partner-live" class="live-monitor"></div>
-        <div class="mic-wrapper">
+
+        <div class="bottom-fixed-wrapper">
             <button id="btn-partner" class="mic-btn">
                 <div class="visualizer-ring" id="ring-partner"></div>
                 🎙️
             </button>
+            <div id="partner-status" class="status-text">Hold to speak</div>
         </div>
-        <div id="partner-status" class="status-text">Hold to speak</div>
     </div>
 
     <div class="self-area area">
         <div class="controls-bar">
+            <button class="icon-btn exit-btn" onclick="resetApp()" title="終了">✖</button>
+
             <select id="self-lang" onchange="saveSettings()">
                 <option value="ja-JP" selected>Japanese (日本語)</option>
                 <option value="en-US">English (英語)</option>
@@ -272,13 +315,14 @@
 
         <div class="history-container" id="self-history"></div>
         <div id="self-live" class="live-monitor"></div>
-        <div class="mic-wrapper">
+
+        <div class="bottom-fixed-wrapper">
             <button id="btn-self" class="mic-btn">
                 <div class="visualizer-ring" id="ring-self"></div>
                 🎙️
             </button>
+            <div id="self-status" class="status-text">Hold to speak</div>
         </div>
-        <div id="self-status" class="status-text">Hold to speak</div>
     </div>
 </div>
 
@@ -292,7 +336,6 @@
     let isCoachMode = false;
     let chatLog = [];
     
-    // 全言語対応マップ
     const LANG_MAP = {
         'ja-JP': 'Japanese', 'en-US': 'English', 'zh-CN': 'Chinese', 'ko-KR': 'Korean',
         'de-DE': 'German', 'fr-FR': 'French', 'es-ES': 'Spanish', 'ar-SA': 'Arabic', 'vi-VN': 'Vietnamese'
@@ -303,19 +346,31 @@
         checkApiKey();
         setupScrollObserver('self-history');
         setupScrollObserver('partner-history');
+        setupMicEvents('btn-self', 'self-lang', 'self-live', 'ring-self', true);
+        setupMicEvents('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
     };
 
     // ==========================================
-    // 履歴管理 (相互表示ロジック)
+    // 履歴管理 & 文字サイズロジック
     // ==========================================
     function addLogToUI(result, speakerType) {
+        // 自分側の履歴
         const selfContainer = document.getElementById('self-history');
-        const selfBubble = createBubble(result, speakerType, false);
+        // 自分側の画面: 自分の言語(selfLang)が大きく見たい
+        // speakerTypeがselfなら: Original(自分の言語)を大きく
+        // speakerTypeがpartnerなら: Translation(自分の言語)を大きく
+        const selfPrimaryIsOriginal = (speakerType === 'self');
+        const selfBubble = createBubble(result, speakerType, selfPrimaryIsOriginal, false);
         selfContainer.appendChild(selfBubble);
         scrollToBottom(selfContainer);
 
+        // 相手側の履歴
         const partnerContainer = document.getElementById('partner-history');
-        const partnerBubble = createBubble(result, speakerType, true);
+        // 相手側の画面: 相手の言語(partnerLang)が大きく見たい
+        // speakerTypeがpartnerなら: Original(相手の言語)を大きく
+        // speakerTypeがselfなら: Translation(相手の言語)を大きく
+        const partnerPrimaryIsOriginal = (speakerType === 'partner');
+        const partnerBubble = createBubble(result, speakerType, partnerPrimaryIsOriginal, true);
         partnerContainer.appendChild(partnerBubble);
         scrollToBottom(partnerContainer);
 
@@ -327,49 +382,50 @@
         });
     }
 
-    function createBubble(result, speakerType, isForPartnerScreen) {
+    // bubble作成
+    // isPrimaryOriginal: trueなら原文を大きく、falseなら訳文を大きく
+    function createBubble(result, speakerType, isPrimaryOriginal, isForPartnerScreen) {
         const row = document.createElement('div');
         row.className = 'message-row';
 
         let bubbleClass = '';
         let rowClass = '';
 
-        if (!isForPartnerScreen) {
-            // 自分画面
+        if (!isForPartnerScreen) { // 自分画面
             if (speakerType === 'self') {
-                rowClass = 'row-self';
-                bubbleClass = 'bubble-self';
+                rowClass = 'row-self'; bubbleClass = 'bubble-self';
             } else {
-                rowClass = 'row-partner';
-                bubbleClass = 'bubble-partner';
+                rowClass = 'row-partner'; bubbleClass = 'bubble-partner';
             }
-        } else {
-            // 相手画面
+        } else { // 相手画面
             if (speakerType === 'partner') {
-                rowClass = 'row-self'; 
-                bubbleClass = 'bubble-partner'; 
+                rowClass = 'row-self'; bubbleClass = 'bubble-partner'; 
             } else {
-                rowClass = 'row-partner'; 
-                bubbleClass = 'bubble-self'; 
+                rowClass = 'row-partner'; bubbleClass = 'bubble-self'; 
             }
         }
 
         row.classList.add(rowClass);
-
         const bubble = document.createElement('div');
         bubble.className = `message-bubble ${bubbleClass}`;
 
         const isCorrected = result.corrected_source && result.corrected_source.toLowerCase() !== result.original.toLowerCase().trim();
-        const sourceDisplay = isCorrected 
+        const originalText = isCorrected 
             ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
             : result.original;
+        
+        const translatedText = result.translation;
 
+        // 文字サイズクラスの割り当て
+        const originalClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
+        const translatedClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
+
+        // 表示順序（大きい方を下に表示するのが一般的だが、ここでは固定順でクラスを変える）
         let html = `
-            <div class="original-text">${sourceDisplay}</div>
-            <div class="translated-text">${result.translation}</div>
+            <div class="${originalClass}">${originalText}</div>
+            <div class="${translatedClass}">${translatedText}</div>
         `;
 
-        // アドバイスは自分の発言かつ、自分の画面にのみ表示
         if (result.advice && speakerType === 'self' && !isForPartnerScreen) {
             html += `<div class="advice-box"><span>👨‍🏫 ${result.advice}</span></div>`;
         }
@@ -405,12 +461,20 @@
             localStorage.setItem('crosstalk_api_key', input);
             API_KEY = input;
             document.getElementById('key-modal').style.display = 'none';
-        } else {
-            alert("Valid API Key required");
+        } else { alert("Valid API Key required"); }
+    }
+
+    // アプリリセット（終了ボタン）
+    function resetApp() {
+        if(confirm("アプリをリセットして初期画面に戻りますか？")) {
+            location.reload();
         }
     }
 
-    function resetAll() { localStorage.clear(); location.reload(); }
+    function toggleHelp() {
+        const modal = document.getElementById('help-modal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
 
     function saveSettings() {
         const settings = {
@@ -458,7 +522,7 @@
         a.click();
     }
 
-    // Audio
+    // Audio & Visualizer
     let audioContext, analyser, dataArray, microphone, animationId;
     let isAudioInit = false;
 
@@ -534,10 +598,10 @@
         window.speechSynthesis.speak(uttr);
     }
 
-    // Speech Recognition
+    // Speech Recognition (マイク改良版)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    function setupRecognition(btnId, langSelectId, liveId, ringId, isSelf) {
+    function setupMicEvents(btnId, langSelectId, liveId, ringId, isSelf) {
         const btn = document.getElementById(btnId);
         const langSelect = document.getElementById(langSelectId);
         const targetLangSelect = isSelf ? document.getElementById('partner-lang') : document.getElementById('self-lang');
@@ -550,15 +614,19 @@
 
         let finalTranscript = '';
 
+        // マイク起動ロジック
         const startRec = async (e) => {
-            e.preventDefault();
+            if(e.cancelable) e.preventDefault(); // スクロール等の干渉防止
             if (!API_KEY) return;
+            
+            // AudioContext再開 (iOS対策)
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
 
             recognition.lang = langSelect.value;
             btn.classList.add('active');
             statusEl.innerText = "Listening...";
+            statusEl.style.color = isSelf ? "var(--bubble-self)" : "var(--bubble-partner)";
             liveEl.innerText = "";
             updateVisualizer(ringId);
             try { recognition.start(); } catch(e) {}
@@ -566,9 +634,10 @@
         };
 
         const stopRec = (e) => {
-            e.preventDefault();
+            if(e.cancelable) e.preventDefault();
             btn.classList.remove('active');
-            statusEl.innerText = "";
+            statusEl.innerText = "Hold to speak";
+            statusEl.style.color = "var(--sub-text)";
             liveEl.innerText = "";
             if(animationId) cancelAnimationFrame(animationId);
             const ring = document.getElementById(ringId);
@@ -576,10 +645,13 @@
             try { recognition.stop(); } catch(e) {}
         };
 
+        // タッチイベントとマウスイベントの両方を登録
         btn.addEventListener('mousedown', startRec);
         btn.addEventListener('mouseup', stopRec);
-        btn.addEventListener('touchstart', startRec);
-        btn.addEventListener('touchend', stopRec);
+        btn.addEventListener('mouseleave', stopRec);
+        
+        btn.addEventListener('touchstart', startRec, {passive: false});
+        btn.addEventListener('touchend', stopRec, {passive: false});
 
         recognition.onresult = async (event) => {
             let interim = '';
@@ -600,7 +672,7 @@
                 const scenario = document.getElementById('scenario-select').value;
 
                 const result = await translateWithGemini(newFinal, sCode, tCode, scenario);
-                statusEl.innerText = "";
+                statusEl.innerText = "Hold to speak";
 
                 if (result) {
                     result.original = newFinal;
@@ -610,9 +682,6 @@
             }
         };
     }
-
-    setupRecognition('btn-self', 'self-lang', 'self-live', 'ring-self', true);
-    setupRecognition('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
 
 </script>
 </body>
