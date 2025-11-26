@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V9</title>
+    <title>CrossTalk V10</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -18,7 +18,7 @@
             --sub-text: #888888;
             --bubble-self: #2ed573;
             --bubble-partner: #ff4757;
-            --bubble-ai: #1e90ff; /* AIモード用 */
+            --bubble-ai: #00d2d3; /* AI相談用 (水色) */
             --bubble-bg: #222222;
             --border-color: #333;
         }
@@ -30,7 +30,7 @@
             --sub-text: #666666;
             --bubble-self: #34c759;
             --bubble-partner: #ff3b30;
-            --bubble-ai: #007aff;
+            --bubble-ai: #5ac8fa;
             --bubble-bg: #ffffff;
             --border-color: #d1d1d6;
         }
@@ -78,17 +78,17 @@
 
         /* カスタムプルダウン (反転対応用) */
         .custom-select { position: relative; display: inline-block; }
-        .custom-select-trigger { cursor: pointer; min-width: 100px; text-align: center; }
+        .custom-select-trigger { cursor: pointer; min-width: 120px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .custom-options {
             display: none; position: absolute; top: 100%; left: 0;
             background: var(--bubble-bg); border: 1px solid var(--border-color);
-            border-radius: 10px; z-index: 200; width: 180px;
-            max-height: 200px; overflow-y: auto;
+            border-radius: 10px; z-index: 200; width: 200px;
+            max-height: 250px; overflow-y: auto; /* スクロール可能に */
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .custom-option {
-            padding: 10px; cursor: pointer; border-bottom: 1px solid #333;
-            color: var(--text-color); font-size: 0.9rem; text-align: left;
+            padding: 12px; cursor: pointer; border-bottom: 1px solid #333;
+            color: var(--text-color); font-size: 1rem; text-align: left;
         }
         .custom-option:hover { background: #444; }
         .custom-select.open .custom-options { display: block; }
@@ -99,9 +99,9 @@
             font-weight: bold; margin-left: auto;
         }
 
-        /* 練習モードボタン */
-        #practice-btn.active {
-            background-color: var(--bubble-ai); color: white; border-color: var(--bubble-ai);
+        /* 相談モードボタン */
+        #consult-btn.active {
+            background-color: var(--bubble-ai); color: black; border-color: var(--bubble-ai); font-weight: bold;
         }
 
         /* 履歴エリア */
@@ -131,12 +131,15 @@
         .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
         .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
 
-        /* 再生ボタン */
+        /* 再生ボタン (吹き出しの横に出す) */
         .replay-btn {
-            background: transparent; border: none; font-size: 1.2rem; cursor: pointer;
-            color: var(--sub-text); padding: 5px; opacity: 0.6;
+            background: var(--bubble-bg); border: 1px solid var(--border-color);
+            border-radius: 50%; width: 36px; height: 36px;
+            font-size: 1.2rem; cursor: pointer; color: var(--text-color);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .replay-btn:active { opacity: 1; transform: scale(0.9); }
+        .replay-btn:active { transform: scale(0.9); background: #444; }
 
         /* 下部固定エリア */
         .bottom-fixed-wrapper {
@@ -164,8 +167,8 @@
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
         
-        /* 練習モード時のボタン色 */
-        #btn-self.practice-mode { background: var(--bubble-ai); }
+        /* 相談モード時のボタン色 */
+        #btn-self.consult-mode { background: var(--bubble-ai); }
 
         .visualizer-ring {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -188,7 +191,7 @@
         }
         .partner-area .live-monitor { color: var(--bubble-partner); }
 
-        /* ユーティリティ (右下) */
+        /* ユーティリティ (右下・半透明) */
         .utility-btns {
             position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
             display: flex; flex-direction: column; gap: 15px; z-index: 100;
@@ -201,7 +204,6 @@
             border: 1px solid #444; font-size: 1.4rem; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
         }
-        /* 終了ボタン */
         .exit-fab { color: #ff4757; border-color: #ff4757; font-size: 1.2rem;}
 
         /* モーダル */
@@ -302,8 +304,8 @@
                 <option value="vi-VN">Vietnamese</option>
             </select>
             
-            <button id="practice-btn" class="icon-btn" onclick="togglePracticeMode()">
-                🙋‍♂️ 練習
+            <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">
+                🙋‍♂️ AI相談
             </button>
 
              <select id="scenario-select" onchange="saveSettings()">
@@ -332,7 +334,7 @@
     let API_KEY = ""; 
     const MODEL_ID = "gemini-2.5-flash"; 
     
-    let isPracticeMode = false; // 練習モードフラグ
+    let isConsultMode = false; // AI相談モード
     let chatLog = [];
     
     const LANG_MAP = {
@@ -354,10 +356,10 @@
         setupMicEvents('btn-self', 'self-lang', 'self-live', 'ring-self', true);
         setupMicEvents('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
         handleLangChange(); 
-        updatePartnerSelectUI(); // カスタムプルダウン初期化
+        updatePartnerSelectUI();
     };
 
-    // カスタムプルダウン制御
+    // カスタムプルダウン
     function toggleCustomSelect() {
         document.getElementById('partner-custom-select').classList.toggle('open');
     }
@@ -370,34 +372,32 @@
     function updatePartnerSelectUI() {
         const select = document.getElementById('partner-lang');
         const text = select.options[select.selectedIndex].text;
-        document.querySelector('.custom-select-trigger').innerText = text.split(' ')[0]; // 短く表示
+        document.querySelector('.custom-select-trigger').innerText = text.split(' ')[0];
     }
-    // 画面タップで閉じる
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.custom-select')) {
             document.getElementById('partner-custom-select').classList.remove('open');
         }
     });
 
-    // 練習モード切替
-    function togglePracticeMode() {
-        isPracticeMode = !isPracticeMode;
-        const btn = document.getElementById('practice-btn');
+    // AI相談モード切替
+    function toggleConsultMode() {
+        isConsultMode = !isConsultMode;
+        const btn = document.getElementById('consult-btn');
         const selfStatus = document.getElementById('self-status');
         const micBtn = document.getElementById('btn-self');
 
-        if (isPracticeMode) {
+        if (isConsultMode) {
             btn.classList.add('active');
             btn.innerText = "👨‍💻 相談中";
-            selfStatus.innerText = "AIに相談（日本語でOK）";
-            micBtn.classList.add('practice-mode');
-            // 相手側のステータスを変える
-            document.getElementById('partner-status').innerText = "AI Teacher Mode";
+            selfStatus.innerText = "AIに相談（日本語）";
+            micBtn.classList.add('consult-mode');
         } else {
+            // モード解除：元の状態に戻す
             btn.classList.remove('active');
-            btn.innerText = "🙋‍♂️ 練習";
-            micBtn.classList.remove('practice-mode');
-            handleLangChange(); // テキスト戻す
+            btn.innerText = "🙋‍♂️ AI相談";
+            micBtn.classList.remove('consult-mode');
+            handleLangChange(); 
         }
     }
 
@@ -406,28 +406,39 @@
         const selfLang = document.getElementById('self-lang').value;
         const partnerLang = document.getElementById('partner-lang').value;
         
-        if (!isPracticeMode) {
+        if (!isConsultMode) {
             document.getElementById('self-status').innerText = UI_TEXT[selfLang] || "Hold to speak";
             document.getElementById('partner-status').innerText = UI_TEXT[partnerLang] || "Hold to speak";
         }
     }
 
-    // ログ追加（再生ボタン付き）
+    // ログ追加
     function addLogToUI(result, speakerType) {
-        // AIモードの場合、speakerType='partner'として扱うが、表示名などを変える
-        const isAI = (isPracticeMode && speakerType === 'partner');
+        const isAI = (isConsultMode && speakerType === 'partner');
         
+        // 自分側の画面: 常に表示
         const selfContainer = document.getElementById('self-history');
         const selfBubble = createBubble(result, speakerType, (speakerType === 'self'), false, isAI);
         selfContainer.appendChild(selfBubble);
         scrollToBottom(selfContainer);
 
-        const partnerContainer = document.getElementById('partner-history');
-        const partnerBubble = createBubble(result, speakerType, (speakerType === 'partner'), true, isAI);
-        partnerContainer.appendChild(partnerBubble);
-        scrollToBottom(partnerContainer);
+        // 相手側の画面: AI相談中は表示しない！
+        if (!isConsultMode) {
+            const partnerContainer = document.getElementById('partner-history');
+            const partnerBubble = createBubble(result, speakerType, (speakerType === 'partner'), true, false);
+            partnerContainer.appendChild(partnerBubble);
+            scrollToBottom(partnerContainer);
+        }
+
+        chatLog.push({
+            time: new Date().toLocaleTimeString(),
+            speaker: speakerType,
+            original: result.corrected_source || result.original,
+            translated: result.translation
+        });
     }
 
+    // 吹き出し作成 (再生ボタンロジック込み)
     function createBubble(result, speakerType, isPrimaryOriginal, isForPartnerScreen, isAI) {
         const row = document.createElement('div');
         row.className = 'message-row';
@@ -444,8 +455,7 @@
             }
         } else { 
             if (speakerType === 'partner') {
-                rowClass = 'row-self'; 
-                bubbleClass = isAI ? 'bubble-ai' : 'bubble-partner'; 
+                rowClass = 'row-self'; bubbleClass = 'bubble-partner'; 
             } else {
                 rowClass = 'row-partner'; bubbleClass = 'bubble-self'; 
             }
@@ -464,29 +474,47 @@
         const originalClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
         const translatedClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
 
-        // 再生ボタン (自分側画面 かつ 相手の発言 の時だけ表示、または自分の発言も再生したい？ ご要望は「相手の言語を再生」。とりあえず全部につける)
-        // 読み上げるテキスト：翻訳された方（相手の言葉）
-        const textToSpeak = (speakerType === 'self') ? result.translation : result.original;
-        // 言語コード
-        const langToSpeak = (speakerType === 'self') ? document.getElementById('partner-lang').value : document.getElementById('partner-lang').value;
-        // ※AIモードの場合は日本語で返答が来るので日本語で読む
-        const speakLang = isAI ? 'ja-JP' : (speakerType === 'self' ? document.getElementById('partner-lang').value : document.getElementById('partner-lang').value);
-        const speakTextContent = isAI ? result.translation : textToSpeak;
-
         let html = `
             <div class="${originalClass}">${originalText}</div>
             <div class="${translatedClass}">${translatedText}</div>
         `;
         
-        // 再生ボタンを追加 (自分側の画面のみ)
-        if (!isForPartnerScreen && (speakerType === 'partner' || isAI)) {
-            // エスケープ処理簡易版
-            const safeText = speakTextContent.replace(/'/g, "\\'");
-            html += `<button class="replay-btn" onclick="speakText('${safeText}', '${speakLang}')">🔊</button>`;
-        }
-
         bubble.innerHTML = html;
         row.appendChild(bubble);
+
+        // 再生ボタンの配置ロジック
+        // 1. 自分側の画面のみ (!isForPartnerScreen)
+        // 2. 「私の発言」なら「翻訳」を再生したい
+        // 3. 「相手の発言」なら「原文」を再生したい (or AIの返答)
+        
+        let showReplay = false;
+        let textToSpeak = "";
+        let langToSpeak = "";
+
+        if (!isForPartnerScreen) {
+            if (speakerType === 'self') {
+                // 私の発言 -> 翻訳された言葉(相手の言語)を再生したい
+                showReplay = true;
+                textToSpeak = result.translation;
+                langToSpeak = document.getElementById('partner-lang').value;
+            } else if (speakerType === 'partner' || isAI) {
+                // 相手(AI)の発言 -> そのまま再生
+                showReplay = true;
+                textToSpeak = isAI ? result.translation : result.original; 
+                // AIなら日本語、相手なら相手の言語
+                langToSpeak = isAI ? 'ja-JP' : document.getElementById('partner-lang').value;
+            }
+        }
+
+        if (showReplay && textToSpeak) {
+             const safeText = textToSpeak.replace(/'/g, "\\'");
+             const btn = document.createElement('button');
+             btn.className = 'replay-btn';
+             btn.innerHTML = '🔊';
+             btn.onclick = function() { speakText(safeText, langToSpeak); };
+             row.appendChild(btn); // 吹き出しの横に追加
+        }
+
         return row;
     }
 
@@ -511,7 +539,7 @@
             document.getElementById('key-modal').style.display = 'none';
         } else { alert("Valid API Key required"); }
     }
-    function resetApp() { if(confirm("アプリをリセットしますか？")) { location.reload(); } }
+    function resetApp() { if(confirm("アプリを終了（リセット）しますか？")) { location.reload(); } }
     function saveSettings() {
         const settings = {
             partnerLang: document.getElementById('partner-lang').value,
@@ -551,7 +579,6 @@
         a.click();
     }
 
-    // Audio
     let audioContext, analyser, dataArray, microphone, animationId;
     let isAudioInit = false;
     async function initAudio() {
@@ -583,7 +610,6 @@
         animationId = requestAnimationFrame(() => updateVisualizer(ringId));
     }
 
-    // Gemini Logic
     async function translateWithGemini(text, sourceCode, targetCode, scenario, isSelf) {
         if (!text) return null;
         const sName = LANG_MAP[sourceCode] || sourceCode;
@@ -591,21 +617,21 @@
 
         let prompt = "";
         
-        if (isPracticeMode && isSelf) {
-            // 練習モード: 先生としてのプロンプト
+        if (isConsultMode && isSelf) {
+            // AI相談モード (翻訳せず、質問に答える)
             prompt = `
-            You are a friendly language tutor. The user is asking you a question in ${sName} (usually Japanese).
-            Please answer helpfuly in ${sName}.
-            If the user asks for a translation, provide the translation clearly and explain if necessary.
+            You are a helpful language tutor. 
+            The user is asking a question in ${sName} (likely Japanese).
+            Answer the question in ${sName}.
             Input: "${text}"
-            Output JSON: { "corrected_source": "${text}", "translation": "Your answer in Japanese", "advice": null }
+            Output JSON: { "corrected_source": "${text}", "translation": "Your Answer Here", "advice": null }
             `;
         } else {
             // 通常通訳モード
             prompt = `
             Role: Professional Interpreter. Context: ${scenario}.
             Source: ${sName}, Target: ${tName}.
-            Task: 1.Correct errors. 2.Translate naturally.
+            Task: Correct errors & Translate naturally.
             Input: "${text}"
             Output JSON: { "corrected_source": "string", "translation": "string", "advice": null }
             `;
@@ -654,8 +680,8 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             
-            // 練習モード中は相手マイク無効
-            if (isPracticeMode && !isSelf) return;
+            // AI相談中は相手マイク無効
+            if (isConsultMode && !isSelf) return;
 
             if (!audioContext) await initAudio();
             if (audioContext.state === 'suspended') await audioContext.resume();
@@ -667,7 +693,7 @@
             if(isSelf) statusMsg = UI_TEXT[langSelect.value].replace("Hold to speak", "Listening").replace("長押しで話す", "聞いています");
             
             statusEl.innerText = statusMsg;
-            statusEl.style.color = isSelf ? (isPracticeMode ? "var(--bubble-ai)" : "var(--bubble-self)") : "var(--bubble-partner)";
+            statusEl.style.color = isSelf ? (isConsultMode ? "var(--bubble-ai)" : "var(--bubble-self)") : "var(--bubble-partner)";
             
             liveEl.innerText = "";
             updateVisualizer(ringId);
@@ -679,15 +705,14 @@
             if(e.cancelable) e.preventDefault();
             btn.classList.remove('active');
             
-            if (isPracticeMode && !isSelf) return;
+            if (isConsultMode && !isSelf) return;
 
-            // テキスト戻す
-            if (!isPracticeMode || !isSelf) {
+            if (!isConsultMode || !isSelf) {
                 const currentLang = langSelect.value;
                 statusEl.innerText = UI_TEXT[currentLang] || "Hold to speak";
                 statusEl.style.color = "var(--sub-text)";
             } else {
-                 statusEl.innerText = "AIに相談（日本語でOK）";
+                 statusEl.innerText = "AIに相談（日本語）";
             }
             
             liveEl.innerText = "";
@@ -723,21 +748,20 @@
 
                 const result = await translateWithGemini(newFinal, sCode, tCode, scenario, isSelf);
                 
-                // ステータス戻す
-                if(!isPracticeMode) {
+                if(!isConsultMode) {
                      statusEl.innerText = UI_TEXT[langSelect.value] || "Hold to speak";
                 } else {
-                     statusEl.innerText = "AIに相談（日本語でOK）";
+                     statusEl.innerText = "AIに相談（日本語）";
                 }
 
                 if (result) {
                     result.original = newFinal;
-                    if (isPracticeMode && isSelf) {
-                        // AIモードの返答
-                        addLogToUI(result, 'partner'); // 相手（AI）が喋ったことにする
-                        speakText(result.translation, 'ja-JP'); // 日本語で回答を読む
+                    if (isConsultMode && isSelf) {
+                        // AIモード: 相手として表示するが、音声自動再生はしない
+                        addLogToUI(result, 'partner'); 
                     } else {
                         addLogToUI(result, isSelf ? 'self' : 'partner');
+                        // 通常モードのみ自動再生
                         speakText(result.translation, tCode);
                     }
                 }
