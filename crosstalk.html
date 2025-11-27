@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V19</title>
+    <title>CrossTalk V20 Speed</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -44,256 +44,92 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .container { 
-            display: flex; flex-direction: column; 
-            height: 100%; width: 100%;
-            position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-        }
-
-        .area {
-            flex: 1; display: flex; flex-direction: column; 
-            padding: 10px; position: relative; overflow: hidden; 
-        }
-
-        .partner-area {
-            background-color: var(--bg-partner); 
-            transform: rotate(180deg); 
-            border-bottom: 1px solid var(--border-color);
-            z-index: 10; 
-        }
-
+        .container { display: flex; flex-direction: column; height: 100%; width: 100%; position: fixed; top: 0; left: 0; bottom: 0; right: 0; }
+        .area { flex: 1; display: flex; flex-direction: column; padding: 10px; position: relative; overflow: hidden; }
+        .partner-area { background-color: var(--bg-partner); transform: rotate(180deg); border-bottom: 1px solid var(--border-color); z-index: 10; }
         .self-area { background-color: var(--bg-color); z-index: 10; }
 
         /* コントロールバー */
-        .controls-bar {
-            display: flex; gap: 6px; align-items: center;
-            margin-bottom: 5px; z-index: 100; min-height: 44px; width: 100%;
-            overflow-x: auto; white-space: nowrap;
-            position: relative;
-        }
+        .controls-bar { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; z-index: 100; min-height: 44px; width: 100%; overflow-x: auto; white-space: nowrap; position: relative; }
         .controls-bar::-webkit-scrollbar { display: none; }
 
-        button.icon-btn, .lang-trigger, input[type="text"] {
-            padding: 8px 12px; font-size: 0.95rem; background-color: var(--bubble-bg);
-            color: var(--text-color); border: 1px solid var(--border-color);
-            border-radius: 16px; outline: none; appearance: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        select, button.icon-btn, .custom-select-trigger, input[type="text"] {
+            padding: 8px 12px; font-size: 0.9rem; background-color: var(--bubble-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 15px; outline: none; appearance: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        /* 言語選択トリガーボタン */
-        .lang-trigger { 
-            cursor: pointer; min-width: 110px; text-align: center; 
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold;
-        }
-
-        /* 言語選択モーダル */
-        .lang-modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 3000;
-            justify-content: center; align-items: center;
-            backdrop-filter: blur(3px);
-        }
-        .lang-modal-content {
-            background: var(--bubble-bg); border: 1px solid var(--border-color);
-            border-radius: 20px; width: 80%; max-height: 70%; overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
-        }
-        /* 相手側のモーダルは回転させる */
-        .lang-modal-overlay.partner-mode .lang-modal-content {
-            transform: rotate(180deg);
-        }
-        
-        .lang-option {
-            padding: 15px; border-bottom: 1px solid var(--border-color);
-            color: var(--text-color); font-size: 1.1rem; text-align: center;
-            cursor: pointer;
-        }
-        .lang-option:active { background: var(--bubble-self); color: white; }
-        .lang-option.selected { background: #333; font-weight: bold; color: var(--bubble-self); }
+        /* カスタムプルダウン */
+        .custom-select { position: relative; display: inline-block; z-index: 200; }
+        .custom-select-trigger { cursor: pointer; min-width: 100px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .custom-options { display: none; position: absolute; top: 100%; left: 0; background: var(--bubble-bg); border: 1px solid var(--border-color); border-radius: 10px; z-index: 300; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .custom-option { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; color: var(--text-color); font-size: 0.9rem; text-align: left; }
+        .custom-option:hover { background: #444; }
+        .custom-select.open .custom-options { display: block; }
 
         /* Auto再生ボタン */
-        #autoplay-btn { 
-            position: relative; width: 46px; height: 40px; 
-            font-size: 1.3rem; padding: 0; display: flex; justify-content: center; align-items: center;
-        }
+        #autoplay-btn { position: relative; width: 44px; height: 38px; font-size: 1.2rem; padding: 0; display: flex; justify-content: center; align-items: center; }
         #autoplay-btn.active { background-color: #2ecc71; border-color: #2ecc71; color: white; }
-        
-        .x-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #ff4757; font-size: 1.8rem; font-weight: 900; pointer-events: none;
-            text-shadow: 0 0 3px black; line-height: 1;
-        }
+        .x-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff4757; font-size: 1.5rem; font-weight: 900; pointer-events: none; text-shadow: 0 0 3px black; line-height: 1; }
 
         /* AI相談ボタン */
-        #consult-btn { font-size: 0.9rem; font-weight: bold; padding: 8px 12px;}
+        #consult-btn { font-size: 0.85rem; font-weight: bold; padding: 8px 10px;}
         #consult-btn.active { background-color: var(--bubble-ai); color: black; }
 
-        /* シーン選択 */
-        #scenario-trigger { 
-            margin-left: auto; font-weight: bold; background: #333; color: white;
-        }
-
         /* 履歴エリア */
-        .history-container {
-            flex: 1; width: 100%; overflow-y: auto; 
-            display: flex; flex-direction: column;
-            padding-bottom: 170px; 
-            -webkit-overflow-scrolling: touch;
-        }
-        .history-container::-webkit-scrollbar { display: none; }
-
+        .history-container { flex: 1; width: 100%; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 160px; -webkit-overflow-scrolling: touch; }
         .message-row { display: flex; width: 100%; margin-bottom: 10px; align-items: flex-end; gap: 5px;}
         .row-self { justify-content: flex-end; }
         .row-partner { justify-content: flex-start; }
+        .message-bubble { max-width: 85%; border-radius: 16px; padding: 10px 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
+        .bubble-self { background-color: var(--bubble-bg); border-right: 4px solid var(--bubble-self); }
+        .bubble-partner { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-partner); }
+        .bubble-ai { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-ai); }
+        .text-primary { font-size: 1.4rem; font-weight: bold; line-height: 1.2; display: block; }
+        .text-secondary { font-size: 0.85rem; color: var(--sub-text); margin-bottom: 3px; line-height: 1.3; display: block; }
+        .replay-btn { background: var(--bubble-bg); border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0; font-size: 1rem; cursor: pointer; color: var(--text-color); display: flex; justify-content: center; align-items: center; }
 
-        .message-bubble {
-            max-width: 85%; border-radius: 18px; padding: 12px 16px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word;
-        }
-
-        .bubble-self { background-color: var(--bubble-bg); border-right: 5px solid var(--bubble-self); }
-        .bubble-partner { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-partner); }
-        .bubble-ai { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-ai); }
-
-        .text-primary { font-size: 1.5rem; font-weight: bold; line-height: 1.2; display: block; }
-        .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
-        .corrected-mark { color: var(--bubble-self); font-size: 0.75rem; font-weight: bold; margin-left: 4px; }
-
-        .replay-btn {
-            background: var(--bubble-bg); border: 1px solid var(--border-color);
-            border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0;
-            font-size: 1.1rem; cursor: pointer; color: var(--text-color);
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* 固定フッターエリア */
-        .bottom-fixed-wrapper {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            height: 160px; 
-            display: flex; flex-direction: column; 
-            justify-content: flex-end; align-items: center;
-            padding-bottom: 15px;
-            background: linear-gradient(to top, var(--bg-color) 50%, transparent 100%);
-            z-index: 50; pointer-events: none;
-        }
-        .partner-area .bottom-fixed-wrapper {
-            background: linear-gradient(to top, var(--bg-partner) 50%, transparent 100%);
-        }
-
-        /* マイクボタン */
-        .mic-controls {
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-            width: 100%; pointer-events: auto; margin-bottom: 8px;
-        }
-
-        .mic-btn {
-            width: 85px; height: 85px; border-radius: 50%; border: none;
-            font-size: 36px; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center;
-            position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            transition: transform 0.1s; background: white;
-            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-        }
+        /* フッター & マイク */
+        .bottom-fixed-wrapper { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 15px; background: linear-gradient(to top, var(--bg-color) 60%, transparent 100%); z-index: 50; pointer-events: none; }
+        .partner-area .bottom-fixed-wrapper { background: linear-gradient(to top, var(--bg-partner) 60%, transparent 100%); }
+        .mic-controls { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; pointer-events: auto; margin-bottom: 8px; }
+        .mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; font-size: 36px; cursor: pointer; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4); transition: transform 0.1s; background: white; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         .mic-btn.active { transform: scale(0.95); filter: brightness(0.9); }
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
         #btn-self.consult-mode { background: var(--bubble-ai); }
-
-        .remote-mic-btn {
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--bubble-partner);
-            background: #333; color: var(--bubble-partner); font-size: 20px;
-            display: flex; justify-content: center; align-items: center; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
-        }
+        .remote-mic-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--bubble-partner); background: #333; color: var(--bubble-partner); font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto; }
         .remote-mic-btn:active { background: var(--bubble-partner); color: white; }
-
-        .visualizer-ring {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 4px solid currentColor; opacity: 0; pointer-events: none;
-        }
-        .mic-btn.active .visualizer-ring, .remote-mic-btn.active .visualizer-ring {
-            animation: pulseRing 1.5s infinite; opacity: 1;
-        }
-        @keyframes pulseRing {
-            0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; }
-            100% { width: 150%; height: 150%; opacity: 0; border-width: 0px; }
-        }
+        .visualizer-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; border-radius: 50%; border: 4px solid currentColor; opacity: 0; pointer-events: none; }
+        .mic-btn.active .visualizer-ring, .remote-mic-btn.active .visualizer-ring { animation: pulseRing 1.5s infinite; opacity: 1; }
+        @keyframes pulseRing { 0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; } 100% { width: 150%; height: 150%; opacity: 0; border-width: 0px; } }
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
+        .status-text { font-size: 1.3rem; font-weight: bold; color: var(--text-color); margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 10px; }
 
-        /* ステータス文字（巨大化） */
-        .status-text {
-            font-size: 1.3rem; font-weight: bold; color: var(--text-color);
-            margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 10px;
-        }
-
-        /* チャット入力 */
-        .chat-input-area {
-            display: flex; width: 94%; gap: 5px; pointer-events: auto; margin-bottom: 5px; position: relative;
-        }
-        .chat-input-wrapper {
-            position: relative; flex: 1; display: flex; align-items: center;
-        }
-        .chat-input {
-            width: 100%; background: rgba(255,255,255,0.1); color: var(--text-color);
-            border: 1px solid var(--border-color); padding: 12px 35px 12px 15px; border-radius: 25px; font-size: 1rem;
-        }
-        .chat-clear-btn {
-            position: absolute; right: 10px; color: #ccc; background: #555; border: none;
-            width: 20px; height: 20px; border-radius: 50%;
-            font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; display: none;
-            align-items: center; justify-content: center;
-        }
-        .send-btn {
-            background: var(--bubble-self); color: white; border: none;
-            padding: 0 18px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem;
-        }
+        /* チャット */
+        .chat-input-area { display: flex; width: 94%; gap: 5px; pointer-events: auto; margin-bottom: 5px; position: relative; }
+        .chat-input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+        .chat-input { width: 100%; background: rgba(255,255,255,0.1); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 35px 12px 15px; border-radius: 25px; font-size: 1rem; }
+        .chat-clear-btn { position: absolute; right: 10px; color: #ccc; background: #555; border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; display: none; align-items: center; justify-content: center; }
+        .send-btn { background: var(--bubble-self); color: white; border: none; padding: 0 18px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
         .partner-area .send-btn { background: var(--bubble-partner); }
 
-        /* ユーティリティボタン（位置調整） */
-        .utility-btns {
-            position: fixed; 
-            bottom: 140px; /* チャットより少し上 */
-            right: 15px;
-            display: flex; flex-direction: column; gap: 12px; z-index: 200;
-            opacity: 0.5; transition: opacity 0.3s;
-        }
+        /* ユーティリティ */
+        .utility-btns { position: fixed; bottom: 220px; right: 15px; display: flex; flex-direction: column; gap: 12px; z-index: 200; opacity: 0.5; transition: opacity 0.3s; }
         .utility-btns:hover, .utility-btns:active { opacity: 1.0; }
-        
-        .fab {
-            width: 44px; height: 44px; border-radius: 50%; background: #222; color: white;
-            border: 1px solid #444; font-size: 1.3rem; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
-        }
+        .fab { width: 44px; height: 44px; border-radius: 50%; background: #222; color: white; border: 1px solid #444; font-size: 1.3rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
         .exit-fab { color: #ff4757; border-color: #ff4757; }
 
-        /* ガイダンス */
-        #onboarding-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); z-index: 1000;
-            display: flex; flex-direction: column;
-        }
-        .onboard-part {
-            flex: 1; display: flex; justify-content: center; align-items: center;
-            color: white; font-size: 1.8rem; font-weight: bold; text-align: center; padding: 20px;
-        }
+        /* オーバーレイ系 */
+        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; flex-direction: column; }
+        .onboard-part { flex: 1; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.8rem; font-weight: bold; text-align: center; padding: 20px; }
         .onboard-partner { transform: rotate(180deg); border-bottom: 1px solid #555; }
         .onboard-arrow { font-size: 4rem; display: block; margin-bottom: 15px; }
-
-        /* モーダル */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: var(--bubble-bg); color: var(--text-color); padding: 25px; border-radius: 20px; max-width: 90%; border: 1px solid var(--border-color); text-align: center; }
         .btn-primary { width: 100%; padding: 12px; background: var(--bubble-self); border: none; border-radius: 12px; color: white; font-weight: bold; margin-top: 15px; }
-        .input-key { width: 90%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #555; background: #111; color: white; font-size: 1rem; }
-        
+        .input-key { width: 90%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #555; background: #111; color: white; font-size: 1rem; }
         .help-item { display: flex; gap: 15px; margin-bottom: 15px; font-size: 1rem; align-items: center; text-align: left;}
         .help-icon { font-size: 1.8rem; width: 40px; text-align: center;}
-
-        /* 学習モード選択 */
         #target-lang-wrapper { display: none; align-items: center; gap: 5px; margin-left: auto;}
         #target-lang-label { font-size: 0.8rem; color: #f1c40f; font-weight: bold; }
         #target-trigger { font-size: 0.8rem; padding: 6px 10px; min-width: 60px; }
@@ -323,25 +159,15 @@
 </div>
 
 <div id="lang-modal" class="lang-modal-overlay" onclick="closeLangModal()">
-    <div class="lang-modal-content" onclick="event.stopPropagation()" id="lang-modal-list">
-        </div>
+    <div class="lang-modal-content" onclick="event.stopPropagation()" id="lang-modal-list"></div>
 </div>
 
 <div id="help-modal" class="modal-overlay" onclick="toggleHelp()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2>Help</h2>
-        <div class="help-item">
-            <span class="help-icon">👂</span>
-            <div><strong>Remote Mic</strong><br>相手が操作できない時、代わりにこのボタンを押して相手の言葉を聞き取ります。</div>
-        </div>
-        <div class="help-item">
-            <span class="help-icon">🙋‍♂️</span>
-            <div><strong>AI Consult</strong><br>翻訳を中断して、AIに日本語で質問できます。</div>
-        </div>
-        <div class="help-item">
-            <span class="help-icon">🌐</span>
-            <div><strong>Learning Mode</strong><br>お互いに同じ言語を選ぶと、翻訳先の外国語を選択して学習できます。</div>
-        </div>
+        <div class="help-item"><span class="help-icon">👂</span><div><strong>Remote Mic</strong><br>相手の代わりに押して聞き取ります。</div></div>
+        <div class="help-item"><span class="help-icon">🙋‍♂️</span><div><strong>AI Consult</strong><br>翻訳を中断してAIに質問できます。</div></div>
+        <div class="help-item"><span class="help-icon">🌐</span><div><strong>Learning Mode</strong><br>同じ言語を選ぶと学習モードになります。</div></div>
         <button class="btn-primary" onclick="toggleHelp()">Close</button>
     </div>
 </div>
@@ -358,15 +184,11 @@
         <div class="controls-bar">
             <div class="lang-trigger" id="partner-lang-trigger" onclick="openLangModal('partner')">English</div>
         </div>
-        
         <div class="history-container" id="partner-history"></div>
-
         <div class="bottom-fixed-wrapper">
             <div class="status-text" id="partner-status">Hold to speak</div>
             <div class="mic-controls">
-                <button id="btn-partner" class="mic-btn">
-                    <div class="visualizer-ring"></div>🎙️
-                </button>
+                <button id="btn-partner" class="mic-btn"><div class="visualizer-ring"></div>🎙️</button>
             </div>
             <div class="chat-input-area">
                 <div class="chat-input-wrapper">
@@ -381,36 +203,23 @@
     <div class="self-area area">
         <div class="controls-bar">
             <div class="lang-trigger" id="self-lang-trigger" onclick="openLangModal('self')">Japanese</div>
-            
             <button id="autoplay-btn" class="icon-btn" onclick="toggleAutoPlay()">
-                <span id="autoplay-icon">🔊</span>
-                <span id="autoplay-x" class="x-overlay">×</span>
+                <span id="autoplay-icon">🔊</span><span id="autoplay-x" class="x-overlay">×</span>
             </button>
-
-            <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">
-                🙋‍♂️ AI相談
-            </button>
-
+            <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">🙋‍♂️ AI相談</button>
             <div id="target-lang-wrapper">
                 <span id="target-lang-label">Target:</span>
                 <div class="lang-trigger" id="target-trigger" onclick="openLangModal('target')">ENG</div>
             </div>
-
              <div class="lang-trigger" id="scenario-trigger" onclick="openLangModal('scenario')">Daily</div>
         </div>
-
         <div class="history-container" id="self-history"></div>
-
         <div class="bottom-fixed-wrapper">
             <div class="status-text" id="self-status">長押しで話す</div>
-            
             <div class="mic-controls">
-                <button id="btn-self" class="mic-btn">
-                    <div class="visualizer-ring"></div>🎙️
-                </button>
+                <button id="btn-self" class="mic-btn"><div class="visualizer-ring"></div>🎙️</button>
                 <button id="btn-remote-partner" class="remote-mic-btn" title="Listen for Partner">👂</button>
             </div>
-
             <div class="chat-input-area">
                 <div class="chat-input-wrapper">
                     <input type="text" id="chat-self" class="chat-input" placeholder="入力..." oninput="toggleClearBtn('chat-self')">
@@ -425,44 +234,28 @@
 <script>
     let API_KEY = ""; 
     const MODEL_ID = "gemini-2.5-flash"; 
-    
     let isConsultMode = false; 
     let isAutoPlay = false; 
     let chatLog = [];
     
-    // データ管理用変数
     let state = {
-        selfLang: 'ja-JP',
-        partnerLang: 'en-US',
-        targetLang: 'en-US',
-        scenario: 'Daily'
+        selfLang: 'ja-JP', partnerLang: 'en-US', targetLang: 'en-US', scenario: 'Daily'
     };
 
     const LANG_LIST = [
-        { code: 'ja-JP', label: 'Japanese (日本語)' },
-        { code: 'en-US', label: 'English (英語)' },
-        { code: 'zh-CN', label: 'Chinese (中国語)' },
-        { code: 'ko-KR', label: 'Korean (韓国語)' },
-        { code: 'de-DE', label: 'German (ドイツ語)' },
-        { code: 'fr-FR', label: 'French (フランス語)' },
-        { code: 'es-ES', label: 'Spanish (スペイン語)' },
-        { code: 'ar-SA', label: 'Arabic (アラビア語)' },
-        { code: 'vi-VN', label: 'Vietnamese (ベトナム語)' },
-        { code: 'it-IT', label: 'Italian (イタリア語)' },
-        { code: 'ru-RU', label: 'Russian (ロシア語)' },
-        { code: 'pt-PT', label: 'Portuguese (ポルトガル語)' },
-        { code: 'th-TH', label: 'Thai (タイ語)' },
-        { code: 'id-ID', label: 'Indonesian (インドネシア語)' }
+        { code: 'ja-JP', label: 'Japanese (日本語)' }, { code: 'en-US', label: 'English (英語)' },
+        { code: 'zh-CN', label: 'Chinese (中国語)' }, { code: 'ko-KR', label: 'Korean (韓国語)' },
+        { code: 'de-DE', label: 'German (ドイツ語)' }, { code: 'fr-FR', label: 'French (フランス語)' },
+        { code: 'es-ES', label: 'Spanish (スペイン語)' }, { code: 'ar-SA', label: 'Arabic (アラビア語)' },
+        { code: 'vi-VN', label: 'Vietnamese (ベトナム語)' }, { code: 'it-IT', label: 'Italian (イタリア語)' },
+        { code: 'ru-RU', label: 'Russian (ロシア語)' }, { code: 'pt-PT', label: 'Portuguese (ポルトガル)' },
+        { code: 'th-TH', label: 'Thai (タイ語)' }, { code: 'id-ID', label: 'Indonesian (インドネシア)' }
     ];
-
     const SCENARIO_LIST = [
-        { code: 'Daily', label: 'Daily (日常)' },
-        { code: 'Travel', label: 'Travel (旅行)' },
-        { code: 'Business', label: 'Business (仕事)' },
-        { code: 'Medical', label: 'Medical (病院)' },
+        { code: 'Daily', label: 'Daily (日常)' }, { code: 'Travel', label: 'Travel (旅行)' },
+        { code: 'Business', label: 'Business (仕事)' }, { code: 'Medical', label: 'Medical (病院)' },
         { code: 'Dining', label: 'Dining (食事)' }
     ];
-
     const UI_TEXT = {
         'ja-JP': '長押しで話す', 'en-US': 'Hold to speak', 'zh-CN': '长按说话', 'ko-KR': '길게 눌러 말하기',
         'de-DE': 'Zum Sprechen halten', 'fr-FR': 'Maintenir pour parler', 'es-ES': 'Mantener para hablar',
@@ -471,17 +264,14 @@
     };
 
     window.onload = function() {
-        loadSettings();
-        checkApiKey();
-        setupScrollObserver('self-history');
-        setupScrollObserver('partner-history');
-        
+        loadSettings(); checkApiKey();
+        setupScrollObserver('self-history'); setupScrollObserver('partner-history');
         setupMicEvents('btn-self', 'self', 'self-status', 'ring-self', true);
         setupMicEvents('btn-partner', 'partner', 'partner-status', 'ring-partner', false);
         setupMicEvents('btn-remote-partner', 'partner', 'partner-status', 'ring-partner', false);
-
-        updateUI();
-        updateAutoPlayUI();
+        updateUI(); updateAutoPlayUI();
+        // ウォームアップ(API)
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`, {method:'POST',body:JSON.stringify({contents:[{parts:[{text:"."}]}]})}).catch(()=>{});
     };
 
     function unlockAudio() {
@@ -489,139 +279,78 @@
             const u = new SpeechSynthesisUtterance(" "); u.volume = 0; window.speechSynthesis.speak(u);
         }
     }
-
-    function toggleAutoPlay() {
-        isAutoPlay = !isAutoPlay;
-        updateAutoPlayUI();
-        if(isAutoPlay) unlockAudio();
-    }
+    function toggleAutoPlay() { isAutoPlay = !isAutoPlay; updateAutoPlayUI(); if(isAutoPlay) unlockAudio(); }
     function updateAutoPlayUI() {
         const btn = document.getElementById('autoplay-btn');
         const xIcon = document.querySelector('.x-overlay');
-        if (isAutoPlay) {
-            btn.classList.add('active');
-            xIcon.style.display = 'none';
-        } else {
-            btn.classList.remove('active');
-            xIcon.style.display = 'block';
-        }
+        if (isAutoPlay) { btn.classList.add('active'); xIcon.style.display = 'none'; }
+        else { btn.classList.remove('active'); xIcon.style.display = 'block'; }
     }
-
     function toggleClearBtn(id) {
         const val = document.getElementById(id).value;
-        const btn = document.getElementById('clear-' + id);
-        btn.style.display = val ? 'flex' : 'none';
+        document.getElementById('clear-' + id).style.display = val ? 'flex' : 'none';
     }
     function clearChat(id) {
-        document.getElementById(id).value = '';
-        document.getElementById('clear-' + id).style.display = 'none';
+        document.getElementById(id).value = ''; document.getElementById('clear-' + id).style.display = 'none';
     }
-
-    // 言語選択モーダル処理
-    let currentModalType = ''; // self, partner, target, scenario
-
+    
+    // Modal
+    let currentModalType = ''; 
     function openLangModal(type) {
         currentModalType = type;
         const modal = document.getElementById('lang-modal');
         const list = document.getElementById('lang-modal-list');
-        
-        // 相手側の場合はモーダルの中身を回転させる
-        if (type === 'partner') {
-            modal.classList.add('partner-mode');
-        } else {
-            modal.classList.remove('partner-mode');
-        }
-
+        if (type === 'partner') modal.classList.add('partner-mode'); else modal.classList.remove('partner-mode');
         list.innerHTML = '';
-        
         if (type === 'scenario') {
             SCENARIO_LIST.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'lang-option ' + (state.scenario === item.code ? 'selected' : '');
-                div.innerText = item.label;
-                div.onclick = () => selectScenario(item.code);
-                list.appendChild(div);
+                const div = document.createElement('div'); div.className = 'lang-option ' + (state.scenario === item.code ? 'selected' : '');
+                div.innerText = item.label; div.onclick = () => selectScenario(item.code); list.appendChild(div);
             });
         } else {
             const currentVal = type === 'self' ? state.selfLang : (type === 'partner' ? state.partnerLang : state.targetLang);
             LANG_LIST.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'lang-option ' + (currentVal === item.code ? 'selected' : '');
-                div.innerText = item.label;
-                div.onclick = () => selectLang(type, item.code);
-                list.appendChild(div);
+                const div = document.createElement('div'); div.className = 'lang-option ' + (currentVal === item.code ? 'selected' : '');
+                div.innerText = item.label; div.onclick = () => selectLang(type, item.code); list.appendChild(div);
             });
         }
         modal.style.display = 'flex';
     }
-
-    function closeLangModal() {
-        document.getElementById('lang-modal').style.display = 'none';
-    }
-
+    function closeLangModal() { document.getElementById('lang-modal').style.display = 'none'; }
     function selectLang(type, code) {
         if (type === 'self') state.selfLang = code;
         else if (type === 'partner') state.partnerLang = code;
         else if (type === 'target') state.targetLang = code;
-        
-        updateUI();
-        closeLangModal();
+        updateUI(); closeLangModal();
     }
-
-    function selectScenario(code) {
-        state.scenario = code;
-        updateUI();
-        closeLangModal();
-    }
+    function selectScenario(code) { state.scenario = code; updateUI(); closeLangModal(); }
 
     function updateUI() {
         saveSettings();
-        
-        // ラベル更新 (短縮形)
         const getLabel = (code) => LANG_LIST.find(l => l.code === code).label.split(' ')[0];
-        
         document.getElementById('self-lang-trigger').innerText = getLabel(state.selfLang);
         document.getElementById('partner-lang-trigger').innerText = getLabel(state.partnerLang);
         document.getElementById('target-trigger').innerText = getLabel(state.targetLang);
         document.getElementById('scenario-trigger').innerText = state.scenario;
-
-        // ガイダンス
         document.getElementById('guide-text-self').innerText = UI_TEXT[state.selfLang] || "Hold to speak";
         document.getElementById('guide-text-partner').innerText = UI_TEXT[state.partnerLang] || "Hold to speak";
-
-        // ステータス
         if (!isConsultMode) {
             document.getElementById('self-status').innerText = UI_TEXT[state.selfLang] || "Hold to speak";
             document.getElementById('partner-status').innerText = UI_TEXT[state.partnerLang] || "Hold to speak";
         } else {
             document.getElementById('self-status').innerText = "AIに相談（日本語）";
         }
-
-        // 学習モード表示切替
-        const targetWrapper = document.getElementById('target-lang-wrapper');
-        if (state.selfLang === state.partnerLang) {
-            targetWrapper.style.display = 'flex';
-        } else {
-            targetWrapper.style.display = 'none';
-        }
+        document.getElementById('target-lang-wrapper').style.display = (state.selfLang === state.partnerLang) ? 'flex' : 'none';
     }
 
     function toggleConsultMode() {
         isConsultMode = !isConsultMode;
         const btn = document.getElementById('consult-btn');
         const micBtn = document.getElementById('btn-self');
-        if (isConsultMode) {
-            btn.classList.add('active');
-            btn.innerText = "👨‍💻 相談中";
-            micBtn.classList.add('consult-mode');
-        } else {
-            btn.classList.remove('active');
-            btn.innerText = "🙋‍♂️ AI相談";
-            micBtn.classList.remove('consult-mode');
-        }
+        if (isConsultMode) { btn.classList.add('active'); btn.innerText = "👨‍💻 相談中"; micBtn.classList.add('consult-mode'); }
+        else { btn.classList.remove('active'); btn.innerText = "🙋‍♂️ AI相談"; micBtn.classList.remove('consult-mode'); }
         updateUI();
     }
-
     function toggleHelp() {
         const modal = document.getElementById('help-modal');
         modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
@@ -632,12 +361,9 @@
         const inputEl = document.getElementById(inputId);
         const text = inputEl.value.trim();
         if(!text) return;
-        inputEl.value = ""; 
-        toggleClearBtn(inputId);
-        
+        inputEl.value = ""; toggleClearBtn(inputId);
         const sCode = sender === 'self' ? state.selfLang : state.partnerLang;
         const tCode = sender === 'self' ? state.partnerLang : state.selfLang;
-        
         await processTranslation(text, sCode, tCode, (sender === 'self'));
     }
 
@@ -646,7 +372,6 @@
         const selfContainer = document.getElementById('self-history');
         selfContainer.appendChild(createBubble(result, speakerType, (speakerType === 'self'), false, isAI));
         scrollToBottom(selfContainer);
-
         if (!isConsultMode) {
             const partnerContainer = document.getElementById('partner-history');
             partnerContainer.appendChild(createBubble(result, speakerType, (speakerType === 'partner'), true, false));
@@ -657,12 +382,7 @@
 
     function createBubble(result, speakerType, isPrimaryOriginal, isForPartnerScreen, isAI) {
         const row = document.createElement('div');
-        row.className = 'message-row ' + (
-            !isForPartnerScreen ? 
-                (speakerType === 'self' ? 'row-self' : 'row-partner') : 
-                (speakerType === 'partner' ? 'row-self' : 'row-partner')
-        );
-
+        row.className = 'message-row ' + (!isForPartnerScreen ? (speakerType === 'self' ? 'row-self' : 'row-partner') : (speakerType === 'partner' ? 'row-self' : 'row-partner'));
         let bubbleClass = '';
         if (!isForPartnerScreen) {
             if (speakerType === 'self') bubbleClass = 'bubble-self';
@@ -671,52 +391,29 @@
             if (speakerType === 'partner') bubbleClass = isAI ? 'bubble-ai' : 'bubble-partner';
             else bubbleClass = 'bubble-self';
         }
-
-        const bubble = document.createElement('div');
-        bubble.className = `message-bubble ${bubbleClass}`;
-
-        const isCorrected = result.corrected_source && result.corrected_source.toLowerCase() !== result.original.toLowerCase().trim();
-        const originalText = isCorrected 
-            ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
-            : result.original;
-        
+        const bubble = document.createElement('div'); bubble.className = `message-bubble ${bubbleClass}`;
         const pClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
         const sClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
-
-        bubble.innerHTML = `<div class="${pClass}">${originalText}</div><div class="${sClass}">${result.translation}</div>`;
+        bubble.innerHTML = `<div class="${pClass}">${result.original}</div><div class="${sClass}">${result.translation}</div>`;
         
-        let showReplay = false;
-        let textToSpeak = "";
-        let langToSpeak = "";
-
+        let showReplay = false, textToSpeak = "", langToSpeak = "";
         if (!isForPartnerScreen) {
             if (speakerType === 'self') {
-                showReplay = true;
-                textToSpeak = result.translation;
-                // 学習モードならターゲット言語
+                showReplay = true; textToSpeak = result.translation;
                 langToSpeak = (state.selfLang === state.partnerLang) ? state.targetLang : state.partnerLang;
             } else if (speakerType === 'partner' || isAI) {
-                showReplay = true;
-                textToSpeak = isAI ? result.translation : result.original; 
+                showReplay = true; textToSpeak = isAI ? result.translation : result.original;
                 langToSpeak = isAI ? 'ja-JP' : state.partnerLang;
             }
         }
-
         if (showReplay && textToSpeak) {
              const safeText = textToSpeak.replace(/'/g, "\\'").replace(/"/g, '\\"');
-             const btn = document.createElement('button');
-             btn.className = 'replay-btn';
-             btn.innerHTML = '🔊';
+             const btn = document.createElement('button'); btn.className = 'replay-btn'; btn.innerHTML = '🔊';
              btn.onclick = function() { speakText(safeText, langToSpeak); };
-             
              if ((!isForPartnerScreen && speakerType === 'self') || (isForPartnerScreen && speakerType !== 'partner')) {
                  row.appendChild(btn); row.appendChild(bubble);
-             } else {
-                 row.appendChild(bubble); row.appendChild(btn);
-             }
-        } else {
-            row.appendChild(bubble);
-        }
+             } else { row.appendChild(bubble); row.appendChild(btn); }
+        } else { row.appendChild(bubble); }
         return row;
     }
 
@@ -728,29 +425,19 @@
     }
     function checkApiKey() {
         const storedKey = localStorage.getItem('crosstalk_api_key');
-        if (storedKey) {
-            API_KEY = storedKey;
-            document.getElementById('key-modal').style.display = 'none';
-        } else { document.getElementById('key-modal').style.display = 'flex'; }
+        if (storedKey) { API_KEY = storedKey; document.getElementById('key-modal').style.display = 'none'; unlockAudio(); }
+        else { document.getElementById('key-modal').style.display = 'flex'; }
     }
     function saveApiKey() {
         const input = document.getElementById('api-key-input').value.trim();
-        if (input.length > 10) {
-            localStorage.setItem('crosstalk_api_key', input);
-            API_KEY = input;
-            document.getElementById('key-modal').style.display = 'none';
-        } else { alert("Valid API Key required"); }
+        if (input.length > 10) { localStorage.setItem('crosstalk_api_key', input); API_KEY = input; document.getElementById('key-modal').style.display = 'none'; unlockAudio(); }
+        else { alert("Valid API Key required"); }
     }
     function resetApp() { if(confirm("アプリを終了しますか？")) { location.reload(); } }
-    
-    function saveSettings() {
-        localStorage.setItem('crosstalk_settings', JSON.stringify(state));
-    }
+    function saveSettings() { localStorage.setItem('crosstalk_settings', JSON.stringify(state)); }
     function loadSettings() {
         const saved = localStorage.getItem('crosstalk_settings');
-        if (saved) {
-            try { state = JSON.parse(saved); } catch(e) {}
-        }
+        if (saved) { try { state = JSON.parse(saved); } catch(e) {} }
     }
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
@@ -760,28 +447,22 @@
         if (chatLog.length === 0) { alert("履歴なし"); return; }
         const text = chatLog.map(l => `[${l.t}] ${l.s}: ${l.o} -> ${l.tr}`).join("\n");
         const blob = new Blob([text], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `log.txt`;
-        a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `log.txt`; a.click();
     }
 
     async function processTranslation(text, sCode, tCode, isSelf) {
-        if (sCode === tCode) {
-            tCode = state.targetLang;
-        }
-        
+        if (sCode === tCode) tCode = state.targetLang;
         const statusId = isSelf ? 'self-status' : 'partner-status';
         document.getElementById(statusId).innerText = "Thinking...";
-
+        
+        // 高速化：テキストのみ返すプロンプト（JSON廃止）
         const result = await translateWithGemini(text, sCode, tCode, state.scenario, isSelf);
         updateUI();
 
         if (result) {
             result.original = text;
-            if (isConsultMode && isSelf) {
-                addLogToUI(result, 'partner'); 
-            } else {
+            if (isConsultMode && isSelf) { addLogToUI(result, 'partner'); }
+            else {
                 addLogToUI(result, isSelf ? 'self' : 'partner');
                 if (isAutoPlay) speakText(result.translation, tCode);
             }
@@ -795,10 +476,11 @@
         const tName = getLabel(targetCode);
 
         let prompt = "";
+        // 高速化のため、余計なJSON構造を排除。テキストだけ返させる。
         if (isConsultMode && isSelf) {
-            prompt = `Role: Language Tutor. Question in ${sName}. Answer in ${sName}. Input:"${text}". JSON:{"corrected_source":"${text}","translation":"Answer","advice":null}`;
+            prompt = `You are a Japanese language tutor. Question in ${sName}. Answer in Japanese briefly. Input: "${text}"`;
         } else {
-            prompt = `Role: Interpreter. Context:${scenario}. ${sName}->${tName}. Correct errors. Input:"${text}". JSON:{"corrected_source":"corrected input","translation":"translated text","advice":null}`;
+            prompt = `Translate from ${sName} to ${tName}. No explanations. Input: "${text}"`;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -809,11 +491,10 @@
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
             const data = await response.json();
-            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-            const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
-            return JSON.parse(jsonText);
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            return { original: text, translation: rawText.trim(), corrected_source: text };
         } catch (e) {
-            return { translation: "Error", corrected_source: text, advice: null };
+            return { original: text, translation: "Error", corrected_source: text };
         }
     }
 
@@ -830,41 +511,28 @@
     function setupMicEvents(btnId, langType, statusId, ringId, isSelf) {
         const btn = document.getElementById(btnId);
         const statusEl = document.getElementById(statusId);
-        
         if (!SpeechRecognition) return;
-
         const recognition = new SpeechRecognition();
-        recognition.interimResults = true;
-        recognition.continuous = true;
-        
-        recognition.onerror = (event) => {
-            console.error("Mic Error", event.error);
-            btn.classList.remove('active');
-        };
+        recognition.interimResults = true; recognition.continuous = true;
+        recognition.onerror = (event) => { btn.classList.remove('active'); };
 
         const startRec = (e) => {
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             if (isConsultMode && !isSelf) return;
-
-            // langTypeから現在の言語コードを取得
-            let langCode = '';
-            if (langType === 'self') langCode = state.selfLang;
-            else if (langType === 'partner') langCode = state.partnerLang;
-
+            // 言語設定
+            let langCode = (langType === 'self') ? state.selfLang : state.partnerLang;
             recognition.lang = langCode;
             btn.classList.add('active');
             statusEl.innerText = "Listening...";
             try { recognition.start(); } catch(e) {}
         };
-
         const stopRec = (e) => {
             if(e.cancelable) e.preventDefault();
             btn.classList.remove('active');
             if (!isConsultMode) updateUI();
             try { recognition.stop(); } catch(e) {}
         };
-
         btn.addEventListener('mousedown', startRec);
         btn.addEventListener('mouseup', stopRec);
         btn.addEventListener('mouseleave', stopRec);
@@ -875,15 +543,8 @@
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
                     const text = event.results[i][0].transcript;
-                    
                     const sCode = (langType === 'self') ? state.selfLang : state.partnerLang;
-                    let tCode = "";
-                    
-                    if (btnId === 'btn-remote-partner') {
-                        tCode = state.selfLang;
-                    } else {
-                        tCode = isSelf ? state.partnerLang : state.selfLang;
-                    }
+                    let tCode = (btnId === 'btn-remote-partner') ? state.selfLang : (isSelf ? state.partnerLang : state.selfLang);
                     const logicalIsSelf = (btnId === 'btn-remote-partner') ? false : isSelf;
                     await processTranslation(text, sCode, tCode, logicalIsSelf);
                 }
