@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V15</title>
+    <title>CrossTalk V18</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -59,116 +59,124 @@
             background-color: var(--bg-partner); 
             transform: rotate(180deg); 
             border-bottom: 1px solid var(--border-color);
+            z-index: 10; /* 重なり順序を整理 */
         }
 
-        .self-area { background-color: var(--bg-color); }
+        .self-area { background-color: var(--bg-color); z-index: 10; }
 
         /* コントロールバー */
         .controls-bar {
-            display: flex; gap: 8px; align-items: center;
-            margin-bottom: 8px; z-index: 20; min-height: 44px; width: 100%;
+            display: flex; gap: 5px; align-items: center;
+            margin-bottom: 5px; z-index: 100; min-height: 44px; width: 100%;
+            overflow-x: auto; white-space: nowrap; /* 横スクロール対応 */
+            /* ボタンが押せるようにエリアを確保 */
+            position: relative; 
         }
+        .controls-bar::-webkit-scrollbar { display: none; }
 
-        select, button.icon-btn, .custom-select-trigger {
-            padding: 10px 12px; font-size: 0.95rem; background-color: var(--bubble-bg);
+        select, button.icon-btn, .custom-select-trigger, input[type="text"] {
+            padding: 8px 12px; font-size: 0.9rem; background-color: var(--bubble-bg);
             color: var(--text-color); border: 1px solid var(--border-color);
-            border-radius: 20px; outline: none; appearance: none;
+            border-radius: 15px; outline: none; appearance: none;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         /* カスタムプルダウン */
-        .custom-select { position: relative; display: inline-block; }
-        .custom-select-trigger { cursor: pointer; min-width: 120px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .custom-select { position: relative; display: inline-block; z-index: 200; }
+        .custom-select-trigger { cursor: pointer; min-width: 100px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .custom-options {
             display: none; position: absolute; top: 100%; left: 0;
             background: var(--bubble-bg); border: 1px solid var(--border-color);
-            border-radius: 10px; z-index: 200; width: 200px;
+            border-radius: 10px; z-index: 300; width: 180px;
             max-height: 250px; overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .custom-option {
-            padding: 12px; cursor: pointer; border-bottom: 1px solid #333;
-            color: var(--text-color); font-size: 1rem; text-align: left;
+            padding: 10px; cursor: pointer; border-bottom: 1px solid #333;
+            color: var(--text-color); font-size: 0.9rem; text-align: left;
         }
         .custom-option:hover { background: #444; }
         .custom-select.open .custom-options { display: block; }
 
-        /* シーン選択 */
-        #scenario-select {
-            background: #333; color: white; border: 1px solid #555;
-            font-weight: bold; margin-left: auto;
+        /* Auto再生ボタン（アイコン重ね合わせ） */
+        #autoplay-btn { 
+            position: relative; width: 44px; height: 38px; 
+            font-size: 1.2rem; padding: 0; display: flex; justify-content: center; align-items: center;
+        }
+        #autoplay-btn.active { background-color: #2ecc71; border-color: #2ecc71; color: white; }
+        
+        /* OFFの時の赤いバツ */
+        .x-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #ff4757; font-size: 1.5rem; font-weight: bold; pointer-events: none;
+            text-shadow: 0 0 2px white;
         }
 
         /* AI相談ボタン */
-        #consult-btn.active {
-            background-color: var(--bubble-ai); color: black; border-color: var(--bubble-ai); font-weight: bold;
-        }
-
-        /* 自動読み上げボタン */
-        #autoplay-btn {
-            width: 80px; font-weight: bold; color: var(--sub-text); border-color: var(--sub-text);
-        }
-        #autoplay-btn.active {
-            background-color: #f1c40f; color: black; border-color: #f1c40f;
-        }
+        #consult-btn { font-size: 0.85rem; font-weight: bold; padding: 8px 10px;}
+        #consult-btn.active { background-color: var(--bubble-ai); color: black; }
 
         /* 履歴エリア */
         .history-container {
             flex: 1; width: 100%; overflow-y: auto; 
             display: flex; flex-direction: column;
-            padding-bottom: 140px; 
+            /* 下部の操作エリア分を確保 */
+            padding-bottom: 160px; 
             -ms-overflow-style: none; scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
         }
         .history-container::-webkit-scrollbar { display: none; }
 
-        .message-row { display: flex; width: 100%; margin-bottom: 12px; align-items: flex-end; gap: 8px;}
+        .message-row { display: flex; width: 100%; margin-bottom: 10px; align-items: flex-end; gap: 5px;}
         .row-self { justify-content: flex-end; }
         .row-partner { justify-content: flex-start; }
 
         .message-bubble {
-            max-width: 80%; border-radius: 18px; padding: 14px 18px;
+            max-width: 85%; border-radius: 16px; padding: 10px 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word;
         }
 
-        .bubble-self { background-color: var(--bubble-bg); border-right: 5px solid var(--bubble-self); }
-        .bubble-partner { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-partner); }
-        .bubble-ai { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-ai); }
+        .bubble-self { background-color: var(--bubble-bg); border-right: 4px solid var(--bubble-self); }
+        .bubble-partner { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-partner); }
+        .bubble-ai { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-ai); }
 
-        .text-primary { font-size: 1.6rem; font-weight: bold; line-height: 1.2; display: block; }
-        .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
-        .corrected-mark { color: var(--bubble-self); font-size: 0.8rem; font-weight: bold; margin-left: 4px; }
+        .text-primary { font-size: 1.4rem; font-weight: bold; line-height: 1.2; display: block; }
+        .text-secondary { font-size: 0.85rem; color: var(--sub-text); margin-bottom: 3px; line-height: 1.3; display: block; }
+        .corrected-mark { color: var(--bubble-self); font-size: 0.7rem; font-weight: bold; margin-left: 4px; }
 
-        /* 再生ボタン */
         .replay-btn {
             background: var(--bubble-bg); border: 1px solid var(--border-color);
-            border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0;
-            font-size: 1.2rem; cursor: pointer; color: var(--text-color);
+            border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0;
+            font-size: 1rem; cursor: pointer; color: var(--text-color);
             display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .replay-btn:active { transform: scale(0.9); background: #444; }
 
-        /* 下部固定エリア */
+        /* 固定フッターエリア */
         .bottom-fixed-wrapper {
             position: absolute; bottom: 0; left: 0; right: 0;
-            height: 130px; 
+            height: 150px; /* チャット欄含めて少し広く */
             display: flex; flex-direction: column; 
             justify-content: flex-end; align-items: center;
-            padding-bottom: 20px;
-            background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%);
-            z-index: 50; pointer-events: none;
+            padding-bottom: 10px;
+            background: linear-gradient(to top, var(--bg-color) 60%, transparent 100%);
+            z-index: 50; pointer-events: none; /* 全体は透過 */
         }
         .partner-area .bottom-fixed-wrapper {
-            background: linear-gradient(to top, var(--bg-partner) 20%, transparent 100%);
+            background: linear-gradient(to top, var(--bg-partner) 60%, transparent 100%);
+        }
+
+        /* マイクボタンエリア */
+        .mic-controls {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            width: 100%; pointer-events: auto; margin-bottom: 5px;
         }
 
         .mic-btn {
-            width: 90px; height: 90px; border-radius: 50%; border: none;
-            font-size: 38px; cursor: pointer; pointer-events: auto;
+            width: 80px; height: 80px; border-radius: 50%; border: none;
+            font-size: 34px; cursor: pointer; 
             display: flex; justify-content: center; align-items: center;
             position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            transition: transform 0.1s, filter 0.1s; background: white;
+            transition: transform 0.1s; background: white;
             -webkit-tap-highlight-color: transparent; touch-action: manipulation;
         }
         .mic-btn.active { transform: scale(0.95); filter: brightness(0.9); }
@@ -176,98 +184,146 @@
         #btn-self { background: var(--bubble-self); color: white; }
         #btn-self.consult-mode { background: var(--bubble-ai); }
 
-        /* 安全なCSSアニメーションビジュアライザー */
+        .remote-mic-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--bubble-partner);
+            background: #333; color: var(--bubble-partner); font-size: 20px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
+        }
+        .remote-mic-btn:active { background: var(--bubble-partner); color: white; }
+
+        /* CSSアニメーション波形 */
         .visualizer-ring {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; border-radius: 50%;
             border: 4px solid currentColor; opacity: 0; pointer-events: none;
         }
-        /* ボタンがactiveの時だけ動くCSSアニメーション */
-        .mic-btn.active .visualizer-ring {
-            animation: pulseRing 1.5s infinite;
-            opacity: 1;
+        .mic-btn.active .visualizer-ring, .remote-mic-btn.active .visualizer-ring {
+            animation: pulseRing 1.5s infinite; opacity: 1;
         }
         @keyframes pulseRing {
             0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; }
-            100% { width: 160%; height: 160%; opacity: 0; border-width: 0px; }
+            100% { width: 150%; height: 150%; opacity: 0; border-width: 0px; }
         }
-
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
 
         .status-text {
-            font-size: 1.1rem; font-weight: bold; color: var(--sub-text);
-            margin-top: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            font-size: 0.9rem; font-weight: bold; color: var(--sub-text);
+            margin-bottom: 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        .live-monitor {
-            position: absolute; bottom: 130px; left: 20px; right: 20px;
-            text-align: center; font-size: 1.3rem; font-weight: 600;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5); min-height: 1.5em;
-            pointer-events: none; z-index: 40; color: var(--bubble-self);
+        /* チャット入力欄 */
+        .chat-input-area {
+            display: flex; width: 94%; gap: 5px; pointer-events: auto; margin-bottom: 5px; position: relative;
         }
-        .partner-area .live-monitor { color: var(--bubble-partner); }
+        .chat-input-wrapper {
+            position: relative; flex: 1; display: flex; align-items: center;
+        }
+        .chat-input {
+            width: 100%; background: rgba(255,255,255,0.1); color: var(--text-color);
+            border: 1px solid var(--border-color); padding: 10px 35px 10px 12px; border-radius: 20px;
+        }
+        .chat-clear-btn {
+            position: absolute; right: 8px; color: #999; background: transparent; border: none;
+            font-size: 1.2rem; cursor: pointer; padding: 0; display: none;
+        }
+        .send-btn {
+            background: var(--bubble-self); color: white; border: none;
+            padding: 0 15px; border-radius: 20px; font-weight: bold; cursor: pointer;
+        }
+        .partner-area .send-btn { background: var(--bubble-partner); }
 
-        /* ユーティリティ */
+        /* ユーティリティボタン（位置調整：かなり上へ） */
         .utility-btns {
-            position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
-            display: flex; flex-direction: column; gap: 15px; z-index: 100;
-            opacity: 0.3; transition: opacity 0.3s;
+            position: fixed; 
+            bottom: 220px; /* チャット欄と被らないように高く設定 */
+            right: 15px;
+            display: flex; flex-direction: column; gap: 15px; z-index: 200;
+            opacity: 0.4; transition: opacity 0.3s;
         }
         .utility-btns:hover, .utility-btns:active { opacity: 1.0; }
-
+        
         .fab {
-            width: 48px; height: 48px; border-radius: 50%; background: #222; color: white;
-            border: 1px solid #444; font-size: 1.4rem; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
+            width: 42px; height: 42px; border-radius: 50%; background: #222; color: white;
+            border: 1px solid #444; font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
         }
-        .exit-fab { color: #ff4757; border-color: #ff4757; font-size: 1.2rem;}
+        .exit-fab { color: #ff4757; border-color: #ff4757; }
 
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+        /* ガイダンス */
+        #onboarding-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            display: flex; flex-direction: column;
         }
-        .modal-content {
-            background: var(--bubble-bg); color: var(--text-color); padding: 25px;
-            border-radius: 20px; max-width: 90%; width: 320px; border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
+        .onboard-part {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 1.6rem; font-weight: bold; text-align: center; padding: 20px;
         }
-        .btn-primary { 
-            width: 100%; padding: 14px; background: var(--bubble-self); border: none; 
-            border-radius: 12px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px;
-        }
-        .input-key {
-            width: 90%; padding: 12px; margin-top: 10px; font-size: 1rem;
-            border-radius: 8px; border: 1px solid #555; background: #111; color: white;
-        }
+        .onboard-partner { transform: rotate(180deg); border-bottom: 1px solid #555; }
+        /* 指の向き修正: 👆 (上) */
+        .onboard-arrow { font-size: 3rem; display: block; margin-bottom: 10px; }
 
-        #error-bar {
-            display: none; position: fixed; top: 0; left: 0; width: 100%;
-            background: #ff4757; color: white; text-align: center;
-            padding: 10px; z-index: 1000; font-weight: bold; font-size: 0.9rem;
-        }
+        /* モーダル */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bubble-bg); color: var(--text-color); padding: 25px; border-radius: 20px; max-width: 90%; border: 1px solid var(--border-color); text-align: center; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--bubble-self); border: none; border-radius: 12px; color: white; font-weight: bold; margin-top: 15px; }
+        .input-key { width: 90%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #555; background: #111; color: white; }
+        .help-item { display: flex; gap: 15px; margin-bottom: 15px; font-size: 1rem; align-items: center; text-align: left;}
+        .help-icon { font-size: 1.8rem; width: 40px; text-align: center;}
+
+        /* 学習モード選択 */
+        #target-lang-wrapper { display: none; align-items: center; gap: 5px; margin-left: auto;}
+        #target-lang-label { font-size: 0.8rem; color: #f1c40f; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="error-bar">Error</div>
+<div id="onboarding-overlay" onclick="this.style.display='none'; unlockAudio();">
+    <div class="onboard-part onboard-partner">
+        <div><span class="onboard-arrow">👆</span><br><span id="guide-text-partner">Hold button to speak</span></div>
+    </div>
+    <div class="onboard-part onboard-self">
+        <div><span class="onboard-arrow">👇</span><br><span id="guide-text-self">ボタンを押して話す</span></div>
+    </div>
+</div>
 
 <div id="key-modal" class="modal-overlay" style="display: flex;">
     <div class="modal-content">
         <h2>Setup</h2>
-        <p style="font-size: 0.9rem; color: #888;">Gemini APIキーを入力してください。</p>
-        <input type="password" id="api-key-input" class="input-key" placeholder="Paste API Key here...">
-        <button class="btn-primary" onclick="saveApiKey()">Start App</button>
+        <p>Gemini API Key</p>
+        <input type="password" id="api-key-input" class="input-key" placeholder="Paste Key here...">
+        <button class="btn-primary" onclick="saveApiKey()">Start</button>
         <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">
             <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #666;">Get API Key Here</a>
         </p>
     </div>
 </div>
 
+<div id="help-modal" class="modal-overlay" onclick="toggleHelp()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2>Help</h2>
+        <div class="help-item">
+            <span class="help-icon">👂</span>
+            <div><strong>Remote Mic</strong><br>相手が操作できない時、代わりにこのボタンを押して相手の言葉を聞き取ります。</div>
+        </div>
+        <div class="help-item">
+            <span class="help-icon">🙋‍♂️</span>
+            <div><strong>AI Consult</strong><br>翻訳を中断して、AIに日本語で質問できます。</div>
+        </div>
+        <div class="help-item">
+            <span class="help-icon">🌐</span>
+            <div><strong>Learning Mode</strong><br>お互いに同じ言語を選ぶと、翻訳先の外国語を選択して学習できます。</div>
+        </div>
+        <button class="btn-primary" onclick="toggleHelp()">Close</button>
+    </div>
+</div>
+
 <div class="utility-btns">
-    <button class="fab" onclick="toggleTheme()" title="テーマ切替">🌓</button>
-    <button class="fab" onclick="downloadLog()" title="保存">💾</button>
+    <button class="fab" onclick="toggleHelp()" title="Help">❓</button>
+    <button class="fab" onclick="toggleTheme()" title="Theme">🌓</button>
+    <button class="fab" onclick="downloadLog()" title="Save">💾</button>
     <button class="fab exit-fab" onclick="resetApp()" title="Exit">✖</button>
 </div>
 
@@ -302,20 +358,26 @@
         </div>
         
         <div class="history-container" id="partner-history"></div>
-        <div id="partner-live" class="live-monitor"></div>
 
         <div class="bottom-fixed-wrapper">
-            <button id="btn-partner" class="mic-btn">
-                <div class="visualizer-ring"></div>
-                🎙️
-            </button>
-            <div id="partner-status" class="status-text">Hold to speak</div>
+            <div class="status-text" id="partner-status">Hold to speak</div>
+            <div class="mic-controls">
+                <button id="btn-partner" class="mic-btn">
+                    <div class="visualizer-ring"></div>🎙️
+                </button>
+            </div>
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-partner" class="chat-input" placeholder="Type..." oninput="toggleClearBtn('chat-partner')">
+                    <button class="chat-clear-btn" id="clear-chat-partner" onclick="clearChat('chat-partner')">×</button>
+                </div>
+                <button class="send-btn" onclick="sendChat('partner')">➤</button>
+            </div>
         </div>
     </div>
 
     <div class="self-area area">
         <div class="controls-bar">
-            
             <select id="self-lang" onchange="handleLangChange()">
                 <option value="ja-JP" selected>Japanese</option>
                 <option value="en-US">English</option>
@@ -329,12 +391,24 @@
             </select>
             
             <button id="autoplay-btn" class="icon-btn" onclick="toggleAutoPlay()">
-                🔇 Off
+                <span id="autoplay-icon">🔊</span>
+                <span id="autoplay-x" class="x-overlay">×</span>
             </button>
 
             <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">
                 🙋‍♂️ AI相談
             </button>
+
+            <div id="target-lang-wrapper">
+                <span id="target-lang-label">Target:</span>
+                <select id="target-lang" onchange="saveSettings()">
+                    <option value="en-US">ENG</option>
+                    <option value="ja-JP">JPN</option>
+                    <option value="zh-CN">CHN</option>
+                    <option value="ko-KR">KOR</option>
+                    <option value="fr-FR">FRA</option>
+                </select>
+            </div>
 
              <select id="scenario-select" onchange="saveSettings()">
                 <option value="general">Daily (日常)</option>
@@ -346,14 +420,24 @@
         </div>
 
         <div class="history-container" id="self-history"></div>
-        <div id="self-live" class="live-monitor"></div>
 
         <div class="bottom-fixed-wrapper">
-            <button id="btn-self" class="mic-btn">
-                <div class="visualizer-ring"></div>
-                🎙️
-            </button>
-            <div id="self-status" class="status-text">長押しで話す</div>
+            <div class="status-text" id="self-status">長押しで話す</div>
+            
+            <div class="mic-controls">
+                <button id="btn-self" class="mic-btn">
+                    <div class="visualizer-ring"></div>🎙️
+                </button>
+                <button id="btn-remote-partner" class="remote-mic-btn" title="Listen for Partner">👂</button>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-self" class="chat-input" placeholder="入力..." oninput="toggleClearBtn('chat-self')">
+                    <button class="chat-clear-btn" id="clear-chat-self" onclick="clearChat('chat-self')">×</button>
+                </div>
+                <button class="send-btn" onclick="sendChat('self')">➤</button>
+            </div>
         </div>
     </div>
 </div>
@@ -363,7 +447,7 @@
     const MODEL_ID = "gemini-2.5-flash"; 
     
     let isConsultMode = false; 
-    let isAutoPlay = false; // Default OFF
+    let isAutoPlay = false; 
     let chatLog = [];
     
     const LANG_MAP = {
@@ -382,8 +466,12 @@
         checkApiKey();
         setupScrollObserver('self-history');
         setupScrollObserver('partner-history');
-        setupMicEvents('btn-self', 'self-lang', 'self-live', 'ring-self', true);
-        setupMicEvents('btn-partner', 'partner-lang', 'partner-live', 'ring-partner', false);
+        
+        // マイクセットアップ
+        setupMicEvents('btn-self', 'self-lang', 'self-status', 'ring-self', true);
+        setupMicEvents('btn-partner', 'partner-lang', 'partner-status', 'ring-partner', false);
+        setupMicEvents('btn-remote-partner', 'partner-lang', 'partner-status', 'ring-partner', false); // 修正: statusIdはpartner-statusを見るべきだがUI上は自分側
+
         handleLangChange(); 
         updatePartnerSelectUI();
         updateAutoPlayUI();
@@ -396,7 +484,6 @@
         setTimeout(() => { bar.style.display = 'none'; }, 5000);
     }
 
-    // 音声アンロック（マイクとは完全に分離）
     function unlockAudio() {
         if ('speechSynthesis' in window) {
             const u = new SpeechSynthesisUtterance(" "); 
@@ -405,29 +492,41 @@
         }
     }
 
-    // Autoボタンを押したときにアンロック
     function toggleAutoPlay() {
         isAutoPlay = !isAutoPlay;
         updateAutoPlayUI();
-        if(isAutoPlay) {
-            unlockAudio(); 
-        }
+        if(isAutoPlay) unlockAudio();
     }
-    
     function updateAutoPlayUI() {
         const btn = document.getElementById('autoplay-btn');
+        const xIcon = document.querySelector('.x-overlay');
         if (isAutoPlay) {
             btn.classList.add('active');
-            btn.innerText = "🔊 Auto";
+            xIcon.style.display = 'none';
         } else {
             btn.classList.remove('active');
-            btn.innerText = "🔇 Off";
+            xIcon.style.display = 'block';
         }
     }
 
-    function toggleCustomSelect() {
-        document.getElementById('partner-custom-select').classList.toggle('open');
+    // チャットクリア機能
+    function toggleClearBtn(id) {
+        const val = document.getElementById(id).value;
+        const btn = document.getElementById('clear-' + id);
+        btn.style.display = val ? 'block' : 'none';
     }
+    function clearChat(id) {
+        document.getElementById(id).value = '';
+        document.getElementById('clear-' + id).style.display = 'none';
+    }
+
+    // ヘルプ
+    function toggleHelp() {
+        const modal = document.getElementById('help-modal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function toggleCustomSelect() { document.getElementById('partner-custom-select').classList.toggle('open'); }
     function setPartnerLang(val, text) {
         document.getElementById('partner-lang').value = val;
         document.querySelector('.custom-select-trigger').innerText = text;
@@ -440,87 +539,91 @@
         document.querySelector('.custom-select-trigger').innerText = text.split(' ')[0];
     }
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.custom-select')) {
-            document.getElementById('partner-custom-select').classList.remove('open');
-        }
+        if (!e.target.closest('.custom-select')) document.getElementById('partner-custom-select').classList.remove('open');
     });
 
     function toggleConsultMode() {
         isConsultMode = !isConsultMode;
         const btn = document.getElementById('consult-btn');
-        const selfStatus = document.getElementById('self-status');
         const micBtn = document.getElementById('btn-self');
-
         if (isConsultMode) {
             btn.classList.add('active');
-            btn.innerText = "👨‍💻 相談中";
-            selfStatus.innerText = "AIに相談（日本語）";
             micBtn.classList.add('consult-mode');
         } else {
             btn.classList.remove('active');
-            btn.innerText = "🙋‍♂️ AI相談";
             micBtn.classList.remove('consult-mode');
-            handleLangChange(); 
         }
+        handleLangChange();
     }
 
     function handleLangChange() {
-        saveSettings();
         const selfLang = document.getElementById('self-lang').value;
         const partnerLang = document.getElementById('partner-lang').value;
         
+        document.getElementById('guide-text-self').innerText = UI_TEXT[selfLang] || "Hold to speak";
+        document.getElementById('guide-text-partner').innerText = UI_TEXT[partnerLang] || "Hold to speak";
+
         if (!isConsultMode) {
             document.getElementById('self-status').innerText = UI_TEXT[selfLang] || "Hold to speak";
             document.getElementById('partner-status').innerText = UI_TEXT[partnerLang] || "Hold to speak";
+        } else {
+            document.getElementById('self-status').innerText = "AIに相談（日本語）";
         }
+
+        const targetWrapper = document.getElementById('target-lang-wrapper');
+        if (selfLang === partnerLang) {
+            targetWrapper.style.display = 'flex';
+        } else {
+            targetWrapper.style.display = 'none';
+        }
+        saveSettings();
+    }
+
+    async function sendChat(sender) {
+        const inputId = sender === 'self' ? 'chat-self' : 'chat-partner';
+        const inputEl = document.getElementById(inputId);
+        const text = inputEl.value.trim();
+        if(!text) return;
+        inputEl.value = ""; 
+        toggleClearBtn(inputId);
+        
+        const sCode = sender === 'self' ? document.getElementById('self-lang').value : document.getElementById('partner-lang').value;
+        const tCode = sender === 'self' ? document.getElementById('partner-lang').value : document.getElementById('self-lang').value;
+        
+        await processTranslation(text, sCode, tCode, (sender === 'self'));
     }
 
     function addLogToUI(result, speakerType) {
         const isAI = (isConsultMode && speakerType === 'partner');
-        
         const selfContainer = document.getElementById('self-history');
-        const selfBubble = createBubble(result, speakerType, (speakerType === 'self'), false, isAI);
-        selfContainer.appendChild(selfBubble);
+        selfContainer.appendChild(createBubble(result, speakerType, (speakerType === 'self'), false, isAI));
         scrollToBottom(selfContainer);
 
         if (!isConsultMode) {
             const partnerContainer = document.getElementById('partner-history');
-            const partnerBubble = createBubble(result, speakerType, (speakerType === 'partner'), true, false);
-            partnerContainer.appendChild(partnerBubble);
+            partnerContainer.appendChild(createBubble(result, speakerType, (speakerType === 'partner'), true, false));
             scrollToBottom(partnerContainer);
         }
-
-        chatLog.push({
-            time: new Date().toLocaleTimeString(),
-            speaker: speakerType,
-            original: result.corrected_source || result.original,
-            translated: result.translation
-        });
+        chatLog.push({t:new Date().toLocaleTimeString(), s:speakerType, o:result.original, tr:result.translation});
     }
 
     function createBubble(result, speakerType, isPrimaryOriginal, isForPartnerScreen, isAI) {
         const row = document.createElement('div');
-        row.className = 'message-row';
+        row.className = 'message-row ' + (
+            !isForPartnerScreen ? 
+                (speakerType === 'self' ? 'row-self' : 'row-partner') : 
+                (speakerType === 'partner' ? 'row-self' : 'row-partner')
+        );
 
         let bubbleClass = '';
-        let rowClass = '';
-
-        if (!isForPartnerScreen) { 
-            if (speakerType === 'self') {
-                rowClass = 'row-self'; bubbleClass = 'bubble-self';
-            } else {
-                rowClass = 'row-partner'; 
-                bubbleClass = isAI ? 'bubble-ai' : 'bubble-partner';
-            }
-        } else { 
-            if (speakerType === 'partner') {
-                rowClass = 'row-self'; bubbleClass = 'bubble-partner'; 
-            } else {
-                rowClass = 'row-partner'; bubbleClass = 'bubble-self'; 
-            }
+        if (!isForPartnerScreen) {
+            if (speakerType === 'self') bubbleClass = 'bubble-self';
+            else bubbleClass = isAI ? 'bubble-ai' : 'bubble-partner';
+        } else {
+            if (speakerType === 'partner') bubbleClass = isAI ? 'bubble-ai' : 'bubble-partner';
+            else bubbleClass = 'bubble-self';
         }
 
-        row.classList.add(rowClass);
         const bubble = document.createElement('div');
         bubble.className = `message-bubble ${bubbleClass}`;
 
@@ -529,16 +632,10 @@
             ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
             : result.original;
         
-        const translatedText = result.translation;
-        const originalClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
-        const translatedClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
+        const pClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
+        const sClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
 
-        let html = `
-            <div class="${originalClass}">${originalText}</div>
-            <div class="${translatedClass}">${translatedText}</div>
-        `;
-        
-        bubble.innerHTML = html;
+        bubble.innerHTML = `<div class="${pClass}">${originalText}</div><div class="${sClass}">${result.translation}</div>`;
         
         let showReplay = false;
         let textToSpeak = "";
@@ -548,7 +645,10 @@
             if (speakerType === 'self') {
                 showReplay = true;
                 textToSpeak = result.translation;
-                langToSpeak = document.getElementById('partner-lang').value;
+                const targetLang = document.getElementById('target-lang-wrapper').style.display === 'flex' 
+                                   ? document.getElementById('target-lang').value 
+                                   : document.getElementById('partner-lang').value;
+                langToSpeak = targetLang;
             } else if (speakerType === 'partner' || isAI) {
                 showReplay = true;
                 textToSpeak = isAI ? result.translation : result.original; 
@@ -563,17 +663,14 @@
              btn.innerHTML = '🔊';
              btn.onclick = function() { speakText(safeText, langToSpeak); };
              
-             if (speakerType === 'self' && !isForPartnerScreen) {
-                 row.appendChild(btn);
-                 row.appendChild(bubble);
+             if ((!isForPartnerScreen && speakerType === 'self') || (isForPartnerScreen && speakerType !== 'partner')) {
+                 row.appendChild(btn); row.appendChild(bubble);
              } else {
-                 row.appendChild(bubble);
-                 row.appendChild(btn);
+                 row.appendChild(bubble); row.appendChild(btn);
              }
         } else {
             row.appendChild(bubble);
         }
-
         return row;
     }
 
@@ -598,11 +695,12 @@
             document.getElementById('key-modal').style.display = 'none';
         } else { alert("Valid API Key required"); }
     }
-    function resetApp() { if(confirm("アプリを終了（リセット）しますか？")) { location.reload(); } }
+    function resetApp() { if(confirm("アプリを終了しますか？")) { location.reload(); } }
     function saveSettings() {
         const settings = {
             partnerLang: document.getElementById('partner-lang').value,
             selfLang: document.getElementById('self-lang').value,
+            targetLang: document.getElementById('target-lang').value,
             scenario: document.getElementById('scenario-select').value,
             theme: document.documentElement.getAttribute('data-theme')
         };
@@ -613,11 +711,9 @@
         if (saved) {
             try {
                 const s = JSON.parse(saved);
-                if(s.partnerLang) {
-                    document.getElementById('partner-lang').value = s.partnerLang;
-                    updatePartnerSelectUI();
-                }
+                if(s.partnerLang) { document.getElementById('partner-lang').value = s.partnerLang; updatePartnerSelectUI(); }
                 if(s.selfLang) document.getElementById('self-lang').value = s.selfLang;
+                if(s.targetLang) document.getElementById('target-lang').value = s.targetLang;
                 if(s.scenario) document.getElementById('scenario-select').value = s.scenario;
                 if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
             } catch(e) {}
@@ -630,12 +726,35 @@
     }
     function downloadLog() {
         if (chatLog.length === 0) { alert("履歴なし"); return; }
-        const text = chatLog.map(l => `[${l.time}] ${l.speaker}: ${l.original} -> ${l.translated}`).join("\n");
+        const text = chatLog.map(l => `[${l.t}] ${l.s}: ${l.o} -> ${l.tr}`).join("\n");
         const blob = new Blob([text], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `log_${new Date().toISOString().slice(0,10)}.txt`;
+        a.download = `log.txt`;
         a.click();
+    }
+
+    async function processTranslation(text, sCode, tCode, isSelf) {
+        if (sCode === tCode) {
+            tCode = document.getElementById('target-lang').value;
+        }
+        const scenario = document.getElementById('scenario-select').value;
+        
+        const statusId = isSelf ? 'self-status' : 'partner-status';
+        document.getElementById(statusId).innerText = "Thinking...";
+
+        const result = await translateWithGemini(text, sCode, tCode, scenario, isSelf);
+        handleLangChange();
+
+        if (result) {
+            result.original = text;
+            if (isConsultMode && isSelf) {
+                addLogToUI(result, 'partner'); 
+            } else {
+                addLogToUI(result, isSelf ? 'self' : 'partner');
+                if (isAutoPlay) speakText(result.translation, tCode);
+            }
+        }
     }
 
     async function translateWithGemini(text, sourceCode, targetCode, scenario, isSelf) {
@@ -644,23 +763,10 @@
         const tName = LANG_MAP[targetCode] || targetCode;
 
         let prompt = "";
-        
         if (isConsultMode && isSelf) {
-            prompt = `
-            You are a helpful language tutor. 
-            The user is asking a question in ${sName} (likely Japanese).
-            Answer the question in ${sName}.
-            Input: "${text}"
-            Output JSON: { "corrected_source": "${text}", "translation": "Your Answer Here", "advice": null }
-            `;
+            prompt = `Role: Language Tutor. Question in ${sName}. Answer in ${sName}. Input:"${text}". JSON:{"corrected_source":"${text}","translation":"Answer","advice":null}`;
         } else {
-            prompt = `
-            Role: Professional Interpreter. Context: ${scenario}.
-            Source: ${sName}, Target: ${tName}.
-            Task: Correct errors & Translate naturally.
-            Input: "${text}"
-            Output JSON: { "corrected_source": "string", "translation": "string", "advice": null }
-            `;
+            prompt = `Role: Interpreter. Context:${scenario}. ${sName}->${tName}. Correct errors. Input:"${text}". JSON:{"corrected_source":"corrected input","translation":"translated text","advice":null}`;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -689,69 +795,37 @@
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    function setupMicEvents(btnId, langSelectId, liveId, ringId, isSelf) {
+    function setupMicEvents(btnId, langSelectId, statusId, ringId, isSelf) {
         const btn = document.getElementById(btnId);
         const langSelect = document.getElementById(langSelectId);
-        const targetLangSelect = isSelf ? document.getElementById('partner-lang') : document.getElementById('self-lang');
-        const liveEl = document.getElementById(liveId);
-        const statusEl = document.getElementById(isSelf ? 'self-status' : 'partner-status');
+        const statusEl = document.getElementById(statusId);
         
-        if (!SpeechRecognition) {
-            showError("Speech Recognition NOT supported in this browser.");
-            return;
-        }
+        if (!SpeechRecognition) return;
 
         const recognition = new SpeechRecognition();
         recognition.interimResults = true;
         recognition.continuous = true;
         
         recognition.onerror = (event) => {
-            console.error("Speech Error:", event.error);
-            if(event.error === 'not-allowed') {
-                showError("Microphone Blocked. Please allow in Settings.");
-            } else {
-                showError("Mic Error: " + event.error);
-            }
+            console.error("Mic Error", event.error);
             btn.classList.remove('active');
         };
 
-        let finalTranscript = '';
-
-        const startRec = async (e) => {
+        const startRec = (e) => {
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
-            
             if (isConsultMode && !isSelf) return;
 
             recognition.lang = langSelect.value;
             btn.classList.add('active');
-            
-            let statusMsg = "Listening...";
-            if(isSelf) statusMsg = UI_TEXT[langSelect.value].replace("Hold to speak", "Listening").replace("長押しで話す", "聞いています");
-            
-            statusEl.innerText = statusMsg;
-            statusEl.style.color = isSelf ? (isConsultMode ? "var(--bubble-ai)" : "var(--bubble-self)") : "var(--bubble-partner)";
-            
-            liveEl.innerText = "";
-            try { recognition.start(); } catch(e) { console.log("Mic already started"); }
-            finalTranscript = '';
+            statusEl.innerText = "Listening...";
+            try { recognition.start(); } catch(e) {}
         };
 
         const stopRec = (e) => {
             if(e.cancelable) e.preventDefault();
             btn.classList.remove('active');
-            
-            if (isConsultMode && !isSelf) return;
-
-            if (!isConsultMode || !isSelf) {
-                const currentLang = langSelect.value;
-                statusEl.innerText = UI_TEXT[currentLang] || "Hold to speak";
-                statusEl.style.color = "var(--sub-text)";
-            } else {
-                 statusEl.innerText = "AIに相談（日本語）";
-            }
-            
-            liveEl.innerText = "";
+            if (!isConsultMode) handleLangChange();
             try { recognition.stop(); } catch(e) {}
         };
 
@@ -762,46 +836,22 @@
         btn.addEventListener('touchend', stopRec, {passive: false});
 
         recognition.onresult = async (event) => {
-            let interim = '';
-            let newFinal = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) newFinal += event.results[i][0].transcript;
-                else interim += event.results[i][0].transcript;
-            }
-            if (interim || newFinal) liveEl.innerText = finalTranscript + newFinal + interim;
-
-            if (newFinal) {
-                finalTranscript += newFinal;
-                liveEl.innerText = "";
-                statusEl.innerText = "Thinking...";
-                
-                const sCode = langSelect.value;
-                const tCode = targetLangSelect.value;
-                const scenario = document.getElementById('scenario-select').value;
-
-                const result = await translateWithGemini(newFinal, sCode, tCode, scenario, isSelf);
-                
-                if(!isConsultMode) {
-                     statusEl.innerText = UI_TEXT[langSelect.value] || "Hold to speak";
-                } else {
-                     statusEl.innerText = "AIに相談（日本語）";
-                }
-
-                if (result) {
-                    result.original = newFinal;
-                    if (isConsultMode && isSelf) {
-                        addLogToUI(result, 'partner'); 
+                if (event.results[i].isFinal) {
+                    const text = event.results[i][0].transcript;
+                    const sCode = langSelect.value;
+                    let tCode = "";
+                    if (btnId === 'btn-remote-partner') {
+                        tCode = document.getElementById('self-lang').value;
                     } else {
-                        addLogToUI(result, isSelf ? 'self' : 'partner');
-                        if (isAutoPlay) {
-                            speakText(result.translation, tCode);
-                        }
+                        tCode = isSelf ? document.getElementById('partner-lang').value : document.getElementById('self-lang').value;
                     }
+                    const logicalIsSelf = (btnId === 'btn-remote-partner') ? false : isSelf;
+                    await processTranslation(text, sCode, tCode, logicalIsSelf);
                 }
             }
         };
     }
-
 </script>
 </body>
 </html>
