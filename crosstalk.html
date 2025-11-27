@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V23</title>
+    <title>CrossTalk V24</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -297,7 +297,7 @@
 
 <div id="onboarding-overlay" onclick="this.style.display='none'; unlockAudio();">
     <div class="onboard-part onboard-partner">
-        <div><span class="onboard-arrow">👆</span><br><span id="guide-text-partner">Hold button to speak</span></div>
+        <div><span class="onboard-arrow">👇</span><br><span id="guide-text-partner">Hold button to speak</span></div>
     </div>
     <div class="onboard-part onboard-self">
         <div><span class="onboard-arrow">👇</span><br><span id="guide-text-self">ボタンを押して話す</span></div>
@@ -396,6 +396,7 @@
     let isAutoPlay = false; 
     let chatLog = [];
     
+    // データ管理用変数
     let state = {
         selfLang: 'ja-JP', partnerLang: 'en-US', targetLang: 'en-US', scenario: 'Daily'
     };
@@ -409,11 +410,13 @@
         { code: 'ru-RU', label: 'Russian (ロシア語)' }, { code: 'pt-PT', label: 'Portuguese (ポルトガル)' },
         { code: 'th-TH', label: 'Thai (タイ語)' }, { code: 'id-ID', label: 'Indonesian (インドネシア)' }
     ];
+
     const SCENARIO_LIST = [
         { code: 'Daily', label: 'Daily (日常)' }, { code: 'Travel', label: 'Travel (旅行)' },
         { code: 'Business', label: 'Business (仕事)' }, { code: 'Medical', label: 'Medical (病院)' },
         { code: 'Dining', label: 'Dining (食事)' }
     ];
+
     const UI_TEXT = {
         'ja-JP': '長押しで話す', 'en-US': 'Hold to speak', 'zh-CN': '长按说话', 'ko-KR': '길게 눌러 말하기',
         'de-DE': 'Zum Sprechen halten', 'fr-FR': 'Maintenir pour parler', 'es-ES': 'Mantener para hablar',
@@ -428,6 +431,8 @@
         setupMicEvents('btn-partner', 'partner', 'partner-status', 'ring-partner', false);
         setupMicEvents('btn-remote-partner', 'partner', 'partner-status', 'ring-partner', false);
         updateUI(); updateAutoPlayUI();
+        // Warmup
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`, {method:'POST',body:JSON.stringify({contents:[{parts:[{text:"."}]}]})}).catch(()=>{});
     };
 
     function unlockAudio() {
@@ -484,6 +489,7 @@
     function updateUI() {
         saveSettings();
         const getLabel = (code) => (LANG_LIST.find(l => l.code === code) || LANG_LIST[0]).label.split(' ')[0];
+        
         document.getElementById('self-lang-trigger').innerText = getLabel(state.selfLang);
         document.getElementById('partner-lang-trigger').innerText = getLabel(state.partnerLang);
         document.getElementById('target-trigger').innerText = getLabel(state.targetLang);
@@ -513,7 +519,7 @@
     }
 
     async function sendChat(sender) {
-        // 重要：チャットでもAPIキーチェックと音声ロック解除を行う
+        // 重要：チャットでもAPIキーチェック
         if (!API_KEY) { alert("API Key Required"); return; }
         if (isAutoPlay) unlockAudio();
 
@@ -635,7 +641,7 @@
         updateUI();
 
         if (result) {
-            result.original = result.corrected_source || text; 
+            result.original = result.corrected_source || text; // 補正があればそちらを
             if (isConsultMode && isSelf) { addLogToUI(result, 'partner'); }
             else {
                 addLogToUI(result, isSelf ? 'self' : 'partner');
