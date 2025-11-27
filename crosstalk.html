@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V20 Speed</title>
+    <title>CrossTalk V22</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -44,92 +44,248 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .container { display: flex; flex-direction: column; height: 100%; width: 100%; position: fixed; top: 0; left: 0; bottom: 0; right: 0; }
-        .area { flex: 1; display: flex; flex-direction: column; padding: 10px; position: relative; overflow: hidden; }
-        .partner-area { background-color: var(--bg-partner); transform: rotate(180deg); border-bottom: 1px solid var(--border-color); z-index: 10; }
+        .container { 
+            display: flex; flex-direction: column; 
+            height: 100%; width: 100%;
+            position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+        }
+
+        .area {
+            flex: 1; display: flex; flex-direction: column; 
+            padding: 10px; position: relative; overflow: hidden; 
+        }
+
+        .partner-area {
+            background-color: var(--bg-partner); 
+            transform: rotate(180deg); 
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10; 
+        }
+
         .self-area { background-color: var(--bg-color); z-index: 10; }
 
         /* コントロールバー */
-        .controls-bar { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; z-index: 100; min-height: 44px; width: 100%; overflow-x: auto; white-space: nowrap; position: relative; }
+        .controls-bar {
+            display: flex; gap: 6px; align-items: center;
+            margin-bottom: 5px; z-index: 100; min-height: 44px; width: 100%;
+            overflow-x: auto; white-space: nowrap;
+            position: relative;
+        }
         .controls-bar::-webkit-scrollbar { display: none; }
 
-        select, button.icon-btn, .custom-select-trigger, input[type="text"] {
-            padding: 8px 12px; font-size: 0.9rem; background-color: var(--bubble-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 15px; outline: none; appearance: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        button.icon-btn, .lang-trigger, input[type="text"] {
+            padding: 8px 12px; font-size: 0.95rem; background-color: var(--bubble-bg);
+            color: var(--text-color); border: 1px solid var(--border-color);
+            border-radius: 16px; outline: none; appearance: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* カスタムプルダウン */
-        .custom-select { position: relative; display: inline-block; z-index: 200; }
-        .custom-select-trigger { cursor: pointer; min-width: 100px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .custom-options { display: none; position: absolute; top: 100%; left: 0; background: var(--bubble-bg); border: 1px solid var(--border-color); border-radius: 10px; z-index: 300; width: 180px; max-height: 250px; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .custom-option { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; color: var(--text-color); font-size: 0.9rem; text-align: left; }
-        .custom-option:hover { background: #444; }
-        .custom-select.open .custom-options { display: block; }
+        .lang-trigger { 
+            cursor: pointer; min-width: 110px; text-align: center; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+
+        /* 言語選択モーダル */
+        .lang-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 3000;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .lang-modal-content {
+            background: var(--bubble-bg); border: 1px solid var(--border-color);
+            border-radius: 20px; width: 80%; max-height: 70%; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+        }
+        .lang-modal-overlay.partner-mode .lang-modal-content {
+            transform: rotate(180deg);
+        }
+        
+        .lang-option {
+            padding: 15px; border-bottom: 1px solid var(--border-color);
+            color: var(--text-color); font-size: 1.1rem; text-align: center;
+            cursor: pointer;
+        }
+        .lang-option:active { background: var(--bubble-self); color: white; }
+        .lang-option.selected { background: #333; font-weight: bold; color: var(--bubble-self); }
 
         /* Auto再生ボタン */
-        #autoplay-btn { position: relative; width: 44px; height: 38px; font-size: 1.2rem; padding: 0; display: flex; justify-content: center; align-items: center; }
+        #autoplay-btn { 
+            position: relative; width: 46px; height: 40px; 
+            font-size: 1.3rem; padding: 0; display: flex; justify-content: center; align-items: center;
+        }
         #autoplay-btn.active { background-color: #2ecc71; border-color: #2ecc71; color: white; }
-        .x-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff4757; font-size: 1.5rem; font-weight: 900; pointer-events: none; text-shadow: 0 0 3px black; line-height: 1; }
+        
+        .x-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #ff4757; font-size: 1.8rem; font-weight: 900; pointer-events: none;
+            text-shadow: 0 0 3px black; line-height: 1;
+        }
 
-        /* AI相談ボタン */
-        #consult-btn { font-size: 0.85rem; font-weight: bold; padding: 8px 10px;}
+        #consult-btn { font-size: 0.9rem; font-weight: bold; padding: 8px 12px;}
         #consult-btn.active { background-color: var(--bubble-ai); color: black; }
 
+        #scenario-trigger { 
+            margin-left: auto; font-weight: bold; background: #333; color: white;
+        }
+
         /* 履歴エリア */
-        .history-container { flex: 1; width: 100%; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 160px; -webkit-overflow-scrolling: touch; }
+        .history-container {
+            flex: 1; width: 100%; overflow-y: auto; 
+            display: flex; flex-direction: column;
+            padding-bottom: 170px; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .history-container::-webkit-scrollbar { display: none; }
+
         .message-row { display: flex; width: 100%; margin-bottom: 10px; align-items: flex-end; gap: 5px;}
         .row-self { justify-content: flex-end; }
         .row-partner { justify-content: flex-start; }
-        .message-bubble { max-width: 85%; border-radius: 16px; padding: 10px 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
-        .bubble-self { background-color: var(--bubble-bg); border-right: 4px solid var(--bubble-self); }
-        .bubble-partner { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-partner); }
-        .bubble-ai { background-color: var(--bubble-bg); border-left: 4px solid var(--bubble-ai); }
-        .text-primary { font-size: 1.4rem; font-weight: bold; line-height: 1.2; display: block; }
-        .text-secondary { font-size: 0.85rem; color: var(--sub-text); margin-bottom: 3px; line-height: 1.3; display: block; }
-        .replay-btn { background: var(--bubble-bg); border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0; font-size: 1rem; cursor: pointer; color: var(--text-color); display: flex; justify-content: center; align-items: center; }
 
-        /* フッター & マイク */
-        .bottom-fixed-wrapper { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 15px; background: linear-gradient(to top, var(--bg-color) 60%, transparent 100%); z-index: 50; pointer-events: none; }
-        .partner-area .bottom-fixed-wrapper { background: linear-gradient(to top, var(--bg-partner) 60%, transparent 100%); }
-        .mic-controls { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; pointer-events: auto; margin-bottom: 8px; }
-        .mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; font-size: 36px; cursor: pointer; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4); transition: transform 0.1s; background: white; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .message-bubble {
+            max-width: 85%; border-radius: 18px; padding: 12px 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; word-wrap: break-word;
+        }
+
+        .bubble-self { background-color: var(--bubble-bg); border-right: 5px solid var(--bubble-self); }
+        .bubble-partner { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-partner); }
+        .bubble-ai { background-color: var(--bubble-bg); border-left: 5px solid var(--bubble-ai); }
+
+        .text-primary { font-size: 1.5rem; font-weight: bold; line-height: 1.2; display: block; }
+        .text-secondary { font-size: 0.9rem; color: var(--sub-text); margin-bottom: 4px; line-height: 1.4; display: block; }
+        .corrected-mark { color: var(--bubble-self); font-size: 0.75rem; font-weight: bold; margin-left: 4px; }
+
+        .replay-btn {
+            background: var(--bubble-bg); border: 1px solid var(--border-color);
+            border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0;
+            font-size: 1.1rem; cursor: pointer; color: var(--text-color);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* 固定フッター */
+        .bottom-fixed-wrapper {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 160px; 
+            display: flex; flex-direction: column; 
+            justify-content: flex-end; align-items: center;
+            padding-bottom: 15px;
+            background: linear-gradient(to top, var(--bg-color) 50%, transparent 100%);
+            z-index: 50; pointer-events: none;
+        }
+        .partner-area .bottom-fixed-wrapper {
+            background: linear-gradient(to top, var(--bg-partner) 50%, transparent 100%);
+        }
+
+        /* マイク */
+        .mic-controls {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            width: 100%; pointer-events: auto; margin-bottom: 8px;
+        }
+
+        .mic-btn {
+            width: 85px; height: 85px; border-radius: 50%; border: none;
+            font-size: 36px; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center;
+            position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: transform 0.1s; background: white;
+            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+        }
         .mic-btn.active { transform: scale(0.95); filter: brightness(0.9); }
         #btn-partner { background: var(--bubble-partner); color: white; }
         #btn-self { background: var(--bubble-self); color: white; }
         #btn-self.consult-mode { background: var(--bubble-ai); }
-        .remote-mic-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--bubble-partner); background: #333; color: var(--bubble-partner); font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto; }
+
+        .remote-mic-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--bubble-partner);
+            background: #333; color: var(--bubble-partner); font-size: 20px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
+        }
         .remote-mic-btn:active { background: var(--bubble-partner); color: white; }
-        .visualizer-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; border-radius: 50%; border: 4px solid currentColor; opacity: 0; pointer-events: none; }
-        .mic-btn.active .visualizer-ring, .remote-mic-btn.active .visualizer-ring { animation: pulseRing 1.5s infinite; opacity: 1; }
-        @keyframes pulseRing { 0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; } 100% { width: 150%; height: 150%; opacity: 0; border-width: 0px; } }
+
+        .visualizer-ring {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 4px solid currentColor; opacity: 0; pointer-events: none;
+        }
+        .mic-btn.active .visualizer-ring, .remote-mic-btn.active .visualizer-ring {
+            animation: pulseRing 1.5s infinite; opacity: 1;
+        }
+        @keyframes pulseRing {
+            0% { width: 100%; height: 100%; opacity: 0.8; border-width: 4px; }
+            100% { width: 150%; height: 150%; opacity: 0; border-width: 0px; }
+        }
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
-        .status-text { font-size: 1.3rem; font-weight: bold; color: var(--text-color); margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 10px; }
+
+        .status-text {
+            font-size: 1.3rem; font-weight: bold; color: var(--text-color);
+            margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 10px;
+        }
 
         /* チャット */
-        .chat-input-area { display: flex; width: 94%; gap: 5px; pointer-events: auto; margin-bottom: 5px; position: relative; }
-        .chat-input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
-        .chat-input { width: 100%; background: rgba(255,255,255,0.1); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 35px 12px 15px; border-radius: 25px; font-size: 1rem; }
-        .chat-clear-btn { position: absolute; right: 10px; color: #ccc; background: #555; border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; display: none; align-items: center; justify-content: center; }
-        .send-btn { background: var(--bubble-self); color: white; border: none; padding: 0 18px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
+        .chat-input-area {
+            display: flex; width: 94%; gap: 5px; pointer-events: auto; margin-bottom: 5px; position: relative;
+        }
+        .chat-input-wrapper {
+            position: relative; flex: 1; display: flex; align-items: center;
+        }
+        .chat-input {
+            width: 100%; background: rgba(255,255,255,0.1); color: var(--text-color);
+            border: 1px solid var(--border-color); padding: 12px 35px 12px 15px; border-radius: 25px; font-size: 1rem;
+        }
+        .chat-clear-btn {
+            position: absolute; right: 10px; color: #ccc; background: #555; border: none;
+            width: 20px; height: 20px; border-radius: 50%;
+            font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; display: none;
+            align-items: center; justify-content: center;
+        }
+        .send-btn {
+            background: var(--bubble-self); color: white; border: none;
+            padding: 0 18px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem;
+        }
         .partner-area .send-btn { background: var(--bubble-partner); }
 
         /* ユーティリティ */
-        .utility-btns { position: fixed; bottom: 220px; right: 15px; display: flex; flex-direction: column; gap: 12px; z-index: 200; opacity: 0.5; transition: opacity 0.3s; }
+        .utility-btns {
+            position: fixed; bottom: 220px; right: 15px;
+            display: flex; flex-direction: column; gap: 12px; z-index: 200;
+            opacity: 0.5; transition: opacity 0.3s;
+        }
         .utility-btns:hover, .utility-btns:active { opacity: 1.0; }
-        .fab { width: 44px; height: 44px; border-radius: 50%; background: #222; color: white; border: 1px solid #444; font-size: 1.3rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+        
+        .fab {
+            width: 44px; height: 44px; border-radius: 50%; background: #222; color: white;
+            border: 1px solid #444; font-size: 1.3rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+        }
         .exit-fab { color: #ff4757; border-color: #ff4757; }
 
-        /* オーバーレイ系 */
-        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; flex-direction: column; }
-        .onboard-part { flex: 1; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.8rem; font-weight: bold; text-align: center; padding: 20px; }
+        /* ガイダンス */
+        #onboarding-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 1000;
+            display: flex; flex-direction: column;
+        }
+        .onboard-part {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 1.8rem; font-weight: bold; text-align: center; padding: 20px;
+        }
         .onboard-partner { transform: rotate(180deg); border-bottom: 1px solid #555; }
         .onboard-arrow { font-size: 4rem; display: block; margin-bottom: 15px; }
+
+        /* モーダル */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: var(--bubble-bg); color: var(--text-color); padding: 25px; border-radius: 20px; max-width: 90%; border: 1px solid var(--border-color); text-align: center; }
         .btn-primary { width: 100%; padding: 12px; background: var(--bubble-self); border: none; border-radius: 12px; color: white; font-weight: bold; margin-top: 15px; }
         .input-key { width: 90%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #555; background: #111; color: white; font-size: 1rem; }
+        
         .help-item { display: flex; gap: 15px; margin-bottom: 15px; font-size: 1rem; align-items: center; text-align: left;}
         .help-icon { font-size: 1.8rem; width: 40px; text-align: center;}
+
         #target-lang-wrapper { display: none; align-items: center; gap: 5px; margin-left: auto;}
         #target-lang-label { font-size: 0.8rem; color: #f1c40f; font-weight: bold; }
         #target-trigger { font-size: 0.8rem; padding: 6px 10px; min-width: 60px; }
@@ -139,7 +295,7 @@
 
 <div id="onboarding-overlay" onclick="this.style.display='none'; unlockAudio();">
     <div class="onboard-part onboard-partner">
-        <div><span class="onboard-arrow">👇</span><br><span id="guide-text-partner">Hold button to speak</span></div>
+        <div><span class="onboard-arrow">👆</span><br><span id="guide-text-partner">Hold button to speak</span></div>
     </div>
     <div class="onboard-part onboard-self">
         <div><span class="onboard-arrow">👇</span><br><span id="guide-text-self">ボタンを押して話す</span></div>
@@ -238,6 +394,7 @@
     let isAutoPlay = false; 
     let chatLog = [];
     
+    // 安全な初期値設定
     let state = {
         selfLang: 'ja-JP', partnerLang: 'en-US', targetLang: 'en-US', scenario: 'Daily'
     };
@@ -270,7 +427,7 @@
         setupMicEvents('btn-partner', 'partner', 'partner-status', 'ring-partner', false);
         setupMicEvents('btn-remote-partner', 'partner', 'partner-status', 'ring-partner', false);
         updateUI(); updateAutoPlayUI();
-        // ウォームアップ(API)
+        // Warmup
         fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`, {method:'POST',body:JSON.stringify({contents:[{parts:[{text:"."}]}]})}).catch(()=>{});
     };
 
@@ -294,7 +451,7 @@
         document.getElementById(id).value = ''; document.getElementById('clear-' + id).style.display = 'none';
     }
     
-    // Modal
+    // Modal Logic
     let currentModalType = ''; 
     function openLangModal(type) {
         currentModalType = type;
@@ -327,7 +484,12 @@
 
     function updateUI() {
         saveSettings();
-        const getLabel = (code) => LANG_LIST.find(l => l.code === code).label.split(' ')[0];
+        // 安全対策: リストにないコードの場合はデフォルトに戻す
+        const getLabel = (code) => {
+            const found = LANG_LIST.find(l => l.code === code);
+            return found ? found.label.split(' ')[0] : '???';
+        };
+        
         document.getElementById('self-lang-trigger').innerText = getLabel(state.selfLang);
         document.getElementById('partner-lang-trigger').innerText = getLabel(state.partnerLang);
         document.getElementById('target-trigger').innerText = getLabel(state.targetLang);
@@ -392,9 +554,16 @@
             else bubbleClass = 'bubble-self';
         }
         const bubble = document.createElement('div'); bubble.className = `message-bubble ${bubbleClass}`;
+        
+        // 修正があるかどうか
+        const isCorrected = result.corrected_source && result.corrected_source.toLowerCase().trim() !== result.original.toLowerCase().trim();
+        const originalText = isCorrected 
+            ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
+            : result.original;
+
         const pClass = isPrimaryOriginal ? 'text-primary' : 'text-secondary';
         const sClass = isPrimaryOriginal ? 'text-secondary' : 'text-primary';
-        bubble.innerHTML = `<div class="${pClass}">${result.original}</div><div class="${sClass}">${result.translation}</div>`;
+        bubble.innerHTML = `<div class="${pClass}">${originalText}</div><div class="${sClass}">${result.translation}</div>`;
         
         let showReplay = false, textToSpeak = "", langToSpeak = "";
         if (!isForPartnerScreen) {
@@ -434,10 +603,19 @@
         else { alert("Valid API Key required"); }
     }
     function resetApp() { if(confirm("アプリを終了しますか？")) { location.reload(); } }
+    
     function saveSettings() { localStorage.setItem('crosstalk_settings', JSON.stringify(state)); }
     function loadSettings() {
         const saved = localStorage.getItem('crosstalk_settings');
-        if (saved) { try { state = JSON.parse(saved); } catch(e) {} }
+        if (saved) { 
+            try { 
+                const loaded = JSON.parse(saved);
+                if(LANG_LIST.some(l=>l.code===loaded.selfLang)) state.selfLang = loaded.selfLang;
+                if(LANG_LIST.some(l=>l.code===loaded.partnerLang)) state.partnerLang = loaded.partnerLang;
+                if(LANG_LIST.some(l=>l.code===loaded.targetLang)) state.targetLang = loaded.targetLang;
+                if(SCENARIO_LIST.some(l=>l.code===loaded.scenario)) state.scenario = loaded.scenario;
+            } catch(e) {} 
+        }
     }
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
@@ -455,12 +633,12 @@
         const statusId = isSelf ? 'self-status' : 'partner-status';
         document.getElementById(statusId).innerText = "Thinking...";
         
-        // 高速化：テキストのみ返すプロンプト（JSON廃止）
+        // 高速セパレーター方式を使用
         const result = await translateWithGemini(text, sCode, tCode, state.scenario, isSelf);
         updateUI();
 
         if (result) {
-            result.original = text;
+            result.original = text; // 入力テキストをオリジナルとして保持
             if (isConsultMode && isSelf) { addLogToUI(result, 'partner'); }
             else {
                 addLogToUI(result, isSelf ? 'self' : 'partner');
@@ -471,16 +649,23 @@
 
     async function translateWithGemini(text, sourceCode, targetCode, scenario, isSelf) {
         if (!text) return null;
-        const getLabel = (code) => LANG_LIST.find(l => l.code === code).label;
+        const getLabel = (code) => (LANG_LIST.find(l => l.code === code)||LANG_LIST[0]).label;
         const sName = getLabel(sourceCode);
         const tName = getLabel(targetCode);
 
+        // V22 高速セパレーターロジック
         let prompt = "";
-        // 高速化のため、余計なJSON構造を排除。テキストだけ返させる。
         if (isConsultMode && isSelf) {
-            prompt = `You are a Japanese language tutor. Question in ${sName}. Answer in Japanese briefly. Input: "${text}"`;
+            // 相談モードはJSONで構造化
+            prompt = `You are a Japanese language tutor. Question in ${sName}. Answer in Japanese briefly. Input: "${text}". JSON:{"corrected_source":"${text}","translation":"Answer","advice":null}`;
         } else {
-            prompt = `Translate from ${sName} to ${tName}. No explanations. Input: "${text}"`;
+            // 通常翻訳はセパレーターで高速化＆補正機能維持
+            // 形式: 補正後テキスト /// 翻訳テキスト
+            prompt = `Role: Interpreter. Context:${scenario}. ${sName}->${tName}. 
+            Step 1: Correct speech errors in source (e.g. "eat sheet"->"eat sweets"). 
+            Step 2: Translate. 
+            Output ONLY: Corrected Source /// Translated Text.
+            Input: "${text}"`;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -492,7 +677,25 @@
             });
             const data = await response.json();
             const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-            return { original: text, translation: rawText.trim(), corrected_source: text };
+            
+            if (isConsultMode && isSelf) {
+                // JSONパース (相談モード)
+                const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
+                const parsed = JSON.parse(jsonText);
+                return { original: text, translation: parsed.translation, corrected_source: text };
+            } else {
+                // セパレーターパース (通常モード)
+                const parts = rawText.split('///');
+                if (parts.length >= 2) {
+                    return { 
+                        original: text, 
+                        corrected_source: parts[0].trim(), 
+                        translation: parts[1].trim() 
+                    };
+                } else {
+                    return { original: text, corrected_source: text, translation: rawText.trim() };
+                }
+            }
         } catch (e) {
             return { original: text, translation: "Error", corrected_source: text };
         }
@@ -520,7 +723,7 @@
             if(e.cancelable) e.preventDefault();
             if (!API_KEY) return;
             if (isConsultMode && !isSelf) return;
-            // 言語設定
+            
             let langCode = (langType === 'self') ? state.selfLang : state.partnerLang;
             recognition.lang = langCode;
             btn.classList.add('active');
