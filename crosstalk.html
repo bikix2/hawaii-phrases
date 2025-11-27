@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V22</title>
+    <title>CrossTalk V23</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -220,10 +220,12 @@
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
 
+        /* ステータス文字（巨大化・視認性向上） */
         .status-text {
-            font-size: 1.3rem; font-weight: bold; color: var(--text-color);
-            margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 10px;
+            font-size: 1.5rem; font-weight: 800; color: var(--text-color);
+            margin-bottom: 8px; text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.4); padding: 4px 15px; border-radius: 12px;
+            letter-spacing: 0.05em;
         }
 
         /* チャット */
@@ -394,7 +396,6 @@
     let isAutoPlay = false; 
     let chatLog = [];
     
-    // 安全な初期値設定
     let state = {
         selfLang: 'ja-JP', partnerLang: 'en-US', targetLang: 'en-US', scenario: 'Daily'
     };
@@ -427,8 +428,6 @@
         setupMicEvents('btn-partner', 'partner', 'partner-status', 'ring-partner', false);
         setupMicEvents('btn-remote-partner', 'partner', 'partner-status', 'ring-partner', false);
         updateUI(); updateAutoPlayUI();
-        // Warmup
-        fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`, {method:'POST',body:JSON.stringify({contents:[{parts:[{text:"."}]}]})}).catch(()=>{});
     };
 
     function unlockAudio() {
@@ -451,7 +450,7 @@
         document.getElementById(id).value = ''; document.getElementById('clear-' + id).style.display = 'none';
     }
     
-    // Modal Logic
+    // Modal
     let currentModalType = ''; 
     function openLangModal(type) {
         currentModalType = type;
@@ -484,12 +483,7 @@
 
     function updateUI() {
         saveSettings();
-        // 安全対策: リストにないコードの場合はデフォルトに戻す
-        const getLabel = (code) => {
-            const found = LANG_LIST.find(l => l.code === code);
-            return found ? found.label.split(' ')[0] : '???';
-        };
-        
+        const getLabel = (code) => (LANG_LIST.find(l => l.code === code) || LANG_LIST[0]).label.split(' ')[0];
         document.getElementById('self-lang-trigger').innerText = getLabel(state.selfLang);
         document.getElementById('partner-lang-trigger').innerText = getLabel(state.partnerLang);
         document.getElementById('target-trigger').innerText = getLabel(state.targetLang);
@@ -519,6 +513,10 @@
     }
 
     async function sendChat(sender) {
+        // 重要：チャットでもAPIキーチェックと音声ロック解除を行う
+        if (!API_KEY) { alert("API Key Required"); return; }
+        if (isAutoPlay) unlockAudio();
+
         const inputId = sender === 'self' ? 'chat-self' : 'chat-partner';
         const inputEl = document.getElementById(inputId);
         const text = inputEl.value.trim();
@@ -555,7 +553,7 @@
         }
         const bubble = document.createElement('div'); bubble.className = `message-bubble ${bubbleClass}`;
         
-        // 修正があるかどうか
+        // 修正があるかどうか (JSONモード対応)
         const isCorrected = result.corrected_source && result.corrected_source.toLowerCase().trim() !== result.original.toLowerCase().trim();
         const originalText = isCorrected 
             ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
@@ -633,12 +631,11 @@
         const statusId = isSelf ? 'self-status' : 'partner-status';
         document.getElementById(statusId).innerText = "Thinking...";
         
-        // 高速セパレーター方式を使用
         const result = await translateWithGemini(text, sCode, tCode, state.scenario, isSelf);
         updateUI();
 
         if (result) {
-            result.original = text; // 入力テキストをオリジナルとして保持
+            result.original = result.corrected_source || text; 
             if (isConsultMode && isSelf) { addLogToUI(result, 'partner'); }
             else {
                 addLogToUI(result, isSelf ? 'self' : 'partner');
@@ -653,19 +650,12 @@
         const sName = getLabel(sourceCode);
         const tName = getLabel(targetCode);
 
-        // V22 高速セパレーターロジック
         let prompt = "";
+        // 高品質モード（JSON復活）
         if (isConsultMode && isSelf) {
-            // 相談モードはJSONで構造化
             prompt = `You are a Japanese language tutor. Question in ${sName}. Answer in Japanese briefly. Input: "${text}". JSON:{"corrected_source":"${text}","translation":"Answer","advice":null}`;
         } else {
-            // 通常翻訳はセパレーターで高速化＆補正機能維持
-            // 形式: 補正後テキスト /// 翻訳テキスト
-            prompt = `Role: Interpreter. Context:${scenario}. ${sName}->${tName}. 
-            Step 1: Correct speech errors in source (e.g. "eat sheet"->"eat sweets"). 
-            Step 2: Translate. 
-            Output ONLY: Corrected Source /// Translated Text.
-            Input: "${text}"`;
+            prompt = `Role: Interpreter. Context:${scenario}. ${sName}->${tName}. Correct errors. Input:"${text}". JSON:{"corrected_source":"corrected input","translation":"translated text","advice":null}`;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
@@ -676,28 +666,17 @@
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
             const data = await response.json();
-            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-            
-            if (isConsultMode && isSelf) {
-                // JSONパース (相談モード)
-                const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
-                const parsed = JSON.parse(jsonText);
-                return { original: text, translation: parsed.translation, corrected_source: text };
-            } else {
-                // セパレーターパース (通常モード)
-                const parts = rawText.split('///');
-                if (parts.length >= 2) {
-                    return { 
-                        original: text, 
-                        corrected_source: parts[0].trim(), 
-                        translation: parts[1].trim() 
-                    };
-                } else {
-                    return { original: text, corrected_source: text, translation: rawText.trim() };
-                }
-            }
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            // JSON抽出
+            const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
+            const parsed = JSON.parse(jsonText);
+            return { 
+                original: text, 
+                translation: parsed.translation || "Error", 
+                corrected_source: parsed.corrected_source || text 
+            };
         } catch (e) {
-            return { original: text, translation: "Error", corrected_source: text };
+            return { original: text, translation: "Translation Error", corrected_source: text };
         }
     }
 
