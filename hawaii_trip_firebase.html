@@ -101,6 +101,17 @@
         .export-checkbox-group label input { margin-right: 4px; }
         
         .export-container { padding: 10px; }
+        
+        /* 共有ボックス */
+        .share-box { background: #F3E5F5; padding: 20px; border-radius: 8px; border: 2px solid #673AB7; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .share-box h3 { color: #673AB7; border-bottom: 1px solid #CE93D8; padding-bottom: 5px; margin-bottom: 15px; font-size: 16px; }
+
+        /* バックアップボックス */
+        .backup-box { background: #ECEFF1; padding: 20px; border-radius: 8px; border: 2px solid #607D8B; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .backup-box h3 { color: #455A64; border-bottom: 1px solid #B0BEC5; padding-bottom: 5px; margin-bottom: 15px; font-size: 16px; }
+        
+        .backup-action-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 5px; }
+        .backup-action-desc { flex: 1; font-size: 12px; color: #555; }
     </style>
 </head>
 <body>
@@ -173,19 +184,19 @@
         </div>
 
         <div id="day100" class="tab-content">
-            <h2 class="day-title" style="color:#512DA8; border-bottom-color:#512DA8;">📤 データの書き出し</h2>
+            <h2 class="day-title" style="color:#512DA8; border-bottom-color:#512DA8;">📤 データ管理</h2>
             
             <div class="export-container">
-                <p style="font-size:13px; margin-bottom:20px; color:#555;">
-                    旅行プランのデータをテキストとしてコピーしたり、ファイルとして保存したりできます。<br>
-                    LINEでの共有や、万が一のバックアップにご利用ください。
-                </p>
-
-                <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                
+                <div class="share-box">
+                    <h3>📋 LINEなどにテキスト共有</h3>
+                    <p style="font-size:13px; color:#555; margin-bottom:10px;">
+                        選択した日程・項目のテキストをクリップボードにコピーします。
+                    </p>
                     
                     <div class="export-section-title">
                         📅 出力する日付
-                        <button onclick="toggleAllDays()" style="font-size:10px; padding:2px 5px; margin-left:10px; cursor:pointer; border:1px solid #ccc; background:#f0f0f0;">全て選択/解除</button>
+                        <button onclick="toggleAllDays()" style="font-size:10px; padding:2px 5px; margin-left:10px; cursor:pointer; border:1px solid #ccc; background:#fff;">全て選択/解除</button>
                     </div>
                     <div class="export-checkbox-group" id="day-checkboxes">
                         <label><input type="checkbox" id="exp-day-0" checked>Day0</label>
@@ -199,7 +210,7 @@
                         <label><input type="checkbox" id="exp-day-8" checked>Day8</label>
                     </div>
 
-                    <div class="export-section-title" style="margin-top:20px;">📋 出力する項目</div>
+                    <div class="export-section-title" style="margin-top:15px;">📋 出力する項目</div>
                     <div class="export-checkbox-group">
                         <label><input type="checkbox" id="exp-time" checked> 時間</label>
                         <label><input type="checkbox" id="exp-loc" checked> 場所</label>
@@ -207,16 +218,41 @@
                         <label><input type="checkbox" id="exp-url"> URLリンク</label>
                     </div>
 
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 25px;">
-                        <button onclick="copyScheduleToClipboard()" style="flex: 1; min-width:200px; padding: 15px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">
-                            📋 選択内容をコピー<br><span style="font-size:11px; font-weight:normal; opacity:0.9;">(LINEなどに貼り付け用)</span>
-                        </button>
-                        <button onclick="downloadBackupJSON()" style="flex: 1; min-width:200px; padding: 15px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">
-                            💾 バックアップ保存<br><span style="font-size:11px; font-weight:normal; opacity:0.9;">(全データのJSONファイル)</span>
+                    <button onclick="copyScheduleToClipboard()" style="width:100%; margin-top:15px; padding: 12px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">
+                        📋 テキストをコピーする
+                    </button>
+                </div>
+
+                <div class="backup-box">
+                    <h3>💾 システム全体のバックアップ・復元</h3>
+                    
+                    <div class="backup-action-row">
+                        <div class="backup-action-desc">
+                            <strong>1. データを保存</strong><br>
+                            全てのデータ（スケジュール、ノート、画像URL）をファイルとして保存します。<br>
+                            <span style="color:#d32f2f;">※上のチェックボックスの状態に関わらず、全て保存されます。</span>
+                        </div>
+                        <button onclick="downloadBackupJSON()" style="padding: 10px 15px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer; white-space:nowrap;">
+                            💾 保存
                         </button>
                     </div>
+
+                    <div class="backup-action-row" style="margin-bottom:0; flex-direction:column; align-items:flex-start;">
+                        <div class="backup-action-desc" style="width:100%; margin-bottom:10px;">
+                            <strong>2. データを復元</strong><br>
+                            保存したファイル(.json)を読み込んで復元します。<br>
+                            <span style="color:#d32f2f; font-weight:bold;">⚠️ 現在のデータはすべて上書き（消去）されます！</span>
+                        </div>
+                        <div style="display:flex; width:100%; gap:10px;">
+                            <input type="file" id="import-file" accept=".json" style="flex:1; font-size:12px;">
+                            <button onclick="importBackupJSON()" style="padding: 10px 15px; background: #FF5722; color: white; border: none; border-radius: 5px; cursor: pointer; white-space:nowrap;">
+                                🔄 復元
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                </div>
+
+            </div>
         </div>
     </div>
     
@@ -483,10 +519,9 @@
         }
 
         // ==========================================================
-        // 6. エクスポート機能（日付・項目選択対応）
+        // 6. データ管理機能（エクスポート・インポート）
         // ==========================================================
         
-        // 全日付のチェックON/OFF切り替え
         function toggleAllDays() {
             const checkboxes = document.querySelectorAll('#day-checkboxes input[type="checkbox"]');
             const allChecked = Array.from(checkboxes).every(c => c.checked);
@@ -494,7 +529,6 @@
         }
 
         function copyScheduleToClipboard() {
-            // 項目チェック状態
             const withTime = document.getElementById('exp-time').checked;
             const withLoc  = document.getElementById('exp-loc').checked;
             const withMemo = document.getElementById('exp-memo').checked;
@@ -504,9 +538,8 @@
             let hasContent = false;
             
             for (let i = 0; i <= 8; i++) {
-                // 日付チェック状態を確認
                 const dayCheck = document.getElementById(`exp-day-${i}`);
-                if (!dayCheck || !dayCheck.checked) continue; // チェックがなければスキップ
+                if (!dayCheck || !dayCheck.checked) continue;
 
                 const dayKey = `day${i}`;
                 const dayData = scheduleData[dayKey];
@@ -564,6 +597,56 @@
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
+        }
+
+        // インポート機能
+        function importBackupJSON() {
+            const fileInput = document.getElementById('import-file');
+            if (fileInput.files.length === 0) return alert("ファイルを選択してください");
+            
+            if (!confirm("⚠️ 【重要】\n現在のデータがすべて消え、選択したバックアップの内容で上書きされます。\n\n本当によろしいですか？")) return;
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            toggleLoader(true);
+            
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (!data.schedule && !data.notes) {
+                        throw new Error("有効なバックアップファイルではありません");
+                    }
+                    
+                    const batch = db.batch();
+                    
+                    if (data.schedule) {
+                        Object.keys(data.schedule).forEach(key => {
+                            const ref = db.collection('trip-schedule').doc(key);
+                            batch.set(ref, data.schedule[key]);
+                        });
+                    }
+                    
+                    if (data.notes) {
+                        const ref = db.collection('trip-schedule').doc('note-data');
+                        batch.set(ref, data.notes);
+                    }
+                    
+                    await batch.commit();
+                    
+                    alert("復元が完了しました！");
+                    location.reload(); 
+                    
+                } catch (err) {
+                    console.error(err);
+                    alert("復元エラー: " + err.message);
+                } finally {
+                    toggleLoader(false);
+                }
+            };
+            
+            reader.readAsText(file);
         }
 
         // ==========================================================
