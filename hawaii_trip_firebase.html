@@ -88,6 +88,12 @@
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* エクスポート設定エリアのスタイル */
+        .export-section-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .export-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        .export-checkbox-group label { font-size: 13px; cursor: pointer; user-select: none; display: flex; align-items: center; }
+        .export-checkbox-group label input { margin-right: 4px; }
     </style>
 </head>
 <body>
@@ -146,18 +152,35 @@
                     </div>
 
                 <div style="margin-top: 25px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                    <h3 style="font-size: 16px; margin-bottom: 10px;">📤 データの書き出し</h3>
+                    <h3 style="font-size: 16px; margin-bottom: 15px;">📤 データの書き出し</h3>
                     
-                    <div style="margin-bottom: 10px; font-size: 13px; display: flex; gap: 15px; flex-wrap: wrap;">
-                        <label style="cursor:pointer;"><input type="checkbox" id="exp-time" checked> 時間</label>
-                        <label style="cursor:pointer;"><input type="checkbox" id="exp-loc" checked> 場所</label>
-                        <label style="cursor:pointer;"><input type="checkbox" id="exp-memo"> 詳細メモ</label>
-                        <label style="cursor:pointer;"><input type="checkbox" id="exp-url"> URLリンク</label>
+                    <div class="export-section-title">
+                        📅 出力する日付
+                        <button onclick="toggleAllDays()" style="font-size:10px; padding:2px 5px; margin-left:10px; cursor:pointer;">全て選択/解除</button>
+                    </div>
+                    <div class="export-checkbox-group" id="day-checkboxes">
+                        <label><input type="checkbox" id="exp-day-0" checked>Day0</label>
+                        <label><input type="checkbox" id="exp-day-1" checked>Day1</label>
+                        <label><input type="checkbox" id="exp-day-2" checked>Day2</label>
+                        <label><input type="checkbox" id="exp-day-3" checked>Day3</label>
+                        <label><input type="checkbox" id="exp-day-4" checked>Day4</label>
+                        <label><input type="checkbox" id="exp-day-5" checked>Day5</label>
+                        <label><input type="checkbox" id="exp-day-6" checked>Day6</label>
+                        <label><input type="checkbox" id="exp-day-7" checked>Day7</label>
+                        <label><input type="checkbox" id="exp-day-8" checked>Day8</label>
                     </div>
 
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="export-section-title">📋 出力する項目</div>
+                    <div class="export-checkbox-group">
+                        <label><input type="checkbox" id="exp-time" checked> 時間</label>
+                        <label><input type="checkbox" id="exp-loc" checked> 場所</label>
+                        <label><input type="checkbox" id="exp-memo"> 詳細メモ</label>
+                        <label><input type="checkbox" id="exp-url"> URLリンク</label>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                         <button onclick="copyScheduleToClipboard()" style="flex: 1; padding: 10px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            📋 選択項目をコピー<br><span style="font-size:10px">(LINE送信向け)</span>
+                            📋 選択内容をコピー<br><span style="font-size:10px">(LINE送信向け)</span>
                         </button>
                         <button onclick="downloadBackupJSON()" style="flex: 1; padding: 10px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer;">
                             💾 バックアップ保存<br><span style="font-size:10px">(全データ保存)</span>
@@ -199,8 +222,8 @@
 
         let currentDay = 0; 
         let scheduleData = {}; 
-        let noteData = { notes: [] }; // 付箋データの保持用
-        let selectedColor = 'yellow'; // デフォルト付箋色
+        let noteData = { notes: [] }; 
+        let selectedColor = 'yellow'; 
 
         function toggleLoader(show) {
             document.getElementById('global-loader').style.display = show ? 'flex' : 'none';
@@ -210,7 +233,6 @@
         // 2. リアルタイム同期開始
         // ==========================================================
         function startRealtimeListener() {
-            // スケジュール同期
             db.collection('trip-schedule').onSnapshot(snapshot => {
                 snapshot.forEach(doc => {
                     if (doc.id !== 'note-data') {
@@ -222,24 +244,20 @@
                 }
             });
 
-            // ノート同期（構造変更に対応）
             db.collection('trip-schedule').doc('note-data').onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
-                    
-                    // 旧データ(content文字列)がある場合、付箋に移行する処理（初回のみ）
                     if (data.content && (!data.notes || data.notes.length === 0)) {
                         const migratedNote = {
                             id: Date.now(),
                             text: data.content,
                             color: 'yellow'
                         };
-                        // DB更新
                         db.collection('trip-schedule').doc('note-data').update({
                             notes: [migratedNote],
-                            content: firebase.firestore.FieldValue.delete() // 古いフィールド削除
+                            content: firebase.firestore.FieldValue.delete()
                         });
-                        return; // 更新後に再通知が来るのでここで終了
+                        return;
                     }
 
                     noteData.notes = data.notes || [];
@@ -315,7 +333,7 @@
         }
 
         // ==========================================================
-        // 4. 付箋ノート機能 (Sticky Notes)
+        // 4. 付箋ノート機能
         // ==========================================================
         function selectNoteColor(color, el) {
             selectedColor = color;
@@ -331,7 +349,6 @@
             }
 
             let html = '';
-            // 新しい順に表示
             const sortedNotes = [...noteData.notes].sort((a,b) => b.id - a.id);
 
             sortedNotes.forEach(note => {
@@ -350,13 +367,11 @@
 
         function addStickyNote() {
             const newNote = {
-                id: Date.now(), // 一意のID
+                id: Date.now(), 
                 text: "",
                 color: selectedColor
             };
-            
             const newNotes = [...noteData.notes, newNote];
-            
             db.collection('trip-schedule').doc('note-data').set({
                 notes: newNotes
             }, { merge: true })
@@ -371,7 +386,6 @@
                 if (n.id === id) return { ...n, text: text };
                 return n;
             });
-
             db.collection('trip-schedule').doc('note-data').update({
                 notes: updatedNotes
             }).catch(err => console.error("保存エラー", err));
@@ -379,7 +393,6 @@
 
         function deleteStickyNote(id) {
             if(!confirm("この付箋を削除しますか？")) return;
-            
             const filteredNotes = noteData.notes.filter(n => n.id !== id);
             db.collection('trip-schedule').doc('note-data').update({
                 notes: filteredNotes
@@ -387,7 +400,7 @@
         }
 
         // ==========================================================
-        // 5. 共有アルバム機能（アップロード・削除）
+        // 5. 共有アルバム機能
         // ==========================================================
         async function uploadNoteImage() {
             const fileInput = document.getElementById('note-image-upload');
@@ -435,42 +448,51 @@
 
             toggleLoader(true);
             try {
-                // 1. Firestore配列から削除
                 await db.collection('trip-schedule').doc('note-data').update({
                     images: firebase.firestore.FieldValue.arrayRemove(url)
                 });
-
-                // 2. Storageから実ファイルを削除
                 const fileRef = firebase.storage().refFromURL(url);
                 await fileRef.delete();
-
                 toggleLoader(false);
                 alert("削除しました");
-
             } catch (error) {
                 console.error(error);
-                alert("削除処理中にエラーが発生しました（既に削除されている可能性があります）: " + error.message);
+                alert("削除処理中にエラーが発生しました: " + error.message);
                 toggleLoader(false);
             }
         }
 
         // ==========================================================
-        // 6. エクスポート機能
+        // 6. エクスポート機能（日付・項目選択対応）
         // ==========================================================
+        
+        // 全日付のチェックON/OFF切り替え
+        function toggleAllDays() {
+            const checkboxes = document.querySelectorAll('#day-checkboxes input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(c => c.checked);
+            checkboxes.forEach(c => c.checked = !allChecked);
+        }
+
         function copyScheduleToClipboard() {
-            // チェックボックスの状態を取得
+            // 項目チェック状態
             const withTime = document.getElementById('exp-time').checked;
             const withLoc  = document.getElementById('exp-loc').checked;
             const withMemo = document.getElementById('exp-memo').checked;
             const withUrl  = document.getElementById('exp-url').checked;
 
             let text = "🌺 ハワイ旅行スケジュール 🌺\n";
+            let hasContent = false;
             
             for (let i = 0; i <= 8; i++) {
+                // 日付チェック状態を確認
+                const dayCheck = document.getElementById(`exp-day-${i}`);
+                if (!dayCheck || !dayCheck.checked) continue; // チェックがなければスキップ
+
                 const dayKey = `day${i}`;
                 const dayData = scheduleData[dayKey];
                 
                 if (dayData && dayData.events && dayData.events.length > 0) {
+                    hasContent = true;
                     text += `\n【${dayData.title || 'Day ' + i}】\n`;
                     
                     const events = [...dayData.events].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
@@ -495,8 +517,13 @@
                 }
             }
             
+            if (!hasContent) {
+                alert("選択された日付に予定がないか、日付が選択されていません。");
+                return;
+            }
+
             navigator.clipboard.writeText(text).then(() => {
-                alert("選択された項目をコピーしました！");
+                alert("選択された内容をコピーしました！");
             }).catch(err => {
                 console.error("コピー失敗:", err);
                 alert("コピーに失敗しました。");
@@ -520,7 +547,7 @@
         }
 
         // ==========================================================
-        // 7. 編集フォームと保存（スケジュール用）
+        // 7. 編集フォームと保存
         // ==========================================================
         function showForm(dayNum, itemIndex) {
             const dayKey = `day${dayNum}`;
