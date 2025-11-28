@@ -10,13 +10,14 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; line-height: 1.7; touch-action: pan-y; /* 横スクロール無効化（スワイプ誤爆防止） */ }
+        body { font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; line-height: 1.7; touch-action: manipulation; }
         .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; min-height: 80vh;}
         
         /* ヘッダー */
         .header { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 20px; text-align: center; }
         .header h1 { font-size: 20px; margin-bottom: 5px; }
-        .header .dates { font-size: 14px; opacity: 0.95; }
+        .header .dates { font-size: 14px; opacity: 0.95; margin-bottom: 5px; }
+        .header .update-info { font-size: 10px; opacity: 0.8; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         
         /* タブエリア */
         .tabs { display: flex; background: #f5f5f5; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -110,8 +111,13 @@
         .backup-box { background: #ECEFF1; padding: 20px; border-radius: 8px; border: 2px solid #607D8B; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .backup-box h3 { color: #455A64; border-bottom: 1px solid #B0BEC5; padding-bottom: 5px; margin-bottom: 15px; font-size: 16px; }
         
-        .backup-action-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 5px; }
-        .backup-action-desc { flex: 1; font-size: 12px; color: #555; }
+        .backup-action-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 5px; flex-wrap: wrap; }
+        .backup-action-desc { flex: 1; font-size: 12px; color: #555; min-width: 200px; }
+        
+        /* 復元ボタン周りの調整（スマホ対応） */
+        .restore-input-group { display:flex; gap:10px; width:100%; flex-wrap: wrap; }
+        .restore-input-group input { flex: 1; min-width: 200px; font-size:12px; }
+        .restore-input-group button { white-space: nowrap; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -125,6 +131,11 @@
         <div class="header">
             <h1>🌺 ハワイ旅行プラン 🌺</h1>
             <div class="dates">Day0: 12/12(金) 出発 〜 Day8: 12/19(金) 帰国</div>
+            
+            <div class="update-info">
+                <span id="app-updated"></span>
+                <span id="data-updated">Data: 未同期</span>
+            </div>
         </div>
         
         <div class="tabs">
@@ -243,9 +254,9 @@
                             保存したファイル(.json)を読み込んで復元します。<br>
                             <span style="color:#d32f2f; font-weight:bold;">⚠️ 現在のデータはすべて上書き（消去）されます！</span>
                         </div>
-                        <div style="display:flex; width:100%; gap:10px;">
-                            <input type="file" id="import-file" accept=".json" style="flex:1; font-size:12px;">
-                            <button onclick="importBackupJSON()" style="padding: 10px 15px; background: #FF5722; color: white; border: none; border-radius: 5px; cursor: pointer; white-space:nowrap;">
+                        <div class="restore-input-group">
+                            <input type="file" id="import-file" accept=".json">
+                            <button onclick="importBackupJSON()" style="padding: 10px 15px; background: #FF5722; color: white; border: none; border-radius: 5px; cursor: pointer;">
                                 🔄 復元
                             </button>
                         </div>
@@ -257,6 +268,11 @@
     </div>
     
     <script>
+        // ==========================================================
+        // 0. プログラム更新日時 (手動設定)
+        // ==========================================================
+        const APP_LAST_UPDATED = "2025/11/29 01:00"; 
+        
         // ==========================================================
         // 1. Firebase設定
         // ==========================================================
@@ -288,12 +304,21 @@
         // 2. リアルタイム同期開始
         // ==========================================================
         function startRealtimeListener() {
+            // App更新日時を表示
+            document.getElementById('app-updated').innerText = `App: ${APP_LAST_UPDATED}`;
+
             db.collection('trip-schedule').onSnapshot(snapshot => {
                 snapshot.forEach(doc => {
                     if (doc.id !== 'note-data') {
                         scheduleData[doc.id] = doc.data();
                     }
                 });
+                
+                // データ受信日時を更新 (現在時刻)
+                const now = new Date();
+                const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                document.getElementById('data-updated').innerText = `Data: ${timeStr} 受信`;
+
                 // ノート(99)とエクスポート(100)以外の場合はスケジュール更新
                 if (currentDay !== 99 && currentDay !== 100) {
                     renderSchedule(currentDay);
@@ -783,30 +808,40 @@
         }
 
         // ==========================================================
-        // 8. スワイプ操作機能 (スマホ向け)
+        // 8. スワイプ操作機能 (修正版: 縦スクロール誤作動防止)
         // ==========================================================
         let touchStartX = 0;
+        let touchStartY = 0;
         let touchEndX = 0;
-        const availableDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 99, 100]; // タブの移動順序
+        let touchEndY = 0;
+        const availableDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 99, 100]; 
 
         document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
         }, {passive: true});
 
         document.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
+            touchEndX = e.changedTouches[0].clientX;
+            touchEndY = e.changedTouches[0].clientY;
             handleSwipe();
         }, {passive: true});
 
         function handleSwipe() {
-            // スワイプ距離が50px未満なら無視
-            if (Math.abs(touchEndX - touchStartX) < 50) return;
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
 
-            // 左スワイプ (指を右から左へ) -> 次の日
-            if (touchEndX < touchStartX) navigateDay(1);
+            // 縦スクロールの方が大きい場合はスワイプとみなさない (重要)
+            if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+            // スワイプ距離が50px未満なら無視
+            if (Math.abs(diffX) < 50) return;
+
+            // 右へスワイプ (指を右から左へ) -> 次の日
+            if (diffX > 0) navigateDay(1);
             
-            // 右スワイプ (指を左から右へ) -> 前の日
-            if (touchEndX > touchStartX) navigateDay(-1);
+            // 左へスワイプ (指を左から右へ) -> 前の日
+            if (diffX < 0) navigateDay(-1);
         }
 
         function navigateDay(direction) {
