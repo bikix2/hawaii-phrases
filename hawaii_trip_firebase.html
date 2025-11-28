@@ -10,7 +10,7 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; line-height: 1.7; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; line-height: 1.7; touch-action: pan-y; /* 横スクロール無効化（スワイプ誤爆防止） */ }
         .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; min-height: 80vh;}
         
         /* ヘッダー */
@@ -780,6 +780,51 @@
             const events = [...scheduleData[dayKey].events];
             events.splice(itemIndex, 1);
             db.collection('trip-schedule').doc(dayKey).update({ events: events });
+        }
+
+        // ==========================================================
+        // 8. スワイプ操作機能 (スマホ向け)
+        // ==========================================================
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const availableDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 99, 100]; // タブの移動順序
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            // スワイプ距離が50px未満なら無視
+            if (Math.abs(touchEndX - touchStartX) < 50) return;
+
+            // 左スワイプ (指を右から左へ) -> 次の日
+            if (touchEndX < touchStartX) navigateDay(1);
+            
+            // 右スワイプ (指を左から右へ) -> 前の日
+            if (touchEndX > touchStartX) navigateDay(-1);
+        }
+
+        function navigateDay(direction) {
+            const currentIndex = availableDays.indexOf(currentDay);
+            if (currentIndex === -1) return;
+
+            const nextIndex = currentIndex + direction;
+
+            // 範囲内であれば移動
+            if (nextIndex >= 0 && nextIndex < availableDays.length) {
+                const nextDay = availableDays[nextIndex];
+                const tabBtn = document.querySelector(`.tab[data-day="${nextDay}"]`);
+                if (tabBtn) {
+                    tabBtn.click();
+                    // タブ自体をスクロールして表示範囲に入れる
+                    tabBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
