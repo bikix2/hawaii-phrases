@@ -144,8 +144,28 @@
                 <p style="font-size:11px; color:#666; margin-bottom:5px;">※文字を入力して外側をタップすると自動保存されます</p>
                 <div id="sticky-notes-area" class="sticky-notes-container">
                     </div>
-                
+
+                <div style="margin-top: 25px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                    <h3 style="font-size: 16px; margin-bottom: 10px;">📤 データの書き出し</h3>
+                    
+                    <div style="margin-bottom: 10px; font-size: 13px; display: flex; gap: 15px; flex-wrap: wrap;">
+                        <label style="cursor:pointer;"><input type="checkbox" id="exp-time" checked> 時間</label>
+                        <label style="cursor:pointer;"><input type="checkbox" id="exp-loc" checked> 場所</label>
+                        <label style="cursor:pointer;"><input type="checkbox" id="exp-memo"> 詳細メモ</label>
+                        <label style="cursor:pointer;"><input type="checkbox" id="exp-url"> URLリンク</label>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="copyScheduleToClipboard()" style="flex: 1; padding: 10px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            📋 選択項目をコピー<br><span style="font-size:10px">(LINE送信向け)</span>
+                        </button>
+                        <button onclick="downloadBackupJSON()" style="flex: 1; padding: 10px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            💾 バックアップ保存<br><span style="font-size:10px">(全データ保存)</span>
+                        </button>
+                    </div>
+                </div>
                 <hr style="margin: 20px 0;">
+                
                 <h3>📸 共有アルバム</h3>
                 <p style="font-size:12px; color:#666;">画像をアップロードして共有できます</p>
                 <div style="margin: 10px 0;">
@@ -311,7 +331,7 @@
             }
 
             let html = '';
-            // 新しい順に表示したい場合は reverse() などを入れる
+            // 新しい順に表示
             const sortedNotes = [...noteData.notes].sort((a,b) => b.id - a.id);
 
             sortedNotes.forEach(note => {
@@ -330,12 +350,11 @@
 
         function addStickyNote() {
             const newNote = {
-                id: Date.now(), // 一意のIDとしてタイムスタンプ使用
+                id: Date.now(), // 一意のID
                 text: "",
                 color: selectedColor
             };
             
-            // 配列に追加して更新
             const newNotes = [...noteData.notes, newNote];
             
             db.collection('trip-schedule').doc('note-data').set({
@@ -345,7 +364,6 @@
         }
 
         function updateStickyNote(id, text) {
-            // ローカルのデータと比較して変更がなければ何もしない
             const target = noteData.notes.find(n => n.id === id);
             if(target && target.text === text) return;
 
@@ -423,7 +441,6 @@
                 });
 
                 // 2. Storageから実ファイルを削除
-                // URLから参照を作成して削除
                 const fileRef = firebase.storage().refFromURL(url);
                 await fileRef.delete();
 
@@ -432,15 +449,78 @@
 
             } catch (error) {
                 console.error(error);
-                // Firestoreからは消えたがStorageでエラー、あるいはその逆の可能性も考慮
-                // ここでは簡易的にFirestore更新が済んでいればOKとするケースが多いが、念のためアラート
                 alert("削除処理中にエラーが発生しました（既に削除されている可能性があります）: " + error.message);
                 toggleLoader(false);
             }
         }
 
         // ==========================================================
-        // 6. 編集フォームと保存（スケジュール用）
+        // 6. エクスポート機能
+        // ==========================================================
+        function copyScheduleToClipboard() {
+            // チェックボックスの状態を取得
+            const withTime = document.getElementById('exp-time').checked;
+            const withLoc  = document.getElementById('exp-loc').checked;
+            const withMemo = document.getElementById('exp-memo').checked;
+            const withUrl  = document.getElementById('exp-url').checked;
+
+            let text = "🌺 ハワイ旅行スケジュール 🌺\n";
+            
+            for (let i = 0; i <= 8; i++) {
+                const dayKey = `day${i}`;
+                const dayData = scheduleData[dayKey];
+                
+                if (dayData && dayData.events && dayData.events.length > 0) {
+                    text += `\n【${dayData.title || 'Day ' + i}】\n`;
+                    
+                    const events = [...dayData.events].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                    
+                    events.forEach(e => {
+                        let line = "▫️ ";
+                        if (withTime && e.time) line += `${e.time} `;
+                        if (withLoc && e.location) line += `${e.location}`;
+
+                        if (line !== "▫️ ") text += line + "\n";
+
+                        if (withMemo && e.details) {
+                            const cleanDetails = e.details.replace(/\n/g, "\n    ");
+                            text += `    └ ${cleanDetails}\n`;
+                        }
+
+                        if (withUrl) {
+                            if(e.refUrl1) text += `    🔗 ${e.refUrl1}\n`;
+                            if(e.mapUrl_place) text += `    🗺️ ${e.mapUrl_place}\n`;
+                        }
+                    });
+                }
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("選択された項目をコピーしました！");
+            }).catch(err => {
+                console.error("コピー失敗:", err);
+                alert("コピーに失敗しました。");
+            });
+        }
+
+        function downloadBackupJSON() {
+            const backupData = {
+                schedule: scheduleData,
+                notes: noteData,
+                exportedAt: new Date().toLocaleString()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "hawaii_trip_backup_" + Date.now() + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // ==========================================================
+        // 7. 編集フォームと保存（スケジュール用）
         // ==========================================================
         function showForm(dayNum, itemIndex) {
             const dayKey = `day${dayNum}`;
