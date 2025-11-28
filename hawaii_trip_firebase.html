@@ -22,8 +22,13 @@
         .tabs { display: flex; background: #f5f5f5; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .tab { flex: 1; min-width: 80px; padding: 12px 5px; text-align: center; background: #e0e0e0; border: none; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.3s; border-right: 1px solid #ccc; flex-shrink: 0; }
         .tab.active { background: white; color: #FF6B6B; border-bottom: 3px solid #FF6B6B; }
+        
+        /* 特殊タブの色分け */
         .tab.note-tab { background: #E1F5FE; color: #0277BD; } 
         .tab.note-tab.active { border-bottom: 3px solid #0277BD; background: white; }
+        
+        .tab.export-tab { background: #EDE7F6; color: #512DA8; }
+        .tab.export-tab.active { border-bottom: 3px solid #512DA8; background: white; }
 
         /* コンテンツエリア */
         .tab-content { display: none; padding: 20px; animation: fadeIn 0.5s; padding-bottom: 100px; }
@@ -94,6 +99,8 @@
         .export-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
         .export-checkbox-group label { font-size: 13px; cursor: pointer; user-select: none; display: flex; align-items: center; }
         .export-checkbox-group label input { margin-right: 4px; }
+        
+        .export-container { padding: 10px; }
     </style>
 </head>
 <body>
@@ -120,6 +127,7 @@
             <button class="tab" data-day="7">Day7<br>12/18木</button>
             <button class="tab" data-day="8">Day8<br>12/19金</button>
             <button class="tab note-tab" data-day="99">📝<br>ノート</button>
+            <button class="tab export-tab" data-day="100">📤<br>データ</button>
         </div>
         
         <div id="day0" class="tab-content active"><div class="loading-message">読み込み中...</div></div>
@@ -150,13 +158,34 @@
                 <p style="font-size:11px; color:#666; margin-bottom:5px;">※文字を入力して外側をタップすると自動保存されます</p>
                 <div id="sticky-notes-area" class="sticky-notes-container">
                     </div>
+                
+                <hr style="margin: 20px 0;">
+                
+                <h3>📸 共有アルバム</h3>
+                <p style="font-size:12px; color:#666;">画像をアップロードして共有できます</p>
+                <div style="margin: 10px 0;">
+                    <input type="file" id="note-image-upload" accept="image/*">
+                    <button onclick="uploadNoteImage()" style="padding:5px 10px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer;">アップロード</button>
+                </div>
+                <div id="note-images" class="image-gallery">
+                    </div>
+            </div>
+        </div>
 
-                <div style="margin-top: 25px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                    <h3 style="font-size: 16px; margin-bottom: 15px;">📤 データの書き出し</h3>
+        <div id="day100" class="tab-content">
+            <h2 class="day-title" style="color:#512DA8; border-bottom-color:#512DA8;">📤 データの書き出し</h2>
+            
+            <div class="export-container">
+                <p style="font-size:13px; margin-bottom:20px; color:#555;">
+                    旅行プランのデータをテキストとしてコピーしたり、ファイルとして保存したりできます。<br>
+                    LINEでの共有や、万が一のバックアップにご利用ください。
+                </p>
+
+                <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     
                     <div class="export-section-title">
                         📅 出力する日付
-                        <button onclick="toggleAllDays()" style="font-size:10px; padding:2px 5px; margin-left:10px; cursor:pointer;">全て選択/解除</button>
+                        <button onclick="toggleAllDays()" style="font-size:10px; padding:2px 5px; margin-left:10px; cursor:pointer; border:1px solid #ccc; background:#f0f0f0;">全て選択/解除</button>
                     </div>
                     <div class="export-checkbox-group" id="day-checkboxes">
                         <label><input type="checkbox" id="exp-day-0" checked>Day0</label>
@@ -170,7 +199,7 @@
                         <label><input type="checkbox" id="exp-day-8" checked>Day8</label>
                     </div>
 
-                    <div class="export-section-title">📋 出力する項目</div>
+                    <div class="export-section-title" style="margin-top:20px;">📋 出力する項目</div>
                     <div class="export-checkbox-group">
                         <label><input type="checkbox" id="exp-time" checked> 時間</label>
                         <label><input type="checkbox" id="exp-loc" checked> 場所</label>
@@ -178,26 +207,16 @@
                         <label><input type="checkbox" id="exp-url"> URLリンク</label>
                     </div>
 
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-                        <button onclick="copyScheduleToClipboard()" style="flex: 1; padding: 10px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            📋 選択内容をコピー<br><span style="font-size:10px">(LINE送信向け)</span>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 25px;">
+                        <button onclick="copyScheduleToClipboard()" style="flex: 1; min-width:200px; padding: 15px; background: #673AB7; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">
+                            📋 選択内容をコピー<br><span style="font-size:11px; font-weight:normal; opacity:0.9;">(LINEなどに貼り付け用)</span>
                         </button>
-                        <button onclick="downloadBackupJSON()" style="flex: 1; padding: 10px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            💾 バックアップ保存<br><span style="font-size:10px">(全データ保存)</span>
+                        <button onclick="downloadBackupJSON()" style="flex: 1; min-width:200px; padding: 15px; background: #607D8B; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">
+                            💾 バックアップ保存<br><span style="font-size:11px; font-weight:normal; opacity:0.9;">(全データのJSONファイル)</span>
                         </button>
                     </div>
                 </div>
-                <hr style="margin: 20px 0;">
-                
-                <h3>📸 共有アルバム</h3>
-                <p style="font-size:12px; color:#666;">画像をアップロードして共有できます</p>
-                <div style="margin: 10px 0;">
-                    <input type="file" id="note-image-upload" accept="image/*">
-                    <button onclick="uploadNoteImage()" style="padding:5px 10px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer;">アップロード</button>
                 </div>
-                <div id="note-images" class="image-gallery">
-                    </div>
-            </div>
         </div>
     </div>
     
@@ -239,7 +258,8 @@
                         scheduleData[doc.id] = doc.data();
                     }
                 });
-                if (currentDay !== 99) {
+                // ノート(99)とエクスポート(100)以外の場合はスケジュール更新
+                if (currentDay !== 99 && currentDay !== 100) {
                     renderSchedule(currentDay);
                 }
             });
@@ -688,7 +708,8 @@
                     e.currentTarget.classList.add('active');
                     document.getElementById('day' + dayVal).classList.add('active');
                     currentDay = dayVal;
-                    if(dayVal !== 99) renderSchedule(dayVal);
+                    // ノート(99)とエクスポート(100)以外の場合はスケジュール描画
+                    if(dayVal !== 99 && dayVal !== 100) renderSchedule(dayVal);
                 });
             });
             startRealtimeListener();
