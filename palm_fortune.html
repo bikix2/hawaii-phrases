@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V22</title>
+    <title>✋ AI手相占い V23</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -125,8 +125,6 @@
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
             text-align: center; color: #fff;
         }
-        .guide-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 1.1rem;}
-
         .guide-legend {
             font-size: 0.75rem; margin-top: 12px; display: flex; flex-wrap: wrap; 
             justify-content: center; gap: 8px; font-weight: bold; line-height: 1.5;
@@ -193,7 +191,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V22</h1>
+    <h1>✋ AI手相占い V23</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -280,7 +278,7 @@
                     <div class="legend-item"><span style="color:#448AFF">●</span>頭脳</div>
                     <div class="legend-item"><span style="color:#69F0AE">●</span>生命</div>
                     <div class="legend-item"><span style="color:#E040FB">●</span>運命</div>
-                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽(人気)</div>
+                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽</div>
                     <div class="legend-item"><span style="color:#FFFF00">●</span>財運</div>
                     <div class="legend-item"><span style="color:#FF5252">●</span>結婚</div>
                 </div>
@@ -446,13 +444,20 @@
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
+    // データなしのときの救済ロジック付き
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
+        // スコアがnullならデフォルト3点
+        const finalScore = score || 3;
+        // ポイントが空ならデフォルト文言
+        const safePoints = (Array.isArray(points) && points.length > 0) 
+            ? points 
+            : ["線が薄いですが、これから伸びる可能性を秘めています。", "現状維持よりも変化を恐れないことが吉です。"];
+            
         return `
         <div class="fortune-card">
             <div class="line-header">
                 <span class="line-name"><span class="color-dot" style="background:${color}; width:12px; height:12px; border-radius:50%; display:inline-block;"></span> ${title}</span>
-                ${score ? `<span class="stars">${stars(score)}</span>` : ''}
+                <span class="stars">${stars(finalScore)}</span>
             </div>
             <ul>${safePoints.map(p => `<li>${p}</li>`).join('')}</ul>
         </div>`;
@@ -473,29 +478,31 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：正統派・普通の占い師モード
+            // ★ AIプロンプト：頭脳線・財運線の救済指示 & 正直な鑑定
             prompt = `
-            あなたは経験豊富な、優しく丁寧な手相占い師です。
-            画像の手相（${handLabel}）を鑑定し、相談者に寄り添ったアドバイスをしてください。
-
-            【重要】左右の認識:
-            - 左手写真: 画像の「左側」が親指、「右側」が小指。
-            - 右手写真: 画像の「右側」が親指、「左側」が小指。
+            あなたは「よく当たる」と評判の熟練手相占い師です。
+            画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
             
-            【鑑定のスタンス】
-            - 口調は「〜ですね」「〜の傾向があります」「〜でしょう」といった、穏やかで丁寧な占い師の口調で。
-            - 頭脳線などが見えにくい場合も、「可能性」として前向きに解釈し、相談者を不安にさせないように伝えてください。
-            - エンタメ要素よりも、"相談者の背中を優しく押す"ような温かい鑑定を心がけてください。
+            【重要】左右の認識:
+            - 左手写真: 画面の「左側」が親指、「右側」が小指。
+            - 右手写真: 画面の「右側」が親指、「左側」が小指。
+            
+            【頭脳線・財運線の救済ルール】
+            - 頭脳線（知能線）や財運線（小指の下の縦線）が見えにくい場合でも、「解析不可」とは絶対に返さないでください。
+            - その場合は、「全体の手の形」や「他の線のバランス」から推測し、コールドリーディングの手法を用いて、「隠れた才能がある」「大器晩成型である」といったもっともらしい結果を必ず出力してください。
+            
+            【鑑定スタイル】
+            - 良いことだけでなく、悪いことも正直に伝えてください（「飽きっぽい」「浪費癖がある」など）。
+            - でも、最後は必ず前向きになれるアドバイスで締めくくってください。
+            - 誰にでも当てはまりそうだが、深く刺さる言葉（バーナム効果）を意識してください。
 
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ前向きな箇条書き(必ず配列)でJSON出力してください。
-            総合アドバイスは200文字以内で、明日への活力になるような言葉を。
-
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ的中感のある箇条書きでJSON出力してください。
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            二人の関係性を優しく紐解き、より良い関係を築くためのアドバイスを、穏やかな占い師の口調で伝えてください。
+            性格の不一致など、注意すべき点も正直に指摘しつつ、うまくいくためのアドバイスを「です・ます調」で伝えてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -520,7 +527,17 @@
 
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
+            
+            // JSON抽出の強化
+            let res = {};
+            try {
+                const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
+                res = JSON.parse(jsonStr);
+            } catch (e) {
+                console.warn("JSON Parse Error, applying fallback", e);
+                // パース失敗時のダミーデータ
+                res = { message: "申し訳ありません。星の巡りが悪く、うまく読み取れませんでした。もう一度撮影してみてください。" };
+            }
 
             let html = "";
             const svgLeft = document.getElementById('svg-left');
@@ -538,6 +555,7 @@
                     svgLeft.style.display = 'none'; svgRight.style.display = 'block'; handText.innerText = "右手";
                 }
 
+                // createCard内でnullチェック済み
                 html += createCard("感情線", res.heart?.score, res.heart?.points, "#ff4081");
                 html += createCard("頭脳線", res.head?.score, res.head?.points, "#448AFF");
                 html += createCard("生命線", res.life?.score, res.life?.points, "#69F0AE");
@@ -545,14 +563,14 @@
                 html += createCard("太陽線", res.sun?.score, res.sun?.points, "#FFAB40");
                 html += createCard("財運線", res.money?.score, res.money?.points, "#FFFF00");
                 html += createCard("結婚線", res.marriage?.score, res.marriage?.points, "#FF5252");
-                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message}</div>`;
+                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message || "全体運の読み取りに失敗しました"}</div>`;
             } else {
                 document.querySelector('.guide-container').style.display = 'none';
                 resultLabel.innerText = "鑑定モード：ふたりで相性診断";
-                html += `<div class="compatibility-score">相性 ${res.score}%</div>`;
-                html += `<div style="margin-bottom:20px;">${res.compatibility_desc}</div>`;
+                html += `<div class="compatibility-score">相性 ${res.score || "?"}%</div>`;
+                html += `<div style="margin-bottom:20px;">${res.compatibility_desc || "診断できませんでした"}</div>`;
                 html += createCard("診断詳細", null, res.points, "#FFD700");
-                html += `<div style="background:rgba(255,64,129,0.2); padding:15px; border-radius:10px;"><strong>💘 アドバイス:</strong> ${res.advice}</div>`;
+                html += `<div style="background:rgba(255,64,129,0.2); padding:15px; border-radius:10px;"><strong>💘 アドバイス:</strong> ${res.advice || "お互いを大切に。"}</div>`;
             }
 
             document.getElementById('result-content').innerHTML = html;
@@ -566,7 +584,7 @@
             document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
 
         } catch (e) {
-            alert("エラー: " + e.message + "\nもう一度試してみてください。");
+            alert("エラーが発生しました: " + e.message + "\nもう一度試してみてください。");
             postBtns.style.display = 'flex';
             btn.disabled = false;
         } finally {
