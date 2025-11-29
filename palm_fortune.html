@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V8</title>
+    <title>✋ AI手相占い V9</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -78,24 +78,33 @@
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* 新しいガイド（シンプルな枠） */
-        .simple-guide-overlay {
+        /* 接写用ガイド（手のひらだけ） */
+        .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 65%; /* 画面の大部分を使う */
-            border: 4px dashed rgba(255, 215, 0, 0.7);
-            border-radius: 30px;
+            width: 80%; height: 60%; /* 正方形に近い比率 */
+            border: 4px solid rgba(255, 215, 0, 0.8);
+            border-radius: 20px;
             pointer-events: none;
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.6); /* 周りを暗く */
+            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); /* 周りを暗く */
         }
+        /* 四隅の強調 */
+        .palm-focus-overlay::before, .palm-focus-overlay::after {
+            content: ''; position: absolute; width: 20px; height: 20px;
+            border-color: #FFD700; border-style: solid;
+        }
+        .palm-focus-overlay::before { top: -2px; left: -2px; border-width: 4px 0 0 4px; }
+        .palm-focus-overlay::after { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; }
+
         .guide-text-container {
-            position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
+            position: absolute; top: 12%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
         }
         .guide-main-text {
-            color: #FFD700; font-size: 1.2rem; font-weight: bold; 
+            color: #FFD700; font-size: 1.3rem; font-weight: bold; 
             text-shadow: 0 2px 4px #000; margin-bottom: 5px;
         }
         .guide-sub-text {
-            color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
+            color: #fff; font-size: 1rem; text-shadow: 0 1px 3px #000;
+            background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; display: inline-block;
         }
 
         .shutter-btn {
@@ -190,17 +199,17 @@
     <div class="close-camera" onclick="closeCamera()">×</div>
     
     <div class="guide-text-container">
-        <div class="guide-main-text">枠いっぱいに手を写してね</div>
-        <div class="guide-sub-text">指の開き方は自由！リラックスして</div>
+        <div class="guide-main-text">指は入れなくてOK！</div>
+        <div class="guide-sub-text">「手のひら」を大きく写してね</div>
     </div>
 
-    <div class="simple-guide-overlay"></div>
+    <div class="palm-focus-overlay"></div>
     
     <div class="shutter-btn" onclick="takePhoto()"></div>
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V8</h1>
+    <h1>✋ AI手相占い V9</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -340,8 +349,13 @@
         const video = document.getElementById('video');
         
         try {
+            // 高画質設定を要求
             videoStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment" },
+                video: { 
+                    facingMode: "environment",
+                    width: { ideal: 1920 }, // フルHD以上を要求
+                    height: { ideal: 1080 }
+                },
                 audio: false
             });
             video.srcObject = videoStream;
@@ -353,6 +367,7 @@
 
     function closeCamera() {
         const modal = document.getElementById('camera-modal');
+        const video = document.getElementById('video');
         modal.style.display = 'none';
         if (videoStream) {
             videoStream.getTracks().forEach(track => track.stop());
@@ -369,7 +384,7 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
-        processImage(canvas.toDataURL('image/jpeg', 0.8));
+        processImage(canvas.toDataURL('image/jpeg', 0.9)); // 画質優先
         closeCamera();
     }
 
@@ -386,7 +401,7 @@
         img.onload = function() {
             const canvas = document.createElement('canvas');
             let w = img.width, h = img.height;
-            const max = 800;
+            const max = 1200; // AI用には少し大きめに残す（精度向上）
             if (w > h) { if (w > max) { h *= max/w; w = max; } } else { if (h > max) { w *= max/h; h = max; } }
             canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
@@ -425,7 +440,6 @@
     }
 
     function retakeCurrent() {
-        // 現在アクティブなターゲット（最後に撮った方）を撮り直す
         openCamera(activeTarget);
     }
 
@@ -458,13 +472,15 @@
 
         if (mode === 'single') {
             prompt = `
-            手相占い師として、画像の手相(${handLabel})を分析。
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と短い箇条書きでJSON出力。
+            あなたは手相占い師です。画像の「手のひら中心」の線を詳しく分析してください。
+            指は見えなくても構いません。
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、画像から見える線の濃さや長さを元に、
+            点数(1-5)と短い箇条書きでJSON出力してください。
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
-            2つの手相を比較し、カップルの相性診断をして。
+            2つの手相（手のひら）を比較し、カップルの相性診断をして。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -478,6 +494,9 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: contents,
+                    generationConfig: {
+                        temperature: 0.5, // AIのランダム性を下げて結果を安定させる
+                    },
                     safetySettings: [
                         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -527,10 +546,9 @@
 
             document.getElementById('result-content').innerHTML = html;
             
-            // 設定エリア（ボタン類）を消す
             document.getElementById('settings-area').style.display = 'none';
             document.getElementById('upload-wrapper').style.display = 'none';
-            document.getElementById('post-capture-btns').style.display = 'none'; // 撮影後ボタンも消す
+            document.getElementById('post-capture-btns').style.display = 'none';
             btn.style.display = 'none';
             
             document.getElementById('result-wrapper').style.display = 'block';
