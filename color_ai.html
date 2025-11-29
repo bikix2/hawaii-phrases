@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V9.0 (Editor Edition)</title>
+    <title>🎨 AIカラー診断 V10.0 (Perfect)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -22,7 +22,7 @@
             background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
             margin: 0; padding: 20px;
             color: var(--text); min-height: 100vh;
-            user-select: none; /* スマホでの操作性向上のため選択不可に */
+            user-select: none;
         }
 
         .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
@@ -41,7 +41,7 @@
         .top-btns { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
         .btn-sm { background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
 
-        /* ガイド表示の改善 */
+        /* ガイド表示 */
         .guide-steps {
             display: flex; gap: 10px; margin-bottom: 20px; text-align: left;
             background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;
@@ -51,7 +51,6 @@
         .step-content h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1rem; }
         .step-content p { margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.4; }
 
-        /* 警告ボックス（閉じる機能付き） */
         .warning-box {
             background: rgba(255, 82, 82, 0.15); border: 1px solid #ff5252; color: #ff8a80;
             padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;
@@ -156,7 +155,7 @@
         @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
 
-        /* === エディタ(New!) === */
+        /* === エディタ === */
         #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; }
         #editor-canvas-box { position: relative; width: 100%; max-width: 360px; height: 640px; margin: 10px auto; border: 2px solid #333; }
         #editor-canvas { width: 100%; height: 100%; object-fit: contain; }
@@ -182,14 +181,6 @@
         <p>Gemini APIキーを入力</p>
         <input type="password" id="api-key-input" class="input-key" placeholder="API Key">
         <button class="btn-main ready" onclick="saveApiKey()" style="margin-top:0;">OK</button>
-    </div>
-</div>
-
-<div id="history-modal" class="modal hidden" onclick="closeHistory(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 style="color:var(--primary)">📂 診断履歴</h2>
-        <div id="history-list" style="text-align:left; color:#ccc;"></div>
-        <button class="btn-sm" onclick="closeHistory()" style="margin-top:20px; width:100%;">閉じる</button>
     </div>
 </div>
 
@@ -228,9 +219,8 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V9.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V10.0</span></h1>
     <div class="top-btns">
-        <button class="btn-sm" onclick="showHistory()">📂 履歴</button>
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
 
@@ -238,15 +228,15 @@
         <div class="guide-steps">
             <div class="step-icon">📸</div>
             <div class="step-content">
-                <h3>Step 1</h3>
+                <h3>Step 1: 写真撮影</h3>
                 <p>明るい場所で撮影。500円玉や白い紙を顔の横に持つと精度UP！</p>
             </div>
         </div>
         <div class="guide-steps">
             <div class="step-icon">👆</div>
             <div class="step-content">
-                <h3>Step 2</h3>
-                <p>写真内の「肌」と「瞳（または髪）」をタップして指定。</p>
+                <h3>Step 2: 色を指定</h3>
+                <p>肌の色と、瞳や髪のコントラスト(明度差)を分析するため、写真内の「肌」と「瞳/髪」をタップしてください。</p>
             </div>
         </div>
 
@@ -359,15 +349,19 @@
 
     // Editor Variables
     let editorCanvas, editorCtx;
-    let editorMode = 'photo'; // photo | illust
+    let editorMode = 'photo';
     let editorStamps = [];
     let selectedStampIndex = -1;
     let isDragging = false;
 
-    // SVG Data
-    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMzguMiAyMjkuMkMxMi41IDI4Ny44IDAgMzQ1LjcgMCAzOTQuNUMwIDQ1OS40IDQ4LjQgNTEyIDExMy4zIDUxMmM1OS4zIDAgMTA4LjgtNDMuNiAxMTguNi0xMDEuN2wzMi0xOTIuMWg2aDMybDMyIDE5Mi4xQzM0My43IDQ2OC40IDM5My4yIDUxMiA0NTIuNSA1MTJDNTE3LjQgNTEyIDU2NSA0NTkuNCA1NjUgMzk0LjVjMC00OC44LTEyLjUtMTA2LjctMzguMi0xNjUuMy0xMC4yLTIzLjQtMTkuOS00NC0yOC44LTYxLjVIMzc3LjVjLTYuOSAwLTEzLjMtMi4yLTE4LjYtNi4ybC04Mi42LTYyLTMuMi0yLjRjLTYuMi00LjYtMTMuNy03LjItMjEuNS03LjJzLTE1LjMgMi41LTIxLjUgNy4ybC0zLjIgMi40LTgyLjYgNjJjLTUuMiA0LTExLjYgNi4yLTE4LjYgNi4ySDQ4LjljLTEuMiAyLjQtMi40IDQuOC0zLjYgNy40LTIuNiA1LjUtNSA5LjktNy4xIDEyLjF6IiBmaWxsPSIjMjIyIi8+PC9zdmc+";
-    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDQ4QzE0MS4xIDQ4IDQ4IDE0MS4xIDQ4IDI1NnM5My4xIDIwOCAyMDggMjA4IDIwOC05My4xIDIwOC0yMDhTMzcwLjkgNDggMjU2IDQ4em0wIDM2OGMtODguNCAwLTE2MC03MS42LTE2MC0xNjAgMC0zLjUuMi02LjkuNS0xMC40bDMxOSAyMzhjLTMuMiAxLS02LjUgMS42LTkuOSAxLjZ6IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuOSIvPjwvc3ZnPg==";
+    // SVG Data (Fixed aspect ratios and clean shapes)
+    // Glasses (2:1 ratio approx)
+    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzIwIj48cGF0aCBkPSJNMjAuNSAxNDUuNUM4LjEgMTczLjQgMCAyMDIuMiAwIDIyNi41QzAgMjY1LjQgMjkuMSAzMjAgNjggMzIwYzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjA3LjEgMjgwLjkgMjQyLjkgMzIwIDI3OC41IDMyMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIDQ5LjVsLTEuOS0xLjRjLTMuNy0yLjgtOC4yLTQuMy0xMi45LTQuM3MtOS4yIDEuNS0xMi45IDQuM2wtMS45IDEuNC00OS42IDM3LjJjLTMuMSAyLjQtNi45IDMuNy0xMS4yIDMuN0gyNi45Yy0wLjcgMS40LTEuNCAyLjktMi4xIDQuNEMyMy4yIDk0LjggMjEuNyAxMDEuOCAyMC41IDEwNS4xeiIgZmlsbD0iIzIyMiIvPjwvc3ZnPg==";
+    // Mask (1.5:1 approx)
+    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBkPSJNMjU2IDMyQzE0MS4xIDMyIDQ4IDEwOC4xIDQ4IDIwMnM5My4xIDE3MCAyMDggMTcwIDIwOC03Ni4xIDIwOC0xNzBTMzcwLjkgMzIgMjU2IDMyem0wIDMwMWMtODguNCAwLTE2MC01OC42LTE2MC0xMzEgMC0yLjguMi01LjYuNS04LjVsMzE5IDE5NWMtMy4yLjgtNi41IDEuMy05LjkgMS4zeiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz48L3N2Zz4=";
+    // Heart (1:1)
     const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDQ0OThsLTE0LjIyLTEyLjk1QzQ4LjA1IDIzNi4yIDAgMTkyLjcgMCAxMzguNiAwIDc1LjEyIDQ5Ljg4IDI1LjUgMTEyLjUgMjUuNWMzNS4zIDAgNjkuMTIgMTYuMjMgODkuNjMgNDEuNDhDMTkwLjIgMjUuNSAyMzIuNyAwIDI3OC41IDAgMzQxLjEgMCAzOTEuMiA0OS44OCAzOTEuMiAxMTMuNGMwIDU0LjEtNDguMDUgOTcuNi0yNDEuNzggMjk4LjQ1TDI1NiA0NDk4eiIgZmlsbD0iI2ZmNjk2YiIvPjwvc3ZnPg==";
+    // Sparkle (1:1)
     const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMzM2IDM1MmMwLTg4LjQgNzEuNi0xNjAgMTYwLTE2MC04OC40IDAtMTYwLTcxLjYtMTYwLTE2MCAwIDg4LjQtNzEuNiAxNjAtMTYwIDE2MCA4OC40IDAgMTYwIDcxLjYgMTYwIDE2MHoiIGZpbGw9IiNGRkQ3MDAiLz48L3N2Zz4=";
 
     window.onload = function() {
@@ -379,7 +373,6 @@
         // Editor Canvas Events
         editorCanvas = document.getElementById('editor-canvas');
         editorCtx = editorCanvas.getContext('2d');
-        // Mouse/Touch events for dragging
         editorCanvas.addEventListener('mousedown', handleDragStart);
         editorCanvas.addEventListener('mousemove', handleDragMove);
         editorCanvas.addEventListener('mouseup', handleDragEnd);
@@ -402,16 +395,10 @@
         if(!currentResultData) return;
         document.getElementById('editor-modal').classList.remove('hidden');
         
-        // Init Canvas
         editorCanvas.width = 360;
         editorCanvas.height = 640;
         
-        // Add default stamps if empty? No, start clean or reset.
-        if (editorStamps.length === 0) {
-            // Initial render
-        }
         setEditorMode('photo');
-        renderEditor();
     }
 
     function closeEditor() {
@@ -436,13 +423,19 @@
         if(type === 'sparkle') img.src = SVG_SPARKLE;
 
         img.onload = () => {
+            // Fix initial aspect ratio
+            let w = 100;
+            let h = 100;
+            if(type === 'glasses') { w=120; h=60; }
+            if(type === 'mask') { w=100; h=70; }
+            
             editorStamps.push({
                 type: 'image',
                 img: img,
                 x: centerX,
                 y: centerY,
-                width: 100,
-                height: 100 * (img.height / img.width),
+                width: w,
+                height: h,
                 scale: 1.0
             });
             selectedStampIndex = editorStamps.length - 1;
@@ -478,12 +471,10 @@
         }
     }
 
-    // Dragging Logic
     function getPointerPos(e) {
         const rect = editorCanvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        // Scale for canvas resolution vs css size
         const scaleX = editorCanvas.width / rect.width;
         const scaleY = editorCanvas.height / rect.height;
         return {
@@ -494,12 +485,11 @@
 
     function handleDragStart(e) {
         const pos = getPointerPos(e);
-        // Find clicked stamp (reverse order for top-most)
         selectedStampIndex = -1;
         for (let i = editorStamps.length - 1; i >= 0; i--) {
             const s = editorStamps[i];
             const w = (s.width || 100) * s.scale;
-            const h = (s.height || 40) * s.scale; // rough text height
+            const h = (s.height || 40) * s.scale;
             if (s.type === 'text') {
                 editorCtx.font = `${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
@@ -530,32 +520,26 @@
         }
     }
 
-    function handleDragEnd(e) {
-        isDragging = false;
-    }
+    function handleDragEnd(e) { isDragging = false; }
 
     function renderEditor() {
-        // Clear
         editorCtx.fillStyle = '#1a1a1a';
         editorCtx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
         
-        // Gradient BG
         const grad = editorCtx.createLinearGradient(0,0,360,640);
         grad.addColorStop(0, '#10002b');
         grad.addColorStop(1, '#240046');
         editorCtx.fillStyle = grad;
         editorCtx.fillRect(0,0,360,640);
 
-        // Title
         editorCtx.font = 'bold 24px Shippori Mincho';
         editorCtx.fillStyle = '#E0AAFF';
         editorCtx.textAlign = 'center';
         editorCtx.fillText("AI PERSONAL COLOR", 180, 50);
 
-        // Photo Area
         const photoY = 80;
         const photoH = 300;
-        const photoW = 225; // 3:4 aspect roughly
+        const photoW = 225;
         const photoX = (360 - photoW) / 2;
 
         editorCtx.save();
@@ -564,23 +548,22 @@
         editorCtx.clip();
 
         if (editorMode === 'photo') {
-            // Draw original image (cropped)
-            // Use drawImageToCanvas logic but purely via JS variables
-            // We need to redraw the cropped user image onto a temp canvas first if needed, 
-            // or just calculate source rects.
-            // Simplified: Draw the whole main canvas content scaled
-            const mainCanv = document.getElementById('main-canvas');
-            // Aspect fit
-            const scale = Math.max(photoW / mainCanv.width, photoH / mainCanv.height);
-            editorCtx.drawImage(mainCanv, 
-                photoX - (mainCanv.width * scale - photoW)/2, 
-                photoY - (mainCanv.height * scale - photoH)/2, 
-                mainCanv.width * scale, 
-                mainCanv.height * scale
-            );
+            // Draw ONLY the image (no markers)
+            const sx = cropRect ? cropRect.x : 0;
+            const sy = cropRect ? cropRect.y : 0;
+            const sw = cropRect ? cropRect.w : imgObj.width;
+            const sh = cropRect ? cropRect.h : imgObj.height;
+            // Draw aspect fill
+            // Calculate scale to cover the photo area
+            const scale = Math.max(photoW / sw, photoH / sh);
+            const renderW = sw * scale;
+            const renderH = sh * scale;
+            const dx = photoX + (photoW - renderW) / 2;
+            const dy = photoY + (photoH - renderH) / 2;
+            
+            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
-            // Illustration Mode
-            editorCtx.fillStyle = getSeasonColor(currentResultData.season) + "44"; // transparent bg
+            editorCtx.fillStyle = getSeasonColor(currentResultData.season) + "44"; 
             editorCtx.fillRect(photoX, photoY, photoW, photoH);
             editorCtx.font = '100px serif';
             editorCtx.fillStyle = '#fff';
@@ -588,12 +571,10 @@
         }
         editorCtx.restore();
 
-        // Photo Border
         editorCtx.strokeStyle = '#fff';
         editorCtx.lineWidth = 5;
         editorCtx.strokeRect(photoX, photoY, photoW, photoH);
 
-        // Badge
         editorCtx.fillStyle = '#fff';
         editorCtx.beginPath();
         editorCtx.roundRect(180 - 80, photoY + photoH + 20, 160, 40, 20);
@@ -603,7 +584,6 @@
         editorCtx.fillStyle = getSeasonColor(currentResultData.season);
         editorCtx.fillText(currentResultData.season.split('(')[0], 180, photoY + photoH + 47);
 
-        // Colors
         const startY = photoY + photoH + 80;
         const swatchSize = 40;
         const gap = 10;
@@ -621,20 +601,17 @@
             startX += swatchSize + gap;
         });
 
-        // Footer
         editorCtx.font = '12px sans-serif';
         editorCtx.fillStyle = '#888';
-        editorCtx.fillText("#AIカラー診断V9 #Gemini", 180, 620);
+        editorCtx.fillText("#AIカラー診断V10 #Gemini", 180, 620);
 
-        // === Draw Stamps ===
         editorStamps.forEach((s, i) => {
             editorCtx.save();
             editorCtx.translate(s.x, s.y);
-            // Highlight selected
             if (i === selectedStampIndex) {
                 editorCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
                 editorCtx.lineWidth = 1;
-                if(s.type==='text') editorCtx.strokeRect(-50 * s.scale, -20 * s.scale, 100 * s.scale, 40 * s.scale); // approximate
+                if(s.type==='text') editorCtx.strokeRect(-50 * s.scale, -20 * s.scale, 100 * s.scale, 40 * s.scale);
                 else editorCtx.strokeRect((-s.width/2)*s.scale, (-s.height/2)*s.scale, s.width*s.scale, s.height*s.scale);
             }
 
@@ -653,17 +630,15 @@
     }
 
     function saveEditorImage() {
-        // Deselect stamp before saving
         selectedStampIndex = -1;
         renderEditor();
-        
         const link = document.createElement("a");
         link.href = editorCanvas.toDataURL("image/png");
         link.download = `my_personal_color_card_${new Date().getTime()}.png`;
         link.click();
     }
 
-    // --- Main Logic (Same as V8 + Fixes) ---
+    // --- Main Logic ---
     function triggerFileIfEmpty() {
         if (!imgFile) document.getElementById('file-input').click();
     }
@@ -869,7 +844,6 @@
             const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]);
             
             currentResultData = res;
-            saveHistory(res);
 
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
@@ -921,12 +895,11 @@
         }
     }
 
-    // ★修正: ドレープのスタイル
     function applyDrape(color) {
         const wrapper = document.getElementById('result-drape-box');
         wrapper.style.borderColor = color;
         wrapper.style.borderStyle = 'solid'; // 点線防止
-        wrapper.style.borderWidth = '15px';  // 太さ確保
+        wrapper.style.borderWidth = '15px';
         wrapper.style.transform = "scale(1.02)";
         setTimeout(() => wrapper.style.transform = "scale(1)", 200);
     }
@@ -963,7 +936,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v9_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v10_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
@@ -992,22 +965,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         } catch(e) { chatBox.innerHTML += `<div class="chat-msg ai">エラー</div>`; }
     }
-
-    function saveHistory(data) {
-        let history = JSON.parse(localStorage.getItem('color_history') || "[]");
-        data.date = new Date().toLocaleDateString();
-        history.unshift(data);
-        if(history.length > 10) history.pop();
-        localStorage.setItem('color_history', JSON.stringify(history));
-    }
-    function showHistory() {
-        const history = JSON.parse(localStorage.getItem('color_history') || "[]");
-        const list = document.getElementById('history-list');
-        if(history.length === 0) list.innerHTML = "履歴はありません";
-        else list.innerHTML = history.map(h => `<div style="border-bottom:1px solid #444; padding:10px 0;"><div style="font-weight:bold; color:${getSeasonColor(h.season)}">${h.season}</div><div style="font-size:0.8rem;">${h.date}</div></div>`).join('');
-        document.getElementById('history-modal').classList.remove('hidden');
-    }
-    function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
 </script>
 </body>
 </html>
