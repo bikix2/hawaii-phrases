@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V20 (正直版)</title>
+    <title>✋ AI手相占い V21</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -80,7 +80,7 @@
             border: 4px solid rgba(255, 215, 0, 0.8);
             border-radius: 30px;
             pointer-events: none;
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); /* 周りを暗くして集中させる */
+            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
         }
         .guide-text-container {
             position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
@@ -93,7 +93,6 @@
             color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
             background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px;
         }
-
         .shutter-btn {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
             width: 80px; height: 80px; background: #fff; border-radius: 50%;
@@ -104,13 +103,10 @@
             font-size: 2.5rem; cursor: pointer; z-index: 2010;
         }
 
-        /* ボタン類 */
         .btn-main {
-            background: linear-gradient(45deg, #FFD700, #FDB931);
-            color: #1a0b2e; border: none; padding: 15px 50px;
-            font-size: 1.2rem; font-weight: bold; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            width: 100%; margin-top: 10px;
+            background: linear-gradient(45deg, #FFD700, #FDB931); color: #1a0b2e; border: none; padding: 15px 50px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); width: 100%; margin-top: 10px;
         }
         .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
 
@@ -121,9 +117,9 @@
             font-weight: bold;
         }
 
-        /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
+        /* ガイド図 */
         .guide-container {
             background: #1a0b2e; border: 1px solid var(--primary);
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
@@ -197,7 +193,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V20</h1>
+    <h1>✋ AI手相占い V21</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -260,6 +256,7 @@
                     <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" />
+                    
                     <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" />
@@ -275,6 +272,7 @@
                     <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
+                    
                     <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
@@ -288,7 +286,7 @@
                     <div class="legend-item"><span style="color:#448AFF">●</span>頭脳</div>
                     <div class="legend-item"><span style="color:#69F0AE">●</span>生命</div>
                     <div class="legend-item"><span style="color:#E040FB">●</span>運命</div>
-                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽</div>
+                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽(人気)</div>
                     <div class="legend-item"><span style="color:#FFFF00">●</span>財運</div>
                     <div class="legend-item"><span style="color:#FF5252">●</span>結婚</div>
                 </div>
@@ -455,7 +453,7 @@
     }
     
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
+        const safePoints = Array.isArray(points) ? points : ["解析不能でしたが、潜在的な可能性はあります"];
         return `
         <div class="fortune-card">
             <div class="line-header">
@@ -481,28 +479,29 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：忖度なし＆正直な鑑定を指示
+            // ★ AIプロンプト：エンタメ＆救済対応
             prompt = `
-            あなたは熟練の手相鑑定士です。画像の手相（${handLabel}）を高精度に分析してください。
+            あなたは中高生に人気のある、少しミステリアスで、でもサービス精神旺盛な手相占い師です。
+            画像の手相（${handLabel}）を分析してください。
             
             【重要】左右の認識:
-            - 左手写真の場合: 画像の「左側」が親指、「右側」が小指です。
-            - 右手写真の場合: 画像の「右側」が親指、「左側」が小指です。
+            - 左手写真: 画像の「左側」が親指、「右側」が小指。
+            - 右手写真: 画像の「右側」が親指、「左側」が小指。
             
-            【鑑定のルール】
-            - 忖度（そんたく）や過剰なポジティブさは不要です。正直かつ客観的に分析してください。
-            - 悪い相が出ている場合は、それをはっきりと指摘し、注意点として伝えてください。
-            - 短所やリスク（例：飽きっぽい、散財しやすい）も包み隠さず教えてください。
+            【頭脳線（知能線）の救済ルール】
+            - 頭脳線が見えにくい場合でも、「ない」とは言わずに、「生命線と重なっている慎重派タイプ」や「見えにくいのは天才肌の証拠」など、ポジティブに解釈して必ず評価してください。
+            
+            【エンタメ重視】
+            - 曖昧な線でも、あなたのインスピレーション（ハルシネーションOK）で、ユーザーが喜ぶような「当たってる感」のある結果を出してください。
+            - "少し盛る"くらいが丁度いいです。ポジティブで楽しい未来を予言してください。
 
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ正直な（辛口も含む）箇条書きでJSON出力してください。
-            【重要】"message"（総合アドバイス）は、良い点だけでなく改善点も含めたリアルな助言を200文字以内で。
-
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい箇条書きでJSON出力してください。
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            良い面だけでなく、ぶつかりやすい点や注意すべき相性の悪さも正直に指摘してください。
+            もし線が見えにくくても、手のひらの形などから「運命的な相性」を見出して、ポジティブに盛り上げてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
