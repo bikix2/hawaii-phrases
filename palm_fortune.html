@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V19</title>
+    <title>✋ AI手相占い V20</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -187,7 +187,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V19</h1>
+    <h1>✋ AI手相占い V20</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -280,7 +280,7 @@
                     <div class="legend-item"><span style="color:#448AFF">●</span>頭脳</div>
                     <div class="legend-item"><span style="color:#69F0AE">●</span>生命</div>
                     <div class="legend-item"><span style="color:#E040FB">●</span>運命</div>
-                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽(人気)</div>
+                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽</div>
                     <div class="legend-item"><span style="color:#FFFF00">●</span>財運</div>
                     <div class="legend-item"><span style="color:#FF5252">●</span>結婚</div>
                 </div>
@@ -353,7 +353,6 @@
         const video = document.getElementById('video');
         
         try {
-            // 高解像度要求
             videoStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment", width: {ideal: 1920}, height: {ideal: 1080} },
                 audio: false
@@ -383,7 +382,6 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
-        // ★ 高解像度で保存 (1200px)
         processImage(canvas.toDataURL('image/jpeg', 0.9));
         closeCamera();
     }
@@ -475,21 +473,20 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：視点修正（左手＝親指左）
+            // ★ AIプロンプト：頭脳線強化 & 左右定義
             prompt = `
             あなたは熟練の手相鑑定士です。画像の手相（${handLabel}）を高精度に分析してください。
             
-            【最重要】画像の左右認識:
-            - **左手写真の場合**: あなたから見て「左側」が親指、「右側」が小指です。
-            - **右手写真の場合**: あなたから見て「右側」が親指、「左側」が小指です。
+            【重要】左右の認識:
+            - 左手写真: 画面の「左側」が親指、「右側」が小指。
+            - 右手写真: 画面の「右側」が親指、「左側」が小指。
             
-            これを前提に線を分析してください：
-            - 生命線: 親指側（金星丘）を囲むカーブ。
-            - 感情線: 小指側から人差し指へ。
-            - 結婚線: 小指の付け根の側面。
-
+            【線の定義（特に頭脳線）】
+            - 頭脳線（知能線）: 親指と人差し指の間から始まり、手のひらの中央を横切る線。感情線と生命線の間にあります。もし薄くても、位置から推測して必ず評価してください。
+            - 生命線: 親指の付け根を囲むカーブ。
+            
             7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつポジティブな箇条書き(必ず配列)でJSON出力してください。
-            【重要】"message"（総合アドバイス）は200文字以内で簡潔に。
+            総合アドバイスは200文字以内で。
 
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
@@ -519,12 +516,7 @@
             });
 
             const data = await response.json();
-            
-            if (data.error) throw new Error(data.error.message);
-            
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) throw new Error("結果が空でした");
-
             const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
 
             let html = "";
@@ -537,7 +529,7 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
-                // SVG切り替え（視点修正版）
+                // SVG切り替え（視点修正済み）
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block';
                     svgRight.style.display = 'none';
