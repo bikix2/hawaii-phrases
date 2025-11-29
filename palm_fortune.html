@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V28</title>
+    <title>✋ AI手相占い V29</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -29,20 +29,30 @@
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
 
-        /* 左右選択 */
-        .hand-selector { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; transition: opacity 0.3s; }
+        /* 左右選択 (目立つように変更) */
+        .hand-selector {
+            display: flex; gap: 15px; margin: 20px 0 10px 0; justify-content: center;
+        }
         .hand-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid #666;
-            color: #ccc; padding: 10px 5px; border-radius: 10px;
+            background: rgba(255,255,255,0.05); border: 2px solid #666;
+            color: #ccc; padding: 15px 10px; border-radius: 15px;
             cursor: pointer; transition: all 0.3s; flex: 1;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
         }
         .hand-btn.active {
-            border-color: var(--primary); background: rgba(255, 215, 0, 0.2); color: #fff;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+            border-color: var(--primary); background: rgba(255, 215, 0, 0.15); color: #fff;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: scale(1.02);
         }
-        .hand-main { font-size: 1.1rem; font-weight: bold; }
-        .hand-sub { font-size: 0.75rem; margin-top: 3px; color: var(--primary); }
+        /* 選択中のチェックマーク */
+        .hand-btn.active::after {
+            content: '✔'; position: absolute; top: -10px; right: -5px;
+            background: var(--primary); color: #000; border-radius: 50%;
+            width: 24px; height: 24px; font-size: 0.9rem; line-height: 24px;
+            font-weight: bold;
+        }
+        .hand-main { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; }
+        .hand-sub { font-size: 0.8rem; color: var(--primary); }
 
         /* タブ */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; transition: opacity 0.3s; }
@@ -53,18 +63,28 @@
         }
         .tab-btn.active { background: var(--primary); color: #10002b; }
 
+        /* 説明テキスト */
+        .instruction-text {
+            background: rgba(255, 64, 129, 0.2); border: 1px solid #FF4081;
+            color: #ff80ab; padding: 10px; border-radius: 10px;
+            font-size: 0.9rem; margin-bottom: 15px; font-weight: bold;
+        }
+
         /* 画像枠 */
         .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .upload-box {
-            position: relative; width: 48%; aspect-ratio: 3/4;
-            border: 2px dashed var(--accent); border-radius: 15px;
+            position: relative; width: 60%; aspect-ratio: 3/4; /* 少し大きく */
+            border: 3px dashed var(--primary); border-radius: 20px;
             background: rgba(0,0,0,0.3); display: flex; flex-direction: column;
             justify-content: center; align-items: center; cursor: pointer; overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+            transition: transform 0.2s;
         }
-        .upload-box.full-width { width: 80%; max-width: 300px; } 
+        .upload-box:active { transform: scale(0.98); }
+        .upload-box.full-width { width: 70%; max-width: 320px; } 
         .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
-        .upload-icon { font-size: 2rem; margin-bottom: 5px; opacity: 0.8; }
-        .upload-label { font-size: 0.9rem; }
+        .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 1.0; text-shadow: 0 0 10px var(--primary); }
+        .upload-label { font-size: 1rem; font-weight: bold; color: #fff; }
 
         /* カメラモーダル */
         #camera-modal {
@@ -75,25 +95,24 @@
         
         .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 60%; 
+            width: 85%; height: 65%; 
             border: 4px solid rgba(255, 215, 0, 0.8);
-            border-radius: 30px;
-            pointer-events: none;
+            border-radius: 30px; pointer-events: none;
             box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
         }
         .guide-text-container {
-            position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
+            position: absolute; top: 8%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
         }
         .guide-main-text {
-            color: #FFD700; font-size: 1.3rem; font-weight: bold; 
-            text-shadow: 0 2px 4px #000; margin-bottom: 5px;
+            color: #FFD700; font-size: 1.4rem; font-weight: bold; 
+            text-shadow: 0 2px 4px #000; margin-bottom: 8px;
         }
         .guide-sub-text {
-            color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
-            background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px;
+            color: #fff; font-size: 1rem; text-shadow: 0 1px 3px #000;
+            background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 10px; display: inline-block;
         }
         .shutter-btn {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
             width: 80px; height: 80px; background: #fff; border-radius: 50%;
             border: 6px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 2010;
         }
@@ -118,7 +137,6 @@
 
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
-        /* ガイド図 */
         .guide-container {
             background: #1a0b2e; border: 1px solid var(--primary);
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
@@ -185,16 +203,17 @@
     <div class="close-camera" onclick="closeCamera()">×</div>
     <div class="guide-text-container">
         <div class="guide-main-text">手のひらをドアップで！</div>
-        <div class="guide-sub-text">指は切れてOK。黄色い枠いっぱいに<br>「手のひら」を写してね</div>
+        <div class="guide-sub-text">指は切れてもOK。<br>黄色い枠に「手のひら」を合わせてね</div>
     </div>
     <div class="palm-focus-overlay"></div>
     <div class="shutter-btn" onclick="takePhoto()"></div>
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V28</h1>
+    <h1>✋ AI手相占い V29</h1>
     
     <div id="settings-area">
+        
         <div class="hand-selector">
             <div class="hand-btn active" id="sel-left" onclick="selectHand('left')">
                 <div class="hand-main">👈 左手</div>
@@ -205,6 +224,11 @@
                 <div class="hand-sub">現在の運勢</div>
             </div>
         </div>
+
+        <div class="instruction-text">
+            ⚠️ 指先まで入れる必要はありません。<br>「手のひらの線」が大きく写るように撮影してね！
+        </div>
+
         <div class="tabs">
             <button class="tab-btn active" onclick="setMode('single')">ひとりで鑑定</button>
             <button class="tab-btn" onclick="setMode('pair')">ふたりで相性</button>
@@ -215,7 +239,7 @@
         <div class="upload-box full-width" id="box1" onclick="triggerFile(1)">
             <div id="ph1">
                 <div class="upload-icon">📷</div>
-                <div class="upload-label" id="label1">ここをタップして撮影</div>
+                <div class="upload-label" id="label1">カメラ起動</div>
             </div>
             <img id="preview1" class="preview-img">
         </div>
@@ -344,7 +368,7 @@
         if (mode === 'single') {
             box1.classList.add('full-width');
             box2.style.display = 'none';
-            label1.innerText = 'ここをタップして撮影';
+            label1.innerText = 'カメラ起動';
         } else {
             box1.classList.remove('full-width');
             box2.style.display = 'flex';
@@ -353,6 +377,46 @@
         checkReady();
     }
 
+    async function openCamera(targetNum) {
+        activeTarget = targetNum;
+        const modal = document.getElementById('camera-modal');
+        const video = document.getElementById('video');
+        
+        try {
+            videoStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment", width: {ideal: 1920}, height: {ideal: 1080} },
+                audio: false
+            });
+            video.srcObject = videoStream;
+            modal.style.display = 'block';
+        } catch (err) {
+            // カメラ非対応環境の場合はファイル選択
+            triggerFile(targetNum);
+        }
+    }
+
+    function closeCamera() {
+        const modal = document.getElementById('camera-modal');
+        modal.style.display = 'none';
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    }
+
+    function takePhoto() {
+        const video = document.getElementById('video');
+        if (!video.srcObject) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        processImage(canvas.toDataURL('image/jpeg', 0.9));
+        closeCamera();
+    }
+    
     function triggerFile(num) {
         activeTarget = num;
         document.getElementById(`file-input-${num}`).click();
@@ -413,14 +477,19 @@
     }
 
     function resetAll() { location.reload(); }
-    function retakeCurrent() { triggerFile(activeTarget); }
+    function retakeCurrent() { 
+        // 画像が既にある状態での再撮影
+        if(activeTarget) {
+            openCamera(activeTarget);
+        }
+    }
 
     function stars(n) {
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["潜在的な力が眠っています。"];
+        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
         return `
         <div class="fortune-card">
             <div class="line-header">
@@ -446,12 +515,12 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：左右認識を「自分視点」に修正 & ポジティブ判定
+            // ★ V26プロンプト：正解マップ＆エンタメ救済
             prompt = `
-            あなたは中高生に人気のある、よく当たる手相占い師です。
-            画像の手相（${handLabel}）を分析し、「です・ます調」で優しくポジティブに鑑定してください。
+            あなたは中高生に人気の、少しミステリアスでサービス精神旺盛な手相占い師です。
+            画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
             
-            【最重要】画像の左右認識:
+            【最重要】左右の認識（自分視点）:
             - 左手写真の場合: 画像の「左側」が親指、「右側」が小指です。
             - 右手写真の場合: 画像の「右側」が親指、「左側」が小指です。
             
@@ -509,7 +578,6 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
-                // SVG切り替え
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
                 } else {
