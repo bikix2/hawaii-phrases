@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V6.0 (God Edition)</title>
+    <title>🎨 AIカラー診断 V7.0 (Final)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -13,7 +13,8 @@
             --bg: #1a1a1a; 
             --panel-bg: #2c2c2c;
             --text: #ffffff;
-            --ng-color: #ff6b6b;
+            --chat-user: #00b894;
+            --chat-ai: #444;
         }
         
         body {
@@ -36,25 +37,10 @@
             padding: 2px 10px; border-radius: 4px; font-weight: bold;
         }
 
-        .subtitle { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
+        .top-btns { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+        .btn-sm { background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
 
-        .tip-box {
-            background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--accent);
-            text-align: left; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px;
-            font-size: 0.85rem; line-height: 1.5;
-        }
-
-        .warning-box {
-            background: rgba(255, 82, 82, 0.2); border: 1px solid #ff5252; color: #ff8a80;
-            padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.9rem;
-            display: none; animation: pulse 2s infinite;
-        }
-        .auto-msg {
-            background: rgba(105, 240, 174, 0.2); border: 1px solid #69F0AE; color: #69F0AE;
-            padding: 8px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; display: none;
-        }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
-
+        /* 画像エリア */
         .canvas-wrapper {
             position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto;
             border: 15px solid #444; border-radius: 5px; 
@@ -62,13 +48,11 @@
             overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
             min-height: 200px;
         }
-        
         .drape-label {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0;
             display: none;
         }
-
         canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
         
         .placeholder {
@@ -78,32 +62,20 @@
         }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
 
+        /* ピッカー */
         .picker-panel {
             background: var(--panel-bg); padding: 15px; border-radius: 15px;
             margin-top: 15px; display: none; border: 1px solid #444;
         }
-        .contrast-guide {
-            font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2);
-            padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left;
-        }
-
+        .contrast-guide { font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
         .picker-steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-        .pick-btn {
-            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #666;
-            background: transparent; color: #ccc; cursor: pointer; position: relative;
-            font-size: 0.9rem; transition: all 0.2s;
-        }
-        .pick-btn.active {
-            background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold;
-        }
+        .pick-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #666; background: transparent; color: #ccc; cursor: pointer; position: relative; font-size: 0.9rem; transition: all 0.2s; }
+        .pick-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
         .pick-btn.done { border-color: var(--accent); color: var(--accent); }
         .pick-btn.done::after { content: '✔'; margin-left: 5px; }
+        .color-preview-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid #fff; margin-right: 5px; background: transparent; }
 
-        .color-preview-dot {
-            display: inline-block; width: 12px; height: 12px; border-radius: 50%;
-            border: 1px solid #fff; margin-right: 5px; background: transparent;
-        }
-
+        /* メインボタン */
         .btn-main {
             background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px;
             font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
@@ -112,28 +84,7 @@
         }
         .btn-main.ready { opacity: 1; pointer-events: auto; }
 
-        /* 保存ボタンエリア */
-        .save-area {
-            display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
-        }
-        .btn-save {
-            background: #00b894; color: white; border: none; padding: 12px 20px;
-            border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px;
-        }
-        .btn-share {
-            background: #e1306c; color: white; border: none; padding: 12px 20px;
-            border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px;
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        }
-
-        .sub-controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .btn-sub-action {
-            background: transparent; border: 1px solid #666; color: #ccc;
-            padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        .btn-sub-action:hover { background: rgba(255,255,255,0.1); border-color: #999; }
-
+        /* 結果画面 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         .season-badge {
             display: inline-block; padding: 8px 25px; border-radius: 50px;
@@ -141,51 +92,41 @@
             background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 80%;
         }
 
-        .drape-hint { text-align: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
-        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
-        .swatch-container {
-            display: flex; flex-direction: column; align-items: center; width: 64px; cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .swatch-container:active { transform: scale(0.95); }
-        .color-swatch { 
-            width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); 
-            margin-bottom: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
-
-        .fortune-card {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 15px; margin-bottom: 15px;
-        }
+        .fortune-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .card-title { font-weight: bold; display: block; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 5px; }
         
-        .ng-colors-wrapper {
-            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-        }
-        .ng-swatch {
-            width: 40px; height: 40px; border-radius: 4px; border: 2px solid #555; position: relative; opacity: 0.8;
-        }
-        .ng-swatch::after {
-            content: '×'; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%);
-            color: rgba(0,0,0,0.5); font-weight: bold; font-size: 1.2rem;
-        }
+        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
+        .swatch-container { display: flex; flex-direction: column; align-items: center; width: 64px; cursor: pointer; transition: transform 0.1s; }
+        .swatch-container:active { transform: scale(0.95); }
+        .color-swatch { width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); margin-bottom: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
+
+        .ng-colors-wrapper { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .ng-swatch { width: 40px; height: 40px; border-radius: 4px; border: 2px solid #555; position: relative; opacity: 0.8; }
+        .ng-swatch::after { content: '×'; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); color: rgba(0,0,0,0.5); font-weight: bold; font-size: 1.2rem; }
 
         .cosme-list { list-style: none; padding: 0; margin: 0; }
-        .cosme-item {
-            background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px;
-            margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
-            cursor: pointer; transition: background 0.2s;
-        }
-        .cosme-item:active { background: rgba(255,255,255,0.1); }
+        .cosme-item { background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
         .cosme-icon { font-size: 1.2rem; }
         .search-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; margin-left: auto; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
+        
+        /* チャットUI */
+        .chat-section { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
+        .chat-box { max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; max-width: 85%; }
+        .chat-msg.ai { background: var(--chat-ai); color: #fff; margin-right: auto; }
+        .chat-msg.user { background: var(--chat-user); color: #000; margin-left: auto; font-weight: bold; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #666; background: #222; color: #fff; }
+        .chat-send { background: var(--primary); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; color: #000; }
 
-        ul { margin: 0; padding-left: 20px; color: #ddd; font-size: 0.9rem; }
-        li { margin-bottom: 6px; }
+        /* 保存ボタンエリア */
+        .save-area { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .btn-save { background: #00b894; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
+        .btn-share { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
 
         .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; }
+        .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; max-height: 80vh; overflow-y: auto; }
         .input-key { width: 90%; padding: 12px; margin: 20px 0; background: #1a1a1a; color: white; border: 1px solid var(--primary); border-radius: 5px; }
         .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:100; display:none; justify-content:center; align-items:center; flex-direction:column; }
         .loading-icon { font-size: 4rem; animation: spin 2s infinite linear; margin-bottom: 20px; }
@@ -193,12 +134,10 @@
         @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
 
-        .reset-btn { background: transparent; border: none; color: #888; text-decoration: underline; margin-top: 10px; cursor: pointer; font-size: 0.8rem;}
-
-        /* --- シェアカード用テンプレート（非表示） --- */
+        /* --- シェアカード用テンプレート --- */
         #share-card-template {
             position: fixed; left: -9999px; top: 0;
-            width: 360px; height: 640px; /* 9:16 aspect ratio roughly */
+            width: 360px; height: 640px;
             background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
             padding: 20px; box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -209,8 +148,10 @@
         .sc-photo-box {
             width: 200px; height: 266px; overflow: hidden; border: 5px solid #fff; 
             margin-bottom: 15px; border-radius: 10px; position: relative;
+            background: #333; display: flex; align-items: center; justify-content: center;
         }
         .sc-photo-box canvas { width: 100%; height: 100%; object-fit: cover; }
+        .sc-illustration { font-size: 5rem; }
         .sc-badge { 
             background: #fff; color: #000; padding: 5px 20px; border-radius: 20px; 
             font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; display: inline-block;
@@ -231,26 +172,34 @@
     </div>
 </div>
 
+<div id="history-modal" class="modal hidden" onclick="closeHistory(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 style="color:var(--primary)">📂 診断履歴</h2>
+        <div id="history-list" style="text-align:left; color:#ccc;"></div>
+        <button class="btn-sm" onclick="closeHistory()" style="margin-top:20px; width:100%;">閉じる</button>
+    </div>
+</div>
+
 <div id="loading" class="loading-overlay">
     <div class="loading-icon">🎨</div>
     <div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem; color:#888;">Step 1: 500円玉/白紙で色補正<br>Step 2: 顔映りシミュレーション<br>Step 3: 具体的なコスメ選定</span></div>
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V6.0</span></h1>
-    <div class="subtitle">God Edition: Share Card & Shop Links</div>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V7.0</span></h1>
+    <div class="top-btns">
+        <button class="btn-sm" onclick="showHistory()">📂 履歴</button>
+        <button class="btn-sm" onclick="location.reload()">🔄 リセット</button>
+    </div>
 
     <div id="setup-area">
         <div class="tip-box">
             <strong>💡 使い方</strong><br>
-            画像を読み込んだら、下の画像内の「肌」と「瞳（または髪）」をタップして、色を指定してください。<br>
-            ※500円玉や白い紙と一緒に撮ると精度UP！
+            画像を読み込んだら、下の画像内の「肌」と「瞳（または髪）」をタップして、色を指定してください。
         </div>
 
         <div id="auto-msg" class="auto-msg"></div>
-        <div id="brightness-warning" class="warning-box">
-            ⚠️ 写真が少し暗いようです！<br>明るい場所で撮ると精度が上がります。
-        </div>
+        <div id="brightness-warning" class="warning-box">⚠️ 写真が少し暗いようです！</div>
 
         <div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()">
             <canvas id="main-canvas"></canvas>
@@ -281,11 +230,6 @@
         </div>
 
         <button id="analyze-btn" class="btn-main" onclick="startAnalysis()">診断開始</button>
-
-        <div class="sub-controls" id="sub-controls" style="display:none;">
-            <button class="btn-sub-action" onclick="retakePhoto()">📷 撮り直す</button>
-            <button class="btn-sub-action" onclick="showHistory()">📂 履歴を見る</button>
-        </div>
     </div>
 
     <div id="result-wrapper">
@@ -326,11 +270,20 @@
             </div>
         </div>
 
-        <div class="save-area">
-            <button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button>
-            <button class="btn-share" onclick="generateShareCard()">✨ シェア用カード</button>
+        <div class="chat-section">
+            <h3 style="color:var(--primary); margin-top:0;">💬 ファッション相談AI</h3>
+            <p style="font-size:0.8rem; color:#aaa;">「結婚式には何色？」「黒は似合う？」など、診断結果を元にAIが答えます。</p>
+            <div class="chat-box" id="chat-box"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="chat-input" placeholder="質問を入力...">
+                <button class="chat-send" onclick="sendChat()">送信</button>
+            </div>
         </div>
 
+        <div class="save-area">
+            <button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button>
+            <button class="btn-share" onclick="showShareOptions()">✨ SNS用カード</button>
+        </div>
         <div class="sub-controls" style="margin-top:20px;">
             <button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button>
         </div>
@@ -341,10 +294,11 @@
     <div class="sc-title">AI PERSONAL COLOR</div>
     <div class="sc-photo-box" id="sc-photo-box">
         <canvas id="sc-canvas"></canvas>
+        <div id="sc-illustration" class="sc-illustration" style="display:none;"></div>
     </div>
     <div class="sc-badge" id="sc-badge">SEASON</div>
     <div class="sc-colors" id="sc-colors"></div>
-    <div class="sc-footer">#AIカラー診断V6 #Gemini</div>
+    <div class="sc-footer">#AIカラー診断V7 #Gemini</div>
 </div>
 
 <script>
@@ -358,7 +312,7 @@
     let canvas, ctx;
     let imgObj = new Image();
     let cropRect = null; 
-    let currentResultData = null; // 結果保持用
+    let currentResultData = null; 
 
     window.onload = function() {
         checkApiKey();
@@ -399,7 +353,6 @@
                     checkBrightness();
                     document.getElementById('placeholder').style.display = 'none';
                     document.getElementById('picker-panel').style.display = 'block';
-                    document.getElementById('sub-controls').style.display = 'flex';
                 };
                 imgObj.src = e.target.result;
             };
@@ -412,26 +365,22 @@
         resetPoints();
         const autoMsg = document.getElementById('auto-msg');
         const guideText = document.getElementById('guide-text');
-
         guideText.innerHTML = `<strong>🧐 手動設定モード</strong><br>画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップしてください。`;
 
         if ('FaceDetector' in window) {
             try {
                 const faceDetector = new FaceDetector();
                 const faces = await faceDetector.detect(imgObj);
-
                 if (faces.length > 0) {
                     const face = faces[0].boundingBox;
                     const paddingX = face.width * 0.3;
                     const paddingY = face.height * 0.4;
-                    
                     cropRect = {
                         x: Math.max(0, face.x - paddingX),
                         y: Math.max(0, face.y - paddingY),
                         w: Math.min(imgObj.width, face.width + paddingX*2),
                         h: Math.min(imgObj.height, face.height + paddingY*2)
                     };
-                    
                     if (cropRect.x + cropRect.w > imgObj.width) cropRect.w = imgObj.width - cropRect.x;
                     if (cropRect.y + cropRect.h > imgObj.height) cropRect.h = imgObj.height - cropRect.y;
 
@@ -439,28 +388,20 @@
                     const skinY = face.y + face.height * 0.6;
                     const eyeX = face.x + face.width * 0.3;
                     const eyeY = face.y + face.height * 0.4;
-
+                    
                     drawImageToCanvas(canvas, ctx); 
 
                     const scale = canvas.width / cropRect.w;
-                    const canvasSkinX = (skinX - cropRect.x) * scale;
-                    const canvasSkinY = (skinY - cropRect.y) * scale;
-                    const canvasEyeX = (eyeX - cropRect.x) * scale;
-                    const canvasEyeY = (eyeY - cropRect.y) * scale;
+                    autoSetPoint('skin', (skinX - cropRect.x) * scale, (skinY - cropRect.y) * scale);
+                    setTimeout(() => autoSetPoint('eye', (eyeX - cropRect.x) * scale, (eyeY - cropRect.y) * scale), 100);
 
-                    autoSetPoint('skin', canvasSkinX, canvasSkinY);
-                    setTimeout(() => autoSetPoint('eye', canvasEyeX, canvasEyeY), 100);
-
-                    autoMsg.innerText = "✨ 顔を自動検出し、マーカーをセットしました！位置がずれている場合はタップして修正してください。";
+                    autoMsg.innerText = "✨ 顔を自動検出しました！";
                     autoMsg.style.display = 'block';
-                    guideText.innerHTML = `<strong>🤖 自動設定完了</strong><br>マーカー位置を確認し、問題なければ「診断開始」を押してください。`;
+                    guideText.innerHTML = `<strong>🤖 自動設定完了</strong><br>問題なければ「診断開始」を押してください。`;
                     return;
                 }
-            } catch (e) {
-                console.warn("Face Detection failed:", e);
-            }
+            } catch (e) { console.warn("Face Detection failed:", e); }
         }
-        
         drawImageToCanvas(canvas, ctx);
     }
 
@@ -491,7 +432,6 @@
         const avg = getAverageColor(x, y, 3);
         const hex = "#" + [avg.r, avg.g, avg.b].map(d => d.toString(16).padStart(2,'0')).join('');
         const data = { x, y, hex };
-        
         if (type === 'skin') {
             skinColor = data;
             document.getElementById('dot-skin').style.background = hex;
@@ -506,21 +446,15 @@
     }
 
     function checkBrightness() {
-        const w = canvas.width;
-        const h = canvas.height;
+        const w = canvas.width; const h = canvas.height;
         if(w===0 || h===0) return;
         const imageData = ctx.getImageData(0, 0, w, h);
         const data = imageData.data;
-        let totalBrightness = 0;
-        let count = 0;
-        for (let i = 0; i < data.length; i += 4 * 10) {
-            const r = data[i]; const g = data[i+1]; const b = data[i+2];
-            const avg = 0.299*r + 0.587*g + 0.114*b;
-            totalBrightness += avg; count++;
+        let total = 0, count = 0;
+        for (let i = 0; i < data.length; i += 40) {
+            total += 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2]; count++;
         }
-        const brightness = totalBrightness / count;
-        const warning = document.getElementById('brightness-warning');
-        if (brightness < 50) warning.style.display = 'block'; else warning.style.display = 'none';
+        if ((total/count) < 50) document.getElementById('brightness-warning').style.display = 'block';
     }
 
     function setMode(mode) {
@@ -531,12 +465,8 @@
 
     function getAverageColor(startX, startY, range) {
         let r=0, g=0, b=0, count=0;
-        if (startX < 0 || startY < 0 || startX >= canvas.width || startY >= canvas.height) return {r:0, g:0, b:0};
-
-        const data = ctx.getImageData(Math.max(0, startX - range), Math.max(0, startY - range), range*2+1, range*2+1).data;
-        for (let i = 0; i < data.length; i += 4) {
-            r += data[i]; g += data[i+1]; b += data[i+2]; count++;
-        }
+        const data = ctx.getImageData(Math.max(0, startX-range), Math.max(0, startY-range), range*2+1, range*2+1).data;
+        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i+1]; b += data[i+2]; count++; }
         if(count===0) return {r:0, g:0, b:0};
         return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
     }
@@ -546,7 +476,6 @@
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
         autoSetPoint(pickMode, x, y);
         if (pickMode === 'skin') { setTimeout(() => setMode('eye'), 300); }
     }
@@ -569,8 +498,7 @@
 
     function checkReady() {
         const btn = document.getElementById('analyze-btn');
-        if (skinColor && eyeColor) btn.classList.add('ready');
-        else btn.classList.remove('ready');
+        if (skinColor && eyeColor) btn.classList.add('ready'); else btn.classList.remove('ready');
     }
 
     async function startAnalysis() {
@@ -583,7 +511,7 @@
         あなたはプロのパーソナルカラーアナリストです。
         【入力データ】肌:${skinColor.hex}, 締め色(眉/瞳/髪):${eyeColor.hex}
         【指示】
-        1. 画像内に「500円玉(金)」や「100円玉(銀)」や「白い紙」がある場合、それを色の基準(リファレンス)として認識し、照明による色被りを厳密に補正してください。
+        1. 画像内の「500円玉(金)」や「100円玉(銀)」や「白い紙」がある場合、それを色の基準(リファレンス)として認識し、照明による色被りを厳密に補正してください。
         2. 補正後の肌色とコントラストから、4シーズン(Spring/Summer/Autumn/Winter)を決定。
         3. 「似合う色」だけでなく「NGカラー（顔色が悪く見える色）」も選定。
         4. 「おすすめコスメ」は、日本のドラッグストアやデパートで買える具体的な商品名(ブランド名 + 色番)を挙げてください（例: KATE リップモンスター 03, CANMAKE...など）。
@@ -593,23 +521,10 @@
             "season": "診断結果 (例: Autumn (イエベ秋))",
             "description": "特徴(20文字以内)",
             "reasoning": ["理由1", "理由2", "理由3"],
-            "best_colors": [
-                {"hex": "#xxxxxx", "name": "色名"}, 
-                {"hex": "#xxxxxx", "name": "色名"}, 
-                {"hex": "#xxxxxx", "name": "色名"}, 
-                {"hex": "#xxxxxx", "name": "色名"}
-            ],
-            "ng_colors": [
-                {"hex": "#xxxxxx", "name": "色名"},
-                {"hex": "#xxxxxx", "name": "色名"},
-                {"hex": "#xxxxxx", "name": "色名"}
-            ],
+            "best_colors": [ {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"} ],
+            "ng_colors": [ {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"} ],
             "ng_reason": "NGカラーを避けるべき理由を一言で",
-            "cosmetics": [
-                {"type": "リップ", "name": "ブランド名 商品名 色番"},
-                {"type": "チーク", "name": "ブランド名 商品名 色番"},
-                {"type": "アイシャドウ", "name": "ブランド名 商品名 色番"}
-            ],
+            "cosmetics": [ {"type": "リップ", "name": "ブランド名 商品名 色番"}, {"type": "チーク", "name": "ブランド名 商品名 色番"}, {"type": "アイシャドウ", "name": "ブランド名 商品名 色番"} ],
             "advice_makeup": "メイク助言(50文字)",
             "advice_fashion": "服の助言(50文字)"
         }`;
@@ -621,24 +536,15 @@
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    contents: contents,
-                    generationConfig: { temperature: 0 }
-                })
+                body: JSON.stringify({ contents: contents, generationConfig: { temperature: 0 } })
             });
 
             const data = await response.json();
-            
-            if (data.error) { throw new Error(data.error.message || "API Error"); }
-            if (!data.candidates) { throw new Error("診断結果が取得できませんでした。"); }
-
+            if (data.error) throw new Error(data.error.message || "API Error");
             const text = data.candidates[0].content.parts[0].text;
-            const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
-            const res = JSON.parse(jsonStr);
+            const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]);
             
-            currentResultData = res; // データ保持
-
-            // 履歴に保存
+            currentResultData = res;
             saveHistory(res);
 
             document.getElementById('result-season').innerText = res.season;
@@ -660,19 +566,15 @@
             `).join('');
             document.getElementById('ng-reason').innerText = `⚠️ ${res.ng_reason}`;
 
-            // コスメリンク生成
-            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => {
-                const query = encodeURIComponent(c.name);
-                return `
-                <li class="cosme-item" onclick="window.open('https://www.google.com/search?q=${query}', '_blank')">
+            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => `
+                <li class="cosme-item" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(c.name)}', '_blank')">
                     <span class="cosme-icon">${getCosmeIcon(c.type)}</span>
                     <div style="flex:1">
                         <div style="font-weight:bold; font-size:0.8rem; color:#ccc;">${c.type}</div>
                         <div>${c.name}</div>
                     </div>
                     <span class="search-link">検索 ></span>
-                </li>`;
-            }).join('');
+                </li>`).join('');
             
             let detailsHtml = "";
             detailsHtml += `<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${res.reasoning.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
@@ -680,10 +582,9 @@
             detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッションアドバイス</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
             document.getElementById('result-details').innerHTML = detailsHtml;
 
-            // 表示切り替え
             document.getElementById('result-wrapper').style.display = 'block';
             
-            // 結果画面のキャンバス描画
+            // 表示後に描画
             const resultCanvas = document.getElementById('result-canvas');
             const resultCtx = resultCanvas.getContext('2d');
             drawImageToCanvas(resultCanvas, resultCtx);
@@ -719,6 +620,14 @@
         return "#333";
     }
 
+    function getSeasonIcon(seasonStr) {
+        if(seasonStr.includes("Spring") || seasonStr.includes("春")) return "🌷";
+        if(seasonStr.includes("Summer") || seasonStr.includes("夏")) return "🎐";
+        if(seasonStr.includes("Autumn") || seasonStr.includes("秋")) return "🍁";
+        if(seasonStr.includes("Winter") || seasonStr.includes("冬")) return "❄️";
+        return "✨";
+    }
+
     function saveResultImage() {
         const target = document.getElementById("capture-target");
         const originalStyle = target.style.cssText;
@@ -728,22 +637,44 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v6_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v7_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
     }
 
-    // ★機能1: SNSシェアカード生成
-    function generateShareCard() {
+    // SNSシェアオプション
+    function showShareOptions() {
+        if(confirm("顔写真を隠して、イラストモードで生成しますか？\n（キャンセルを押すと写真付きで生成します）")) {
+            generateShareCard(true);
+        } else {
+            generateShareCard(false);
+        }
+    }
+
+    function generateShareCard(privacyMode) {
         if (!currentResultData) return;
         
-        // データを流し込む
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
-        
-        // 結果画像を再描画
-        drawImageToCanvas(scCanvas, scCtx);
+        const illustration = document.getElementById('sc-illustration');
+
+        if (privacyMode) {
+            // 写真を非表示にしてイラスト表示
+            scCanvas.style.display = 'none';
+            illustration.style.display = 'flex';
+            illustration.style.alignItems = 'center';
+            illustration.style.justifyContent = 'center';
+            illustration.style.width = '100%';
+            illustration.style.height = '100%';
+            illustration.innerHTML = getSeasonIcon(currentResultData.season);
+            illustration.style.background = getSeasonColor(currentResultData.season) + "33"; // 薄い背景色
+        } else {
+            // 写真描画
+            scCanvas.style.display = 'block';
+            illustration.style.display = 'none';
+            drawImageToCanvas(scCanvas, scCtx);
+        }
         
         document.getElementById('sc-badge').innerText = currentResultData.season.split('(')[0];
         document.getElementById('sc-badge').style.color = getSeasonColor(currentResultData.season);
@@ -752,45 +683,78 @@
             `<div class="sc-swatch" style="background:${c.hex}"></div>`
         ).join('');
 
-        // 画像生成
         const target = document.getElementById('share-card-template');
-        
-        // 一瞬だけ見えない場所に表示してキャプチャ
-        target.style.left = "0";
-        target.style.zIndex = "-1";
+        target.style.left = "0"; target.style.zIndex = "-1";
         
         html2canvas(target, { backgroundColor: "#1a1a1a", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
             link.download = `sns_card_${new Date().getTime()}.png`;
             link.click();
-            
-            // 元に戻す
             target.style.left = "-9999px";
         });
     }
 
-    // ★機能3: 履歴機能
+    // チャット機能
+    async function sendChat() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if(!text) return;
+        if(!currentResultData) { alert("まずは診断を行ってください"); return; }
+
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML += `<div class="chat-msg user">${text}</div>`;
+        input.value = "";
+        
+        // AIへの問い合わせ
+        const prompt = `
+        あなたはパーソナルカラーの専門家です。
+        ユーザーの診断結果は「${currentResultData.season}」でした。
+        ベストカラーは「${currentResultData.best_colors.map(c=>c.name).join(',')}」です。
+        
+        ユーザーの質問：「${text}」
+        
+        これに対し、100文字以内で親切にアドバイスしてください。
+        `;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await response.json();
+            const reply = data.candidates[0].content.parts[0].text;
+            chatBox.innerHTML += `<div class="chat-msg ai">${reply}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch(e) {
+            chatBox.innerHTML += `<div class="chat-msg ai">エラーが発生しました。</div>`;
+        }
+    }
+
+    // 履歴
     function saveHistory(data) {
         let history = JSON.parse(localStorage.getItem('color_history') || "[]");
         data.date = new Date().toLocaleDateString();
-        history.unshift(data); // 先頭に追加
-        if(history.length > 5) history.pop(); // 最大5件
+        history.unshift(data);
+        if(history.length > 10) history.pop();
         localStorage.setItem('color_history', JSON.stringify(history));
     }
-
     function showHistory() {
         const history = JSON.parse(localStorage.getItem('color_history') || "[]");
-        if(history.length === 0) {
-            alert("履歴はまだありません。");
-            return;
+        const list = document.getElementById('history-list');
+        if(history.length === 0) { list.innerHTML = "履歴はありません"; }
+        else {
+            list.innerHTML = history.map(h => 
+                `<div style="border-bottom:1px solid #444; padding:10px 0;">
+                    <div style="font-weight:bold; color:${getSeasonColor(h.season)}">${h.season}</div>
+                    <div style="font-size:0.8rem;">${h.date}</div>
+                </div>`
+            ).join('');
         }
-        let msg = "【過去の診断履歴】\n";
-        history.forEach((h, i) => {
-            msg += `${i+1}. ${h.date} - ${h.season}\n`;
-        });
-        alert(msg);
+        document.getElementById('history-modal').classList.remove('hidden');
     }
+    function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
 </script>
 </body>
 </html>
