@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V16</title>
+    <title>✋ AI手相占い V17</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #FFD700;
             --accent: #E0AAFF;
-            --bg: #10002b;
+            --bg: #1a0b2e;
             --card-bg: rgba(255, 255, 255, 0.08);
             --text: #ffffff;
         }
@@ -30,9 +30,7 @@
         }
 
         /* 左右選択 */
-        .hand-selector {
-            display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;
-        }
+        .hand-selector { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; transition: opacity 0.3s; }
         .hand-btn {
             background: rgba(255,255,255,0.1); border: 1px solid #666;
             color: #ccc; padding: 10px 5px; border-radius: 10px;
@@ -46,19 +44,17 @@
         .hand-main { font-size: 1.1rem; font-weight: bold; }
         .hand-sub { font-size: 0.75rem; margin-top: 3px; color: var(--primary); }
 
-        /* モード切替タブ */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        /* タブ */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; transition: opacity 0.3s; }
         .tab-btn {
             flex: 1; padding: 10px; border: 1px solid var(--primary);
             background: transparent; color: var(--primary);
-            border-radius: 25px; cursor: pointer; font-weight: bold;
-            transition: all 0.3s;
+            border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s;
         }
         .tab-btn.active { background: var(--primary); color: #10002b; }
 
         /* 画像枠 */
         .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        
         .upload-box {
             position: relative; width: 48%; aspect-ratio: 3/4;
             border: 2px dashed var(--accent); border-radius: 15px;
@@ -66,25 +62,21 @@
             justify-content: center; align-items: center; cursor: pointer; overflow: hidden;
         }
         .upload-box.full-width { width: 80%; max-width: 300px; } 
-
         .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
         .upload-icon { font-size: 2rem; margin-bottom: 5px; opacity: 0.8; }
         .upload-label { font-size: 0.9rem; }
 
-        /* === カメラモーダル === */
+        /* カメラモーダル */
         #camera-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000; display: none;
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* ガイド：手のひら重視の四角形 */
         .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80%; height: 60%; 
-            border: 4px solid rgba(255, 215, 0, 0.8);
-            border-radius: 30px;
-            pointer-events: none;
+            border: 4px solid rgba(255, 215, 0, 0.8); border-radius: 30px; pointer-events: none;
             box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
         }
         .guide-text-container {
@@ -98,7 +90,6 @@
             color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
             background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px;
         }
-
         .shutter-btn {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
             width: 80px; height: 80px; background: #fff; border-radius: 50%;
@@ -109,13 +100,10 @@
             font-size: 2.5rem; cursor: pointer; z-index: 2010;
         }
 
-        /* ボタン類 */
         .btn-main {
-            background: linear-gradient(45deg, #FFD700, #FDB931);
-            color: #1a0b2e; border: none; padding: 15px 50px;
-            font-size: 1.2rem; font-weight: bold; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            width: 100%; margin-top: 10px;
+            background: linear-gradient(45deg, #FFD700, #FDB931); color: #1a0b2e; border: none; padding: 15px 50px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); width: 100%; margin-top: 10px;
         }
         .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
 
@@ -126,7 +114,6 @@
             font-weight: bold;
         }
 
-        /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
         .guide-container {
@@ -187,7 +174,7 @@
 
 <div id="loading" class="loading-overlay">
     <div class="crystal-ball">🔮</div>
-    <div class="loading-msg" id="loading-msg">運命を読み解いています...</div>
+    <div class="loading-msg" id="loading-msg">手相を精密分析中...</div>
 </div>
 
 <div id="camera-modal">
@@ -202,7 +189,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V16</h1>
+    <h1>✋ AI手相占い V17</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -455,7 +442,6 @@
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
-    // データ取得ヘルパー (安全策)
     function getSafeData(obj, keys) {
         for (const k of keys) {
             if (obj && obj[k]) return obj[k];
@@ -464,7 +450,6 @@
     }
 
     function createCard(title, dataObj, color) {
-        // キーの揺らぎに対応（score, pointsが直接入ってる場合と、dataObj自体がそれらの場合）
         const score = dataObj?.score || 3; 
         const pointsRaw = dataObj?.points || ["標準的な相が出ています"];
         const points = Array.isArray(pointsRaw) ? pointsRaw : [pointsRaw];
@@ -473,7 +458,7 @@
         <div class="fortune-card">
             <div class="line-header">
                 <span class="line-name"><span class="color-dot" style="background:${color}; width:12px; height:12px; border-radius:50%; display:inline-block;"></span> ${title}</span>
-                <span class="stars">${stars(score)}</span>
+                ${score ? `<span class="stars">${stars(score)}</span>` : ''}
             </div>
             <ul>${points.map(p => `<li>${p}</li>`).join('')}</ul>
         </div>`;
@@ -494,28 +479,33 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ プロンプト完全修正版 ★
+            // ★ AIプロンプト：厳格モード ★
             prompt = `
             あなたは手相鑑定士です。画像の手相（${handLabel}）を分析してください。
             
-            【重要】左右の定義:
-            - 今回は「${selectedHand === 'left' ? '左手' : '右手'}」です。
-            ${selectedHand === 'left' 
-                ? '- 左手：画像の「右側」が親指、「左側」が小指です。' 
-                : '- 右手：画像の「左側」が親指、「右側」が小指です。'}
+            【重要：画像審査】
+            まず画像の画質をチェックしてください。
+            - 手のひらの主要な線（生命線、頭脳線、感情線）が「はっきり」見えますか？
+            - ぼやけていたり、暗すぎたり、手が遠すぎる場合は、即座に以下のJSONを返して終了してください。
+            {"status": "error", "message": "画像が不鮮明で線が見えません。明るい場所で、手のひらを画面いっぱいに写して再撮影してください。"}
+
+            【左右の定義】
+            - 左手：画像の「右側」が親指、「左側」が小指。
+            - 右手：画像の「左側」が親指、「右側」が小指。
+
+            画像が鮮明な場合のみ、以下の7項目を分析しJSON出力してください。
             
-            以下の7つの線を見つけて、点数(1-5)と特徴(配列)を出力してください。線が見えない場合は一般的な解釈を入れてください。
-            
-            1. head (頭脳線): 親指側から手の平を横切る線。
-            2. heart (感情線): 小指側から人差し指へ向かう線。
-            3. life (生命線): 親指の付け根を囲む線。
-            4. fate (運命線): 手首から中指へ。
-            5. sun (太陽線): 薬指の下。
-            6. money (財運線): 小指の下。
-            7. marriage (結婚線): 小指の側面の横線。
+            1. head (頭脳線)
+            2. heart (感情線)
+            3. life (生命線)
+            4. fate (運命線)
+            5. sun (太陽線)
+            6. money (財運線)
+            7. marriage (結婚線)
 
             Format (JSON):
             {
+                "status": "success",
                 "head": {"score":4, "points":["..."]},
                 "heart": {"score":4, "points":["..."]},
                 "life": {"score":4, "points":["..."]},
@@ -529,7 +519,8 @@
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
+            もし画像が不鮮明なら {"status": "error", "message": "..."} を返してください。
+            Format: {"status": "success", "score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
 
@@ -542,6 +533,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: contents,
+                    generationConfig: { temperature: 0.5 },
                     safetySettings: [
                         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -552,15 +544,19 @@
             });
 
             const data = await response.json();
-            
             if (data.error) throw new Error(data.error.message);
-            
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
             if (!text) throw new Error("結果が空でした");
 
-            // JSONパースの強化
-            const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
-            const res = JSON.parse(jsonStr || "{}");
+            const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
+
+            // ★ エラー判定（画像不鮮明など）
+            if (res.status === 'error') {
+                alert("鑑定できませんでした：\n" + res.message);
+                postBtns.style.display = 'flex'; // ボタン復活
+                btn.disabled = false;
+                return;
+            }
 
             let html = "";
             const svgLeft = document.getElementById('svg-left');
@@ -572,16 +568,14 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
-                // SVG切り替え
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
                 } else {
                     svgLeft.style.display = 'none'; svgRight.style.display = 'block'; handText.innerText = "右手";
                 }
 
-                // 揺らぎ吸収ロジックで表示
-                html += createCard("頭脳線", getSafeData(res, ['head', 'head_line']), "#448AFF");
                 html += createCard("感情線", getSafeData(res, ['heart', 'heart_line']), "#ff4081");
+                html += createCard("頭脳線", getSafeData(res, ['head', 'head_line']), "#448AFF");
                 html += createCard("生命線", getSafeData(res, ['life', 'life_line']), "#69F0AE");
                 html += createCard("運命線", getSafeData(res, ['fate', 'fate_line']), "#E040FB");
                 html += createCard("太陽線", getSafeData(res, ['sun', 'sun_line']), "#FFAB40");
