@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V5.3 (Display Fixed)</title>
+    <title>🎨 AIカラー診断 V6.0 (God Edition)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -53,7 +53,6 @@
             background: rgba(105, 240, 174, 0.2); border: 1px solid #69F0AE; color: #69F0AE;
             padding: 8px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; display: none;
         }
-
         @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
         .canvas-wrapper {
@@ -61,13 +60,9 @@
             border: 15px solid #444; border-radius: 5px; 
             transition: border-color 0.3s ease;
             overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            min-height: 200px; /* ★高さ確保を追加 */
+            min-height: 200px;
         }
         
-        .result-canvas-wrapper {
-            margin-bottom: 25px;
-        }
-
         .drape-label {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0;
@@ -117,10 +112,18 @@
         }
         .btn-main.ready { opacity: 1; pointer-events: auto; }
 
+        /* 保存ボタンエリア */
+        .save-area {
+            display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
+        }
         .btn-save {
-            background: #00b894; color: white; border: none; padding: 12px 30px;
-            border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 15px;
-            width: 100%; max-width: 250px;
+            background: #00b894; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px;
+        }
+        .btn-share {
+            background: #e1306c; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
         }
 
         .sub-controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
@@ -172,8 +175,11 @@
         .cosme-item {
             background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px;
             margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            cursor: pointer; transition: background 0.2s;
         }
+        .cosme-item:active { background: rgba(255,255,255,0.1); }
         .cosme-icon { font-size: 1.2rem; }
+        .search-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; margin-left: auto; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
 
         ul { margin: 0; padding-left: 20px; color: #ddd; font-size: 0.9rem; }
         li { margin-bottom: 6px; }
@@ -188,6 +194,30 @@
         .hidden { display: none !important; }
 
         .reset-btn { background: transparent; border: none; color: #888; text-decoration: underline; margin-top: 10px; cursor: pointer; font-size: 0.8rem;}
+
+        /* --- シェアカード用テンプレート（非表示） --- */
+        #share-card-template {
+            position: fixed; left: -9999px; top: 0;
+            width: 360px; height: 640px; /* 9:16 aspect ratio roughly */
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+            padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 2px solid var(--primary); text-align: center; color: white;
+            font-family: 'Shippori Mincho', serif;
+        }
+        .sc-title { font-size: 1.5rem; color: var(--primary); margin-bottom: 15px; }
+        .sc-photo-box {
+            width: 200px; height: 266px; overflow: hidden; border: 5px solid #fff; 
+            margin-bottom: 15px; border-radius: 10px; position: relative;
+        }
+        .sc-photo-box canvas { width: 100%; height: 100%; object-fit: cover; }
+        .sc-badge { 
+            background: #fff; color: #000; padding: 5px 20px; border-radius: 20px; 
+            font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; display: inline-block;
+        }
+        .sc-colors { display: flex; gap: 8px; justify-content: center; }
+        .sc-swatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; }
+        .sc-footer { font-size: 0.8rem; color: #888; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -207,8 +237,8 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V5.3</span></h1>
-    <div class="subtitle">Auto Detect & Full Features</div>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V6.0</span></h1>
+    <div class="subtitle">God Edition: Share Card & Shop Links</div>
 
     <div id="setup-area">
         <div class="tip-box">
@@ -254,7 +284,7 @@
 
         <div class="sub-controls" id="sub-controls" style="display:none;">
             <button class="btn-sub-action" onclick="retakePhoto()">📷 撮り直す</button>
-            <button class="btn-sub-action" onclick="location.reload()">🏠 最初に戻る</button>
+            <button class="btn-sub-action" onclick="showHistory()">📂 履歴を見る</button>
         </div>
     </div>
 
@@ -285,7 +315,7 @@
             </div>
 
             <div class="fortune-card">
-                <span class="card-title" style="color:#ff9ff3;">💄 おすすめコスメ (具体例)</span>
+                <span class="card-title" style="color:#ff9ff3;">💄 おすすめコスメ (タップで検索)</span>
                 <ul class="cosme-list" id="cosme-list"></ul>
             </div>
 
@@ -296,14 +326,25 @@
             </div>
         </div>
 
-        <div style="text-align:center;">
-            <button class="btn-save" onclick="saveResultImage()">📸 画像を保存する</button>
+        <div class="save-area">
+            <button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button>
+            <button class="btn-share" onclick="generateShareCard()">✨ シェア用カード</button>
         </div>
 
         <div class="sub-controls" style="margin-top:20px;">
             <button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button>
         </div>
     </div>
+</div>
+
+<div id="share-card-template">
+    <div class="sc-title">AI PERSONAL COLOR</div>
+    <div class="sc-photo-box" id="sc-photo-box">
+        <canvas id="sc-canvas"></canvas>
+    </div>
+    <div class="sc-badge" id="sc-badge">SEASON</div>
+    <div class="sc-colors" id="sc-colors"></div>
+    <div class="sc-footer">#AIカラー診断V6 #Gemini</div>
 </div>
 
 <script>
@@ -317,6 +358,7 @@
     let canvas, ctx;
     let imgObj = new Image();
     let cropRect = null; 
+    let currentResultData = null; // 結果保持用
 
     window.onload = function() {
         checkApiKey();
@@ -424,7 +466,7 @@
 
     function drawImageToCanvas(targetCanvas, targetCtx) {
         const containerW = targetCanvas.parentElement.clientWidth;
-        if (containerW === 0) return; // 表示前でサイズ0ならスキップ
+        if (containerW === 0) return;
 
         const sx = cropRect ? cropRect.x : 0;
         const sy = cropRect ? cropRect.y : 0;
@@ -439,7 +481,6 @@
         
         targetCtx.drawImage(imgObj, sx, sy, sw, sh, 0, 0, targetCanvas.width, targetCanvas.height);
 
-        // メインキャンバスの場合のみマーカー描画
         if (targetCanvas.id === 'main-canvas') {
             if (skinColor) drawMarker(targetCtx, skinColor.x, skinColor.y, '#FFD700');
             if (eyeColor) drawMarker(targetCtx, eyeColor.x, eyeColor.y, '#00BFFF');
@@ -594,6 +635,11 @@
             const text = data.candidates[0].content.parts[0].text;
             const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
             const res = JSON.parse(jsonStr);
+            
+            currentResultData = res; // データ保持
+
+            // 履歴に保存
+            saveHistory(res);
 
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
@@ -614,15 +660,19 @@
             `).join('');
             document.getElementById('ng-reason').innerText = `⚠️ ${res.ng_reason}`;
 
-            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => `
-                <li class="cosme-item">
+            // コスメリンク生成
+            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => {
+                const query = encodeURIComponent(c.name);
+                return `
+                <li class="cosme-item" onclick="window.open('https://www.google.com/search?q=${query}', '_blank')">
                     <span class="cosme-icon">${getCosmeIcon(c.type)}</span>
-                    <div>
+                    <div style="flex:1">
                         <div style="font-weight:bold; font-size:0.8rem; color:#ccc;">${c.type}</div>
                         <div>${c.name}</div>
                     </div>
-                </li>
-            `).join('');
+                    <span class="search-link">検索 ></span>
+                </li>`;
+            }).join('');
             
             let detailsHtml = "";
             detailsHtml += `<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${res.reasoning.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
@@ -630,13 +680,13 @@
             detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッションアドバイス</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
             document.getElementById('result-details').innerHTML = detailsHtml;
 
-            // ★順番の修正: 表示してから描画
+            // 表示切り替え
             document.getElementById('result-wrapper').style.display = 'block';
             
-            // 結果画面のキャンバスに描画（表示後でないとサイズ計算できないため）
+            // 結果画面のキャンバス描画
             const resultCanvas = document.getElementById('result-canvas');
             const resultCtx = resultCanvas.getContext('2d');
-            drawImageToCanvas(resultCanvas, resultCtx); 
+            drawImageToCanvas(resultCanvas, resultCtx);
 
         } catch (e) {
             console.error(e);
@@ -678,10 +728,68 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v5_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v6_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
+    }
+
+    // ★機能1: SNSシェアカード生成
+    function generateShareCard() {
+        if (!currentResultData) return;
+        
+        // データを流し込む
+        const scCanvas = document.getElementById('sc-canvas');
+        const scCtx = scCanvas.getContext('2d');
+        
+        // 結果画像を再描画
+        drawImageToCanvas(scCanvas, scCtx);
+        
+        document.getElementById('sc-badge').innerText = currentResultData.season.split('(')[0];
+        document.getElementById('sc-badge').style.color = getSeasonColor(currentResultData.season);
+        
+        document.getElementById('sc-colors').innerHTML = currentResultData.best_colors.map(c => 
+            `<div class="sc-swatch" style="background:${c.hex}"></div>`
+        ).join('');
+
+        // 画像生成
+        const target = document.getElementById('share-card-template');
+        
+        // 一瞬だけ見えない場所に表示してキャプチャ
+        target.style.left = "0";
+        target.style.zIndex = "-1";
+        
+        html2canvas(target, { backgroundColor: "#1a1a1a", scale: 2 }).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = `sns_card_${new Date().getTime()}.png`;
+            link.click();
+            
+            // 元に戻す
+            target.style.left = "-9999px";
+        });
+    }
+
+    // ★機能3: 履歴機能
+    function saveHistory(data) {
+        let history = JSON.parse(localStorage.getItem('color_history') || "[]");
+        data.date = new Date().toLocaleDateString();
+        history.unshift(data); // 先頭に追加
+        if(history.length > 5) history.pop(); // 最大5件
+        localStorage.setItem('color_history', JSON.stringify(history));
+    }
+
+    function showHistory() {
+        const history = JSON.parse(localStorage.getItem('color_history') || "[]");
+        if(history.length === 0) {
+            alert("履歴はまだありません。");
+            return;
+        }
+        let msg = "【過去の診断履歴】\n";
+        history.forEach((h, i) => {
+            msg += `${i+1}. ${h.date} - ${h.season}\n`;
+        });
+        alert(msg);
     }
 </script>
 </body>
