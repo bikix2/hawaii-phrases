@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✋ AI手相占い</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d4af37; /* ゴールド */
+            --bg: #2c003e; /* 濃い紫 */
+            --card-bg: #4a148c;
+            --text: #f3e5f5;
+        }
+        
+        body {
+            font-family: 'Shippori Mincho', serif;
+            background: radial-gradient(circle at center, #4a148c 0%, #1a0033 100%);
+            margin: 0; padding: 20px;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px; margin: 0 auto;
+            text-align: center;
+            padding-bottom: 50px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .subtitle { font-size: 0.9rem; color: #d1c4e9; margin-bottom: 30px; }
+
+        /* カメラ・アップロードエリア */
+        .upload-area {
+            position: relative;
+            width: 280px; height: 380px;
+            margin: 0 auto 30px auto;
+            border: 3px solid var(--primary);
+            border-radius: 200px 200px 60px 60px; /* 手のひらっぽい形 */
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:active { transform: scale(0.98); }
+
+        .guide-line {
+            position: absolute;
+            width: 80%; height: 80%;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 150px 150px 40px 40px;
+            pointer-events: none;
+        }
+
+        .upload-text { margin-top: 10px; color: var(--primary); font-weight: bold; }
+        .upload-icon { font-size: 3rem; opacity: 0.8; }
+
+        #preview-img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; display: none;
+        }
+
+        .btn-main {
+            background: linear-gradient(45deg, #d4af37, #f9a825);
+            color: #1a0033;
+            border: none; padding: 15px 40px;
+            font-size: 1.2rem; font-weight: bold;
+            border-radius: 50px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+            font-family: 'Shippori Mincho', serif;
+            transition: transform 0.2s;
+        }
+        .btn-main:disabled { background: #7f8c8d; color: #ccc; box-shadow: none; }
+        .btn-main:active { transform: scale(0.95); }
+
+        /* 結果表示 */
+        #result-area { display: none; animation: fadeIn 1s ease; text-align: left; }
+
+        .fortune-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .fortune-title {
+            color: var(--primary);
+            font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px; margin-bottom: 15px;
+            display: flex; justify-content: space-between;
+        }
+
+        .line-name { font-weight: bold; }
+        .fortune-text { line-height: 1.8; font-size: 1rem; }
+
+        /* ローディング */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 0, 51, 0.9); z-index: 100;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .crystal-ball {
+            font-size: 4rem; animation: glow 2s infinite alternate; margin-bottom: 20px;
+        }
+        .loading-msg { color: var(--primary); font-size: 1.2rem; }
+
+        @keyframes glow { from { text-shadow: 0 0 10px #d4af37; opacity: 0.8; } to { text-shadow: 0 0 30px #fff; opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* API Modal */
+        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: #2c003e; padding: 30px; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; border: 1px solid var(--primary); }
+        .input-key { width: 90%; padding: 12px; margin: 20px 0; border: 1px solid var(--primary); background: #1a0033; color: white; border-radius: 5px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="key-modal" class="modal">
+    <div class="modal-content">
+        <h2>🔑 運命の鍵 (API Key)</h2>
+        <p style="font-size:0.9rem;">GeminiのAPIキーを入力してください</p>
+        <input type="password" id="api-key-input" class="input-key" placeholder="Paste API Key here">
+        <button class="btn-main" onclick="saveApiKey()">扉を開く</button>
+    </div>
+</div>
+
+<div id="loading" class="loading-overlay">
+    <div class="crystal-ball">🔮</div>
+    <div class="loading-msg">手相を霊視中...</div>
+</div>
+
+<div class="container">
+    <h1>✋ AI手相占い</h1>
+    <div class="subtitle">あなたの手のひらに刻まれた<br>運命を読み解きます</div>
+
+    <div class="upload-area" onclick="document.getElementById('camera-input').click()">
+        <div id="placeholder">
+            <div class="guide-line"></div>
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">ここをタップして<br>手相を撮影</div>
+        </div>
+        <img id="preview-img">
+        <input type="file" id="camera-input" accept="image/*" style="display: none" onchange="handleFile(this)">
+    </div>
+
+    <button id="analyze-btn" class="btn-main" onclick="analyzePalm()" disabled>鑑定する</button>
+
+    <div id="result-area">
+        <div style="margin: 30px 0; text-align: center;">
+            <span style="font-size: 2rem;">✨ 鑑定結果 ✨</span>
+        </div>
+
+        <div class="fortune-card">
+            <div class="fortune-title"><span class="line-name">❤️ 感情線 (性格・恋愛)</span></div>
+            <div class="fortune-text" id="res-heart">...</div>
+        </div>
+
+        <div class="fortune-card">
+            <div class="fortune-title"><span class="line-name">🧠 頭脳線 (才能・考え方)</span></div>
+            <div class="fortune-text" id="res-head">...</div>
+        </div>
+
+        <div class="fortune-card">
+            <div class="fortune-title"><span class="line-name">🌱 生命線 (健康・バイタリティ)</span></div>
+            <div class="fortune-text" id="res-life">...</div>
+        </div>
+
+        <div class="fortune-card" style="border-color: #ff6b81; background: rgba(255,107,129,0.1);">
+            <div class="fortune-title">🔮 総合運勢 & アドバイス</div>
+            <div class="fortune-text" id="res-overall">...</div>
+        </div>
+
+        <button class="btn-main" style="background:#555; color:white; margin-top:20px;" onclick="location.reload()">もう一度占う</button>
+    </div>
+</div>
+
+<script>
+    let API_KEY = "";
+    const GEMINI_MODEL = "gemini-2.5-flash"; // 指定のモデル
+    let currentImageBase64 = null;
+
+    window.onload = function() { checkApiKey(); };
+
+    function checkApiKey() {
+        const stored = localStorage.getItem('gemini_api_key_palm');
+        if (stored) {
+            API_KEY = stored;
+            document.getElementById('key-modal').classList.add('hidden');
+        }
+    }
+    function saveApiKey() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (key) {
+            API_KEY = key;
+            localStorage.setItem('gemini_api_key_palm', key);
+            document.getElementById('key-modal').classList.add('hidden');
+        }
+    }
+
+    // 画像処理（圧縮して表示）
+    function handleFile(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // 爆速化のためリサイズ (長辺800px)
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxSize = 800;
+
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // プレビュー表示
+                    const preview = document.getElementById('preview-img');
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.8); // 保持
+                    preview.src = currentImageBase64;
+                    preview.style.display = 'block';
+                    document.getElementById('placeholder').style.display = 'none';
+                    document.getElementById('analyze-btn').disabled = false;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Geminiで解析
+    async function analyzePalm() {
+        if (!currentImageBase64) return;
+
+        const btn = document.getElementById('analyze-btn');
+        const loading = document.getElementById('loading');
+        
+        btn.disabled = true;
+        loading.style.display = 'flex';
+
+        // ヘッダー削除
+        const cleanBase64 = currentImageBase64.replace(/^data:image\/\w+;base64,/, "");
+
+        const prompt = `
+        あなたは熟練の手相占い師です。提供された「手のひらの写真」を詳しく霊視（画像分析）してください。
+        以下の4つの観点で、線（長さ、濃さ、カーブなど）の特徴を具体的に挙げながら占ってください。
+        
+        ※中高生が楽しめるよう、少しミステリアスかつ、ポジティブで「当たってる感」のある口調でお願いします。
+        ※JSON形式で出力してください。
+
+        【出力フォーマット】
+        {
+            "heart_line": "感情線（小指の下から人差し指方向へ伸びる線）の分析。恋愛傾向や性格。",
+            "head_line": "頭脳線（親指と人差し指の間から横切る線）の分析。才能や考え方。",
+            "life_line": "生命線（親指の付け根を囲む線）の分析。体力やバイタリティ。",
+            "overall": "全体的な運勢と、今週のラッキーアドバイス。"
+        }
+        `;
+
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            { inline_data: { mime_type: "image/jpeg", data: cleanBase64 } }
+                        ]
+                    }],
+                    // 手相画像が誤検知されないよう安全設定を解除
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) throw new Error(data.error.message);
+            
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) throw new Error("手相が読み取れませんでした。");
+
+            // JSONパース
+            const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
+            const result = JSON.parse(jsonStr || "{}");
+
+            // 結果表示
+            document.getElementById('res-heart').innerText = result.heart_line || "読み取れませんでした";
+            document.getElementById('res-head').innerText = result.head_line || "読み取れませんでした";
+            document.getElementById('res-life').innerText = result.life_line || "読み取れませんでした";
+            document.getElementById('res-overall').innerText = result.overall || "全体運の読み取りに失敗しました";
+
+            document.getElementById('result-area').style.display = 'block';
+            document.querySelector('.upload-area').style.display = 'none';
+            btn.style.display = 'none';
+            
+            // 結果までスクロール
+            document.getElementById('result-area').scrollIntoView({behavior: 'smooth'});
+
+        } catch (e) {
+            alert("鑑定エラー: " + e.message + "\nもっと明るい場所で撮影するか、APIキーを確認してください。");
+        } finally {
+            loading.style.display = 'none';
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
