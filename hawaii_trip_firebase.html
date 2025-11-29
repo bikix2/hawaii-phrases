@@ -17,7 +17,7 @@
         .header { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 20px; text-align: center; }
         .header h1 { font-size: 20px; margin-bottom: 5px; }
         .header .dates { font-size: 14px; opacity: 0.95; margin-bottom: 5px; }
-        .header .update-info { font-size: 10px; opacity: 0.8; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .header .update-info { font-size: 10px; opacity: 0.9; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center; }
         
         /* タブエリア */
         .tabs { display: flex; background: #f5f5f5; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -134,7 +134,8 @@
             
             <div class="update-info">
                 <span id="app-updated"></span>
-                <span id="data-updated">Data: 未同期</span>
+                <span id="data-updated">Data: ---</span>
+                <span id="last-edited" style="color:#FFEB3B; font-weight:bold;">Edit: ---</span>
             </div>
         </div>
         
@@ -271,7 +272,7 @@
         // ==========================================================
         // 0. プログラム更新日時 (手動設定)
         // ==========================================================
-        const APP_LAST_UPDATED = "2025/11/29 01:00"; 
+        const APP_LAST_UPDATED = "2025/11/29 12:00"; 
         
         // ==========================================================
         // 1. Firebase設定
@@ -301,15 +302,25 @@
         }
 
         // ==========================================================
+        // 1.5 最終編集日時の更新（ヘルパー関数）
+        // ==========================================================
+        function updateLastEdited() {
+            db.collection('trip-schedule').doc('meta-data').set({
+                lastEdited: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(err => console.error("Timestamp update error", err));
+        }
+
+        // ==========================================================
         // 2. リアルタイム同期開始
         // ==========================================================
         function startRealtimeListener() {
             // App更新日時を表示
             document.getElementById('app-updated').innerText = `App: ${APP_LAST_UPDATED}`;
 
+            // スケジュール同期
             db.collection('trip-schedule').onSnapshot(snapshot => {
                 snapshot.forEach(doc => {
-                    if (doc.id !== 'note-data') {
+                    if (doc.id !== 'note-data' && doc.id !== 'meta-data') {
                         scheduleData[doc.id] = doc.data();
                     }
                 });
@@ -325,6 +336,7 @@
                 }
             });
 
+            // ノート同期
             db.collection('trip-schedule').doc('note-data').onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
@@ -344,6 +356,15 @@
                     noteData.notes = data.notes || [];
                     renderStickyNotes();
                     renderNoteImages(data.images || []);
+                }
+            });
+
+            // 最終編集日時の同期
+            db.collection('trip-schedule').doc('meta-data').onSnapshot(doc => {
+                if (doc.exists && doc.data().lastEdited) {
+                    const date = doc.data().lastEdited.toDate();
+                    const timeStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    document.getElementById('last-edited').innerText = `Edit: ${timeStr}`;
                 }
             });
         }
@@ -456,6 +477,7 @@
             db.collection('trip-schedule').doc('note-data').set({
                 notes: newNotes
             }, { merge: true })
+            .then(() => updateLastEdited()) // Update Timestamp
             .catch(err => alert("追加エラー: " + err));
         }
 
@@ -469,7 +491,9 @@
             });
             db.collection('trip-schedule').doc('note-data').update({
                 notes: updatedNotes
-            }).catch(err => console.error("保存エラー", err));
+            })
+            .then(() => updateLastEdited()) // Update Timestamp
+            .catch(err => console.error("保存エラー", err));
         }
 
         function deleteStickyNote(id) {
@@ -477,7 +501,9 @@
             const filteredNotes = noteData.notes.filter(n => n.id !== id);
             db.collection('trip-schedule').doc('note-data').update({
                 notes: filteredNotes
-            }).catch(err => alert("削除エラー: " + err));
+            })
+            .then(() => updateLastEdited()) // Update Timestamp
+            .catch(err => alert("削除エラー: " + err));
         }
 
         // ==========================================================
@@ -497,11 +523,13 @@
                 await db.collection('trip-schedule').doc('note-data').update({
                     images: firebase.firestore.FieldValue.arrayUnion(url)
                 });
+                updateLastEdited(); // Update Timestamp
                 fileInput.value = '';
                 toggleLoader(false);
             } catch (error) {
                 if (error.code === 'not-found' || error.message.includes('No document')) {
                      await db.collection('trip-schedule').doc('note-data').set({ images: [url], notes: [] }, { merge: true });
+                     updateLastEdited(); // Update Timestamp
                      toggleLoader(false);
                 } else {
                     alert("アップロード失敗: " + error.message);
@@ -532,8 +560,11 @@
                 await db.collection('trip-schedule').doc('note-data').update({
                     images: firebase.firestore.FieldValue.arrayRemove(url)
                 });
+                // Image deletion from storage
                 const fileRef = firebase.storage().refFromURL(url);
                 await fileRef.delete();
+                
+                updateLastEdited(); // Update Timestamp
                 toggleLoader(false);
                 alert("削除しました");
             } catch (error) {
@@ -658,6 +689,10 @@
                         batch.set(ref, data.notes);
                     }
                     
+                    // 復元時も最終更新日時をアップデート
+                    const metaRef = db.collection('trip-schedule').doc('meta-data');
+                    batch.set(metaRef, { lastEdited: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+
                     await batch.commit();
                     
                     alert("復元が完了しました！");
@@ -789,6 +824,7 @@
                     events[itemIndex] = { ...events[itemIndex], ...newEvent };
                 }
                 await db.collection('trip-schedule').doc(dayKey).set({ events: events }, { merge: true });
+                updateLastEdited(); // Update Timestamp
                 toggleLoader(false);
                 hideForm(dayNum);
 
@@ -805,10 +841,11 @@
             const events = [...scheduleData[dayKey].events];
             events.splice(itemIndex, 1);
             db.collection('trip-schedule').doc(dayKey).update({ events: events });
+            updateLastEdited(); // Update Timestamp
         }
 
         // ==========================================================
-        // 8. スワイプ操作機能 (修正版: 縦スクロール誤作動防止)
+        // 8. スワイプ操作機能
         // ==========================================================
         let touchStartX = 0;
         let touchStartY = 0;
@@ -831,7 +868,7 @@
             const diffX = touchStartX - touchEndX;
             const diffY = touchStartY - touchEndY;
 
-            // 縦スクロールの方が大きい場合はスワイプとみなさない (重要)
+            // 縦スクロールの方が大きい場合はスワイプとみなさない
             if (Math.abs(diffY) > Math.abs(diffX)) return;
 
             // スワイプ距離が50px未満なら無視
@@ -856,7 +893,6 @@
                 const tabBtn = document.querySelector(`.tab[data-day="${nextDay}"]`);
                 if (tabBtn) {
                     tabBtn.click();
-                    // タブ自体をスクロールして表示範囲に入れる
                     tabBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 }
             }
