@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V23</title>
+    <title>✋ AI手相占い V26</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -66,43 +66,7 @@
         .upload-icon { font-size: 2rem; margin-bottom: 5px; opacity: 0.8; }
         .upload-label { font-size: 0.9rem; }
 
-        /* カメラモーダル */
-        #camera-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; display: none;
-        }
-        #video { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* ガイド：手のひら重視 */
-        .palm-focus-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 60%; 
-            border: 4px solid rgba(255, 215, 0, 0.8);
-            border-radius: 30px;
-            pointer-events: none;
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
-        }
-        .guide-text-container {
-            position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
-        }
-        .guide-main-text {
-            color: #FFD700; font-size: 1.3rem; font-weight: bold; 
-            text-shadow: 0 2px 4px #000; margin-bottom: 5px;
-        }
-        .guide-sub-text {
-            color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
-            background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px;
-        }
-        .shutter-btn {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 80px; background: #fff; border-radius: 50%;
-            border: 6px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 2010;
-        }
-        .close-camera {
-            position: absolute; top: 20px; right: 20px; color: white;
-            font-size: 2.5rem; cursor: pointer; z-index: 2010;
-        }
-
+        /* ボタン類 */
         .btn-main {
             background: linear-gradient(45deg, #FFD700, #FDB931); color: #1a0b2e; border: none; padding: 15px 50px;
             font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
@@ -110,6 +74,7 @@
         }
         .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
 
+        /* 撮影後の操作ボタン */
         .control-btns { display: none; gap: 10px; margin-top: 20px; justify-content: center; }
         .btn-control {
             background: rgba(255,255,255,0.1); border: 1px solid #999; color: #fff;
@@ -125,6 +90,8 @@
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
             text-align: center; color: #fff;
         }
+        .guide-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 1.1rem;}
+
         .guide-legend {
             font-size: 0.75rem; margin-top: 12px; display: flex; flex-wrap: wrap; 
             justify-content: center; gap: 8px; font-weight: bold; line-height: 1.5;
@@ -179,19 +146,8 @@
     <div class="loading-msg" id="loading-msg">運命を読み解いています...</div>
 </div>
 
-<div id="camera-modal">
-    <video id="video" autoplay playsinline></video>
-    <div class="close-camera" onclick="closeCamera()">×</div>
-    <div class="guide-text-container">
-        <div class="guide-main-text">手のひらをドアップで！</div>
-        <div class="guide-sub-text">指は切れてOK。黄色い枠いっぱいに<br>「手のひら」を写してね</div>
-    </div>
-    <div class="palm-focus-overlay"></div>
-    <div class="shutter-btn" onclick="takePhoto()"></div>
-</div>
-
 <div class="container">
-    <h1>✋ AI手相占い V23</h1>
+    <h1>✋ AI手相占い V26</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -211,14 +167,14 @@
     </div>
 
     <div class="upload-wrapper" id="upload-wrapper">
-        <div class="upload-box full-width" id="box1" onclick="openCamera(1)">
+        <div class="upload-box full-width" id="box1" onclick="triggerFile(1)">
             <div id="ph1">
                 <div class="upload-icon">📷</div>
                 <div class="upload-label" id="label1">ここをタップして撮影</div>
             </div>
             <img id="preview1" class="preview-img">
         </div>
-        <div class="upload-box" id="box2" onclick="openCamera(2)" style="display:none;">
+        <div class="upload-box" id="box2" onclick="triggerFile(2)" style="display:none;">
             <div id="ph2">
                 <div class="upload-icon">🤝</div>
                 <div class="upload-label">相手の手相</div>
@@ -227,7 +183,8 @@
         </div>
     </div>
 
-    <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
+    <input type="file" id="file-input-1" accept="image/*" capture="environment" style="display:none" onchange="handleFileSelect(this, 1)">
+    <input type="file" id="file-input-2" accept="image/*" capture="environment" style="display:none" onchange="handleFileSelect(this, 2)">
     
     <button id="analyze-btn" class="btn-main" onclick="startAnalysis()" disabled>鑑定する</button>
 
@@ -249,28 +206,16 @@
                 
                 <svg id="svg-left" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
-                    <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
-                    <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
-                    <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
-                    <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" />
-                    <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-                    <text x="20" y="55" fill="#fff" font-size="12">親指</text>
-                    <text x="170" y="55" fill="#fff" font-size="12">小指</text>
+                    
+                    <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" /> <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" /> <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" /> <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" /> <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" /> <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" /> <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" /> <text x="20" y="55" fill="#fff" font-size="12">小指</text>
+                    <text x="160" y="55" fill="#fff" font-size="12">親指</text>
                 </svg>
 
                 <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
-                    <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
-                    <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
-                    <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
-                    <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
-                    <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-                    <text x="10" y="55" fill="#fff" font-size="12">小指</text>
-                    <text x="160" y="55" fill="#fff" font-size="12">親指</text>
+                    
+                    <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" /> <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" /> <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" /> <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" /> <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" /> <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" /> <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" /> <text x="20" y="55" fill="#fff" font-size="12">親指</text>
+                    <text x="170" y="55" fill="#fff" font-size="12">小指</text>
                 </svg>
 
                 <div class="guide-legend">
@@ -302,7 +247,6 @@
     let activeTarget = 1; 
     let img1Base64 = null;
     let img2Base64 = null;
-    let videoStream = null;
 
     window.onload = function() {
         checkApiKey();
@@ -345,47 +289,14 @@
         checkReady();
     }
 
-    async function openCamera(targetNum) {
-        activeTarget = targetNum;
-        const modal = document.getElementById('camera-modal');
-        const video = document.getElementById('video');
-        
-        try {
-            videoStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment", width: {ideal: 1920}, height: {ideal: 1080} },
-                audio: false
-            });
-            video.srcObject = videoStream;
-            modal.style.display = 'block';
-        } catch (err) {
-            document.getElementById('file-input').click(); 
-        }
+    function triggerFile(num) {
+        activeTarget = num;
+        document.getElementById(`file-input-${num}`).click();
     }
 
-    function closeCamera() {
-        const modal = document.getElementById('camera-modal');
-        modal.style.display = 'none';
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop());
-            video.srcObject = null;
-        }
-    }
-
-    function takePhoto() {
-        const video = document.getElementById('video');
-        if (!video.srcObject) return;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        processImage(canvas.toDataURL('image/jpeg', 0.9));
-        closeCamera();
-    }
-
-    function handleFileSelect(input) {
+    function handleFileSelect(input, targetNum) {
         if (input.files && input.files[0]) {
+            activeTarget = targetNum;
             const reader = new FileReader();
             reader.onload = function(e) { processImage(e.target.result); };
             reader.readAsDataURL(input.files[0]);
@@ -402,7 +313,7 @@
             canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            const b64 = canvas.toDataURL('image/jpeg', 0.85);
+            const b64 = canvas.toDataURL('image/jpeg', 0.9); 
 
             const previewId = (activeTarget === 1) ? 'preview1' : 'preview2';
             const placeholderId = (activeTarget === 1) ? 'ph1' : 'ph2';
@@ -423,9 +334,7 @@
         const btn = document.getElementById('analyze-btn');
         const postBtns = document.getElementById('post-capture-btns');
         const settings = document.getElementById('settings-area');
-
         let isReady = (mode === 'single') ? !!img1Base64 : (!!img1Base64 && !!img2Base64);
-
         btn.disabled = !isReady;
         
         if (isReady) {
@@ -438,26 +347,19 @@
     }
 
     function resetAll() { location.reload(); }
-    function retakeCurrent() { openCamera(activeTarget); }
+    function retakeCurrent() { triggerFile(activeTarget); }
 
     function stars(n) {
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
-    // データなしのときの救済ロジック付き
     function createCard(title, score, points, color) {
-        // スコアがnullならデフォルト3点
-        const finalScore = score || 3;
-        // ポイントが空ならデフォルト文言
-        const safePoints = (Array.isArray(points) && points.length > 0) 
-            ? points 
-            : ["線が薄いですが、これから伸びる可能性を秘めています。", "現状維持よりも変化を恐れないことが吉です。"];
-            
+        const safePoints = Array.isArray(points) ? points : ["潜在的な可能性が秘められています。"];
         return `
         <div class="fortune-card">
             <div class="line-header">
                 <span class="line-name"><span class="color-dot" style="background:${color}; width:12px; height:12px; border-radius:50%; display:inline-block;"></span> ${title}</span>
-                <span class="stars">${stars(finalScore)}</span>
+                ${score ? `<span class="stars">${stars(score)}</span>` : ''}
             </div>
             <ul>${safePoints.map(p => `<li>${p}</li>`).join('')}</ul>
         </div>`;
@@ -478,31 +380,26 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：頭脳線・財運線の救済指示 & 正直な鑑定
+            // ★ プロンプト：左右認識を修正＆エンタメ要素復活
             prompt = `
-            あなたは「よく当たる」と評判の熟練手相占い師です。
+            あなたは中高生に人気の、少しミステリアスでサービス精神旺盛な手相占い師です。
             画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
             
             【重要】左右の認識:
-            - 左手写真: 画面の「左側」が親指、「右側」が小指。
-            - 右手写真: 画面の「右側」が親指、「左側」が小指。
+            - 左手写真: 画像の「右側」が親指、「左側」が小指。
+            - 右手写真: 画像の「左側」が親指、「右側」が小指。
             
-            【頭脳線・財運線の救済ルール】
-            - 頭脳線（知能線）や財運線（小指の下の縦線）が見えにくい場合でも、「解析不可」とは絶対に返さないでください。
-            - その場合は、「全体の手の形」や「他の線のバランス」から推測し、コールドリーディングの手法を用いて、「隠れた才能がある」「大器晩成型である」といったもっともらしい結果を必ず出力してください。
+            【救済ルール & エンタメ】
+            - 線が見えにくい場合も、「解析不可」とは返さず、手の形や他の線から推測して、ポジティブに解釈してください（コールドリーディング）。
+            - ユーザーを楽しませるために、曖昧な線でも「ポジティブな意味」を見出して、少し大げさな表現（ハルシネーション）を交えて盛り上げてください。
             
-            【鑑定スタイル】
-            - 良いことだけでなく、悪いことも正直に伝えてください（「飽きっぽい」「浪費癖がある」など）。
-            - でも、最後は必ず前向きになれるアドバイスで締めくくってください。
-            - 誰にでも当てはまりそうだが、深く刺さる言葉（バーナム効果）を意識してください。
-
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ的中感のある箇条書きでJSON出力してください。
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい箇条書きでJSON出力してください。
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            性格の不一致など、注意すべき点も正直に指摘しつつ、うまくいくためのアドバイスを「です・ます調」で伝えてください。
+            もし線が見えにくくても、「運命的な相性」を見出してポジティブに盛り上げてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -528,14 +425,11 @@
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
             
-            // JSON抽出の強化
             let res = {};
             try {
                 const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
                 res = JSON.parse(jsonStr);
             } catch (e) {
-                console.warn("JSON Parse Error, applying fallback", e);
-                // パース失敗時のダミーデータ
                 res = { message: "申し訳ありません。星の巡りが悪く、うまく読み取れませんでした。もう一度撮影してみてください。" };
             }
 
@@ -549,13 +443,13 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
+                // SVG切り替え
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
                 } else {
                     svgLeft.style.display = 'none'; svgRight.style.display = 'block'; handText.innerText = "右手";
                 }
 
-                // createCard内でnullチェック済み
                 html += createCard("感情線", res.heart?.score, res.heart?.points, "#ff4081");
                 html += createCard("頭脳線", res.head?.score, res.head?.points, "#448AFF");
                 html += createCard("生命線", res.life?.score, res.life?.points, "#69F0AE");
@@ -563,14 +457,14 @@
                 html += createCard("太陽線", res.sun?.score, res.sun?.points, "#FFAB40");
                 html += createCard("財運線", res.money?.score, res.money?.points, "#FFFF00");
                 html += createCard("結婚線", res.marriage?.score, res.marriage?.points, "#FF5252");
-                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message || "全体運の読み取りに失敗しました"}</div>`;
+                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message || "読み取り失敗"}</div>`;
             } else {
                 document.querySelector('.guide-container').style.display = 'none';
                 resultLabel.innerText = "鑑定モード：ふたりで相性診断";
                 html += `<div class="compatibility-score">相性 ${res.score || "?"}%</div>`;
                 html += `<div style="margin-bottom:20px;">${res.compatibility_desc || "診断できませんでした"}</div>`;
                 html += createCard("診断詳細", null, res.points, "#FFD700");
-                html += `<div style="background:rgba(255,64,129,0.2); padding:15px; border-radius:10px;"><strong>💘 アドバイス:</strong> ${res.advice || "お互いを大切に。"}</div>`;
+                html += `<div style="background:rgba(255,64,129,0.2); padding:15px; border-radius:10px;"><strong>💘 アドバイス:</strong> ${res.advice || ""}</div>`;
             }
 
             document.getElementById('result-content').innerHTML = html;
@@ -584,7 +478,7 @@
             document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
 
         } catch (e) {
-            alert("エラーが発生しました: " + e.message + "\nもう一度試してみてください。");
+            alert("エラー: " + e.message);
             postBtns.style.display = 'flex';
             btn.disabled = false;
         } finally {
