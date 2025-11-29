@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V18</title>
+    <title>✋ AI手相占い V19</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -73,7 +73,6 @@
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* ガイド：手のひら重視 */
         .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80%; height: 60%; 
@@ -188,7 +187,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V18</h1>
+    <h1>✋ AI手相占い V19</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -245,22 +244,6 @@
                 <div class="guide-title">✋ 手相マップ (<span id="hand-side-text">左手</span>)</div>
                 
                 <svg id="svg-left" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
-                    <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    
-                    <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
-                    <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
-                    <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
-                    <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    
-                    <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
-                    <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
-                    <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-
-                    <text x="10" y="55" fill="#fff" font-size="12">小指</text>
-                    <text x="160" y="55" fill="#fff" font-size="12">親指</text>
-                </svg>
-
-                <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
                     
                     <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
@@ -276,12 +259,28 @@
                     <text x="170" y="55" fill="#fff" font-size="12">小指</text>
                 </svg>
 
+                <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
+                    <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
+                    
+                    <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
+                    <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
+                    <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
+                    <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
+                    
+                    <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
+                    <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
+                    <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
+
+                    <text x="10" y="55" fill="#fff" font-size="12">小指</text>
+                    <text x="160" y="55" fill="#fff" font-size="12">親指</text>
+                </svg>
+
                 <div class="guide-legend">
                     <div class="legend-item"><span style="color:#FF4081">●</span>感情</div>
                     <div class="legend-item"><span style="color:#448AFF">●</span>頭脳</div>
                     <div class="legend-item"><span style="color:#69F0AE">●</span>生命</div>
                     <div class="legend-item"><span style="color:#E040FB">●</span>運命</div>
-                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽</div>
+                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽(人気)</div>
                     <div class="legend-item"><span style="color:#FFFF00">●</span>財運</div>
                     <div class="legend-item"><span style="color:#FF5252">●</span>結婚</div>
                 </div>
@@ -354,6 +353,7 @@
         const video = document.getElementById('video');
         
         try {
+            // 高解像度要求
             videoStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment", width: {ideal: 1920}, height: {ideal: 1080} },
                 audio: false
@@ -383,6 +383,7 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
+        // ★ 高解像度で保存 (1200px)
         processImage(canvas.toDataURL('image/jpeg', 0.9));
         closeCamera();
     }
@@ -474,16 +475,20 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：左右の定義を正しく指示
+            // ★ AIプロンプト：視点修正（左手＝親指左）
             prompt = `
             あなたは熟練の手相鑑定士です。画像の手相（${handLabel}）を高精度に分析してください。
             
-            【重要】手の左右と線の位置関係:
-            - 今回の画像は「${selectedHand === 'left' ? '左手' : '右手'}」です。
-            - 左手写真の場合: 画像の【右側】が親指、【左側】が小指です。生命線は右側（親指）を囲みます。
-            - 右手写真の場合: 画像の【左側】が親指、【右側】が小指です。生命線は左側（親指）を囲みます。
+            【最重要】画像の左右認識:
+            - **左手写真の場合**: あなたから見て「左側」が親指、「右側」が小指です。
+            - **右手写真の場合**: あなたから見て「右側」が親指、「左側」が小指です。
             
-            以下の7項目について、点数(1-5)と具体的かつポジティブな箇条書き(必ず配列)でJSON出力してください。
+            これを前提に線を分析してください：
+            - 生命線: 親指側（金星丘）を囲むカーブ。
+            - 感情線: 小指側から人差し指へ。
+            - 結婚線: 小指の付け根の側面。
+
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつポジティブな箇条書き(必ず配列)でJSON出力してください。
             【重要】"message"（総合アドバイス）は200文字以内で簡潔に。
 
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
@@ -514,7 +519,12 @@
             });
 
             const data = await response.json();
+            
+            if (data.error) throw new Error(data.error.message);
+            
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) throw new Error("結果が空でした");
+
             const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
 
             let html = "";
@@ -527,7 +537,7 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
-                // SVG切り替え（正しいロジック）
+                // SVG切り替え（視点修正版）
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block';
                     svgRight.style.display = 'none';
