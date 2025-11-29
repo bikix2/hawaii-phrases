@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V13.0 (Canvas Draw Edition)</title>
+    <title>🎨 AIカラー診断 V14.0 (Fix Aspect & Delete)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -204,7 +204,7 @@
             <button class="tool-btn" onclick="addStamp('heart')">💖</button>
             <button class="tool-btn" onclick="addStamp('sparkle')">✨</button>
             <button class="tool-btn" onclick="addTextStamp()">📝文字</button>
-            <button class="tool-btn" onclick="clearStamps()" style="color:#ff6b6b">🗑️クリア</button>
+            <button class="tool-btn" onclick="deleteSelectedStamp()" style="color:#ff6b6b">🗑️ 削除</button>
         </div>
         <div class="editor-row">
             <button class="tool-btn" onclick="closeEditor()">キャンセル</button>
@@ -219,7 +219,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V13.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V14.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -354,6 +354,12 @@
     let selectedStampIndex = -1;
     let isDragging = false;
 
+    // --- High Quality Stamps (SVG Base64) ---
+    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMjQwIj48cGF0aCBkPSJNODAuNSAzNS41QzQ4LjEgNjMuNCA0MCA5Mi4yIDQwIDExNi41YzAgMzguOSAyOS4xIDk0IDY4IDk0YzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjY3LjEgMTkwLjkgMzAyLjkgMjMwIDMzOC41IDIzMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIC02MC41bC0xLjktMS40Yy0zLjctMi44LTguMi00LjMtMTIuOS00LjNzLTkuMiAxLjUtMTIuOSA0LjNsLTEuOSAxLjQtNDkuNiAzNy4yYy0zLjEgMi40LTYuOSAzLjctMTEuMiAzLjdIODYuOWMtMC43IDEuNC0xLjQgMi45LTIuMSA0LjRDNDMuMiAtMTUuMiA0MS43IC04LjIgNDAuNSAtNC45eiIgZmlsbD0iIzIyMiIvPjxwYXRoIGQ9Ik0xMDAgMjAwYy0xOC4yIDAtMzQuMi0xMi4xLTQwLTI4LjVzLTMuNS0zNS42IDUuNS00OS45bDE3LTI2LjljOC43LTEzLjggMTUuOS0yNi4xIDIxLjYtMzcuMWMxMC4xIDIgMTkuNyA1LjUgMjggMTAuNGMyMy4xIDEzLjYgMzcuNCAzOC41IDM3LjQgNjUuMmMwIDM3LjEtMzAuOSA2Ni44LTY5LjUgNjYuOHptMjYyLjktMi40YzE1LjggNC41IDMyLjUgNi45IDQ5LjYgNi45YzMwLjMgMCA1Ny43LTguOSA4MC4zLTI0LjZjMjMuMi0xNi4xIDM3LjgtMzkuNSA0MS4xLTY2LjFsNi4zLTUxLjNjMS42LTEyLjggMi43LTI1LjQgMy40LTM3LjhjLTE4LTI1LjMtNDguNi00MC40LTgxLjYtNDAuNGMtMzEuMSAwLTU5LjkgMTMuNS03Ny44IDM1LjhjLTE5IDIzLjctMjkuMiA1My42LTI4LjcgODQuMWMuMiAxMi4xIDIuMSAyMy45IDUuNiAzNS4xYy40IDEuMyAxIDIuNSAxLjggMy43eiIgZmlsbD0iIzAwMCIgb3BhY2l0eT0iMC43Ii8+PC9zdmc+";
+    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzIgNjRDMTQuMyA2NCAwIDc4LjMgMCA5NnYxMjhjMCAxNy43IDE0LjMgMzIgMzIgMzJoNDQ4YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjk2YzAtMTcuNy0xNC4zLTMyLTMyLTMySDMyem0wIDMyaDQ0OHYzaC00NDhWOTZ6bTAgMjhoNDQ4djNoLTQ0OFYxMjR6bTAgMjhoNDQ4djNoLTQ0OFYxNTJ6bTAgMjhoNDQ4djNoLTQ0OFYxODB6bTAgMjhoNDQ4djNoLTQ0OFYyMDh6bTAgMjhoNDQ4djNoLTQ0OFYyMzZ6IiBvcGFjaXR5PSIwLjkiLz48cGF0aCBmaWxsPSIjREREIiBkPSJNMCA5Nmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHoiIG9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==";
+    const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImEiIHgxPSI1MCIgeTE9IjAiIHgyPSI1MCIgeTI9IjEwMCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmOWE5ZSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC-jb2xvcj0iI2ZlY2ZiOSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGZpbGw9IiNmZjMzNjYiIGQ9Ik00NjIuMyA2Mi42QzQwNy41IDE1LjkgMzI2IDI0LjMgMjc1LjcgNTguNkwyNTYgNzIuNWwtMTkuNy0xMy45Yy01MC4zLTM0LjMtMTMxLjgtNDIuNy0xODYuNiA0LjZDMjYuMiAxMjMuIDMwIDI4OS45IDI1NiA1MTJjMjI2LTIyMi4xIDIyOS44LTM4OSAxMDUuOS00MzAuMnB0MjM1LjggMTguMyIvPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0xMjAuNiA5MS44YzM1LjItMjAuNyA3OC42LTE4LjUgMTE1LjcgMTAuOUwyNTYgMTIyLjVsMTkuNy0xOS44YzM3LjEtMjkuMyA4MC41LTMxLjYgMTE1LjctMTAuOSAzOS41IDI4LjggNDAuMyAxMjEuOS0xMzUuNCAyOTMuOUM4MC4zIDIxMy43IDgxLjEgMTIwLjYgMTIwLjYgOTEuOHoiIG9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==";
+    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDBMMzE2LjUgMTk1LjVMMTUxMiAyNTZMMzE2LjUgMzE2LjVMMjU2IDUxMkwxOTUuNSAzMTYuNUwwIDI1NkwxOTUuNSAxOTUuNUwyNTYgMHoiLz48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDY0TDI4OCAxOTJMNDE2IDI1NkwyODggMzIwbC0zMiAxMjhMMjI0IDMyMEw5NiAyNTZMMjI0IDE5MkwyNTYgNjR6IiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=";
+
     window.onload = function() {
         checkApiKey();
         canvas = document.getElementById('main-canvas');
@@ -379,7 +385,7 @@
         if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
     }
 
-    // --- Editor Logic (Simplified Stamps) ---
+    // --- Editor Logic ---
     function openEditor() {
         if(!currentResultData) return;
         document.getElementById('editor-modal').classList.remove('hidden');
@@ -399,20 +405,38 @@
         renderEditor();
     }
 
+    // ★修正: アスペクト比を維持してサイズ決定
     function addStamp(type) {
         const centerX = editorCanvas.width / 2;
         const centerY = editorCanvas.height / 2;
         
-        editorStamps.push({
-            type: type,
-            x: centerX,
-            y: centerY,
-            width: 100, // base size
-            height: 100,
-            scale: 1.0
-        });
-        selectedStampIndex = editorStamps.length - 1;
-        renderEditor();
+        let img = new Image();
+        if(type === 'glasses') img.src = SVG_GLASSES;
+        if(type === 'mask') img.src = SVG_MASK;
+        if(type === 'heart') img.src = SVG_HEART;
+        if(type === 'sparkle') img.src = SVG_SPARKLE;
+
+        // 基準幅
+        let targetW = 100;
+        if(type === 'glasses') targetW = 150;
+        if(type === 'mask') targetW = 120;
+        if(type === 'heart') targetW = 80;
+        if(type === 'sparkle') targetW = 80;
+
+        img.onload = () => {
+            const aspect = img.height / img.width;
+            editorStamps.push({
+                type: 'image',
+                img: img,
+                x: centerX,
+                y: centerY,
+                width: targetW,
+                height: targetW * aspect, // 縦横比維持
+                scale: 1.0
+            });
+            selectedStampIndex = editorStamps.length - 1;
+            renderEditor();
+        };
     }
 
     function addTextStamp() {
@@ -430,9 +454,22 @@
         }
     }
 
+    // ★追加: 選択中のスタンプだけ消す
+    function deleteSelectedStamp() {
+        if(selectedStampIndex !== -1) {
+            editorStamps.splice(selectedStampIndex, 1);
+            selectedStampIndex = -1;
+            renderEditor();
+        } else {
+            alert("消したいスタンプをタップして選択してください");
+        }
+    }
+
     function clearStamps() {
-        editorStamps = [];
-        renderEditor();
+        if(confirm("すべてのスタンプを消しますか？")) {
+            editorStamps = [];
+            renderEditor();
+        }
     }
 
     function updateStampSize() {
@@ -460,14 +497,28 @@
         selectedStampIndex = -1;
         for (let i = editorStamps.length - 1; i >= 0; i--) {
             const s = editorStamps[i];
-            const size = 100 * s.scale;
-            if (pos.x >= s.x - size/2 && pos.x <= s.x + size/2 && pos.y >= s.y - size/2 && pos.y <= s.y + size/2) {
-                selectedStampIndex = i; break;
+            const w = (s.width || 100) * s.scale;
+            const h = (s.height || 40) * s.scale;
+            
+            // Hit test
+            if (s.type === 'text') {
+                editorCtx.font = `${24 * s.scale}px serif`;
+                const m = editorCtx.measureText(s.text);
+                const tw = m.width;
+                if(pos.x >= s.x - tw/2 && pos.x <= s.x + tw/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
+                    selectedStampIndex = i; break;
+                }
+            } else {
+                if(pos.x >= s.x - w/2 && pos.x <= s.x + w/2 && pos.y >= s.y - h/2 && pos.y <= s.y + h/2) {
+                    selectedStampIndex = i; break;
+                }
             }
         }
+
         if(selectedStampIndex !== -1) {
             isDragging = true;
             document.getElementById('stamp-size').value = editorStamps[selectedStampIndex].scale;
+            renderEditor(); // update selection box
         }
     }
 
@@ -482,73 +533,6 @@
     }
 
     function handleDragEnd(e) { isDragging = false; }
-
-    // --- Draw Function for Stamps ---
-    function drawStamp(ctx, s) {
-        const size = 100 * s.scale;
-        const half = size / 2;
-        ctx.save();
-        ctx.translate(s.x, s.y);
-
-        if(s.type === 'glasses') {
-            ctx.fillStyle = '#000';
-            // Left Lens
-            ctx.beginPath(); ctx.ellipse(-size*0.25, 0, size*0.22, size*0.18, 0, 0, Math.PI*2); ctx.fill();
-            // Right Lens
-            ctx.beginPath(); ctx.ellipse(size*0.25, 0, size*0.22, size*0.18, 0, 0, Math.PI*2); ctx.fill();
-            // Bridge
-            ctx.fillRect(-size*0.1, -size*0.05, size*0.2, size*0.05);
-        }
-        else if(s.type === 'mask') {
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.roundRect(-half*0.9, -half*0.6, size*0.9, size*0.6, 10);
-            ctx.fill();
-            // Pleats
-            ctx.strokeStyle = '#ddd'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(-half*0.8, -half*0.2); ctx.lineTo(half*0.8, -half*0.2); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(-half*0.8, half*0.2); ctx.lineTo(half*0.8, half*0.2); ctx.stroke();
-        }
-        else if(s.type === 'heart') {
-            ctx.fillStyle = '#ff6b81';
-            ctx.beginPath();
-            const topCurveHeight = size * 0.3;
-            ctx.moveTo(0, topCurveHeight);
-            ctx.bezierCurveTo(0, 0, -half, 0, -half, topCurveHeight);
-            ctx.bezierCurveTo(-half, half, 0, half, 0, half);
-            ctx.bezierCurveTo(0, half, half, half, half, topCurveHeight);
-            ctx.bezierCurveTo(half, 0, 0, 0, 0, topCurveHeight);
-            ctx.fill();
-        }
-        else if(s.type === 'sparkle') {
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.moveTo(0, -half);
-            ctx.quadraticCurveTo(size*0.1, -size*0.1, half, 0);
-            ctx.quadraticCurveTo(size*0.1, size*0.1, 0, half);
-            ctx.quadraticCurveTo(-size*0.1, size*0.1, -half, 0);
-            ctx.quadraticCurveTo(-size*0.1, -size*0.1, 0, -half);
-            ctx.fill();
-        }
-        else if(s.type === 'text') {
-            ctx.font = `bold ${24 * s.scale}px serif`;
-            ctx.fillStyle = '#fff';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.strokeText(s.text, 0, 0);
-            ctx.fillText(s.text, 0, 0);
-        }
-
-        // Selection Box
-        if (s === editorStamps[selectedStampIndex]) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(-half, -half, size, size);
-        }
-        ctx.restore();
-    }
 
     function renderEditor() {
         editorCtx.fillStyle = '#1a1a1a';
@@ -628,9 +612,36 @@
 
         editorCtx.font = '12px sans-serif';
         editorCtx.fillStyle = '#888';
-        editorCtx.fillText("#AIカラー診断V13 #Gemini", 180, 620);
+        editorCtx.fillText("#AIカラー診断V14 #Gemini", 180, 620);
 
-        editorStamps.forEach(s => drawStamp(editorCtx, s));
+        editorStamps.forEach((s, i) => {
+            editorCtx.save();
+            editorCtx.translate(s.x, s.y);
+            
+            const drawW = s.width * s.scale;
+            const drawH = s.height * s.scale;
+
+            if (i === selectedStampIndex) {
+                editorCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                editorCtx.lineWidth = 2;
+                editorCtx.setLineDash([5, 3]); // dashed line for selection
+                if(s.type==='text') editorCtx.strokeRect(-50 * s.scale, -20 * s.scale, 100 * s.scale, 40 * s.scale);
+                else editorCtx.strokeRect(-drawW/2, -drawH/2, drawW, drawH);
+                editorCtx.setLineDash([]);
+            }
+
+            if (s.type === 'text') {
+                editorCtx.font = `bold ${24 * s.scale}px serif`;
+                editorCtx.fillStyle = '#fff';
+                editorCtx.strokeStyle = '#000';
+                editorCtx.lineWidth = 3;
+                editorCtx.strokeText(s.text, 0, 0);
+                editorCtx.fillText(s.text, 0, 0);
+            } else {
+                editorCtx.drawImage(s.img, -drawW/2, -drawH/2, drawW, drawH);
+            }
+            editorCtx.restore();
+        });
     }
 
     function saveEditorImage() {
@@ -642,6 +653,7 @@
         link.click();
     }
 
+    // --- Main Logic ---
     function triggerFileIfEmpty() {
         if (!imgFile) document.getElementById('file-input').click();
     }
@@ -939,7 +951,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v13_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v14_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
