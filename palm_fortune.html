@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V11</title>
+    <title>✋ AI手相占い V12</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -30,7 +30,7 @@
         }
 
         /* 左右選択 */
-        .hand-selector { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .hand-selector { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; transition: opacity 0.3s; }
         .hand-btn {
             background: rgba(255,255,255,0.1); border: 1px solid #666;
             color: #ccc; padding: 10px 5px; border-radius: 10px;
@@ -45,7 +45,7 @@
         .hand-sub { font-size: 0.75rem; margin-top: 3px; color: var(--primary); }
 
         /* タブ */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; transition: opacity 0.3s; }
         .tab-btn {
             flex: 1; padding: 10px; border: 1px solid var(--primary);
             background: transparent; color: var(--primary);
@@ -73,6 +73,7 @@
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
+        /* 手のひら専用ガイド */
         .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80%; height: 60%; 
@@ -107,11 +108,14 @@
         }
         .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
 
-        .control-btns { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
+        /* 撮影後の操作ボタン */
+        .control-btns { display: none; gap: 10px; margin-top: 20px; justify-content: center; }
         .btn-control {
-            background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ddd;
-            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; flex: 1; max-width: 150px;
+            background: rgba(255,255,255,0.1); border: 1px solid #999; color: #fff;
+            padding: 12px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem; flex: 1; max-width: 140px;
+            font-weight: bold;
         }
+        .btn-control:hover { background: rgba(255,255,255,0.2); }
 
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
@@ -187,7 +191,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V11</h1>
+    <h1>✋ AI手相占い V12</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -227,7 +231,7 @@
     
     <button id="analyze-btn" class="btn-main" onclick="startAnalysis()" disabled>鑑定する</button>
 
-    <div class="control-btns" id="post-capture-btns" style="display:none;">
+    <div class="control-btns" id="post-capture-btns">
         <button class="btn-control" onclick="resetAll()">🏠 最初に戻る</button>
         <button class="btn-control" onclick="retakeCurrent()">🔄 撮り直す</button>
     </div>
@@ -418,9 +422,20 @@
     function checkReady() {
         const btn = document.getElementById('analyze-btn');
         const postBtns = document.getElementById('post-capture-btns');
+        const settings = document.getElementById('settings-area');
+
         let isReady = (mode === 'single') ? !!img1Base64 : (!!img1Base64 && !!img2Base64);
+
         btn.disabled = !isReady;
-        postBtns.style.display = isReady ? 'flex' : 'none';
+        
+        // ★UI切り替えロジック★
+        if (isReady) {
+            settings.style.display = 'none';      // 設定を隠す
+            postBtns.style.display = 'flex';      // 撮り直しボタンを出す
+        } else {
+            settings.style.display = 'block';     // 設定を出す
+            postBtns.style.display = 'none';      // 撮り直しボタンを消す
+        }
     }
 
     function resetAll() { location.reload(); }
@@ -430,7 +445,6 @@
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
-    // ★ 修正：pointsがnull/undefinedでもエラーにならないようにする
     function createCard(title, score, points, color) {
         const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
         return `
@@ -445,8 +459,10 @@
 
     async function startAnalysis() {
         const btn = document.getElementById('analyze-btn');
+        const postBtns = document.getElementById('post-capture-btns');
         const loading = document.getElementById('loading');
         btn.disabled = true;
+        postBtns.style.display = 'none'; // 鑑定中はボタンも消す
         loading.style.display = 'flex';
 
         const b64_1 = img1Base64.replace(/^data:image\/\w+;base64,/, "");
@@ -471,6 +487,7 @@
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
+            性格の傾向、愛情表現の違いなどを分析し、JSON出力してください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -537,9 +554,7 @@
 
             document.getElementById('result-content').innerHTML = html;
             
-            document.getElementById('settings-area').style.display = 'none';
             document.getElementById('upload-wrapper').style.display = 'none';
-            document.getElementById('post-capture-btns').style.display = 'none';
             btn.style.display = 'none';
             
             document.getElementById('result-wrapper').style.display = 'block';
@@ -547,9 +562,11 @@
 
         } catch (e) {
             alert("エラー: " + e.message + "\nもう一度試してみてください。");
+            // エラー時はボタンを復活させる
+            postBtns.style.display = 'flex';
+            btn.disabled = false;
         } finally {
             loading.style.display = 'none';
-            btn.disabled = false;
         }
     }
 
