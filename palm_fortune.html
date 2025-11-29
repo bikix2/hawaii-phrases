@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V6</title>
+    <title>✋ AI手相占い V7</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -25,32 +25,38 @@
         .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
 
         h1 {
-            color: var(--primary); font-size: 1.8rem; margin: 10px 0 5px 0;
+            color: var(--primary); font-size: 1.8rem; margin: 10px 0 15px 0;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
+
+        /* 左右選択（ボタン型に戻して説明を見やすく） */
+        .hand-selector {
+            display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;
+        }
+        .hand-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid #666;
+            color: #ccc; padding: 10px 5px; border-radius: 10px;
+            cursor: pointer; transition: all 0.3s; flex: 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .hand-btn.active {
+            border-color: var(--primary); background: rgba(255, 215, 0, 0.2); color: #fff;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+        .hand-main { font-size: 1.1rem; font-weight: bold; }
+        .hand-sub { font-size: 0.75rem; margin-top: 3px; color: var(--primary); }
 
         /* モード切替タブ */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
         .tab-btn {
-            flex: 1; padding: 12px; border: 1px solid var(--primary);
+            flex: 1; padding: 10px; border: 1px solid var(--primary);
             background: transparent; color: var(--primary);
             border-radius: 25px; cursor: pointer; font-weight: bold;
             transition: all 0.3s;
         }
         .tab-btn.active { background: var(--primary); color: #10002b; }
 
-        /* 左右選択（ラジオボタン風） */
-        .hand-selector {
-            background: rgba(255,255,255,0.1); border-radius: 30px;
-            display: inline-flex; margin-bottom: 20px; padding: 5px;
-        }
-        .hand-opt {
-            padding: 8px 20px; border-radius: 25px; cursor: pointer; font-size: 0.9rem;
-            transition: 0.3s; color: #aaa;
-        }
-        .hand-opt.active { background: var(--primary); color: #10002b; font-weight: bold; }
-
-        /* アップロードエリア一覧 */
+        /* アップロードエリア */
         .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         
         .upload-box {
@@ -65,40 +71,37 @@
         .upload-icon { font-size: 2rem; margin-bottom: 5px; opacity: 0.8; }
         .upload-label { font-size: 0.9rem; }
 
-        /* === カメラオーバーレイ === */
+        /* === カメラモーダル === */
         #camera-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000; display: none;
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* ガイド（改良版：指の股まで） */
-        .guide-overlay {
+        /* 手形ガイド (V5の形状に戻す) */
+        .hand-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 60%; /* 高さを抑えて手のひら中心に */
-            border: 4px dashed rgba(255, 215, 0, 0.6);
-            border-radius: 30px 30px 100px 100px; /* 下を丸く */
-            pointer-events: none;
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.5); /* 周りを暗く */
+            width: 80%; height: 80%;
+            pointer-events: none; opacity: 0.7; z-index: 10;
+            transition: transform 0.3s ease;
         }
-        /* 指の股のライン */
-        .guide-top-line {
-            position: absolute; top: 0; left: 0; width: 100%; height: 20px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.8);
-        }
+        /* 右手モードのときは反転 */
+        .hand-overlay.right-hand { transform: translate(-50%, -50%) scaleX(-1); }
+
         .guide-text {
-            position: absolute; top: -40px; width: 100%; text-align: center;
-            color: #FFD700; font-weight: bold; text-shadow: 0 2px 4px #000;
+            position: absolute; bottom: 120px; width: 100%; text-align: center;
+            color: #FFD700; font-weight: bold; text-shadow: 0 2px 4px #000; font-size: 1.1rem;
+            z-index: 12; pointer-events: none;
         }
 
         .shutter-btn {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
             width: 70px; height: 70px; background: #fff; border-radius: 50%;
-            border: 5px solid rgba(255,255,255,0.3); cursor: pointer;
+            border: 5px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 20;
         }
         .close-camera {
             position: absolute; top: 20px; right: 20px; color: white;
-            font-size: 2rem; cursor: pointer; z-index: 2001;
+            font-size: 2.5rem; cursor: pointer; z-index: 2001;
         }
 
         /* ボタン */
@@ -174,25 +177,35 @@
     <video id="video" autoplay playsinline></video>
     <div class="close-camera" onclick="closeCamera()">×</div>
     
-    <div class="guide-overlay">
-        <div class="guide-top-line"></div>
-        <div class="guide-text">上の線に「指の付け根」を合わせてね</div>
+    <div class="hand-overlay" id="hand-guide">
+        <svg viewBox="0 0 200 260" width="100%" height="100%" style="fill:none; stroke:#FFD700; stroke-width:3; stroke-dasharray:10,5; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));">
+            <path d="M40,260 L40,150 Q10,130 10,100 Q10,50 30,40 L45,90 L55,20 L75,20 L85,90 L95,10 L115,10 L125,90 L135,20 L155,20 L165,100 L185,80 L195,100 Q195,150 160,260" />
+        </svg>
     </div>
+    <div class="guide-text">点線に手を合わせてね</div>
     
     <div class="shutter-btn" onclick="takePhoto()"></div>
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V6</h1>
+    <h1>✋ AI手相占い V7</h1>
     
-    <div class="hand-selector">
-        <div class="hand-opt active" id="sel-left" onclick="selectHand('left')">👈 左手(先天)</div>
-        <div class="hand-opt" id="sel-right" onclick="selectHand('right')">右手(現在) 👉</div>
-    </div>
+    <div id="settings-area">
+        <div class="hand-selector">
+            <div class="hand-btn active" id="sel-left" onclick="selectHand('left')">
+                <div class="hand-main">👈 左手</div>
+                <div class="hand-sub">生まれつきの運勢</div>
+            </div>
+            <div class="hand-btn" id="sel-right" onclick="selectHand('right')">
+                <div class="hand-main">右手 👉</div>
+                <div class="hand-sub">現在の運勢</div>
+            </div>
+        </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="setMode('single')">ひとりで鑑定</button>
-        <button class="tab-btn" onclick="setMode('pair')">ふたりで相性</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setMode('single')">ひとりで鑑定</button>
+            <button class="tab-btn" onclick="setMode('pair')">ふたりで相性</button>
+        </div>
     </div>
 
     <div class="upload-wrapper" id="upload-wrapper">
@@ -213,21 +226,20 @@
     </div>
 
     <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
-    <div style="font-size:0.8rem; color:#aaa; text-decoration:underline; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('file-input').click()">
-        (カメラが動かない場合はこちら)
-    </div>
-
+    
     <button id="analyze-btn" class="btn-main" onclick="startAnalysis()" disabled>鑑定する</button>
 
     <div id="result-wrapper">
         <div id="capture-target" style="background: #10002b; padding: 20px; border-radius: 15px;">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2 style="color:var(--primary); margin:0;">✨ 鑑定結果 ✨</h2>
-                <div style="font-size:0.8rem; color:#aaa;" id="date-label"></div>
+                <div style="color:#aaa; font-size:0.9rem; margin-top:5px; font-weight:bold;" id="result-hand-label">
+                    </div>
+                <div style="font-size:0.8rem; color:#666;" id="date-label"></div>
             </div>
 
             <div class="guide-container">
-                <div class="guide-title">✋ あなたの手相マップ (<span id="hand-side-text">左手</span>)</div>
+                <div class="guide-title">✋ 手相マップ (<span id="hand-side-text">左手</span>)</div>
                 <svg id="guide-svg" viewBox="0 0 200 220" width="180" height="200" style="display:block; margin:0 auto; transition: transform 0.3s;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
                     <path d="M190,90 Q140,110 60,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
@@ -259,7 +271,7 @@
     const GEMINI_MODEL = "gemini-2.5-flash"; 
     let mode = 'single'; // single or pair
     let selectedHand = 'left'; // left or right
-    let activeTarget = 1; // 今どちらの画像を撮ろうとしているか(1 or 2)
+    let activeTarget = 1; 
     let img1Base64 = null;
     let img2Base64 = null;
     let videoStream = null;
@@ -282,6 +294,11 @@
         selectedHand = hand;
         document.getElementById('sel-left').classList.toggle('active', hand==='left');
         document.getElementById('sel-right').classList.toggle('active', hand==='right');
+        
+        // カメラガイドの向きを即時反映（カメラが開いていれば）
+        const guide = document.getElementById('hand-guide');
+        if (hand === 'right') guide.classList.add('right-hand');
+        else guide.classList.remove('right-hand');
     }
 
     function setMode(m) {
@@ -311,6 +328,11 @@
         const modal = document.getElementById('camera-modal');
         const video = document.getElementById('video');
         
+        // ガイドの向き設定
+        const guide = document.getElementById('hand-guide');
+        if (selectedHand === 'right') guide.classList.add('right-hand');
+        else guide.classList.remove('right-hand');
+
         try {
             videoStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" },
@@ -319,8 +341,7 @@
             video.srcObject = videoStream;
             modal.style.display = 'block';
         } catch (err) {
-            console.warn("カメラ起動失敗:", err);
-            document.getElementById('file-input').click(); // 失敗したらファイル選択へ
+            document.getElementById('file-input').click(); 
         }
     }
 
@@ -343,20 +364,14 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
-        
-        // 圧縮して保存
         processImage(canvas.toDataURL('image/jpeg', 0.8));
         closeCamera();
     }
 
-    // ファイル選択のフォールバック
     function handleFileSelect(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                // ここでもactiveTargetを使う（最後にタップしたボックス）
-                processImage(e.target.result);
-            };
+            reader.onload = function(e) { processImage(e.target.result); };
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -373,7 +388,6 @@
             ctx.drawImage(img, 0, 0, w, h);
             const b64 = canvas.toDataURL('image/jpeg', 0.8);
 
-            // ターゲットにセット
             const previewId = (activeTarget === 1) ? 'preview1' : 'preview2';
             const placeholderId = (activeTarget === 1) ? 'ph1' : 'ph2';
             
@@ -395,7 +409,6 @@
         else btn.disabled = (!img1Base64 || !img2Base64);
     }
 
-    // 結果表示用
     function stars(n) {
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
@@ -420,11 +433,13 @@
         const b64_2 = img2Base64 ? img2Base64.replace(/^data:image\/\w+;base64,/, "") : null;
 
         let prompt = "";
+        const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
+
         if (mode === 'single') {
             prompt = `
-            手相占い師として、画像の手相(${selectedHand === 'left' ? '左手' : '右手'})を分析。
+            手相占い師として、画像の手相(${handLabel})を分析。
             7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と短い箇条書きでJSON出力。
-            口調はポジティブに。Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
+            Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
@@ -458,10 +473,13 @@
             let html = "";
             const svg = document.getElementById('guide-svg');
             const handText = document.getElementById('hand-side-text');
+            const resultLabel = document.getElementById('result-hand-label');
 
             if (mode === 'single') {
                 document.querySelector('.guide-container').style.display = 'block';
-                // ★ ガイド図の反転処理 ★
+                
+                // ガイド図とテキストの調整
+                resultLabel.innerText = handLabel;
                 if (selectedHand === 'left') {
                     svg.classList.add('flip-svg');
                     handText.innerText = "左手";
@@ -480,6 +498,7 @@
                 html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message}</div>`;
             } else {
                 document.querySelector('.guide-container').style.display = 'none';
+                resultLabel.innerText = "ふたりで相性診断";
                 html += `<div class="compatibility-score">相性 ${res.score}%</div>`;
                 html += `<div style="margin-bottom:20px;">${res.compatibility_desc}</div>`;
                 html += createCard("診断詳細", null, res.points, "#FFD700");
@@ -487,10 +506,13 @@
             }
 
             document.getElementById('result-content').innerHTML = html;
-            document.getElementById('result-wrapper').style.display = 'block';
-            document.querySelector('.upload-wrapper').style.display = 'none';
+            
+            // 設定エリア（ボタン類）を消す
+            document.getElementById('settings-area').style.display = 'none';
+            document.getElementById('upload-wrapper').style.display = 'none';
             btn.style.display = 'none';
             
+            document.getElementById('result-wrapper').style.display = 'block';
             document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
 
         } catch (e) {
