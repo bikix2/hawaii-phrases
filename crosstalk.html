@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>CrossTalk V24</title>
+    <title>CrossTalk V25</title>
     <link rel="icon" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">
 
@@ -220,7 +220,7 @@
         #btn-partner .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
         #btn-self .visualizer-ring { color: rgba(255, 255, 255, 0.8); }
 
-        /* ステータス文字（巨大化・視認性向上） */
+        /* ステータス文字 */
         .status-text {
             font-size: 1.5rem; font-weight: 800; color: var(--text-color);
             margin-bottom: 8px; text-shadow: 0 2px 5px rgba(0,0,0,0.9);
@@ -340,7 +340,7 @@
 <div class="container">
     <div class="partner-area area">
         <div class="controls-bar">
-            <div class="lang-trigger" id="partner-lang-trigger" onclick="openLangModal('partner')">English</div>
+            <div class="lang-trigger" id="partner-lang-trigger" onclick="openLangModal('partner')">🇺🇸 English</div>
         </div>
         <div class="history-container" id="partner-history"></div>
         <div class="bottom-fixed-wrapper">
@@ -360,14 +360,14 @@
 
     <div class="self-area area">
         <div class="controls-bar">
-            <div class="lang-trigger" id="self-lang-trigger" onclick="openLangModal('self')">Japanese</div>
+            <div class="lang-trigger" id="self-lang-trigger" onclick="openLangModal('self')">🇯🇵 Japanese</div>
             <button id="autoplay-btn" class="icon-btn" onclick="toggleAutoPlay()">
                 <span id="autoplay-icon">🔊</span><span id="autoplay-x" class="x-overlay">×</span>
             </button>
             <button id="consult-btn" class="icon-btn" onclick="toggleConsultMode()">🙋‍♂️ AI相談</button>
             <div id="target-lang-wrapper">
                 <span id="target-lang-label">Target:</span>
-                <div class="lang-trigger" id="target-trigger" onclick="openLangModal('target')">ENG</div>
+                <div class="lang-trigger" id="target-trigger" onclick="openLangModal('target')">🇺🇸 ENG</div>
             </div>
              <div class="lang-trigger" id="scenario-trigger" onclick="openLangModal('scenario')">Daily</div>
         </div>
@@ -396,19 +396,29 @@
     let isAutoPlay = false; 
     let chatLog = [];
     
-    // データ管理用変数
     let state = {
         selfLang: 'ja-JP', partnerLang: 'en-US', targetLang: 'en-US', scenario: 'Daily'
     };
 
+    // 国旗付き言語リスト
     const LANG_LIST = [
-        { code: 'ja-JP', label: 'Japanese (日本語)' }, { code: 'en-US', label: 'English (英語)' },
-        { code: 'zh-CN', label: 'Chinese (中国語)' }, { code: 'ko-KR', label: 'Korean (韓国語)' },
-        { code: 'de-DE', label: 'German (ドイツ語)' }, { code: 'fr-FR', label: 'French (フランス語)' },
-        { code: 'es-ES', label: 'Spanish (スペイン語)' }, { code: 'ar-SA', label: 'Arabic (アラビア語)' },
-        { code: 'vi-VN', label: 'Vietnamese (ベトナム語)' }, { code: 'it-IT', label: 'Italian (イタリア語)' },
-        { code: 'ru-RU', label: 'Russian (ロシア語)' }, { code: 'pt-PT', label: 'Portuguese (ポルトガル)' },
-        { code: 'th-TH', label: 'Thai (タイ語)' }, { code: 'id-ID', label: 'Indonesian (インドネシア)' }
+        { code: 'ja-JP', label: 'Japanese (日本語)', flag: '🇯🇵' },
+        { code: 'en-US', label: 'English (英語)', flag: '🇺🇸' },
+        { code: 'zh-CN', label: 'Chinese (中国語)', flag: '🇨🇳' },
+        { code: 'ko-KR', label: 'Korean (韓国語)', flag: '🇰🇷' },
+        { code: 'de-DE', label: 'German (ドイツ語)', flag: '🇩🇪' },
+        { code: 'fr-FR', label: 'French (フランス語)', flag: '🇫🇷' },
+        { code: 'es-ES', label: 'Spanish (スペイン語)', flag: '🇪🇸' },
+        { code: 'ar-SA', label: 'Arabic (アラビア語)', flag: '🇸🇦' },
+        { code: 'vi-VN', label: 'Vietnamese (ベトナム語)', flag: '🇻🇳' },
+        { code: 'it-IT', label: 'Italian (イタリア語)', flag: '🇮🇹' },
+        { code: 'ru-RU', label: 'Russian (ロシア語)', flag: '🇷🇺' },
+        { code: 'pt-PT', label: 'Portuguese (ポルトガル語)', flag: '🇵🇹' },
+        { code: 'th-TH', label: 'Thai (タイ語)', flag: '🇹🇭' },
+        { code: 'id-ID', label: 'Indonesian (インドネシア語)', flag: '🇮🇩' },
+        { code: 'hi-IN', label: 'Hindi (ヒンディー語)', flag: '🇮🇳' },
+        { code: 'ms-MY', label: 'Malay (マレー語)', flag: '🇲🇾' },
+        { code: 'tl-PH', label: 'Tagalog (タガログ語)', flag: '🇵🇭' }
     ];
 
     const SCENARIO_LIST = [
@@ -455,7 +465,7 @@
         document.getElementById(id).value = ''; document.getElementById('clear-' + id).style.display = 'none';
     }
     
-    // Modal
+    // Modal Logic
     let currentModalType = ''; 
     function openLangModal(type) {
         currentModalType = type;
@@ -472,7 +482,9 @@
             const currentVal = type === 'self' ? state.selfLang : (type === 'partner' ? state.partnerLang : state.targetLang);
             LANG_LIST.forEach(item => {
                 const div = document.createElement('div'); div.className = 'lang-option ' + (currentVal === item.code ? 'selected' : '');
-                div.innerText = item.label; div.onclick = () => selectLang(type, item.code); list.appendChild(div);
+                // 変更点: 国旗を含めて表示
+                div.innerText = `${item.flag} ${item.label}`; 
+                div.onclick = () => selectLang(type, item.code); list.appendChild(div);
             });
         }
         modal.style.display = 'flex';
@@ -488,7 +500,11 @@
 
     function updateUI() {
         saveSettings();
-        const getLabel = (code) => (LANG_LIST.find(l => l.code === code) || LANG_LIST[0]).label.split(' ')[0];
+        // 変更点: ボタンにも国旗を表示
+        const getLabel = (code) => {
+            const found = LANG_LIST.find(l => l.code === code) || LANG_LIST[0];
+            return `${found.flag} ${found.label.split(' ')[0]}`;
+        };
         
         document.getElementById('self-lang-trigger').innerText = getLabel(state.selfLang);
         document.getElementById('partner-lang-trigger').innerText = getLabel(state.partnerLang);
@@ -519,7 +535,6 @@
     }
 
     async function sendChat(sender) {
-        // 重要：チャットでもAPIキーチェック
         if (!API_KEY) { alert("API Key Required"); return; }
         if (isAutoPlay) unlockAudio();
 
@@ -559,7 +574,6 @@
         }
         const bubble = document.createElement('div'); bubble.className = `message-bubble ${bubbleClass}`;
         
-        // 修正があるかどうか (JSONモード対応)
         const isCorrected = result.corrected_source && result.corrected_source.toLowerCase().trim() !== result.original.toLowerCase().trim();
         const originalText = isCorrected 
             ? `<span style="text-decoration:line-through; opacity:0.6">${result.original}</span> <span class="corrected-mark">➤ ${result.corrected_source}</span>`
@@ -641,7 +655,7 @@
         updateUI();
 
         if (result) {
-            result.original = result.corrected_source || text; // 補正があればそちらを
+            result.original = result.corrected_source || text; 
             if (isConsultMode && isSelf) { addLogToUI(result, 'partner'); }
             else {
                 addLogToUI(result, isSelf ? 'self' : 'partner');
@@ -657,7 +671,6 @@
         const tName = getLabel(targetCode);
 
         let prompt = "";
-        // 高品質モード（JSON復活）
         if (isConsultMode && isSelf) {
             prompt = `You are a Japanese language tutor. Question in ${sName}. Answer in Japanese briefly. Input: "${text}". JSON:{"corrected_source":"${text}","translation":"Answer","advice":null}`;
         } else {
@@ -673,7 +686,6 @@
             });
             const data = await response.json();
             const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-            // JSON抽出
             const jsonText = rawText.match(/\{[\s\S]*\}/)?.[0] || "{}";
             const parsed = JSON.parse(jsonText);
             return { 
