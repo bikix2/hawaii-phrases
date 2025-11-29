@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V10.0 (Perfect)</title>
+    <title>🎨 AIカラー診断 V11.0 (High Quality Stamps)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -219,7 +219,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V10.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V11.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -354,15 +354,18 @@
     let selectedStampIndex = -1;
     let isDragging = false;
 
-    // SVG Data (Fixed aspect ratios and clean shapes)
-    // Glasses (2:1 ratio approx)
-    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzIwIj48cGF0aCBkPSJNMjAuNSAxNDUuNUM4LjEgMTczLjQgMCAyMDIuMiAwIDIyNi41QzAgMjY1LjQgMjkuMSAzMjAgNjggMzIwYzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjA3LjEgMjgwLjkgMjQyLjkgMzIwIDI3OC41IDMyMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIDQ5LjVsLTEuOS0xLjRjLTMuNy0yLjgtOC4yLTQuMy0xMi45LTQuM3MtOS4yIDEuNS0xMi45IDQuM2wtMS45IDEuNC00OS42IDM3LjJjLTMuMSAyLjQtNi45IDMuNy0xMS4yIDMuN0gyNi45Yy0wLjcgMS40LTEuNCAyLjktMi4xIDQuNEMyMy4yIDk0LjggMjEuNyAxMDEuOCAyMC41IDEwNS4xeiIgZmlsbD0iIzIyMiIvPjwvc3ZnPg==";
-    // Mask (1.5:1 approx)
-    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBkPSJNMjU2IDMyQzE0MS4xIDMyIDQ4IDEwOC4xIDQ4IDIwMnM5My4xIDE3MCAyMDggMTcwIDIwOC03Ni4xIDIwOC0xNzBTMzcwLjkgMzIgMjU2IDMyem0wIDMwMWMtODguNCAwLTE2MC01OC42LTE2MC0xMzEgMC0yLjguMi01LjYuNS04LjVsMzE5IDE5NWMtMy4yLjgtNi41IDEuMy05LjkgMS4zeiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz48L3N2Zz4=";
-    // Heart (1:1)
-    const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDQ0OThsLTE0LjIyLTEyLjk1QzQ4LjA1IDIzNi4yIDAgMTkyLjcgMCAxMzguNiAwIDc1LjEyIDQ5Ljg4IDI1LjUgMTEyLjUgMjUuNWMzNS4zIDAgNjkuMTIgMTYuMjMgODkuNjMgNDEuNDhDMTkwLjIgMjUuNSAyMzIuNyAwIDI3OC41IDAgMzQxLjEgMCAzOTEuMiA0OS44OCAzOTEuMiAxMTMuNGMwIDU0LjEtNDguMDUgOTcuNi0yNDEuNzggMjk4LjQ1TDI1NiA0NDk4eiIgZmlsbD0iI2ZmNjk2YiIvPjwvc3ZnPg==";
-    // Sparkle (1:1)
-    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMzM2IDM1MmMwLTg4LjQgNzEuNi0xNjAgMTYwLTE2MC04OC40IDAtMTYwLTcxLjYtMTYwLTE2MCAwIDg4LjQtNzEuNiAxNjAtMTYwIDE2MCA4OC40IDAgMTYwIDcxLjYgMTYwIDE2MHoiIGZpbGw9IiNGRkQ3MDAiLz48L3N2Zz4=";
+    // --- High Quality SVGs (Converted to Base64) ---
+    // Glasses (Wayfarer style with translucent lens)
+    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzIwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6IzIyMjt9LmNscy0ye2ZpbGw6IzAwMDtmaWxsLW9wYWNpdHk6MC43NTt9PC9zdHlsZT48L2RlZnM+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjAuNSAxNDUuNUM4LjEgMTczLjQgMCAyMDIuMiAwIDIyNi41QzAgMjY1LjQgMjkuMSAzMjAgNjggMzIwYzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjA3LjEgMjgwLjkgMjQyLjkgMzIwIDI3OC41IDMyMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIDQ5LjVsLTEuOS0xLjRjLTMuNy0yLjgtOC4yLTQuMy0xMi45LTQuM3MtOS4yIDEuNS0xMi45IDQuM2wtMS45IDEuNC00OS42IDM3LjJjLTMuMSAyLjQtNi45IDMuNy0xMS4yIDMuN0gyNi45Yy0wLjcgMS40LTEuNCAyLjktMi4xIDQuNEMyMy4yIDk0LjggMjEuNyAxMDEuOCAyMC41IDEwNS4xeiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTY4IDI5MGMtMTguMiAwLTM0LjItMTIuMS00MC0yOC41cy0zLjUtMzUuNiA1LjUtNDkuOWwxNy0yNi45YzguNy0xMy44IDE1LjktMjYuMSAyMS42LTM3LjFjMTAuMSAyIDE5LjcgNS41IDI4IDEwLjRjMjMuMSAxMy42IDM3LjQgMzguNSAzNy40IDY1LjJjMCAzNy4xLTMwLjkgNjYuOC02OS41IDY2Ljh6bTM2Mi45LTIuNGMxNS44IDQuNSAzMi41IDYuOSA0OS42IDYuOWMzMC4zIDAgNTcuNy04LjkgODAuMy0yNC42YzIzLjItMTYuMSAzNy44LTM5LjUgNDEuMS02Ni4xbDYuMy01MS4zYzEuNi0xMi44IDIuNy0yNS40IDMuNC0zNy44Yy0xOC0yNS4zLTQ4LjYtNDAuNC04MS42LTQwLjRjLTMxLjEgMC01OS45IDEzLjUtNzcuOCAzNS44Yy0xOSAyMy43LTI5LjIgNTMuNi0yOC43IDg0LjFjLjIgMTIuMSAyLjEgMjMuOSA1LjYgMzUuMWMuNCAxLjMgMSAyLjUgMS44IDMuN3oiLz48L3N2Zz4=";
+    
+    // Mask (Pleated Medical Mask)
+    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzIgNjRDMTQuMyA2NCAwIDc4LjMgMCA5NnYxMjhjMCAxNy43IDE0LjMgMzIgMzIgMzJoNDQ4YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjk2YzAtMTcuNy0xNC4zLTMyLTMyLTMySDMyem0wIDMyaDQ0OHYzaC00NDhWOTZ6bTAgMjhoNDQ4djNoLTQ0OFYxMjR6bTAgMjhoNDQ4djNoLTQ0OFYxNTJ6bTAgMjhoNDQ4djNoLTQ0OFYxODB6bTAgMjhoNDQ4djNoLTQ0OFYyMDh6bTAgMjhoNDQ4djNoLTQ0OFYyMzZ6IiBvcGFjaXR5PSIwLjkiLz48cGF0aCBmaWxsPSIjREREIiBkPSJNMCA5Nmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHoiIG9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==";
+    
+    // Heart (Classic Shape)
+    const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDQ0OC4xbC0xNC4yLTEyLjlDNDguMSAyMzYuMiAwIDE5Mi43IDAgMTM4LjYgMCA3NS4xIDQ5LjkgMjUuNSAxMTIuNSAyNS41YzM1LjMgMCA2OS4xIDE2LjIgODkuNiA0MS41QzE5MC4yIDI1LjUgMjMyLjcgMCAyNzguNSAwIDM0MS4xIDAgMzkxLjIgNDkuOSAzOTEuMiAxMTMuNGMwIDU0LjEtNDguMSA5Ny42LTI0MS44IDI5OC41TDI1NiA0NDguMXoiIGZpbGw9IiNmZjY5NmIiLz48L3N2Zz4=";
+    
+    // Sparkle (Sharp Star)
+    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMzI4IDM2OGMwLTg4LjQgNzEuNi0xNjAgMTYwLTE2MC04OC40IDAtMTYwLTcxLjYtMTYwLTE2MCAwIDg4LjQtNzEuNiAxNjAtMTYwIDE2MCA4OC40IDAgMTYwIDcxLjYgMTYwIDE2MHoiIGZpbGw9IiNGRkQ3MDAiLz48L3N2Zz4=";
 
     window.onload = function() {
         checkApiKey();
@@ -423,12 +426,15 @@
         if(type === 'sparkle') img.src = SVG_SPARKLE;
 
         img.onload = () => {
-            // Fix initial aspect ratio
-            let w = 100;
-            let h = 100;
-            if(type === 'glasses') { w=120; h=60; }
-            if(type === 'mask') { w=100; h=70; }
+            // Calculate proper aspect ratio size
+            const aspect = img.width / img.height;
+            let w = 120; 
+            let h = w / aspect;
             
+            if(type === 'glasses') w = 150;
+            if(type === 'mask') w = 130;
+            h = w / aspect;
+
             editorStamps.push({
                 type: 'image',
                 img: img,
@@ -488,13 +494,12 @@
         selectedStampIndex = -1;
         for (let i = editorStamps.length - 1; i >= 0; i--) {
             const s = editorStamps[i];
-            const w = (s.width || 100) * s.scale;
+            const w = s.width * s.scale;
             const h = (s.height || 40) * s.scale;
             if (s.type === 'text') {
                 editorCtx.font = `${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
-                const tw = m.width;
-                if(pos.x >= s.x - tw/2 && pos.x <= s.x + tw/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
+                if(pos.x >= s.x - m.width/2 && pos.x <= s.x + m.width/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
                     selectedStampIndex = i; break;
                 }
             } else {
@@ -523,6 +528,7 @@
     function handleDragEnd(e) { isDragging = false; }
 
     function renderEditor() {
+        // Draw BG
         editorCtx.fillStyle = '#1a1a1a';
         editorCtx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
         
@@ -537,6 +543,7 @@
         editorCtx.textAlign = 'center';
         editorCtx.fillText("AI PERSONAL COLOR", 180, 50);
 
+        // Photo Area Setup
         const photoY = 80;
         const photoH = 300;
         const photoW = 225;
@@ -548,13 +555,13 @@
         editorCtx.clip();
 
         if (editorMode === 'photo') {
-            // Draw ONLY the image (no markers)
+            // Draw clean image (no markers) from imgObj, using crop if available
             const sx = cropRect ? cropRect.x : 0;
             const sy = cropRect ? cropRect.y : 0;
             const sw = cropRect ? cropRect.w : imgObj.width;
             const sh = cropRect ? cropRect.h : imgObj.height;
-            // Draw aspect fill
-            // Calculate scale to cover the photo area
+            
+            // Calculate scale to fit width/height (aspect fill)
             const scale = Math.max(photoW / sw, photoH / sh);
             const renderW = sw * scale;
             const renderH = sh * scale;
@@ -563,6 +570,7 @@
             
             editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
+            // Illust mode
             editorCtx.fillStyle = getSeasonColor(currentResultData.season) + "44"; 
             editorCtx.fillRect(photoX, photoY, photoW, photoH);
             editorCtx.font = '100px serif';
@@ -571,26 +579,28 @@
         }
         editorCtx.restore();
 
+        // Border
         editorCtx.strokeStyle = '#fff';
         editorCtx.lineWidth = 5;
         editorCtx.strokeRect(photoX, photoY, photoW, photoH);
 
+        // Badge
         editorCtx.fillStyle = '#fff';
         editorCtx.beginPath();
         editorCtx.roundRect(180 - 80, photoY + photoH + 20, 160, 40, 20);
         editorCtx.fill();
-        
         editorCtx.font = 'bold 20px serif';
         editorCtx.fillStyle = getSeasonColor(currentResultData.season);
         editorCtx.fillText(currentResultData.season.split('(')[0], 180, photoY + photoH + 47);
 
+        // Colors
         const startY = photoY + photoH + 80;
         const swatchSize = 40;
         const gap = 10;
         const totalW = (swatchSize * 4) + (gap * 3);
         let startX = (360 - totalW) / 2;
 
-        currentResultData.best_colors.forEach((c, i) => {
+        currentResultData.best_colors.forEach((c) => {
             editorCtx.beginPath();
             editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2, 0, Math.PI*2);
             editorCtx.fillStyle = c.hex;
@@ -601,18 +611,23 @@
             startX += swatchSize + gap;
         });
 
+        // Footer
         editorCtx.font = '12px sans-serif';
         editorCtx.fillStyle = '#888';
-        editorCtx.fillText("#AIカラー診断V10 #Gemini", 180, 620);
+        editorCtx.fillText("#AIカラー診断V11 #Gemini", 180, 620);
 
+        // Stamps
         editorStamps.forEach((s, i) => {
             editorCtx.save();
             editorCtx.translate(s.x, s.y);
+            
+            const drawW = s.width * s.scale;
+            const drawH = s.height * s.scale;
+
             if (i === selectedStampIndex) {
                 editorCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
                 editorCtx.lineWidth = 1;
-                if(s.type==='text') editorCtx.strokeRect(-50 * s.scale, -20 * s.scale, 100 * s.scale, 40 * s.scale);
-                else editorCtx.strokeRect((-s.width/2)*s.scale, (-s.height/2)*s.scale, s.width*s.scale, s.height*s.scale);
+                editorCtx.strokeRect(-drawW/2, -drawH/2, drawW, drawH);
             }
 
             if (s.type === 'text') {
@@ -623,7 +638,7 @@
                 editorCtx.strokeText(s.text, 0, 0);
                 editorCtx.fillText(s.text, 0, 0);
             } else {
-                editorCtx.drawImage(s.img, (-s.width/2) * s.scale, (-s.height/2) * s.scale, s.width * s.scale, s.height * s.scale);
+                editorCtx.drawImage(s.img, -drawW/2, -drawH/2, drawW, drawH);
             }
             editorCtx.restore();
         });
@@ -936,7 +951,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v10_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v11_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
