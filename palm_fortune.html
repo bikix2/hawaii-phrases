@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V32</title>
+    <title>✋ AI手相占い V33</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -30,9 +30,7 @@
         }
 
         /* 左右選択 */
-        .hand-selector {
-            display: flex; gap: 15px; margin: 20px 0 10px 0; justify-content: center;
-        }
+        .hand-selector { display: flex; gap: 15px; margin: 20px 0 10px 0; justify-content: center; }
         .hand-btn {
             background: rgba(255,255,255,0.05); border: 2px solid #666;
             color: #ccc; padding: 15px 10px; border-radius: 15px;
@@ -47,8 +45,7 @@
         .hand-btn.active::after {
             content: '✔'; position: absolute; top: -10px; right: -5px;
             background: var(--primary); color: #000; border-radius: 50%;
-            width: 24px; height: 24px; font-size: 0.9rem; line-height: 24px;
-            font-weight: bold;
+            width: 24px; height: 24px; font-size: 0.9rem; line-height: 24px; font-weight: bold;
         }
         .hand-main { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; }
         .hand-sub { font-size: 0.8rem; color: var(--primary); }
@@ -123,7 +120,7 @@
         .line-name { font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 5px; }
         .stars { color: #FFD700; letter-spacing: 2px; }
         ul { margin: 0; padding-left: 20px; color: #eee; font-size: 0.95rem; }
-        li { margin-bottom: 5px; }
+        li { margin-bottom: 5px; line-height: 1.6; }
 
         .compatibility-score {
             font-size: 3rem; font-weight: bold; color: #FF4081; text-align: center;
@@ -164,7 +161,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V32</h1>
+    <h1>✋ AI手相占い V33</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -192,7 +189,7 @@
         <div class="upload-box full-width" id="box1" onclick="triggerFile(1)">
             <div id="ph1">
                 <div class="upload-icon">📷</div>
-                <div class="upload-label" id="label1">カメラを起動</div>
+                <div class="upload-label" id="label1">ここをタップして撮影</div>
             </div>
             <img id="preview1" class="preview-img">
         </div>
@@ -254,7 +251,7 @@
                     <path d="M40,100 L40,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M20,100 L20,90" fill="none" stroke="#FFFF00" stroke-width="3" />
 
-                    <text x="20" y="55" fill="#fff" font-size="12">小指</text>
+                    <text x="10" y="55" fill="#fff" font-size="12">小指</text>
                     <text x="160" y="55" fill="#fff" font-size="12">親指</text>
                 </svg>
 
@@ -287,7 +284,6 @@
     let activeTarget = 1; 
     let img1Base64 = null;
     let img2Base64 = null;
-    let videoStream = null;
 
     window.onload = function() {
         checkApiKey();
@@ -375,7 +371,9 @@
         const btn = document.getElementById('analyze-btn');
         const postBtns = document.getElementById('post-capture-btns');
         const settings = document.getElementById('settings-area');
+
         let isReady = (mode === 'single') ? !!img1Base64 : (!!img1Base64 && !!img2Base64);
+
         btn.disabled = !isReady;
         
         if (isReady) {
@@ -395,7 +393,7 @@
     }
     
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
+        const safePoints = Array.isArray(points) ? points : ["潜在的な可能性が秘められています。"];
         return `
         <div class="fortune-card">
             <div class="line-header">
@@ -421,27 +419,28 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：左右認識(自分視点) & ポジティブ・短文
+            // ★ AIプロンプト：左右認識を自分視点に & 長文・エンタメ・救済あり
             prompt = `
             あなたは中高生に人気のある、よく当たる手相占い師です。
             画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
             
             【最重要】左右の認識（自分視点）:
-            - 左手写真の場合: 画像の「左側」が親指、「右側」が小指です。生命線は左側（親指）を囲みます。
-            - 右手写真の場合: 画像の「右側」が親指、「左側」が小指です。生命線は右側（親指）を囲みます。
+            - 左手写真の場合: 画像の「左側」が親指、「右側」が小指です。
+            - 右手写真の場合: 画像の「右側」が親指、「左側」が小指です。
             
             【救済ルール & エンタメ】
-            - 頭脳線や財運線が見えにくい場合でも、「解析不可」とは返さず、全体の手の形や他の線のバランスから推測し、必ずポジティブに解釈してください（コールドリーディング）。
-            - 曖昧な線でも「ポジティブな意味」を見出して、少し大げさな表現（ハルシネーション）を交えて盛り上げてください。
+            - 頭脳線や財運線が見えにくい場合でも、「解析不可」とは返さず、全体の手の形や他の線のバランスから推測し、必ずポジティブに解釈してください。
+            - ユーザーを楽しませるために、曖昧な線でも「隠れた才能」や「将来性」を見出し、少し大げさな表現（ハルシネーション）を交えて盛り上げてください。
 
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい箇条書きでJSON出力してください。
-            【制約】箇条書き(points)は、1行20文字以内で、最大3行まで。
-            
-            Format: {"heart": {"score":4, "points":["短くポジティブな点1", "短くポジティブな点2"]}, ...}
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい文章でJSON出力してください。
+            【重要】箇条書きは「1行40〜60文字程度」で、詳しく具体的に書いてください。
+
+            Format: {"heart": {"score":4, "points":["詳しい解説1...", "詳しい解説2..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
-            2つの手相を比較し、カップルの相性診断をして。
+            2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
+            もし線が見えにくくても、「運命的な相性」を見出してポジティブに盛り上げてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -485,7 +484,7 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
-                // SVG切り替え（正解版）
+                // SVG切り替え
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
                 } else {
