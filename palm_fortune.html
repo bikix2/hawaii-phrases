@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V17</title>
+    <title>✋ AI手相占い V18</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #FFD700;
             --accent: #E0AAFF;
-            --bg: #1a0b2e;
+            --bg: #10002b;
             --card-bg: rgba(255, 255, 255, 0.08);
             --text: #ffffff;
         }
@@ -73,6 +73,7 @@
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
+        /* ガイド：手のひら重視 */
         .palm-focus-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 80%; height: 60%; 
@@ -121,8 +122,6 @@
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
             text-align: center; color: #fff;
         }
-        .guide-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 1.1rem;}
-
         .guide-legend {
             font-size: 0.75rem; margin-top: 12px; display: flex; flex-wrap: wrap; 
             justify-content: center; gap: 8px; font-weight: bold; line-height: 1.5;
@@ -174,7 +173,7 @@
 
 <div id="loading" class="loading-overlay">
     <div class="crystal-ball">🔮</div>
-    <div class="loading-msg" id="loading-msg">手相を精密分析中...</div>
+    <div class="loading-msg" id="loading-msg">運命を読み解いています...</div>
 </div>
 
 <div id="camera-modal">
@@ -189,7 +188,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V17</h1>
+    <h1>✋ AI手相占い V18</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -247,26 +246,32 @@
                 
                 <svg id="svg-left" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
+                    
+                    <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
+                    <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
+                    <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    <path d="M10,90 Q60,110 140,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
-                    <path d="M30,110 Q100,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
-                    <path d="M30,90 Q100,150 100,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
-                    <path d="M100,200 L100,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
-                    <path d="M40,100 L40,80" fill="none" stroke="#FFAB40" stroke-width="3" />
-                    <path d="M20,100 L20,90" fill="none" stroke="#FFFF00" stroke-width="3" />
+                    
+                    <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
+                    <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
+                    <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
+
                     <text x="10" y="55" fill="#fff" font-size="12">小指</text>
                     <text x="160" y="55" fill="#fff" font-size="12">親指</text>
                 </svg>
 
                 <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
+                    
+                    <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
+                    <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
+                    <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    <path d="M190,90 Q150,115 70,80" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
-                    <path d="M170,110 Q100,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
-                    <path d="M170,90 Q100,150 100,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
-                    <path d="M100,200 L100,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
-                    <path d="M160,100 L160,80" fill="none" stroke="#FFAB40" stroke-width="3" />
-                    <path d="M180,100 L180,90" fill="none" stroke="#FFFF00" stroke-width="3" />
+                    
+                    <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
+                    <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" />
+                    <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" />
+
                     <text x="20" y="55" fill="#fff" font-size="12">親指</text>
                     <text x="170" y="55" fill="#fff" font-size="12">小指</text>
                 </svg>
@@ -276,7 +281,7 @@
                     <div class="legend-item"><span style="color:#448AFF">●</span>頭脳</div>
                     <div class="legend-item"><span style="color:#69F0AE">●</span>生命</div>
                     <div class="legend-item"><span style="color:#E040FB">●</span>運命</div>
-                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽(人気)</div>
+                    <div class="legend-item"><span style="color:#FFAB40">●</span>太陽</div>
                     <div class="legend-item"><span style="color:#FFFF00">●</span>財運</div>
                     <div class="legend-item"><span style="color:#FF5252">●</span>結婚</div>
                 </div>
@@ -442,25 +447,15 @@
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
     
-    function getSafeData(obj, keys) {
-        for (const k of keys) {
-            if (obj && obj[k]) return obj[k];
-        }
-        return null;
-    }
-
-    function createCard(title, dataObj, color) {
-        const score = dataObj?.score || 3; 
-        const pointsRaw = dataObj?.points || ["標準的な相が出ています"];
-        const points = Array.isArray(pointsRaw) ? pointsRaw : [pointsRaw];
-
+    function createCard(title, score, points, color) {
+        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
         return `
         <div class="fortune-card">
             <div class="line-header">
                 <span class="line-name"><span class="color-dot" style="background:${color}; width:12px; height:12px; border-radius:50%; display:inline-block;"></span> ${title}</span>
                 ${score ? `<span class="stars">${stars(score)}</span>` : ''}
             </div>
-            <ul>${points.map(p => `<li>${p}</li>`).join('')}</ul>
+            <ul>${safePoints.map(p => `<li>${p}</li>`).join('')}</ul>
         </div>`;
     }
 
@@ -479,48 +474,24 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：厳格モード ★
+            // ★ AIプロンプト：左右の定義を正しく指示
             prompt = `
-            あなたは手相鑑定士です。画像の手相（${handLabel}）を分析してください。
+            あなたは熟練の手相鑑定士です。画像の手相（${handLabel}）を高精度に分析してください。
             
-            【重要：画像審査】
-            まず画像の画質をチェックしてください。
-            - 手のひらの主要な線（生命線、頭脳線、感情線）が「はっきり」見えますか？
-            - ぼやけていたり、暗すぎたり、手が遠すぎる場合は、即座に以下のJSONを返して終了してください。
-            {"status": "error", "message": "画像が不鮮明で線が見えません。明るい場所で、手のひらを画面いっぱいに写して再撮影してください。"}
-
-            【左右の定義】
-            - 左手：画像の「右側」が親指、「左側」が小指。
-            - 右手：画像の「左側」が親指、「右側」が小指。
-
-            画像が鮮明な場合のみ、以下の7項目を分析しJSON出力してください。
+            【重要】手の左右と線の位置関係:
+            - 今回の画像は「${selectedHand === 'left' ? '左手' : '右手'}」です。
+            - 左手写真の場合: 画像の【右側】が親指、【左側】が小指です。生命線は右側（親指）を囲みます。
+            - 右手写真の場合: 画像の【左側】が親指、【右側】が小指です。生命線は左側（親指）を囲みます。
             
-            1. head (頭脳線)
-            2. heart (感情線)
-            3. life (生命線)
-            4. fate (運命線)
-            5. sun (太陽線)
-            6. money (財運線)
-            7. marriage (結婚線)
+            以下の7項目について、点数(1-5)と具体的かつポジティブな箇条書き(必ず配列)でJSON出力してください。
+            【重要】"message"（総合アドバイス）は200文字以内で簡潔に。
 
-            Format (JSON):
-            {
-                "status": "success",
-                "head": {"score":4, "points":["..."]},
-                "heart": {"score":4, "points":["..."]},
-                "life": {"score":4, "points":["..."]},
-                "fate": {"score":3, "points":["..."]},
-                "sun": {"score":3, "points":["..."]},
-                "money": {"score":3, "points":["..."]},
-                "marriage": {"score":3, "points":["..."]},
-                "message": "総合アドバイス(200文字以内)"
-            }
+            Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            もし画像が不鮮明なら {"status": "error", "message": "..."} を返してください。
-            Format: {"status": "success", "score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
+            Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
 
@@ -533,7 +504,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: contents,
-                    generationConfig: { temperature: 0.5 },
                     safetySettings: [
                         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -544,19 +514,8 @@
             });
 
             const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) throw new Error("結果が空でした");
-
             const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
-
-            // ★ エラー判定（画像不鮮明など）
-            if (res.status === 'error') {
-                alert("鑑定できませんでした：\n" + res.message);
-                postBtns.style.display = 'flex'; // ボタン復活
-                btn.disabled = false;
-                return;
-            }
 
             let html = "";
             const svgLeft = document.getElementById('svg-left');
@@ -568,28 +527,31 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
+                // SVG切り替え（正しいロジック）
                 if (selectedHand === 'left') {
-                    svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
+                    svgLeft.style.display = 'block';
+                    svgRight.style.display = 'none';
+                    handText.innerText = "左手";
                 } else {
-                    svgLeft.style.display = 'none'; svgRight.style.display = 'block'; handText.innerText = "右手";
+                    svgLeft.style.display = 'none';
+                    svgRight.style.display = 'block';
+                    handText.innerText = "右手";
                 }
 
-                html += createCard("感情線", getSafeData(res, ['heart', 'heart_line']), "#ff4081");
-                html += createCard("頭脳線", getSafeData(res, ['head', 'head_line']), "#448AFF");
-                html += createCard("生命線", getSafeData(res, ['life', 'life_line']), "#69F0AE");
-                html += createCard("運命線", getSafeData(res, ['fate', 'fate_line']), "#E040FB");
-                html += createCard("太陽線", getSafeData(res, ['sun', 'sun_line']), "#FFAB40");
-                html += createCard("財運線", getSafeData(res, ['money', 'money_line']), "#FFFF00");
-                html += createCard("結婚線", getSafeData(res, ['marriage', 'marriage_line']), "#FF5252");
-                
-                const msg = res.message || res.overall_advice || "運気は上昇傾向にあります。";
-                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${msg}</div>`;
+                html += createCard("感情線", res.heart?.score, res.heart?.points, "#ff4081");
+                html += createCard("頭脳線", res.head?.score, res.head?.points, "#448AFF");
+                html += createCard("生命線", res.life?.score, res.life?.points, "#69F0AE");
+                html += createCard("運命線", res.fate?.score, res.fate?.points, "#E040FB");
+                html += createCard("太陽線", res.sun?.score, res.sun?.points, "#FFAB40");
+                html += createCard("財運線", res.money?.score, res.money?.points, "#FFFF00");
+                html += createCard("結婚線", res.marriage?.score, res.marriage?.points, "#FF5252");
+                html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message}</div>`;
             } else {
                 document.querySelector('.guide-container').style.display = 'none';
                 resultLabel.innerText = "鑑定モード：ふたりで相性診断";
                 html += `<div class="compatibility-score">相性 ${res.score}%</div>`;
                 html += `<div style="margin-bottom:20px;">${res.compatibility_desc}</div>`;
-                html += createCard("診断詳細", {points: res.points}, "#FFD700");
+                html += createCard("診断詳細", null, res.points, "#FFD700");
                 html += `<div style="background:rgba(255,64,129,0.2); padding:15px; border-radius:10px;"><strong>💘 アドバイス:</strong> ${res.advice}</div>`;
             }
 
