@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎨 AIパーソナルカラー診断</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            /* ベースカラーを少しニュートラルに変更して色を見やすく */
+            --primary: #E0AAFF;
+            --accent: #FFD700;
+            --bg: #1a1a1a; 
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+        }
+        
+        body {
+            font-family: 'Shippori Mincho', serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+            margin: 0; padding: 20px;
+            color: var(--text); min-height: 100vh;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
+
+        h1 {
+            color: var(--primary); font-size: 1.8rem; margin: 10px 0 15px 0;
+            text-shadow: 0 0 15px rgba(224, 170, 255, 0.4);
+        }
+
+        /* 画像枠 */
+        .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; margin-top: 30px;}
+        .upload-box {
+            position: relative; width: 70%; max-width: 320px; aspect-ratio: 3/4;
+            border: 3px dashed var(--primary); border-radius: 20px;
+            background: rgba(0,0,0,0.3); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer; overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05); transition: transform 0.2s;
+        }
+        .upload-box:active { transform: scale(0.98); }
+        .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
+        .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 1.0; text-shadow: 0 0 10px var(--primary); }
+        .upload-label { font-size: 1rem; font-weight: bold; color: #fff; }
+
+        /* 説明 */
+        .instruction-text {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary);
+            color: #ddd; padding: 15px; border-radius: 10px;
+            font-size: 0.9rem; margin-bottom: 15px; text-align: left;
+        }
+        .instruction-text strong { color: var(--accent); }
+
+        /* ボタン */
+        .btn-main {
+            background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(224, 170, 255, 0.4); width: 100%; margin-top: 10px;
+        }
+        .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
+
+        .control-btns { display: none; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-control {
+            background: rgba(255,255,255,0.1); border: 1px solid #999; color: #fff;
+            padding: 12px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem; flex: 1; max-width: 140px;
+            font-weight: bold;
+        }
+
+        #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
+        
+        /* 結果表示エリア */
+        .result-header { text-align: center; margin-bottom: 20px; }
+        .season-badge {
+            display: inline-block; padding: 10px 30px; border-radius: 50px;
+            font-size: 2rem; font-weight: bold; margin: 10px 0;
+            background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .fortune-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px; padding: 15px; margin-bottom: 15px;
+        }
+        .card-title { font-weight: bold; color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; display: block;}
+        
+        /* カラーパレット表示 */
+        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+        .color-swatch { 
+            width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative;
+        }
+        .color-code {
+            position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7rem; color: #ccc; font-family: sans-serif; background: rgba(0,0,0,0.5); padding: 2px 4px; border-radius: 4px;
+        }
+
+        ul { margin: 0; padding-left: 20px; color: #eee; font-size: 0.95rem; }
+        li { margin-bottom: 5px; line-height: 1.6; }
+
+        .action-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-sub { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #00b894; color: white; }
+        .btn-retry { background: #636e72; color: white; }
+
+        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:100; display:none; justify-content:center; align-items:center; flex-direction:column; }
+        .loading-icon { font-size: 4rem; animation: spin 2s infinite linear; margin-bottom: 20px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; }
+        .input-key { width: 90%; padding: 12px; margin: 20px 0; background: #1a1a1a; color: white; border: 1px solid var(--primary); border-radius: 5px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="key-modal" class="modal">
+    <div class="modal-content">
+        <h2>🔑 API設定</h2>
+        <p>Gemini APIキーを入力</p>
+        <input type="password" id="api-key-input" class="input-key" placeholder="API Key">
+        <button class="btn-main" onclick="saveApiKey()">OK</button>
+    </div>
+</div>
+
+<div id="loading" class="loading-overlay">
+    <div class="loading-icon">🎨</div>
+    <div class="loading-msg" id="loading-msg">肌の色、瞳の色を分析中...</div>
+</div>
+
+<div class="container">
+    <h1>🎨 AIパーソナルカラー診断</h1>
+    
+    <div id="settings-area">
+        <div class="instruction-text">
+            <strong>📸 撮影のコツ</strong><br>
+            ・ノーメイク、またはナチュラルメイクで。<br>
+            ・自然光（明るい窓際）で撮影すると精度が上がります。<br>
+            ・顔全体が明るく写るようにしてください。
+        </div>
+    </div>
+
+    <div class="upload-wrapper" id="upload-wrapper">
+        <div class="upload-box" id="box1" onclick="triggerFile()">
+            <div id="ph1">
+                <div class="upload-icon">📷</div>
+                <div class="upload-label" id="label1">タップして撮影/選択</div>
+            </div>
+            <img id="preview1" class="preview-img">
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept="image/*" capture="user" style="display:none" onchange="handleFileSelect(this)">
+    
+    <button id="analyze-btn" class="btn-main" onclick="startAnalysis()" disabled>診断する</button>
+
+    <div class="control-btns" id="post-capture-btns">
+        <button class="btn-control" onclick="resetAll()">🏠 戻る</button>
+        <button class="btn-control" onclick="triggerFile()">🔄 撮り直す</button>
+    </div>
+
+    <div id="result-wrapper">
+        <div id="capture-target" style="background: #1a1a1a; padding: 20px; border-radius: 15px;">
+            <div class="result-header">
+                <div style="color:#aaa; font-size:0.9rem;">あなたのパーソナルカラーは...</div>
+                <div id="result-season" class="season-badge">Analyzing...</div>
+                <div style="font-size:0.8rem; color:#888; margin-top:5px;" id="result-desc"></div>
+            </div>
+
+            <div class="fortune-card">
+                <span class="card-title">✨ あなたに似合うベストカラー</span>
+                <div class="color-palette" id="best-colors">
+                    </div>
+            </div>
+
+            <div id="result-content"></div>
+        </div>
+
+        <div class="action-btns">
+            <button class="btn-sub btn-retry" onclick="location.reload()">最初に戻る</button>
+            <button class="btn-sub btn-save" onclick="saveResultImage()">画像を保存 📸</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let API_KEY = "";
+    const GEMINI_MODEL = "gemini-2.0-flash-exp"; // 高速で視覚認識に強いモデル推奨
+    let imgBase64 = null;
+
+    window.onload = function() {
+        checkApiKey();
+    };
+
+    function checkApiKey() {
+        const stored = localStorage.getItem('gemini_api_key_color');
+        if (stored) { API_KEY = stored; document.getElementById('key-modal').classList.add('hidden'); }
+    }
+    function saveApiKey() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
+    }
+
+    function triggerFile() {
+        document.getElementById('file-input').click();
+    }
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { processImage(e.target.result); };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function processImage(originalBase64) {
+        const img = new Image();
+        img.onload = function() {
+            // 画像圧縮処理（API転送量削減）
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            const max = 1000;
+            if (w > h) { if (w > max) { h *= max/w; w = max; } } else { if (h > max) { w *= max/h; h = max; } }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const b64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            document.getElementById('preview1').src = b64;
+            document.getElementById('preview1').style.display = 'block';
+            document.getElementById('ph1').style.display = 'none';
+
+            imgBase64 = b64;
+            checkReady();
+        };
+        img.src = originalBase64;
+    }
+
+    function checkReady() {
+        const btn = document.getElementById('analyze-btn');
+        const postBtns = document.getElementById('post-capture-btns');
+        const settings = document.getElementById('settings-area');
+
+        if (imgBase64) {
+            btn.disabled = false;
+            settings.style.display = 'none';
+            postBtns.style.display = 'flex';
+        }
+    }
+
+    function resetAll() { location.reload(); }
+
+    // === 救済用フォールバック ===
+    function generateFallbackResult() {
+        return {
+            season: "Spring (イエベ春)",
+            description: "明るく元気で、透明感のある春タイプ。",
+            best_colors: [
+                { hex: "#FF7F50", name: "コーラル" },
+                { hex: "#F4C430", name: "サフラン" },
+                { hex: "#98FB98", name: "若草色" },
+                { hex: "#FFE4E1", name: "シェルピンク" }
+            ],
+            skin_analysis: ["肌色は明るめのオークル系", "血色がよくツヤがある"],
+            makeup: ["ツヤ肌を活かすベースメイク", "コーラルピンクのリップ"],
+            fashion: ["明るいベージュやキャメルが基本", "ゴールドのアクセサリー"],
+            message: "写真解析が難しかったため、一般的なSpringタイプとして表示しています。もっと明るい場所で撮影してみてください。"
+        };
+    }
+
+    async function startAnalysis() {
+        const btn = document.getElementById('analyze-btn');
+        const postBtns = document.getElementById('post-capture-btns');
+        const loading = document.getElementById('loading');
+        btn.disabled = true;
+        postBtns.style.display = 'none';
+        loading.style.display = 'flex';
+
+        const b64 = imgBase64.replace(/^data:image\/\w+;base64,/, "");
+
+        // ★ AIプロンプト：パーソナルカラーアナリスト
+        const prompt = `
+        あなたはプロのパーソナルカラーアナリストです。
+        添付された顔写真を分析し、以下の4シーズン分類から最も適切なものを診断してください。
+        【分類】
+        1. Spring (イエベ春)
+        2. Summer (ブルベ夏)
+        3. Autumn (イエベ秋)
+        4. Winter (ブルベ冬)
+
+        以下の形式のJSONのみを出力してください。Markdownのコードブロックは不要です。
+        
+        {
+            "season": "診断結果のシーズン名（例: Summer (ブルベ夏)）",
+            "description": "そのシーズンの特徴を一言で（20文字以内）",
+            "best_colors": [
+                {"hex": "#カラーコード", "name": "色名"},
+                {"hex": "#カラーコード", "name": "色名"},
+                {"hex": "#カラーコード", "name": "色名"},
+                {"hex": "#カラーコード", "name": "色名"}
+            ],
+            "skin_analysis": ["肌の特徴1", "瞳の色や髪色の特徴2"],
+            "makeup": ["メイクのアドバイス1", "アドバイス2"],
+            "fashion": ["ファッションのアドバイス1", "アドバイス2"],
+            "message": "総合的な励ましのコメント（80文字以内）"
+        }
+        
+        注意：
+        - 似合う色(best_colors)は必ず4色選定し、具体的なHEXコードを含めてください。
+        - 辛口である必要はありません。ユーザーが自信を持てるようなトーンで記述してください。
+        `;
+
+        try {
+            const contents = [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }];
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: contents,
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            let res = {};
+            try {
+                // JSON抽出の強化
+                const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
+                res = JSON.parse(jsonStr);
+            } catch (e) {
+                console.warn("JSON Parse failed, using fallback");
+                res = generateFallbackResult();
+            }
+
+            // UI反映
+            document.getElementById('result-season').innerText = res.season;
+            document.getElementById('result-season').style.color = getSeasonColor(res.season);
+            document.getElementById('result-desc').innerText = res.description;
+
+            // カラーパレット生成
+            const paletteDiv = document.getElementById('best-colors');
+            paletteDiv.innerHTML = res.best_colors.map(c => `
+                <div class="color-swatch" style="background:${c.hex}">
+                    <div class="color-code">${c.name}</div>
+                </div>
+            `).join('');
+
+            // 各種アドバイス生成
+            let html = "";
+            html += createTextCard("👩 肌・瞳・髪の特徴", res.skin_analysis);
+            html += createTextCard("💄 メイクのアドバイス", res.makeup);
+            html += createTextCard("👗 ファッションのアドバイス", res.fashion);
+            html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; margin-top:15px;"><strong>💌 Message:</strong> ${res.message}</div>`;
+
+            document.getElementById('result-content').innerHTML = html;
+            
+            // 画面切り替え
+            document.getElementById('upload-wrapper').style.display = 'none';
+            btn.style.display = 'none';
+            document.getElementById('result-wrapper').style.display = 'block';
+            document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
+
+        } catch (e) {
+            console.error(e);
+            alert("エラーが発生しました。APIキーを確認するか、もう一度お試しください。");
+            postBtns.style.display = 'flex';
+            btn.disabled = false;
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function getSeasonColor(seasonStr) {
+        if(seasonStr.includes("Spring") || seasonStr.includes("春")) return "#FF7F50";
+        if(seasonStr.includes("Summer") || seasonStr.includes("夏")) return "#87CEEB";
+        if(seasonStr.includes("Autumn") || seasonStr.includes("秋")) return "#DAA520";
+        if(seasonStr.includes("Winter") || seasonStr.includes("冬")) return "#4169E1";
+        return "#333";
+    }
+
+    function createTextCard(title, points) {
+        return `
+        <div class="fortune-card">
+            <span class="card-title">${title}</span>
+            <ul>${points.map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>`;
+    }
+
+    function saveResultImage() {
+        const target = document.getElementById("capture-target");
+        // 保存時に見切れないように一時的にスタイル調整
+        const originalStyle = target.style.cssText;
+        target.style.width = "500px"; 
+        
+        html2canvas(target, { backgroundColor: "#1a1a1a", scale: 2 }).then(canvas => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = `personal_color_${new Date().getTime()}.png`;
+            link.click();
+            target.style.cssText = originalStyle; // 元に戻す
+        });
+    }
+</script>
+</body>
+</html>
