@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V29</title>
+    <title>✋ AI手相占い V30</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -29,7 +29,7 @@
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
 
-        /* 左右選択 (目立つように変更) */
+        /* 左右選択 (目立つように) */
         .hand-selector {
             display: flex; gap: 15px; margin: 20px 0 10px 0; justify-content: center;
         }
@@ -44,7 +44,6 @@
             border-color: var(--primary); background: rgba(255, 215, 0, 0.15); color: #fff;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: scale(1.02);
         }
-        /* 選択中のチェックマーク */
         .hand-btn.active::after {
             content: '✔'; position: absolute; top: -10px; right: -5px;
             background: var(--primary); color: #000; border-radius: 50%;
@@ -73,12 +72,11 @@
         /* 画像枠 */
         .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .upload-box {
-            position: relative; width: 60%; aspect-ratio: 3/4; /* 少し大きく */
+            position: relative; width: 60%; aspect-ratio: 3/4;
             border: 3px dashed var(--primary); border-radius: 20px;
             background: rgba(0,0,0,0.3); display: flex; flex-direction: column;
             justify-content: center; align-items: center; cursor: pointer; overflow: hidden;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); transition: transform 0.2s;
         }
         .upload-box:active { transform: scale(0.98); }
         .upload-box.full-width { width: 70%; max-width: 320px; } 
@@ -86,41 +84,7 @@
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 1.0; text-shadow: 0 0 10px var(--primary); }
         .upload-label { font-size: 1rem; font-weight: bold; color: #fff; }
 
-        /* カメラモーダル */
-        #camera-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; display: none;
-        }
-        #video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .palm-focus-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 65%; 
-            border: 4px solid rgba(255, 215, 0, 0.8);
-            border-radius: 30px; pointer-events: none;
-            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
-        }
-        .guide-text-container {
-            position: absolute; top: 8%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
-        }
-        .guide-main-text {
-            color: #FFD700; font-size: 1.4rem; font-weight: bold; 
-            text-shadow: 0 2px 4px #000; margin-bottom: 8px;
-        }
-        .guide-sub-text {
-            color: #fff; font-size: 1rem; text-shadow: 0 1px 3px #000;
-            background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 10px; display: inline-block;
-        }
-        .shutter-btn {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 80px; background: #fff; border-radius: 50%;
-            border: 6px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 2010;
-        }
-        .close-camera {
-            position: absolute; top: 20px; right: 20px; color: white;
-            font-size: 2.5rem; cursor: pointer; z-index: 2010;
-        }
-
+        /* ボタン類 */
         .btn-main {
             background: linear-gradient(45deg, #FFD700, #FDB931); color: #1a0b2e; border: none; padding: 15px 50px;
             font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
@@ -137,6 +101,7 @@
 
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
+        /* ガイド図 */
         .guide-container {
             background: #1a0b2e; border: 1px solid var(--primary);
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
@@ -198,22 +163,10 @@
     <div class="loading-msg" id="loading-msg">運命を読み解いています...</div>
 </div>
 
-<div id="camera-modal">
-    <video id="video" autoplay playsinline></video>
-    <div class="close-camera" onclick="closeCamera()">×</div>
-    <div class="guide-text-container">
-        <div class="guide-main-text">手のひらをドアップで！</div>
-        <div class="guide-sub-text">指は切れてもOK。<br>黄色い枠に「手のひら」を合わせてね</div>
-    </div>
-    <div class="palm-focus-overlay"></div>
-    <div class="shutter-btn" onclick="takePhoto()"></div>
-</div>
-
 <div class="container">
-    <h1>✋ AI手相占い V29</h1>
+    <h1>✋ AI手相占い V30</h1>
     
     <div id="settings-area">
-        
         <div class="hand-selector">
             <div class="hand-btn active" id="sel-left" onclick="selectHand('left')">
                 <div class="hand-main">👈 左手</div>
@@ -275,32 +228,26 @@
                 
                 <svg id="svg-left" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    
                     <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
                     <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    
                     <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-
                     <text x="20" y="55" fill="#fff" font-size="12">親指</text>
                     <text x="170" y="55" fill="#fff" font-size="12">小指</text>
                 </svg>
 
                 <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    
                     <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
                     <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    
                     <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-
                     <text x="10" y="55" fill="#fff" font-size="12">小指</text>
                     <text x="160" y="55" fill="#fff" font-size="12">親指</text>
                 </svg>
@@ -334,7 +281,6 @@
     let activeTarget = 1; 
     let img1Base64 = null;
     let img2Base64 = null;
-    let videoStream = null;
 
     window.onload = function() {
         checkApiKey();
@@ -368,7 +314,7 @@
         if (mode === 'single') {
             box1.classList.add('full-width');
             box2.style.display = 'none';
-            label1.innerText = 'カメラ起動';
+            label1.innerText = 'ここをタップして撮影';
         } else {
             box1.classList.remove('full-width');
             box2.style.display = 'flex';
@@ -377,46 +323,6 @@
         checkReady();
     }
 
-    async function openCamera(targetNum) {
-        activeTarget = targetNum;
-        const modal = document.getElementById('camera-modal');
-        const video = document.getElementById('video');
-        
-        try {
-            videoStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment", width: {ideal: 1920}, height: {ideal: 1080} },
-                audio: false
-            });
-            video.srcObject = videoStream;
-            modal.style.display = 'block';
-        } catch (err) {
-            // カメラ非対応環境の場合はファイル選択
-            triggerFile(targetNum);
-        }
-    }
-
-    function closeCamera() {
-        const modal = document.getElementById('camera-modal');
-        modal.style.display = 'none';
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop());
-            video.srcObject = null;
-        }
-    }
-
-    function takePhoto() {
-        const video = document.getElementById('video');
-        if (!video.srcObject) return;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        processImage(canvas.toDataURL('image/jpeg', 0.9));
-        closeCamera();
-    }
-    
     function triggerFile(num) {
         activeTarget = num;
         document.getElementById(`file-input-${num}`).click();
@@ -477,12 +383,7 @@
     }
 
     function resetAll() { location.reload(); }
-    function retakeCurrent() { 
-        // 画像が既にある状態での再撮影
-        if(activeTarget) {
-            openCamera(activeTarget);
-        }
-    }
+    function retakeCurrent() { triggerFile(activeTarget); }
 
     function stars(n) {
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
@@ -513,20 +414,44 @@
 
         let prompt = "";
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
+        
+        // ★ プロンプト生成（選んだ手に応じた定義のみを送信）
+        let handDefinition = "";
+        if (selectedHand === 'left') {
+            // 左手：親指＝左、小指＝右
+            handDefinition = `
+            【画像定義：左手】
+            - この画像は「左手」です。
+            - 画面向かって【左側】が親指、【右側】が小指です。
+            - 生命線: 左側（親指側）からスタートして、親指の付け根を囲みます。
+            - 頭脳線: 左側（親指側）からスタートして、右側（小指側）へ伸びます。
+            - 感情線: 右側（小指側）からスタートして、左側（親指側）へ伸びます。
+            - 運命線: 手首から中指（中央）へ伸びます。
+            - 結婚線: 右端（小指の下）にあります。
+            `;
+        } else {
+            // 右手：親指＝右、小指＝左
+            handDefinition = `
+            【画像定義：右手】
+            - この画像は「右手」です。
+            - 画面向かって【右側】が親指、【左側】が小指です。
+            - 生命線: 右側（親指側）からスタートして、親指の付け根を囲みます。
+            - 頭脳線: 右側（親指側）からスタートして、左側（小指側）へ伸びます。
+            - 感情線: 左側（小指側）からスタートして、右側（親指側）へ伸びます。
+            - 運命線: 手首から中指（中央）へ伸びます。
+            - 結婚線: 左端（小指の下）にあります。
+            `;
+        }
 
         if (mode === 'single') {
-            // ★ V26プロンプト：正解マップ＆エンタメ救済
             prompt = `
-            あなたは中高生に人気の、少しミステリアスでサービス精神旺盛な手相占い師です。
-            画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
+            あなたは熟練の手相鑑定士です。画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
             
-            【最重要】左右の認識（自分視点）:
-            - 左手写真の場合: 画像の「左側」が親指、「右側」が小指です。
-            - 右手写真の場合: 画像の「右側」が親指、「左側」が小指です。
+            ${handDefinition}
             
-            【救済ルール & エンタメ】
-            - 頭脳線や財運線が見えにくい場合でも、「解析不可」とは返さず、全体の手の形や他の線のバランスから推測し、必ずポジティブに解釈してください。
-            - ユーザーを楽しませるために、曖昧な線でも「隠れた才能」や「将来性」を見出し、少し大げさな表現（ハルシネーション）を交えて盛り上げてください。
+            【重要：エンタメ重視 & 救済ルール】
+            - 線が薄い、見えにくい場合でも、「解析不能」とは返さず、手の形や他の線からポジティブな要素を推測（ハルシネーションOK）して、必ず結果を出してください。
+            - ユーザーを楽しませるため、少し「盛った」表現で、未来への希望を持てるような言葉を選んでください。
 
             7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい箇条書きでJSON出力してください。
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
@@ -534,7 +459,6 @@
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            もし線が見えにくくても、「運命的な相性」を見出してポジティブに盛り上げてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -565,7 +489,7 @@
                 const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
                 res = JSON.parse(jsonStr);
             } catch (e) {
-                res = { message: "申し訳ありません。星の巡りが悪く、うまく読み取れませんでした。もう一度撮影してみてください。" };
+                res = { message: "星の巡りが悪く、うまく読み取れませんでした。もう一度撮影してみてください。" };
             }
 
             let html = "";
@@ -578,6 +502,7 @@
                 document.querySelector('.guide-container').style.display = 'block';
                 resultLabel.innerText = "鑑定部位：" + handLabel;
                 
+                // SVG切り替え
                 if (selectedHand === 'left') {
                     svgLeft.style.display = 'block'; svgRight.style.display = 'none'; handText.innerText = "左手";
                 } else {
