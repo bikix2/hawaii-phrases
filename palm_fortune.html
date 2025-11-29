@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V7</title>
+    <title>✋ AI手相占い V8</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -29,7 +29,7 @@
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
 
-        /* 左右選択（ボタン型に戻して説明を見やすく） */
+        /* 左右選択 */
         .hand-selector {
             display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;
         }
@@ -78,33 +78,37 @@
         }
         #video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* 手形ガイド (V5の形状に戻す) */
-        .hand-overlay {
+        /* 新しいガイド（シンプルな枠） */
+        .simple-guide-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 80%;
-            pointer-events: none; opacity: 0.7; z-index: 10;
-            transition: transform 0.3s ease;
+            width: 85%; height: 65%; /* 画面の大部分を使う */
+            border: 4px dashed rgba(255, 215, 0, 0.7);
+            border-radius: 30px;
+            pointer-events: none;
+            box-shadow: 0 0 0 1000px rgba(0,0,0,0.6); /* 周りを暗く */
         }
-        /* 右手モードのときは反転 */
-        .hand-overlay.right-hand { transform: translate(-50%, -50%) scaleX(-1); }
-
-        .guide-text {
-            position: absolute; bottom: 120px; width: 100%; text-align: center;
-            color: #FFD700; font-weight: bold; text-shadow: 0 2px 4px #000; font-size: 1.1rem;
-            z-index: 12; pointer-events: none;
+        .guide-text-container {
+            position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 2005;
+        }
+        .guide-main-text {
+            color: #FFD700; font-size: 1.2rem; font-weight: bold; 
+            text-shadow: 0 2px 4px #000; margin-bottom: 5px;
+        }
+        .guide-sub-text {
+            color: #fff; font-size: 0.9rem; text-shadow: 0 1px 3px #000;
         }
 
         .shutter-btn {
             position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 70px; background: #fff; border-radius: 50%;
-            border: 5px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 20;
+            width: 80px; height: 80px; background: #fff; border-radius: 50%;
+            border: 6px solid rgba(255,255,255,0.3); cursor: pointer; z-index: 2010;
         }
         .close-camera {
             position: absolute; top: 20px; right: 20px; color: white;
-            font-size: 2.5rem; cursor: pointer; z-index: 2001;
+            font-size: 2.5rem; cursor: pointer; z-index: 2010;
         }
 
-        /* ボタン */
+        /* ボタン類 */
         .btn-main {
             background: linear-gradient(45deg, #FFD700, #FDB931);
             color: #1a0b2e; border: none; padding: 15px 50px;
@@ -114,6 +118,15 @@
         }
         .btn-main:disabled { background: #555; color: #aaa; box-shadow: none; }
 
+        .control-btns {
+            display: flex; gap: 10px; margin-top: 15px; justify-content: center;
+        }
+        .btn-control {
+            background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ddd;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+            flex: 1; max-width: 150px;
+        }
+
         /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
@@ -122,7 +135,6 @@
             border-radius: 15px; padding: 20px; margin-bottom: 20px;
             text-align: center; color: #fff;
         }
-        /* SVG反転用クラス */
         .flip-svg { transform: scaleX(-1); }
 
         .fortune-card {
@@ -177,18 +189,18 @@
     <video id="video" autoplay playsinline></video>
     <div class="close-camera" onclick="closeCamera()">×</div>
     
-    <div class="hand-overlay" id="hand-guide">
-        <svg viewBox="0 0 200 260" width="100%" height="100%" style="fill:none; stroke:#FFD700; stroke-width:3; stroke-dasharray:10,5; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));">
-            <path d="M40,260 L40,150 Q10,130 10,100 Q10,50 30,40 L45,90 L55,20 L75,20 L85,90 L95,10 L115,10 L125,90 L135,20 L155,20 L165,100 L185,80 L195,100 Q195,150 160,260" />
-        </svg>
+    <div class="guide-text-container">
+        <div class="guide-main-text">枠いっぱいに手を写してね</div>
+        <div class="guide-sub-text">指の開き方は自由！リラックスして</div>
     </div>
-    <div class="guide-text">点線に手を合わせてね</div>
+
+    <div class="simple-guide-overlay"></div>
     
     <div class="shutter-btn" onclick="takePhoto()"></div>
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V7</h1>
+    <h1>✋ AI手相占い V8</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -229,12 +241,16 @@
     
     <button id="analyze-btn" class="btn-main" onclick="startAnalysis()" disabled>鑑定する</button>
 
+    <div class="control-btns" id="post-capture-btns" style="display:none;">
+        <button class="btn-control" onclick="resetAll()">🏠 最初に戻る</button>
+        <button class="btn-control" onclick="retakeCurrent()">🔄 撮り直す</button>
+    </div>
+
     <div id="result-wrapper">
         <div id="capture-target" style="background: #10002b; padding: 20px; border-radius: 15px;">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2 style="color:var(--primary); margin:0;">✨ 鑑定結果 ✨</h2>
-                <div style="color:#aaa; font-size:0.9rem; margin-top:5px; font-weight:bold;" id="result-hand-label">
-                    </div>
+                <div style="color:#aaa; font-size:0.9rem; margin-top:5px; font-weight:bold;" id="result-hand-label"></div>
                 <div style="font-size:0.8rem; color:#666;" id="date-label"></div>
             </div>
 
@@ -260,7 +276,7 @@
         </div>
 
         <div class="action-btns">
-            <button class="btn-sub btn-retry" onclick="location.reload()">もう一度</button>
+            <button class="btn-sub btn-retry" onclick="location.reload()">最初に戻る</button>
             <button class="btn-sub btn-save" onclick="saveResultImage()">画像を保存 📸</button>
         </div>
     </div>
@@ -269,8 +285,8 @@
 <script>
     let API_KEY = "";
     const GEMINI_MODEL = "gemini-2.5-flash"; 
-    let mode = 'single'; // single or pair
-    let selectedHand = 'left'; // left or right
+    let mode = 'single';
+    let selectedHand = 'left';
     let activeTarget = 1; 
     let img1Base64 = null;
     let img2Base64 = null;
@@ -294,11 +310,6 @@
         selectedHand = hand;
         document.getElementById('sel-left').classList.toggle('active', hand==='left');
         document.getElementById('sel-right').classList.toggle('active', hand==='right');
-        
-        // カメラガイドの向きを即時反映（カメラが開いていれば）
-        const guide = document.getElementById('hand-guide');
-        if (hand === 'right') guide.classList.add('right-hand');
-        else guide.classList.remove('right-hand');
     }
 
     function setMode(m) {
@@ -328,11 +339,6 @@
         const modal = document.getElementById('camera-modal');
         const video = document.getElementById('video');
         
-        // ガイドの向き設定
-        const guide = document.getElementById('hand-guide');
-        if (selectedHand === 'right') guide.classList.add('right-hand');
-        else guide.classList.remove('right-hand');
-
         try {
             videoStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" },
@@ -347,7 +353,6 @@
 
     function closeCamera() {
         const modal = document.getElementById('camera-modal');
-        const video = document.getElementById('video');
         modal.style.display = 'none';
         if (videoStream) {
             videoStream.getTracks().forEach(track => track.stop());
@@ -405,10 +410,26 @@
 
     function checkReady() {
         const btn = document.getElementById('analyze-btn');
-        if (mode === 'single') btn.disabled = !img1Base64;
-        else btn.disabled = (!img1Base64 || !img2Base64);
+        const postBtns = document.getElementById('post-capture-btns');
+        
+        let isReady = false;
+        if (mode === 'single') isReady = !!img1Base64;
+        else isReady = (!!img1Base64 && !!img2Base64);
+
+        btn.disabled = !isReady;
+        postBtns.style.display = isReady ? 'flex' : 'none';
     }
 
+    function resetAll() {
+        location.reload();
+    }
+
+    function retakeCurrent() {
+        // 現在アクティブなターゲット（最後に撮った方）を撮り直す
+        openCamera(activeTarget);
+    }
+
+    // 結果表示用
     function stars(n) {
         let s = ""; for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆"; return s;
     }
@@ -478,8 +499,7 @@
             if (mode === 'single') {
                 document.querySelector('.guide-container').style.display = 'block';
                 
-                // ガイド図とテキストの調整
-                resultLabel.innerText = handLabel;
+                resultLabel.innerText = "鑑定部位：" + handLabel;
                 if (selectedHand === 'left') {
                     svg.classList.add('flip-svg');
                     handText.innerText = "左手";
@@ -498,7 +518,7 @@
                 html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;"><strong>🔮 総合:</strong> ${res.message}</div>`;
             } else {
                 document.querySelector('.guide-container').style.display = 'none';
-                resultLabel.innerText = "ふたりで相性診断";
+                resultLabel.innerText = "鑑定モード：ふたりで相性診断";
                 html += `<div class="compatibility-score">相性 ${res.score}%</div>`;
                 html += `<div style="margin-bottom:20px;">${res.compatibility_desc}</div>`;
                 html += createCard("診断詳細", null, res.points, "#FFD700");
@@ -510,6 +530,7 @@
             // 設定エリア（ボタン類）を消す
             document.getElementById('settings-area').style.display = 'none';
             document.getElementById('upload-wrapper').style.display = 'none';
+            document.getElementById('post-capture-btns').style.display = 'none'; // 撮影後ボタンも消す
             btn.style.display = 'none';
             
             document.getElementById('result-wrapper').style.display = 'block';
