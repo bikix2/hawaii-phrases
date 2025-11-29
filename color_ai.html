@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V5.0 (Auto Detect)</title>
+    <title>🎨 AIカラー診断 V5.2 (Drape Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -38,7 +38,6 @@
 
         .subtitle { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
 
-        /* ヒントボックス */
         .tip-box {
             background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--accent);
             text-align: left; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px;
@@ -57,14 +56,18 @@
 
         @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        /* 画像エリア & ドレープフレーム */
+        /* 画像エリア共通スタイル */
         .canvas-wrapper {
-            position: relative; width: 100%; max-width: 320px; margin: 0 auto;
-            border: 15px solid #444; 
-            border-radius: 5px; 
+            position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto;
+            border: 15px solid #444; border-radius: 5px; 
             transition: border-color 0.3s ease;
             overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
+        /* 結果画面用の特別スタイル（少しマージン調整） */
+        .result-canvas-wrapper {
+            margin-bottom: 25px;
+        }
+
         .drape-label {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0;
@@ -80,7 +83,6 @@
         }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
 
-        /* ピッカーパネル */
         .picker-panel {
             background: var(--panel-bg); padding: 15px; border-radius: 15px;
             margin-top: 15px; display: none; border: 1px solid #444;
@@ -107,7 +109,6 @@
             border: 1px solid #fff; margin-right: 5px; background: transparent;
         }
 
-        /* ボタン類 */
         .btn-main {
             background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px;
             font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
@@ -130,7 +131,6 @@
         }
         .btn-sub-action:hover { background: rgba(255,255,255,0.1); border-color: #999; }
 
-        /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         .season-badge {
             display: inline-block; padding: 8px 25px; border-radius: 50px;
@@ -138,7 +138,6 @@
             background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 80%;
         }
 
-        /* 色見本・ドレープUI */
         .drape-hint { text-align: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
         .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
         .swatch-container {
@@ -152,7 +151,6 @@
         }
         .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
 
-        /* カードデザイン */
         .fortune-card {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px; padding: 15px; margin-bottom: 15px;
@@ -209,14 +207,14 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V5.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V5.2</span></h1>
     <div class="subtitle">Auto Detect & Full Features</div>
 
     <div id="setup-area">
         <div class="tip-box">
-            <strong>💡 自動検出 & 色基準</strong><br>
-            ・顔を自動で認識し、ズーム＆マーカー設置します。<br>
-            ・可能なら「500円玉」か「白い紙」を顔の横に！
+            <strong>💡 使い方</strong><br>
+            画像を読み込んだら、下の画像内の「肌」と「瞳（または髪）」をタップして、色を指定してください。<br>
+            ※500円玉や白い紙と一緒に撮ると精度UP！
         </div>
 
         <div id="auto-msg" class="auto-msg"></div>
@@ -226,7 +224,6 @@
 
         <div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()">
             <canvas id="main-canvas"></canvas>
-            <div class="drape-label" id="drape-label">Virtual Drape Mode</div>
             <div class="placeholder" id="placeholder">
                 <div class="upload-icon">📷</div>
                 <div>ここをタップして写真を選択</div>
@@ -235,10 +232,9 @@
         <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
 
         <div id="picker-panel" class="picker-panel">
-            <div class="contrast-guide">
-                <strong>🧐 自動設定完了</strong><br>
-                顔検出により、肌と瞳の位置を自動設定しました。<br>
-                位置がずれている場合はタップして修正してください。
+            <div class="contrast-guide" id="guide-text">
+                <strong>🧐 手動設定モード</strong><br>
+                画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップしてください。
             </div>
 
             <div style="font-size:0.9rem; margin-bottom:10px;">👇 画像をタップして色を指定してください</div>
@@ -263,10 +259,16 @@
 
     <div id="result-wrapper">
         <div id="capture-target" style="background: #242424; padding: 25px; border-radius: 15px; border:1px solid #444;">
+            
             <div style="text-align: center;">
                 <h2 style="color:var(--primary); margin:0 0 5px 0;">診断結果</h2>
                 <div id="result-season" class="season-badge">Analyzing...</div>
                 <div id="result-desc" style="color:#ccc; font-size:0.9rem; margin-bottom:15px;"></div>
+            </div>
+
+            <div class="canvas-wrapper result-canvas-wrapper" id="result-drape-box">
+                <canvas id="result-canvas"></canvas>
+                <div class="drape-label" id="result-drape-label" style="display:block;">Virtual Drape Mode</div>
             </div>
 
             <div class="fortune-card">
@@ -313,8 +315,6 @@
     let eyeColor = null; 
     let canvas, ctx;
     let imgObj = new Image();
-    
-    // クロップ情報
     let cropRect = null; 
 
     window.onload = function() {
@@ -340,10 +340,8 @@
     function retakePhoto() {
         document.getElementById('file-input').value = "";
         document.getElementById('file-input').click();
-        // リセット
         cropRect = null;
         document.getElementById('canvas-wrapper').style.borderColor = "#444";
-        document.getElementById('drape-label').style.display = 'none';
         document.getElementById('brightness-warning').style.display = 'none';
         document.getElementById('auto-msg').style.display = 'none';
     }
@@ -354,9 +352,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 imgObj.onload = async function() {
-                    // ★ V5.0 新機能: 顔検出 & オートクロップ試行
                     await tryAutoDetectAndCrop();
-                    
                     checkBrightness();
                     document.getElementById('placeholder').style.display = 'none';
                     document.getElementById('picker-panel').style.display = 'block';
@@ -368,11 +364,14 @@
         }
     }
 
-    // ★ V5.0: 顔検出ロジック (Chrome/Android標準API)
     async function tryAutoDetectAndCrop() {
-        cropRect = null; // リセット
+        cropRect = null; 
         resetPoints();
         const autoMsg = document.getElementById('auto-msg');
+        const guideText = document.getElementById('guide-text');
+
+        // デフォルト案内
+        guideText.innerHTML = `<strong>🧐 手動設定モード</strong><br>画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップしてください。`;
 
         if ('FaceDetector' in window) {
             try {
@@ -380,12 +379,9 @@
                 const faces = await faceDetector.detect(imgObj);
 
                 if (faces.length > 0) {
-                    // 顔が見つかった場合
                     const face = faces[0].boundingBox;
-                    
-                    // 少し広めにクロップ (上下左右に20%余裕をもたせる)
                     const paddingX = face.width * 0.3;
-                    const paddingY = face.height * 0.4; // 髪を入れるため上に広めに
+                    const paddingY = face.height * 0.4;
                     
                     cropRect = {
                         x: Math.max(0, face.x - paddingX),
@@ -394,27 +390,16 @@
                         h: Math.min(imgObj.height, face.height + paddingY*2)
                     };
                     
-                    // クロップ範囲の修正（はみ出し防止）
                     if (cropRect.x + cropRect.w > imgObj.width) cropRect.w = imgObj.width - cropRect.x;
                     if (cropRect.y + cropRect.h > imgObj.height) cropRect.h = imgObj.height - cropRect.y;
 
-                    // ★ マーカー自動設置 (推測)
-                    // 肌: 顔の下半分、中心より少し横
                     const skinX = face.x + face.width * 0.7;
                     const skinY = face.y + face.height * 0.6;
-                    
-                    // 瞳: 顔の上半分
                     const eyeX = face.x + face.width * 0.3;
                     const eyeY = face.y + face.height * 0.4;
 
-                    // 座標変換 (クロップ後座標系へ)
-                    // drawImageToCanvasで変換されるため、ここでは元画像の座標を保持し、
-                    // 描画時に変換するか、setPointで処理する。
-                    // シンプルにするため、setAutoPoint関数を作成。
-                    
-                    drawImageToCanvas(); // まず描画(クロップ適用)
+                    drawImageToCanvas(canvas, ctx); 
 
-                    // キャンバス上の座標に変換してセット
                     const scale = canvas.width / cropRect.w;
                     const canvasSkinX = (skinX - cropRect.x) * scale;
                     const canvasSkinY = (skinY - cropRect.y) * scale;
@@ -424,27 +409,21 @@
                     autoSetPoint('skin', canvasSkinX, canvasSkinY);
                     setTimeout(() => autoSetPoint('eye', canvasEyeX, canvasEyeY), 100);
 
-                    autoMsg.innerText = "✨ 顔を自動検出し、ズームしました！";
+                    autoMsg.innerText = "✨ 顔を自動検出し、マーカーをセットしました！位置がずれている場合はタップして修正してください。";
                     autoMsg.style.display = 'block';
+                    guideText.innerHTML = `<strong>🤖 自動設定完了</strong><br>マーカー位置を確認し、問題なければ「診断開始」を押してください。`;
                     return;
-
-                } else {
-                    autoMsg.innerText = "顔が検出されませんでした。手動で設定してください。";
-                    autoMsg.style.display = 'block';
                 }
             } catch (e) {
                 console.warn("Face Detection failed:", e);
             }
         }
         
-        // 失敗または非対応の場合: 全体表示
-        drawImageToCanvas();
+        drawImageToCanvas(canvas, ctx);
     }
 
-    function drawImageToCanvas() {
-        const containerW = document.querySelector('.canvas-wrapper').clientWidth;
-        
-        // クロップ領域がある場合はそこだけ描画
+    function drawImageToCanvas(targetCanvas, targetCtx) {
+        const containerW = targetCanvas.parentElement.clientWidth;
         const sx = cropRect ? cropRect.x : 0;
         const sy = cropRect ? cropRect.y : 0;
         const sw = cropRect ? cropRect.w : imgObj.width;
@@ -453,18 +432,19 @@
         const scale = containerW / sw;
         const h = sh * scale;
         
-        canvas.width = containerW; 
-        canvas.height = h;
+        targetCanvas.width = containerW; 
+        targetCanvas.height = h;
         
-        ctx.drawImage(imgObj, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+        targetCtx.drawImage(imgObj, sx, sy, sw, sh, 0, 0, targetCanvas.width, targetCanvas.height);
 
-        // マーカー再描画
-        if (skinColor) drawMarker(skinColor.x, skinColor.y, '#FFD700', '肌');
-        if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳/眉');
+        // メインキャンバスの場合のみマーカー描画
+        if (targetCanvas.id === 'main-canvas') {
+            if (skinColor) drawMarker(targetCtx, skinColor.x, skinColor.y, '#FFD700');
+            if (eyeColor) drawMarker(targetCtx, eyeColor.x, eyeColor.y, '#00BFFF');
+        }
     }
 
     function autoSetPoint(type, x, y) {
-        // 色取得
         const avg = getAverageColor(x, y, 3);
         const hex = "#" + [avg.r, avg.g, avg.b].map(d => d.toString(16).padStart(2,'0')).join('');
         const data = { x, y, hex };
@@ -478,9 +458,7 @@
             document.getElementById('dot-eye').style.background = hex;
             document.getElementById('btn-eye').classList.add('done');
         }
-        // 再描画
-        if (skinColor) drawMarker(skinColor.x, skinColor.y, '#FFD700', '肌');
-        if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳/眉');
+        drawImageToCanvas(canvas, ctx);
         checkReady();
     }
 
@@ -509,15 +487,9 @@
 
     function getAverageColor(startX, startY, range) {
         let r=0, g=0, b=0, count=0;
-        // 範囲外チェック
         if (startX < 0 || startY < 0 || startX >= canvas.width || startY >= canvas.height) return {r:0, g:0, b:0};
 
-        const data = ctx.getImageData(
-            Math.max(0, startX - range), 
-            Math.max(0, startY - range), 
-            range*2+1, range*2+1
-        ).data;
-        
+        const data = ctx.getImageData(Math.max(0, startX - range), Math.max(0, startY - range), range*2+1, range*2+1).data;
         for (let i = 0; i < data.length; i += 4) {
             r += data[i]; g += data[i+1]; b += data[i+2]; count++;
         }
@@ -532,16 +504,12 @@
         const y = e.clientY - rect.top;
 
         autoSetPoint(pickMode, x, y);
-        
-        // 次のモードへ
-        if (pickMode === 'skin') {
-            setTimeout(() => setMode('eye'), 300);
-        }
+        if (pickMode === 'skin') { setTimeout(() => setMode('eye'), 300); }
     }
 
-    function drawMarker(x, y, color, label) {
-        ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.beginPath(); ctx.arc(x, y, 6, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
+    function drawMarker(context, x, y, color) {
+        context.beginPath(); context.arc(x, y, 8, 0, 2 * Math.PI); context.strokeStyle = '#fff'; context.lineWidth = 3; context.stroke();
+        context.beginPath(); context.arc(x, y, 6, 0, 2 * Math.PI); context.fillStyle = color; context.fill();
     }
 
     function resetPoints() {
@@ -551,7 +519,7 @@
         document.getElementById('dot-skin').style.background = 'transparent';
         document.getElementById('dot-eye').style.background = 'transparent';
         setMode('skin');
-        drawImageToCanvas();
+        drawImageToCanvas(canvas, ctx);
         checkReady();
     }
 
@@ -602,8 +570,6 @@
             "advice_fashion": "服の助言(50文字)"
         }`;
 
-        // AIに送る画像を作成（クロップされている場合はクロップ画像を、なければ全体を）
-        // 現在のcanvasの内容をそのまま送ればOK（drawImageToCanvasで既に調整済み）
         const base64 = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/\w+;base64,/, "");
 
         try {
@@ -661,14 +627,11 @@
             detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッションアドバイス</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
             document.getElementById('result-details').innerHTML = detailsHtml;
 
-            // 結果画面に切り替え
-            // 画像表示をリセット（マーカー消去）
-            ctx.drawImage(imgObj, 
-                cropRect?cropRect.x:0, cropRect?cropRect.y:0, 
-                cropRect?cropRect.w:imgObj.width, cropRect?cropRect.h:imgObj.height, 
-                0, 0, canvas.width, canvas.height
-            );
-            document.getElementById('drape-label').style.display = 'block';
+            // ★結果画面のキャンバスに描画
+            const resultCanvas = document.getElementById('result-canvas');
+            const resultCtx = resultCanvas.getContext('2d');
+            drawImageToCanvas(resultCanvas, resultCtx); // マーカーなしで描画
+
             document.getElementById('result-wrapper').style.display = 'block';
 
         } catch (e) {
@@ -681,7 +644,8 @@
     }
 
     function applyDrape(color) {
-        const wrapper = document.getElementById('canvas-wrapper');
+        // ★修正点: 結果画面のフレームをターゲットにする
+        const wrapper = document.getElementById('result-drape-box');
         wrapper.style.borderColor = color;
         wrapper.style.transform = "scale(1.02)";
         setTimeout(() => wrapper.style.transform = "scale(1)", 200);
