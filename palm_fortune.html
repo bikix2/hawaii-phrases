@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V21</title>
+    <title>✋ AI手相占い V22</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -193,7 +193,7 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V21</h1>
+    <h1>✋ AI手相占い V22</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -251,32 +251,26 @@
                 
                 <svg id="svg-left" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    
                     <path d="M60,90 Q120,150 120,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
                     <path d="M60,90 Q120,120 180,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M180,90 Q120,110 40,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M190,85 L175,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    
                     <path d="M110,200 L110,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M155,100 L155,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M175,100 L175,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-
                     <text x="20" y="55" fill="#fff" font-size="12">親指</text>
                     <text x="170" y="55" fill="#fff" font-size="12">小指</text>
                 </svg>
 
                 <svg id="svg-right" viewBox="0 0 200 220" width="180" height="200" style="display:none; margin:0 auto;">
                     <path d="M160,200 Q190,150 190,100 Q190,50 170,30 L160,80 L150,10 L130,10 L120,80 L110,5 L90,5 L80,80 L70,10 L50,10 L40,90 L20,60 L10,80 Q10,150 40,200 Z" fill="none" stroke="#888" stroke-width="2"/>
-                    
                     <path d="M140,90 Q80,150 80,210" fill="none" stroke="#69F0AE" stroke-width="4" stroke-linecap="round" />
                     <path d="M140,90 Q80,120 20,120" fill="none" stroke="#448AFF" stroke-width="4" stroke-linecap="round" />
                     <path d="M20,90 Q80,110 160,70" fill="none" stroke="#FF4081" stroke-width="4" stroke-linecap="round" />
                     <path d="M10,85 L25,85" fill="none" stroke="#FF5252" stroke-width="3" />
-                    
                     <path d="M90,200 L90,90" fill="none" stroke="#E040FB" stroke-width="3" stroke-dasharray="4" />
                     <path d="M45,100 L45,80" fill="none" stroke="#FFAB40" stroke-width="3" />
                     <path d="M25,100 L25,90" fill="none" stroke="#FFFF00" stroke-width="3" />
-
                     <text x="10" y="55" fill="#fff" font-size="12">小指</text>
                     <text x="160" y="55" fill="#fff" font-size="12">親指</text>
                 </svg>
@@ -453,7 +447,7 @@
     }
     
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["解析不能でしたが、潜在的な可能性はあります"];
+        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
         return `
         <div class="fortune-card">
             <div class="line-header">
@@ -479,29 +473,29 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：エンタメ＆救済対応
+            // ★ AIプロンプト：正統派・普通の占い師モード
             prompt = `
-            あなたは中高生に人気のある、少しミステリアスで、でもサービス精神旺盛な手相占い師です。
-            画像の手相（${handLabel}）を分析してください。
-            
+            あなたは経験豊富な、優しく丁寧な手相占い師です。
+            画像の手相（${handLabel}）を鑑定し、相談者に寄り添ったアドバイスをしてください。
+
             【重要】左右の認識:
             - 左手写真: 画像の「左側」が親指、「右側」が小指。
             - 右手写真: 画像の「右側」が親指、「左側」が小指。
             
-            【頭脳線（知能線）の救済ルール】
-            - 頭脳線が見えにくい場合でも、「ない」とは言わずに、「生命線と重なっている慎重派タイプ」や「見えにくいのは天才肌の証拠」など、ポジティブに解釈して必ず評価してください。
-            
-            【エンタメ重視】
-            - 曖昧な線でも、あなたのインスピレーション（ハルシネーションOK）で、ユーザーが喜ぶような「当たってる感」のある結果を出してください。
-            - "少し盛る"くらいが丁度いいです。ポジティブで楽しい未来を予言してください。
+            【鑑定のスタンス】
+            - 口調は「〜ですね」「〜の傾向があります」「〜でしょう」といった、穏やかで丁寧な占い師の口調で。
+            - 頭脳線などが見えにくい場合も、「可能性」として前向きに解釈し、相談者を不安にさせないように伝えてください。
+            - エンタメ要素よりも、"相談者の背中を優しく押す"ような温かい鑑定を心がけてください。
 
-            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ楽しい箇条書きでJSON出力してください。
+            7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ前向きな箇条書き(必ず配列)でJSON出力してください。
+            総合アドバイスは200文字以内で、明日への活力になるような言葉を。
+
             Format: {"heart": {"score":4, "points":["..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
             2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            もし線が見えにくくても、手のひらの形などから「運命的な相性」を見出して、ポジティブに盛り上げてください。
+            二人の関係性を優しく紐解き、より良い関係を築くためのアドバイスを、穏やかな占い師の口調で伝えてください。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
