@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIパーソナルカラー診断 Pro V2.0</title>
+    <title>🎨 AIカラー診断 Pro V2.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -30,7 +30,6 @@
             display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap;
         }
         
-        /* バージョン表示用のスタイル */
         .version-tag {
             font-size: 1rem; color: #aaa; background: rgba(255,255,255,0.1);
             padding: 2px 8px; border-radius: 4px; font-weight: normal;
@@ -38,14 +37,13 @@
 
         .subtitle { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
 
-        /* ホワイトバランスのヒント */
         .tip-box {
             background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--accent);
             text-align: left; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px;
             font-size: 0.85rem; line-height: 1.5;
         }
 
-        /* 画像エリア (Canvas) */
+        /* 画像エリア */
         .canvas-wrapper {
             position: relative; width: 100%; max-width: 320px; margin: 0 auto;
             aspect-ratio: 3/4; border: 2px solid #444; border-radius: 15px;
@@ -60,7 +58,7 @@
         }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
 
-        /* ピッカー操作パネル */
+        /* ピッカー */
         .picker-panel {
             background: var(--panel-bg); padding: 15px; border-radius: 15px;
             margin-top: 15px; display: none; border: 1px solid #444;
@@ -82,7 +80,7 @@
             border: 1px solid #fff; margin-right: 5px; background: transparent;
         }
 
-        /* 分析ボタン */
+        /* メインボタン */
         .btn-main {
             background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px;
             font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
@@ -91,7 +89,18 @@
         }
         .btn-main.ready { opacity: 1; pointer-events: auto; }
 
-        /* 結果エリア */
+        /* サブ操作エリア（撮り直し・戻る） */
+        .sub-controls {
+            display: flex; justify-content: center; gap: 15px; margin-top: 20px;
+        }
+        .btn-sub-action {
+            background: transparent; border: 1px solid #666; color: #ccc;
+            padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn-sub-action:hover { background: rgba(255,255,255,0.1); border-color: #999; }
+
+        /* 結果 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         .season-badge {
             display: inline-block; padding: 8px 25px; border-radius: 50px;
@@ -111,7 +120,6 @@
         ul { margin: 0; padding-left: 20px; color: #ddd; font-size: 0.9rem; }
         li { margin-bottom: 6px; }
 
-        /* モーダル・ローディング */
         .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
         .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; }
         .input-key { width: 90%; padding: 12px; margin: 20px 0; background: #1a1a1a; color: white; border: 1px solid var(--primary); border-radius: 5px; }
@@ -137,17 +145,19 @@
 
 <div id="loading" class="loading-overlay">
     <div class="loading-icon">🎨</div>
-    <div class="loading-msg">プロの思考プロセスで分析中...<br><span style="font-size:0.8rem; color:#888;">Step 1: 肌色・瞳色解析<br>Step 2: ホワイトバランス補正<br>Step 3: 4シーズン判定</span></div>
+    <div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem; color:#888;">Step 1: ホワイトバランス補正<br>Step 2: 肌・瞳・髪のコントラスト解析<br>Step 3: 4シーズン判定</span></div>
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 Pro <span class="version-tag">V2.0</span></h1>
-    <div class="subtitle">精密カラーピッカー & 思考連鎖(CoT)搭載</div>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V2.5</span></h1>
+    <div class="subtitle">powered by Gemini 2.5 Flash</div>
 
     <div id="setup-area">
         <div class="tip-box">
             <strong>💡 プロ級精度を出すコツ</strong><br>
-            白い紙（コピー用紙など）を顔の横に持って撮影すると、AIが照明の色被りを自動補正します。
+            白い紙（コピー用紙など）を「あごの下」に持って撮影してください。<br>
+            <strong>金髪やカラコンの方：</strong><br>
+            2つ目のポイントは「眉毛（本来の色）」か「瞳孔（目の中心の黒）」を選択してください。
         </div>
 
         <div class="canvas-wrapper" onclick="triggerFileIfEmpty()">
@@ -166,13 +176,18 @@
                     <span class="color-preview-dot" id="dot-skin"></span>肌 (Skin)
                 </button>
                 <button class="pick-btn" id="btn-eye" onclick="setMode('eye')">
-                    <span class="color-preview-dot" id="dot-eye"></span>瞳/髪 (Eye)
+                    <span class="color-preview-dot" id="dot-eye"></span>瞳・眉 (Frame)
                 </button>
             </div>
-            <button class="reset-btn" onclick="resetPoints()">ポイントをクリア</button>
+            <button class="reset-btn" onclick="resetPoints()">選択をやり直す</button>
         </div>
 
         <button id="analyze-btn" class="btn-main" onclick="startAnalysis()">診断開始</button>
+
+        <div class="sub-controls" id="sub-controls" style="display:none;">
+            <button class="btn-sub-action" onclick="retakePhoto()">📷 撮り直す</button>
+            <button class="btn-sub-action" onclick="location.reload()">🏠 最初に戻る</button>
+        </div>
     </div>
 
     <div id="result-wrapper">
@@ -191,24 +206,25 @@
             <div id="result-details"></div>
             
             <div style="text-align:center; margin-top:15px; font-size:0.8rem; color:#666;">
-                Generated by Gemini Pro Vision V2.0
+                Generated by Gemini 2.5 Flash
             </div>
         </div>
 
-        <button class="btn-main ready" onclick="location.reload()" style="background: #444; margin-top:20px;">最初に戻る</button>
+        <div class="sub-controls" style="margin-top:20px;">
+            <button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // === 設定 ===
     let API_KEY = "";
-    const GEMINI_MODEL = "gemini-2.0-flash-exp"; // 視覚認識・論理推論に強いモデル
+    // ★ご指定のモデルに変更
+    const GEMINI_MODEL = "gemini-2.5-flash"; 
 
-    // === 状態管理 ===
     let imgFile = null;
-    let pickMode = 'skin'; // 'skin' or 'eye'
-    let skinColor = null;  // {x, y, hex}
-    let eyeColor = null;   // {x, y, hex}
+    let pickMode = 'skin';
+    let skinColor = null; 
+    let eyeColor = null; 
     let canvas, ctx;
     let imgObj = new Image();
 
@@ -216,8 +232,6 @@
         checkApiKey();
         canvas = document.getElementById('main-canvas');
         ctx = canvas.getContext('2d');
-        
-        // Canvasクリックイベント
         canvas.addEventListener('click', handleCanvasClick);
     };
 
@@ -230,9 +244,14 @@
         if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
     }
 
-    // === 画像処理 ===
     function triggerFileIfEmpty() {
         if (!imgFile) document.getElementById('file-input').click();
+    }
+    
+    // 撮り直しボタン用
+    function retakePhoto() {
+        document.getElementById('file-input').value = ""; // リセット
+        document.getElementById('file-input').click();
     }
 
     function handleFileSelect(input) {
@@ -244,7 +263,8 @@
                     drawImageToCanvas();
                     document.getElementById('placeholder').style.display = 'none';
                     document.getElementById('picker-panel').style.display = 'block';
-                    setMode('skin'); // 初期モード
+                    document.getElementById('sub-controls').style.display = 'flex'; // ボタン表示
+                    resetPoints(); // 新しい画像読み込み時はポイントリセット
                 };
                 imgObj.src = e.target.result;
             };
@@ -253,23 +273,15 @@
     }
 
     function drawImageToCanvas() {
-        // コンテナの幅に合わせてCanvasサイズを決定
         const containerW = document.querySelector('.canvas-wrapper').clientWidth;
         const scale = containerW / imgObj.width;
         const h = imgObj.height * scale;
-        
-        canvas.width = containerW;
-        canvas.height = h;
-        
-        // 画像を描画
+        canvas.width = containerW; canvas.height = h;
         ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
-        
-        // 既存のポイントがあれば再描画
         if (skinColor) drawMarker(skinColor.x, skinColor.y, '#FFD700', '肌');
-        if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳');
+        if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳/眉');
     }
 
-    // === カラーピッカーロジック ===
     function setMode(mode) {
         pickMode = mode;
         document.getElementById('btn-skin').classList.toggle('active', mode === 'skin');
@@ -278,49 +290,34 @@
 
     function handleCanvasClick(e) {
         if (!imgFile) return;
-
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
-        // ピクセル色取得
         const pixel = ctx.getImageData(x, y, 1, 1).data;
         const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(d => d.toString(16).padStart(2,'0')).join('');
-
         const data = { x, y, hex };
 
         if (pickMode === 'skin') {
             skinColor = data;
             document.getElementById('dot-skin').style.background = hex;
             document.getElementById('btn-skin').classList.add('done');
-            // 自動で次のステップへ
             setTimeout(() => setMode('eye'), 300);
         } else {
             eyeColor = data;
             document.getElementById('dot-eye').style.background = hex;
             document.getElementById('btn-eye').classList.add('done');
         }
-
-        // 再描画してマーカー更新
         drawImageToCanvas();
         checkReady();
     }
 
     function drawMarker(x, y, color, label) {
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, 6, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
     }
 
     function resetPoints() {
-        skinColor = null;
-        eyeColor = null;
+        skinColor = null; eyeColor = null;
         document.getElementById('btn-skin').classList.remove('done');
         document.getElementById('btn-eye').classList.remove('done');
         document.getElementById('dot-skin').style.background = 'transparent';
@@ -332,63 +329,35 @@
 
     function checkReady() {
         const btn = document.getElementById('analyze-btn');
-        if (skinColor && eyeColor) {
-            btn.classList.add('ready');
-        } else {
-            btn.classList.remove('ready');
-        }
+        if (skinColor && eyeColor) btn.classList.add('ready');
+        else btn.classList.remove('ready');
     }
 
-    // === AI分析 ===
     async function startAnalysis() {
         if (!skinColor || !eyeColor) return;
-
         const loading = document.getElementById('loading');
         loading.style.display = 'flex';
         document.getElementById('setup-area').style.display = 'none';
 
-        // プロンプト作成（思考連鎖＆データ注入）
         const prompt = `
-        あなたは世界最高峰のパーソナルカラーアナリストです。
-        添付された画像と、ユーザーがピックした色情報を元に診断を行ってください。
-
-        【ユーザー入力データ】
-        - 抽出された肌の色(HEX): ${skinColor.hex}
-        - 抽出された瞳/髪の色(HEX): ${eyeColor.hex}
-
+        あなたはプロのパーソナルカラーアナリストです。
+        【入力データ】肌:${skinColor.hex}, 締め色(眉/瞳/髪):${eyeColor.hex}
         【指示】
-        以下のStep-by-Stepの思考プロセスに従って分析し、JSON形式で出力してください。
+        1. 画像内の「白い紙」等を参考にホワイトバランスを脳内で補正。
+        2. 補正後の肌色と、締め色（眉や瞳）のコントラストを分析。
+           ※金髪やカラコンの場合は、本来の眉色や瞳孔の色を優先して判断。
+        3. 4シーズン(Spring/Summer/Autumn/Winter)を決定。
         
-        STEP 1 [ホワイトバランス補正]: 
-        画像内に「白い紙」や「白い服」などの基準となる白があるか探し、それを元に照明による色被り（青被りや黄被り）を脳内で補正してください。補正後の本来の肌色を推測してください。
-
-        STEP 2 [肌色分析]: 
-        入力されたHEX値(${skinColor.hex})と補正後の全体像から、肌が「イエローベース（黄み寄り）」か「ブルーベース（ピンク・青み寄り）」かを判定してください。
-
-        STEP 3 [コントラスト分析]:
-        瞳/髪の色(${eyeColor.hex})と肌色のコントラスト（明度差）が「強い（はっきり）」か「弱い（ソフト）」かを分析してください。
-
-        STEP 4 [総合診断]:
-        上記を組み合わせて、4シーズン（Spring, Summer, Autumn, Winter）のどれに該当するか決定してください。
-
-        【出力フォーマット(JSONのみ)】
+        【出力JSON】
         {
-            "season": "診断結果 (例: Autumn (イエベ秋))",
-            "description": "シーズンの特徴 (20文字以内)",
-            "reasoning": "なぜその診断になったかの論理的解説 (箇条書き3点)",
-            "best_colors": [
-                {"hex": "#xxxxxx", "name": "色名"},
-                {"hex": "#xxxxxx", "name": "色名"},
-                {"hex": "#xxxxxx", "name": "色名"},
-                {"hex": "#xxxxxx", "name": "色名"}
-            ],
-            "advice_makeup": "メイクのアドバイス (50文字程度)",
-            "advice_fashion": "ファッションのアドバイス (50文字程度)"
-        }
-        `;
+            "season": "診断結果 (例: Summer (ブルベ夏))",
+            "description": "特徴(20文字以内)",
+            "reasoning": ["理由1", "理由2", "理由3"],
+            "best_colors": [{"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}],
+            "advice_makeup": "メイク助言(50文字)",
+            "advice_fashion": "服の助言(50文字)"
+        }`;
 
-        // Canvasの現在の状態（マーカー入り）ではなく、元のクリーンな画像を送信するために
-        // オフスクリーンCanvasでリサイズ画像を作る
         const sendCanvas = document.createElement('canvas');
         const maxSize = 800;
         let w = imgObj.width, h = imgObj.height;
@@ -399,7 +368,6 @@
 
         try {
             const contents = [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }];
-
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -407,33 +375,29 @@
             });
 
             const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
             
-            // JSON抽出
+            if (data.error) { throw new Error(data.error.message || "API Error"); }
+            if (!data.candidates) { throw new Error("診断結果が取得できませんでした。"); }
+
+            const text = data.candidates[0].content.parts[0].text;
             const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
             const res = JSON.parse(jsonStr);
 
-            // 結果表示
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
             document.getElementById('result-desc').innerText = res.description;
-
-            document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `
-                <div class="color-swatch" style="background:${c.hex}"></div>
-            `).join('');
-
+            document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `<div class="color-swatch" style="background:${c.hex}"></div>`).join('');
+            
             let detailsHtml = "";
             detailsHtml += `<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${res.reasoning.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
             detailsHtml += `<div class="fortune-card"><span class="card-title">💄 メイク</span><p style="font-size:0.9rem; margin:0;">${res.advice_makeup}</p></div>`;
             detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッション</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
-            
             document.getElementById('result-details').innerHTML = detailsHtml;
-
             document.getElementById('result-wrapper').style.display = 'block';
 
         } catch (e) {
             console.error(e);
-            alert("エラーが発生しました。");
+            alert("エラーが発生しました。\n" + e.message + "\n\nAPIキーを確認してください。\nモデル: " + GEMINI_MODEL);
             document.getElementById('setup-area').style.display = 'block';
         } finally {
             loading.style.display = 'none';
