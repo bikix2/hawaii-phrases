@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V3</title>
+    <title>✋ AI手相占い V4</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -25,34 +25,55 @@
         .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
 
         h1 {
-            color: var(--primary); font-size: 1.8rem; margin: 10px 0;
+            color: var(--primary); font-size: 1.8rem; margin: 10px 0 5px 0;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
 
-        /* モード切替タブ */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .hand-info {
+            font-size: 0.8rem; color: #ccc; margin-bottom: 15px;
+            background: rgba(255,255,255,0.1); display: inline-block;
+            padding: 5px 15px; border-radius: 15px;
+        }
+
+        /* タブ */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .tab-btn {
-            flex: 1; padding: 12px; border: 1px solid var(--primary);
+            flex: 1; padding: 10px; border: 1px solid var(--primary);
             background: transparent; color: var(--primary);
             border-radius: 25px; cursor: pointer; font-weight: bold;
             transition: all 0.3s;
         }
         .tab-btn.active { background: var(--primary); color: #10002b; }
 
-        /* アップロードエリア */
+        /* アップロードエリア (最上部へ) */
         .upload-wrapper { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         
         .upload-area {
             position: relative; width: 48%; aspect-ratio: 3/4;
-            border: 2px dashed var(--accent); border-radius: 15px;
+            border: 2px dashed var(--accent); border-radius: 20px;
             background: rgba(0,0,0,0.3); display: flex; flex-direction: column;
             justify-content: center; align-items: center; cursor: pointer; overflow: hidden;
+            box-shadow: 0 0 15px rgba(224, 170, 255, 0.1);
         }
-        .upload-area.full-width { width: 80%; } /* シングルモード用 */
+        .upload-area.full-width { width: 80%; max-width: 320px; } 
 
-        .upload-icon { font-size: 2rem; opacity: 0.8; margin-bottom: 5px; }
-        .upload-label { font-size: 0.8rem; color: var(--accent); }
-        .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
+        /* 撮影ガイドのオーバーレイ */
+        .hand-guide-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; height: 80%;
+            border: 3px dashed rgba(255, 215, 0, 0.5); /* ガイドの色 */
+            border-radius: 40% 40% 40% 40% / 60% 60% 40% 40%; /* 手のひらっぽい形 */
+            pointer-events: none;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .hand-guide-text {
+            color: rgba(255, 215, 0, 0.8); font-size: 0.8rem; font-weight: bold;
+            text-align: center; margin-top: 20px;
+        }
+
+        .upload-icon { font-size: 2rem; opacity: 0.8; z-index: 2; }
+        .upload-label { font-size: 0.9rem; color: #fff; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; z-index: 1; }
 
         .btn-main {
             background: linear-gradient(45deg, #FFD700, #FDB931);
@@ -66,12 +87,14 @@
         /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; }
         
-        /* ガイド図 (SVG) */
+        /* ガイド図 (改善版) */
         .guide-container {
-            background: rgba(255,255,255,0.95); border-radius: 15px;
-            padding: 15px; margin-bottom: 20px; text-align: center; color: #333;
+            background: #240046; /* 背景を暗くして線を見やすく */
+            border: 1px solid var(--primary);
+            border-radius: 15px; padding: 15px; margin-bottom: 20px;
+            text-align: center; color: #fff;
         }
-        .guide-title { font-weight: bold; margin-bottom: 10px; color: #333; }
+        .guide-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); }
         
         /* 鑑定カード */
         .fortune-card {
@@ -80,24 +103,21 @@
         }
         .line-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; }
         .line-name { font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 5px; }
-        .color-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid #fff; }
         .stars { color: #FFD700; letter-spacing: 2px; }
         ul { margin: 0; padding-left: 20px; color: #eee; font-size: 0.95rem; }
         li { margin-bottom: 5px; }
 
-        /* 相性診断用 */
         .compatibility-score {
             font-size: 3rem; font-weight: bold; color: #FF4081; text-align: center;
             text-shadow: 0 0 10px rgba(255, 64, 129, 0.5); margin: 10px 0;
         }
 
-        /* 保存ボタンエリア */
         .action-btns { display: flex; gap: 10px; margin-top: 20px; }
         .btn-sub { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
         .btn-save { background: #00b894; color: white; }
         .btn-retry { background: #636e72; color: white; }
 
-        /* Modal & Loading */
         .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(16,0,43,0.95); z-index:100; display:none; justify-content:center; align-items:center; flex-direction:column; }
         .crystal-ball { font-size: 4rem; animation: glow 1.5s infinite alternate; margin-bottom: 20px; }
         .loading-msg { color: var(--primary); }
@@ -127,8 +147,9 @@
 </div>
 
 <div class="container">
-    <h1>✋ AI手相占い V3</h1>
-    
+    <h1>✋ AI手相占い V4</h1>
+    <div class="hand-info">👈左手：生まれつき / 👉右手：現在</div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="setMode('single')">ひとりで鑑定</button>
         <button class="tab-btn" onclick="setMode('pair')">ふたりで相性</button>
@@ -136,14 +157,19 @@
 
     <div class="upload-wrapper" id="upload-wrapper">
         <div class="upload-area full-width" id="box1" onclick="triggerUpload('input1')">
+            <div class="hand-guide-overlay">
+                <div class="hand-guide-text">この枠に合わせてね</div>
+            </div>
+            
             <div id="ph1">
                 <div class="upload-icon">📷</div>
-                <div class="upload-label" id="label1">手相を撮影</div>
+                <div class="upload-label" id="label1" style="font-size:1.1rem; font-weight:bold;">ここをタップして撮影</div>
             </div>
             <img id="preview1" class="preview-img">
             <input type="file" id="input1" accept="image/*" style="display:none" onchange="handleFile(this, 'preview1', 'ph1')">
         </div>
         <div class="upload-area" id="box2" onclick="triggerUpload('input2')" style="display:none;">
+            <div class="hand-guide-overlay"></div>
             <div id="ph2">
                 <div class="upload-icon">🤝</div>
                 <div class="upload-label">相手の手相</div>
@@ -163,14 +189,14 @@
             </div>
 
             <div class="guide-container" id="guide-container">
-                <div class="guide-title">✋ 手相のガイドマップ</div>
+                <div class="guide-title">✋ あなたの手相マップ</div>
                 <svg viewBox="0 0 200 220" width="150" height="165" style="display:block; margin:0 auto;">
-                    <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="#ffe0bd" stroke="#555" stroke-width="2"/>
+                    <path d="M40,200 Q10,150 10,100 Q10,50 30,30 L40,80 L50,10 L70,10 L80,80 L90,5 L110,5 L120,80 L130,10 L150,10 L160,90 L180,60 L190,80 Q190,150 160,200 Z" fill="none" stroke="#666" stroke-width="2"/>
                     
-                    <path d="M190,90 Q140,110 60,70" fill="none" stroke="#ff4081" stroke-width="3" /> <path d="M180,110 Q100,120 40,90" fill="none" stroke="#2196f3" stroke-width="3" /> <path d="M170,120 Q100,150 80,200" fill="none" stroke="#4caf50" stroke-width="3" /> <path d="M100,200 L100,90" fill="none" stroke="#9c27b0" stroke-width="2" stroke-dasharray="4" /> <path d="M130,100 L130,80" fill="none" stroke="#ff9800" stroke-width="2" /> <path d="M160,100 L160,90" fill="none" stroke="#ffd700" stroke-width="2" /> <path d="M190,85 L180,85" fill="none" stroke="#e91e63" stroke-width="2" /> </svg>
-                <div style="font-size:0.7rem; margin-top:5px; display:flex; flex-wrap:wrap; justify-content:center; gap:5px;">
+                    <path d="M190,90 Q140,110 60,70" fill="none" stroke="#ff4081" stroke-width="4" stroke-linecap="round" /> <path d="M180,110 Q100,120 40,90" fill="none" stroke="#2196f3" stroke-width="4" stroke-linecap="round" /> <path d="M170,120 Q100,150 80,200" fill="none" stroke="#4caf50" stroke-width="4" stroke-linecap="round" /> <path d="M100,200 L100,90" fill="none" stroke="#e040fb" stroke-width="3" stroke-dasharray="5" /> <path d="M130,100 L130,80" fill="none" stroke="#ff9800" stroke-width="3" /> <path d="M160,100 L160,90" fill="none" stroke="#ffd700" stroke-width="3" /> <path d="M190,85 L180,85" fill="none" stroke="#ff5252" stroke-width="3" /> </svg>
+                <div style="font-size:0.7rem; margin-top:10px; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; font-weight:bold;">
                     <span style="color:#ff4081">●感情</span> <span style="color:#2196f3">●頭脳</span> <span style="color:#4caf50">●生命</span>
-                    <span style="color:#9c27b0">●運命</span> <span style="color:#ff9800">●太陽</span> <span style="color:#ffd700">●財運</span> <span style="color:#e91e63">●結婚</span>
+                    <span style="color:#e040fb">●運命</span> <span style="color:#ff9800">●太陽</span> <span style="color:#ffd700">●財運</span> <span style="color:#ff5252">●結婚</span>
                 </div>
             </div>
 
@@ -218,7 +244,7 @@
             box1.classList.add('full-width');
             box1.style.width = '80%';
             box2.style.display = 'none';
-            label1.innerText = '手相を撮影';
+            label1.innerText = 'ここをタップして撮影';
             checkReady();
         } else {
             box1.classList.remove('full-width');
@@ -238,7 +264,6 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // 圧縮処理
                     const canvas = document.createElement('canvas');
                     let w = img.width, h = img.height;
                     const max = 800;
@@ -251,6 +276,8 @@
                     document.getElementById(previewId).src = b64;
                     document.getElementById(previewId).style.display = 'block';
                     document.getElementById(placeholderId).style.display = 'none';
+                    // ガイド線も消す
+                    input.parentElement.querySelector('.hand-guide-overlay').style.display = 'none';
 
                     if (previewId === 'preview1') img1Base64 = b64;
                     else img2Base64 = b64;
@@ -272,14 +299,12 @@
         }
     }
 
-    // 星の生成
     function stars(n) {
         let s = "";
         for(let i=0; i<5; i++) s += (i<n) ? "★" : "☆";
         return s;
     }
 
-    // HTML生成ヘルパー
     function createCard(title, score, points, color) {
         return `
         <div class="fortune-card">
@@ -310,31 +335,25 @@
 
             Format:
             {
-                "heart": {"score":4, "points":["..."]},  // 感情線
-                "head": {"score":5, "points":["..."]},   // 頭脳線
-                "life": {"score":3, "points":["..."]},   // 生命線
-                "fate": {"score":4, "points":["..."]},   // 運命線（仕事）
-                "sun": {"score":3, "points":["..."]},    // 太陽線（人気・成功）
-                "money": {"score":4, "points":["..."]},  // 財運線（金運）
-                "marriage": {"score":3, "points":["..."]}, // 結婚線（恋愛）
+                "heart": {"score":4, "points":["..."]}, 
+                "head": {"score":5, "points":["..."]},
+                "life": {"score":3, "points":["..."]},
+                "fate": {"score":4, "points":["..."]},
+                "sun": {"score":3, "points":["..."]},
+                "money": {"score":4, "points":["..."]},
+                "marriage": {"score":3, "points":["..."]},
                 "message": "総合的なアドバイスを一言"
             }
             `;
         } else {
             prompt = `
-            2つの手相（1枚目:あなた, 2枚目:相手）を比較し、カップルの相性診断をしてください。
-            性格のバランス、価値観の一致度などを分析し、JSON出力してください。
-
+            2つの手相を比較し、相性診断をしてください。
             Format:
             {
                 "score": 85,
-                "compatibility_desc": "相性の良さや注意点などの解説（100文字程度）",
-                "points": [
-                    "あなたの特徴: ...",
-                    "相手の特徴: ...",
-                    "二人の未来: ..."
-                ],
-                "advice": "仲良くするためのアドバイス"
+                "compatibility_desc": "相性の解説",
+                "points": ["あなたの特徴...", "相手の特徴...", "未来..."],
+                "advice": "アドバイス"
             }
             `;
         }
@@ -366,20 +385,19 @@
             const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
             const res = JSON.parse(jsonStr || "{}");
 
-            // 結果表示の構築
             let html = "";
             if (mode === 'single') {
-                document.getElementById('guide-container').style.display = 'block'; // ガイド図表示
+                document.getElementById('guide-container').style.display = 'block'; 
                 html += createCard("感情線 (性格)", res.heart?.score, res.heart?.points, "#ff4081");
                 html += createCard("頭脳線 (才能)", res.head?.score, res.head?.points, "#2196f3");
                 html += createCard("生命線 (健康)", res.life?.score, res.life?.points, "#4caf50");
-                html += createCard("運命線 (仕事)", res.fate?.score, res.fate?.points, "#9c27b0");
+                html += createCard("運命線 (仕事)", res.fate?.score, res.fate?.points, "#e040fb");
                 html += createCard("太陽線 (人気)", res.sun?.score, res.sun?.points, "#ff9800");
                 html += createCard("財運線 (金運)", res.money?.score, res.money?.points, "#ffd700");
-                html += createCard("結婚線 (恋愛)", res.marriage?.score, res.marriage?.points, "#e91e63");
+                html += createCard("結婚線 (恋愛)", res.marriage?.score, res.marriage?.points, "#ff5252");
                 html += `<div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; margin-top:10px;"><strong>🔮 総合:</strong> ${res.message}</div>`;
             } else {
-                document.getElementById('guide-container').style.display = 'none'; // ペア時はガイド非表示
+                document.getElementById('guide-container').style.display = 'none'; 
                 html += `<div class="compatibility-score">相性 ${res.score}%</div>`;
                 html += `<div style="margin-bottom:20px; line-height:1.6;">${res.compatibility_desc}</div>`;
                 html += createCard("鑑定詳細", null, res.points, "#FFD700");
@@ -391,7 +409,6 @@
             document.getElementById('upload-wrapper').style.display = 'none';
             btn.style.display = 'none';
             
-            // スクロール
             document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
 
         } catch (e) {
@@ -402,18 +419,14 @@
         }
     }
 
-    // 画像保存機能
     function saveResultImage() {
         const target = document.getElementById("capture-target");
-        
-        // 保存時にファイル名を入力させる
         const name = prompt("保存するファイル名を入力してください", "手相占い結果");
         if (!name) return;
 
-        // html2canvasでキャプチャ
         html2canvas(target, {
-            backgroundColor: "#10002b", // 背景色を指定
-            scale: 2 // 画質を良くする
+            backgroundColor: "#10002b", 
+            scale: 2 
         }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
