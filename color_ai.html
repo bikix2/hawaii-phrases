@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 Pro V2.7</title>
+    <title>🎨 AIカラー診断 V5.0 (Auto Detect)</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -13,6 +13,7 @@
             --bg: #1a1a1a; 
             --panel-bg: #2c2c2c;
             --text: #ffffff;
+            --ng-color: #ff6b6b;
         }
         
         body {
@@ -31,24 +32,45 @@
         }
         
         .version-tag {
-            font-size: 1rem; color: #aaa; background: rgba(255,255,255,0.1);
-            padding: 2px 8px; border-radius: 4px; font-weight: normal;
+            font-size: 1rem; color: #1a1a1a; background: var(--accent);
+            padding: 2px 10px; border-radius: 4px; font-weight: bold;
         }
 
         .subtitle { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
 
+        /* ヒントボックス */
         .tip-box {
             background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--accent);
             text-align: left; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px;
             font-size: 0.85rem; line-height: 1.5;
         }
 
-        /* 画像エリア */
+        .warning-box {
+            background: rgba(255, 82, 82, 0.2); border: 1px solid #ff5252; color: #ff8a80;
+            padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; font-size: 0.9rem;
+            display: none; animation: pulse 2s infinite;
+        }
+        .auto-msg {
+            background: rgba(105, 240, 174, 0.2); border: 1px solid #69F0AE; color: #69F0AE;
+            padding: 8px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; display: none;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+        /* 画像エリア & ドレープフレーム */
         .canvas-wrapper {
             position: relative; width: 100%; max-width: 320px; margin: 0 auto;
-            aspect-ratio: 3/4; border: 2px solid #444; border-radius: 15px;
+            border: 15px solid #444; 
+            border-radius: 5px; 
+            transition: border-color 0.3s ease;
             overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
+        .drape-label {
+            position: absolute; bottom: 0; left: 0; width: 100%; 
+            background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0;
+            display: none;
+        }
+
         canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
         
         .placeholder {
@@ -58,7 +80,7 @@
         }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
 
-        /* ピッカー */
+        /* ピッカーパネル */
         .picker-panel {
             background: var(--panel-bg); padding: 15px; border-radius: 15px;
             margin-top: 15px; display: none; border: 1px solid #444;
@@ -67,7 +89,6 @@
             font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2);
             padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left;
         }
-        .contrast-guide strong { color: var(--primary); }
 
         .picker-steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
         .pick-btn {
@@ -109,23 +130,53 @@
         }
         .btn-sub-action:hover { background: rgba(255,255,255,0.1); border-color: #999; }
 
-        /* 結果 */
+        /* 結果エリア */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         .season-badge {
             display: inline-block; padding: 8px 25px; border-radius: 50px;
             font-size: 1.8rem; font-weight: bold; margin: 10px 0;
             background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 80%;
         }
-        .color-palette { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 15px 0; }
-        .color-swatch { 
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); 
-            position: relative;
+
+        /* 色見本・ドレープUI */
+        .drape-hint { text-align: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
+        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
+        .swatch-container {
+            display: flex; flex-direction: column; align-items: center; width: 64px; cursor: pointer;
+            transition: transform 0.1s;
         }
+        .swatch-container:active { transform: scale(0.95); }
+        .color-swatch { 
+            width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); 
+            margin-bottom: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
+
+        /* カードデザイン */
         .fortune-card {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px; padding: 15px; margin-bottom: 15px;
         }
-        .card-title { color: var(--primary); font-weight: bold; display: block; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .card-title { font-weight: bold; display: block; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        
+        .ng-colors-wrapper {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        }
+        .ng-swatch {
+            width: 40px; height: 40px; border-radius: 4px; border: 2px solid #555; position: relative; opacity: 0.8;
+        }
+        .ng-swatch::after {
+            content: '×'; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+            color: rgba(0,0,0,0.5); font-weight: bold; font-size: 1.2rem;
+        }
+
+        .cosme-list { list-style: none; padding: 0; margin: 0; }
+        .cosme-item {
+            background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+        }
+        .cosme-icon { font-size: 1.2rem; }
+
         ul { margin: 0; padding-left: 20px; color: #ddd; font-size: 0.9rem; }
         li { margin-bottom: 6px; }
 
@@ -154,21 +205,28 @@
 
 <div id="loading" class="loading-overlay">
     <div class="loading-icon">🎨</div>
-    <div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem; color:#888;">Step 1: ホワイトバランス補正<br>Step 2: 肌・瞳・髪のコントラスト解析<br>Step 3: 4シーズン判定</span></div>
+    <div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem; color:#888;">Step 1: 500円玉/白紙で色補正<br>Step 2: 顔映りシミュレーション<br>Step 3: 具体的なコスメ選定</span></div>
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V2.7</span></h1>
-    <div class="subtitle">Stability Update: 色ブレ防止機能搭載</div>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V5.0</span></h1>
+    <div class="subtitle">Auto Detect & Full Features</div>
 
     <div id="setup-area">
         <div class="tip-box">
-            <strong>💡 プロ級精度を出すコツ</strong><br>
-            白い紙（コピー用紙など）を「あごの下」に持って撮影してください。
+            <strong>💡 自動検出 & 色基準</strong><br>
+            ・顔を自動で認識し、ズーム＆マーカー設置します。<br>
+            ・可能なら「500円玉」か「白い紙」を顔の横に！
         </div>
 
-        <div class="canvas-wrapper" onclick="triggerFileIfEmpty()">
+        <div id="auto-msg" class="auto-msg"></div>
+        <div id="brightness-warning" class="warning-box">
+            ⚠️ 写真が少し暗いようです！<br>明るい場所で撮ると精度が上がります。
+        </div>
+
+        <div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()">
             <canvas id="main-canvas"></canvas>
+            <div class="drape-label" id="drape-label">Virtual Drape Mode</div>
             <div class="placeholder" id="placeholder">
                 <div class="upload-icon">📷</div>
                 <div>ここをタップして写真を選択</div>
@@ -178,9 +236,9 @@
 
         <div id="picker-panel" class="picker-panel">
             <div class="contrast-guide">
-                <strong>🧐 何を分析しているの？</strong><br>
-                似合う色は「肌の明るさ」と「一番暗い部分（瞳や髪）」の<strong style="color:white; border-bottom:1px solid white;">コントラスト（明度差）</strong>で決まります。<br>
-                ※タップした周辺の色を平均して取得し、手ブレによる誤差を防いでいます。
+                <strong>🧐 自動設定完了</strong><br>
+                顔検出により、肌と瞳の位置を自動設定しました。<br>
+                位置がずれている場合はタップして修正してください。
             </div>
 
             <div style="font-size:0.9rem; margin-bottom:10px;">👇 画像をタップして色を指定してください</div>
@@ -212,8 +270,20 @@
             </div>
 
             <div class="fortune-card">
-                <span class="card-title">✨ Best Colors</span>
+                <span class="card-title" style="color:var(--primary)">✨ Best Colors</span>
+                <div class="drape-hint">👇 タップして「ドレープ」を試着！</div>
                 <div class="color-palette" id="best-colors"></div>
+            </div>
+            
+            <div class="fortune-card">
+                <span class="card-title" style="color:#ff6b6b;">🙅‍♀️ NG Colors (顔色がくすむ色)</span>
+                <div class="ng-colors-wrapper" id="ng-colors"></div>
+                <div id="ng-reason" style="font-size:0.8rem; margin-top:10px; color:#aaa;"></div>
+            </div>
+
+            <div class="fortune-card">
+                <span class="card-title" style="color:#ff9ff3;">💄 おすすめコスメ (具体例)</span>
+                <ul class="cosme-list" id="cosme-list"></ul>
             </div>
 
             <div id="result-details"></div>
@@ -243,6 +313,9 @@
     let eyeColor = null; 
     let canvas, ctx;
     let imgObj = new Image();
+    
+    // クロップ情報
+    let cropRect = null; 
 
     window.onload = function() {
         checkApiKey();
@@ -267,6 +340,12 @@
     function retakePhoto() {
         document.getElementById('file-input').value = "";
         document.getElementById('file-input').click();
+        // リセット
+        cropRect = null;
+        document.getElementById('canvas-wrapper').style.borderColor = "#444";
+        document.getElementById('drape-label').style.display = 'none';
+        document.getElementById('brightness-warning').style.display = 'none';
+        document.getElementById('auto-msg').style.display = 'none';
     }
 
     function handleFileSelect(input) {
@@ -274,12 +353,14 @@
             imgFile = input.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
-                imgObj.onload = function() {
-                    drawImageToCanvas();
+                imgObj.onload = async function() {
+                    // ★ V5.0 新機能: 顔検出 & オートクロップ試行
+                    await tryAutoDetectAndCrop();
+                    
+                    checkBrightness();
                     document.getElementById('placeholder').style.display = 'none';
                     document.getElementById('picker-panel').style.display = 'block';
                     document.getElementById('sub-controls').style.display = 'flex';
-                    resetPoints();
                 };
                 imgObj.src = e.target.result;
             };
@@ -287,14 +368,137 @@
         }
     }
 
+    // ★ V5.0: 顔検出ロジック (Chrome/Android標準API)
+    async function tryAutoDetectAndCrop() {
+        cropRect = null; // リセット
+        resetPoints();
+        const autoMsg = document.getElementById('auto-msg');
+
+        if ('FaceDetector' in window) {
+            try {
+                const faceDetector = new FaceDetector();
+                const faces = await faceDetector.detect(imgObj);
+
+                if (faces.length > 0) {
+                    // 顔が見つかった場合
+                    const face = faces[0].boundingBox;
+                    
+                    // 少し広めにクロップ (上下左右に20%余裕をもたせる)
+                    const paddingX = face.width * 0.3;
+                    const paddingY = face.height * 0.4; // 髪を入れるため上に広めに
+                    
+                    cropRect = {
+                        x: Math.max(0, face.x - paddingX),
+                        y: Math.max(0, face.y - paddingY),
+                        w: Math.min(imgObj.width, face.width + paddingX*2),
+                        h: Math.min(imgObj.height, face.height + paddingY*2)
+                    };
+                    
+                    // クロップ範囲の修正（はみ出し防止）
+                    if (cropRect.x + cropRect.w > imgObj.width) cropRect.w = imgObj.width - cropRect.x;
+                    if (cropRect.y + cropRect.h > imgObj.height) cropRect.h = imgObj.height - cropRect.y;
+
+                    // ★ マーカー自動設置 (推測)
+                    // 肌: 顔の下半分、中心より少し横
+                    const skinX = face.x + face.width * 0.7;
+                    const skinY = face.y + face.height * 0.6;
+                    
+                    // 瞳: 顔の上半分
+                    const eyeX = face.x + face.width * 0.3;
+                    const eyeY = face.y + face.height * 0.4;
+
+                    // 座標変換 (クロップ後座標系へ)
+                    // drawImageToCanvasで変換されるため、ここでは元画像の座標を保持し、
+                    // 描画時に変換するか、setPointで処理する。
+                    // シンプルにするため、setAutoPoint関数を作成。
+                    
+                    drawImageToCanvas(); // まず描画(クロップ適用)
+
+                    // キャンバス上の座標に変換してセット
+                    const scale = canvas.width / cropRect.w;
+                    const canvasSkinX = (skinX - cropRect.x) * scale;
+                    const canvasSkinY = (skinY - cropRect.y) * scale;
+                    const canvasEyeX = (eyeX - cropRect.x) * scale;
+                    const canvasEyeY = (eyeY - cropRect.y) * scale;
+
+                    autoSetPoint('skin', canvasSkinX, canvasSkinY);
+                    setTimeout(() => autoSetPoint('eye', canvasEyeX, canvasEyeY), 100);
+
+                    autoMsg.innerText = "✨ 顔を自動検出し、ズームしました！";
+                    autoMsg.style.display = 'block';
+                    return;
+
+                } else {
+                    autoMsg.innerText = "顔が検出されませんでした。手動で設定してください。";
+                    autoMsg.style.display = 'block';
+                }
+            } catch (e) {
+                console.warn("Face Detection failed:", e);
+            }
+        }
+        
+        // 失敗または非対応の場合: 全体表示
+        drawImageToCanvas();
+    }
+
     function drawImageToCanvas() {
         const containerW = document.querySelector('.canvas-wrapper').clientWidth;
-        const scale = containerW / imgObj.width;
-        const h = imgObj.height * scale;
-        canvas.width = containerW; canvas.height = h;
-        ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
+        
+        // クロップ領域がある場合はそこだけ描画
+        const sx = cropRect ? cropRect.x : 0;
+        const sy = cropRect ? cropRect.y : 0;
+        const sw = cropRect ? cropRect.w : imgObj.width;
+        const sh = cropRect ? cropRect.h : imgObj.height;
+
+        const scale = containerW / sw;
+        const h = sh * scale;
+        
+        canvas.width = containerW; 
+        canvas.height = h;
+        
+        ctx.drawImage(imgObj, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+        // マーカー再描画
         if (skinColor) drawMarker(skinColor.x, skinColor.y, '#FFD700', '肌');
         if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳/眉');
+    }
+
+    function autoSetPoint(type, x, y) {
+        // 色取得
+        const avg = getAverageColor(x, y, 3);
+        const hex = "#" + [avg.r, avg.g, avg.b].map(d => d.toString(16).padStart(2,'0')).join('');
+        const data = { x, y, hex };
+        
+        if (type === 'skin') {
+            skinColor = data;
+            document.getElementById('dot-skin').style.background = hex;
+            document.getElementById('btn-skin').classList.add('done');
+        } else {
+            eyeColor = data;
+            document.getElementById('dot-eye').style.background = hex;
+            document.getElementById('btn-eye').classList.add('done');
+        }
+        // 再描画
+        if (skinColor) drawMarker(skinColor.x, skinColor.y, '#FFD700', '肌');
+        if (eyeColor) drawMarker(eyeColor.x, eyeColor.y, '#00BFFF', '瞳/眉');
+        checkReady();
+    }
+
+    function checkBrightness() {
+        const w = canvas.width;
+        const h = canvas.height;
+        const imageData = ctx.getImageData(0, 0, w, h);
+        const data = imageData.data;
+        let totalBrightness = 0;
+        let count = 0;
+        for (let i = 0; i < data.length; i += 4 * 10) {
+            const r = data[i]; const g = data[i+1]; const b = data[i+2];
+            const avg = 0.299*r + 0.587*g + 0.114*b;
+            totalBrightness += avg; count++;
+        }
+        const brightness = totalBrightness / count;
+        const warning = document.getElementById('brightness-warning');
+        if (brightness < 50) warning.style.display = 'block'; else warning.style.display = 'none';
     }
 
     function setMode(mode) {
@@ -303,48 +507,36 @@
         document.getElementById('btn-eye').classList.toggle('active', mode === 'eye');
     }
 
-    // ★改良点1: 周辺ピクセルの平均色を取得する関数
     function getAverageColor(startX, startY, range) {
         let r=0, g=0, b=0, count=0;
-        const data = ctx.getImageData(startX - range, startY - range, range*2+1, range*2+1).data;
+        // 範囲外チェック
+        if (startX < 0 || startY < 0 || startX >= canvas.width || startY >= canvas.height) return {r:0, g:0, b:0};
+
+        const data = ctx.getImageData(
+            Math.max(0, startX - range), 
+            Math.max(0, startY - range), 
+            range*2+1, range*2+1
+        ).data;
         
         for (let i = 0; i < data.length; i += 4) {
-            r += data[i];
-            g += data[i+1];
-            b += data[i+2];
-            count++;
+            r += data[i]; g += data[i+1]; b += data[i+2]; count++;
         }
-        
-        return {
-            r: Math.round(r/count),
-            g: Math.round(g/count),
-            b: Math.round(b/count)
-        };
+        if(count===0) return {r:0, g:0, b:0};
+        return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
     }
 
     function handleCanvasClick(e) {
-        if (!imgFile) return;
+        if (!imgObj.src) return;
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // ★改良: 1ピクセルではなく、周辺3ピクセル(7x7エリア)の平均を取る
-        const avg = getAverageColor(x, y, 3);
-        const hex = "#" + [avg.r, avg.g, avg.b].map(d => d.toString(16).padStart(2,'0')).join('');
-        const data = { x, y, hex };
-
+        autoSetPoint(pickMode, x, y);
+        
+        // 次のモードへ
         if (pickMode === 'skin') {
-            skinColor = data;
-            document.getElementById('dot-skin').style.background = hex;
-            document.getElementById('btn-skin').classList.add('done');
             setTimeout(() => setMode('eye'), 300);
-        } else {
-            eyeColor = data;
-            document.getElementById('dot-eye').style.background = hex;
-            document.getElementById('btn-eye').classList.add('done');
         }
-        drawImageToCanvas();
-        checkReady();
     }
 
     function drawMarker(x, y, color, label) {
@@ -379,28 +571,40 @@
         あなたはプロのパーソナルカラーアナリストです。
         【入力データ】肌:${skinColor.hex}, 締め色(眉/瞳/髪):${eyeColor.hex}
         【指示】
-        1. 画像内の「白い紙」等を参考にホワイトバランスを脳内で補正。
-        2. 補正後の肌色と、締め色（眉や瞳）のコントラストを分析。
-           ※金髪やカラコンの場合は、本来の眉色や瞳孔の色を優先して判断。
-        3. 4シーズン(Spring/Summer/Autumn/Winter)を決定。
+        1. 画像内に「500円玉(金)」や「100円玉(銀)」や「白い紙」がある場合、それを色の基準(リファレンス)として認識し、照明による色被りを厳密に補正してください。
+        2. 補正後の肌色とコントラストから、4シーズン(Spring/Summer/Autumn/Winter)を決定。
+        3. 「似合う色」だけでなく「NGカラー（顔色が悪く見える色）」も選定。
+        4. 「おすすめコスメ」は、日本のドラッグストアやデパートで買える具体的な商品名(ブランド名 + 色番)を挙げてください（例: KATE リップモンスター 03, CANMAKE...など）。
         
         【出力JSON】
         {
-            "season": "診断結果 (例: Summer (ブルベ夏))",
+            "season": "診断結果 (例: Autumn (イエベ秋))",
             "description": "特徴(20文字以内)",
             "reasoning": ["理由1", "理由2", "理由3"],
-            "best_colors": [{"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}],
+            "best_colors": [
+                {"hex": "#xxxxxx", "name": "色名"}, 
+                {"hex": "#xxxxxx", "name": "色名"}, 
+                {"hex": "#xxxxxx", "name": "色名"}, 
+                {"hex": "#xxxxxx", "name": "色名"}
+            ],
+            "ng_colors": [
+                {"hex": "#xxxxxx", "name": "色名"},
+                {"hex": "#xxxxxx", "name": "色名"},
+                {"hex": "#xxxxxx", "name": "色名"}
+            ],
+            "ng_reason": "NGカラーを避けるべき理由を一言で",
+            "cosmetics": [
+                {"type": "リップ", "name": "ブランド名 商品名 色番"},
+                {"type": "チーク", "name": "ブランド名 商品名 色番"},
+                {"type": "アイシャドウ", "name": "ブランド名 商品名 色番"}
+            ],
             "advice_makeup": "メイク助言(50文字)",
             "advice_fashion": "服の助言(50文字)"
         }`;
 
-        const sendCanvas = document.createElement('canvas');
-        const maxSize = 800;
-        let w = imgObj.width, h = imgObj.height;
-        if (w > h) { if (w > maxSize) { h *= maxSize/w; w = maxSize; } } else { if (h > maxSize) { w *= maxSize/h; h = maxSize; } }
-        sendCanvas.width = w; sendCanvas.height = h;
-        sendCanvas.getContext('2d').drawImage(imgObj, 0, 0, w, h);
-        const base64 = sendCanvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/\w+;base64,/, "");
+        // AIに送る画像を作成（クロップされている場合はクロップ画像を、なければ全体を）
+        // 現在のcanvasの内容をそのまま送ればOK（drawImageToCanvasで既に調整済み）
+        const base64 = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/\w+;base64,/, "");
 
         try {
             const contents = [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }];
@@ -409,10 +613,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     contents: contents,
-                    // ★改良点2: 温度を0にして回答のランダム性を排除
-                    generationConfig: {
-                        temperature: 0
-                    }
+                    generationConfig: { temperature: 0 }
                 })
             });
 
@@ -428,13 +629,46 @@
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
             document.getElementById('result-desc').innerText = res.description;
-            document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `<div class="color-swatch" style="background:${c.hex}"></div>`).join('');
+            
+            document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `
+                <div class="swatch-container" onclick="applyDrape('${c.hex}')">
+                    <div class="color-swatch" style="background:${c.hex}"></div>
+                    <div class="color-name">${c.name}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('ng-colors').innerHTML = res.ng_colors.map(c => `
+                <div class="swatch-container">
+                    <div class="ng-swatch" style="background:${c.hex}"></div>
+                    <div class="color-name">${c.name}</div>
+                </div>
+            `).join('');
+            document.getElementById('ng-reason').innerText = `⚠️ ${res.ng_reason}`;
+
+            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => `
+                <li class="cosme-item">
+                    <span class="cosme-icon">${getCosmeIcon(c.type)}</span>
+                    <div>
+                        <div style="font-weight:bold; font-size:0.8rem; color:#ccc;">${c.type}</div>
+                        <div>${c.name}</div>
+                    </div>
+                </li>
+            `).join('');
             
             let detailsHtml = "";
             detailsHtml += `<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${res.reasoning.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
-            detailsHtml += `<div class="fortune-card"><span class="card-title">💄 メイク</span><p style="font-size:0.9rem; margin:0;">${res.advice_makeup}</p></div>`;
-            detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッション</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
+            detailsHtml += `<div class="fortune-card"><span class="card-title">💄 メイクアドバイス</span><p style="font-size:0.9rem; margin:0;">${res.advice_makeup}</p></div>`;
+            detailsHtml += `<div class="fortune-card"><span class="card-title">👗 ファッションアドバイス</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
             document.getElementById('result-details').innerHTML = detailsHtml;
+
+            // 結果画面に切り替え
+            // 画像表示をリセット（マーカー消去）
+            ctx.drawImage(imgObj, 
+                cropRect?cropRect.x:0, cropRect?cropRect.y:0, 
+                cropRect?cropRect.w:imgObj.width, cropRect?cropRect.h:imgObj.height, 
+                0, 0, canvas.width, canvas.height
+            );
+            document.getElementById('drape-label').style.display = 'block';
             document.getElementById('result-wrapper').style.display = 'block';
 
         } catch (e) {
@@ -444,6 +678,20 @@
         } finally {
             loading.style.display = 'none';
         }
+    }
+
+    function applyDrape(color) {
+        const wrapper = document.getElementById('canvas-wrapper');
+        wrapper.style.borderColor = color;
+        wrapper.style.transform = "scale(1.02)";
+        setTimeout(() => wrapper.style.transform = "scale(1)", 200);
+    }
+
+    function getCosmeIcon(type) {
+        if(type.includes("リップ")) return "💄";
+        if(type.includes("チーク")) return "😊";
+        if(type.includes("アイ") || type.includes("目")) return "👁️";
+        return "✨";
     }
 
     function getSeasonColor(seasonStr) {
@@ -463,7 +711,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v5_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
