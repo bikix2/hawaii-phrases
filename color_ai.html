@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 16タイプAIカラー診断 V29.0 (Final Fix)</title>
+    <title>🎨 16タイプAIカラー診断 V30.0 (Fixed & Layout)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -121,8 +121,15 @@
 
         /* 結果画面 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
-        .season-badge { display: inline-block; padding: 5px 20px; border-radius: 50px; font-size: 1.4rem; font-weight: bold; margin: 10px 0; background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 90%; white-space: nowrap; }
-        .season-sub { font-size: 0.9rem; color: #ccc; margin-bottom: 15px; letter-spacing: 1px; }
+        .season-badge { display: inline-block; padding: 5px 20px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; margin: 10px 0 5px 0; background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 80%; white-space: nowrap; }
+        .type-badge-large {
+            display: inline-block; padding: 15px 30px; border-radius: 50px;
+            font-size: 2.2rem; font-weight: 800; margin: 15px 0;
+            background: #fff; color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.5);
+            text-align: center; width: 95%; white-space: nowrap; line-height: 1.2;
+            font-family: "M PLUS Rounded 1c", sans-serif;
+        }
+        .season-sub { font-size: 1rem; color: #ccc; margin-bottom: 20px; letter-spacing: 1px; }
         
         .result-canvas-wrapper { margin-bottom: 25px; min-height: 200px; }
 
@@ -245,7 +252,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V29.0</span></h1>
+    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V30.0</span></h1>
     <div class="top-btns">
         <div class="gender-selector">
             <div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div>
@@ -389,7 +396,7 @@
     // --- Illustrations (Full Base64) ---
     const SVG_STYLISH_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4=";
     const SVG_STYLISH_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
-    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+";
+    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy48LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+";
     const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
 
     const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
@@ -398,9 +405,9 @@
     const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
 
     const SVG_BOY_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjOEI0NTEzIiBkPSJNNDAgNTBjMC0yMCAzMC0zMCA2MC0zMHM2MCAxMCA2MCAzMHY0MGMwIDIwLTMwIDMwLTYwIDMwcy02MC0xMC02MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
-    const SVG_BOY_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMzAgNTBjMC0yMCAzMC0zMCA3MC0zMHM3MCAxMCA3MCAzMHYzMGMwIDIwLTMwIDMwLTcwIDMwcy03MC0xMC03MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
-    const SVG_BOY_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNEIyNTExIiBkPSJNMzAgNjBzLTEwLTMwIDIwLTQuczUwLTEwIDUwIDEwczMwIDIwIDMwIDUwcMDIwLTQwIDMwLTcweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
-    const SVG_BOY_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNDBoMTQwdjcwYzAgMjAtNDAgMzAtNzAgMzBzLTcwLTEwLTcwLTMweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
+    const SVG_BOY_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMzAgNTBjMC0yMCAzMC0zMCA3MC0zMHM3MCAxMCA7MCAzMHYzMGMwIDIwLTMwIDMwLTcwIDMwcy03MC0xMC03MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
+    const SVG_BOY_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNEIyNTExIiBkPSJNMzAgNjBzLTEwLTMwIDIwLTQuczUwLTEwIDUwIDEwczMwIDIwIDMwIDUwcMDIwLTQwIDMwLTcweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik07NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
+    const SVG_BOY_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNDBoMTQwdjcwYzAgMjAtNDAgMzAtNzAgMzBzLTcwLTEwLTcwLTMweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik07NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
 
     window.onload = function() {
         checkApiKey();
@@ -635,6 +642,11 @@
         grad.addColorStop(0, '#1a0b2e'); grad.addColorStop(0.5, '#240046'); grad.addColorStop(1, '#0d001a');
         editorCtx.fillStyle = grad; editorCtx.fillRect(0,0,360,640);
 
+        editorCtx.font = 'bold 24px "Shippori Mincho", serif';
+        editorCtx.fillStyle = '#fff';
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText("AI PERSONAL COLOR", 180, 50);
+
         const photoY = 80; const photoH = 300; const photoW = 225; const photoX = (360 - photoW) / 2;
         editorCtx.save(); editorCtx.beginPath(); editorCtx.rect(photoX, photoY, photoW, photoH); editorCtx.clip();
         if (editorMode === 'photo') {
@@ -653,18 +665,20 @@
             else if(s.includes("Winter") || s.includes("冬")) img.src = SVG_STYLISH_WINTER;
             else img.src = SVG_STYLISH_SPRING;
 
-            if(img.complete) {
+            img.onload = () => {
                 editorCtx.globalAlpha = 0.8; editorCtx.drawImage(img, photoX + 40, photoY + 80, 145, 140); editorCtx.globalAlpha = 1.0;
-            } else { img.onload = () => renderEditor(); }
+            };
         }
         editorCtx.restore();
         editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 5; editorCtx.strokeRect(photoX, photoY, photoW, photoH);
-        editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.roundRect(180 - 110, 410, 220, 45, 22.5); editorCtx.fill();
-        editorCtx.font = 'bold 16px "Shippori Mincho", serif'; editorCtx.fillStyle = getSeasonColor(currentResultData.season); editorCtx.textAlign = 'center';
-        editorCtx.fillText(currentResultData.type || currentResultData.season, 180, 440);
-        const swatchSize = 45; const gap = 15; const totalW = (swatchSize * 4) + (gap * 3); let startX = (360 - totalW) / 2;
-        currentResultData.best_colors.forEach((c) => { editorCtx.beginPath(); editorCtx.arc(startX + swatchSize/2, 480 + swatchSize/2, swatchSize/2, 0, Math.PI*2); editorCtx.fillStyle = c.hex; editorCtx.fill(); editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke(); startX += swatchSize + gap; });
-        editorCtx.font = '10px sans-serif'; editorCtx.fillStyle = 'rgba(255,255,255,0.5)'; editorCtx.textAlign = 'right'; editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
+        
+        editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.roundRect(180 - 120, 410, 240, 50, 25); editorCtx.fill();
+        editorCtx.font = 'bold 22px "Shippori Mincho", serif'; editorCtx.fillStyle = getSeasonColor(currentResultData.season); editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.type.split(" ")[1] || currentResultData.season, 180, 443);
+
+        const swatchSize = 50; const gap = 15; const totalW = (swatchSize * 4) + (gap * 3); let startX = (360 - totalW) / 2;
+        currentResultData.best_colors.forEach((c) => { editorCtx.beginPath(); editorCtx.arc(startX + swatchSize/2, 490 + swatchSize/2, swatchSize/2, 0, Math.PI*2); editorCtx.fillStyle = c.hex; editorCtx.fill(); editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke(); startX += swatchSize + gap; });
+        editorCtx.font = '12px sans-serif'; editorCtx.fillStyle = 'rgba(255,255,255,0.5)'; editorCtx.textAlign = 'right'; editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
     }
 
     function renderCuteTheme() {
@@ -676,7 +690,14 @@
         if(s.includes("Winter") || s.includes("冬")) mainColor = '#E1BEE7';
 
         editorCtx.fillStyle = mainColor; editorCtx.fillRect(0,0,360,640);
-        editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.moveTo(0, 380); editorCtx.quadraticCurveTo(180, 420, 360, 380); editorCtx.lineTo(360, 640); editorCtx.lineTo(0, 640); editorCtx.fill();
+        
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.moveTo(0, 400);
+        editorCtx.quadraticCurveTo(180, 450, 360, 400);
+        editorCtx.lineTo(360, 640);
+        editorCtx.lineTo(0, 640);
+        editorCtx.fill();
 
         if (editorMode === 'illust') {
             let svg;
@@ -692,14 +713,20 @@
                 else if(s.includes("Winter") || s.includes("冬")) svg = SVG_GIRL_WINTER;
             }
             
-            const img = new Image(); img.src = svg;
-            if(img.complete) { editorCtx.drawImage(img, (360-240)/2, 60, 240, 300); } else { img.onload = () => renderEditor(); }
-        } else { drawPhotoFrame(60, 200, 260, '#fff', 5, true); }
+            const img = new Image(); 
+            img.onload = () => {
+                editorCtx.drawImage(img, (360-280)/2, 80, 280, 350);
+            };
+            img.src = svg;
+        } else {
+            drawPhotoFrame(80, 240, 300, '#fff', 5, true);
+        }
 
-        editorCtx.font = 'bold 24px "M PLUS Rounded 1c", sans-serif'; editorCtx.fillStyle = '#333'; editorCtx.textAlign = 'center';
-        editorCtx.fillText(currentResultData.type || currentResultData.season, 180, 460);
-        const swatchSize = 40; const gap = 10; let startX = (360 - (swatchSize*2 + gap)) / 2; let startY = 520;
-        currentResultData.best_colors.forEach((c, i) => { if(i >= 4) return; const row = Math.floor(i / 2); const col = i % 2; const x = startX + col * (swatchSize + gap); const y = startY + row * (swatchSize + gap); editorCtx.beginPath(); editorCtx.roundRect(x, y, swatchSize, swatchSize, 8); editorCtx.fillStyle = c.hex; editorCtx.fill(); });
+        editorCtx.font = 'bold 28px "M PLUS Rounded 1c", sans-serif'; editorCtx.fillStyle = '#333'; editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.type, 180, 480);
+        
+        const swatchSize = 45; const gap = 10; let startX = (360 - (swatchSize*2 + gap)) / 2; let startY = 510;
+        currentResultData.best_colors.forEach((c, i) => { if(i >= 4) return; const row = Math.floor(i / 2); const col = i % 2; const x = startX + col * (swatchSize + gap); const y = startY + row * (swatchSize + gap); editorCtx.beginPath(); editorCtx.roundRect(x, y, swatchSize, swatchSize, 10); editorCtx.fillStyle = c.hex; editorCtx.fill(); });
     }
 
     // --- Main Logic ---
@@ -802,9 +829,9 @@
 
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
-            // 16 Type Emphasis
+            // 16 Type Emphasis (Large Badge)
             document.getElementById('result-desc').innerHTML = `
-                <div class="type-badge" style="color:${getSeasonColor(res.season)}">${res.type}</div>
+                <div class="type-badge-large" style="color:${getSeasonColor(res.season)}">${res.type}</div>
                 <div style="margin-top:5px;">${res.description}</div>
             `;
             
