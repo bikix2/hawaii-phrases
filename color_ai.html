@@ -3,105 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 16タイプAIカラー診断 V37.0 (Unminified & Fixed)</title>
+    <title>🎨 16タイプAIカラー診断 V38.0 (Final Corrected)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        :root {
-            --primary: #E0AAFF;
-            --accent: #FFD700;
-            --bg: #1a1a1a; 
-            --panel-bg: #2c2c2c;
-            --text: #ffffff;
-            --chat-user: #00b894;
-            --chat-ai: #444;
-        }
-        
-        body {
-            font-family: 'Shippori Mincho', serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-            margin: 0; padding: 20px;
-            color: var(--text); min-height: 100vh;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
+        /* V27のスタイルを維持 */
+        :root { --primary: #E0AAFF; --accent: #FFD700; --bg: #1a1a1a; --panel-bg: #2c2c2c; --text: #ffffff; --chat-user: #00b894; --chat-ai: #444; }
+        body { font-family: 'Shippori Mincho', serif; background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%); margin: 0; padding: 20px; color: var(--text); min-height: 100vh; user-select: none; -webkit-user-select: none; }
         .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
-
-        h1 {
-            color: var(--primary); font-size: 1.6rem; margin: 10px 0 10px 0;
-            text-shadow: 0 0 15px rgba(224, 170, 255, 0.4);
-            display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap;
-        }
-        
-        .version-tag {
-            font-size: 0.8rem; color: #1a1a1a; background: var(--accent);
-            padding: 2px 8px; border-radius: 4px; font-weight: bold;
-        }
-
+        h1 { color: var(--primary); font-size: 1.6rem; margin: 10px 0 10px 0; text-shadow: 0 0 15px rgba(224, 170, 255, 0.4); display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .version-tag { font-size: 0.8rem; color: #1a1a1a; background: var(--accent); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .top-btns { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-sm { 
-            background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; 
-            padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.85rem; 
-        }
-
-        /* 性別選択 */
+        .btn-sm { background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.85rem; }
         .gender-selector { display: flex; gap: 10px; justify-content: center; flex: 1; margin-right: 10px;}
-        .gender-btn {
-            flex: 1; padding: 10px; border: 1px solid #666; background: rgba(255,255,255,0.05);
-            color: #888; border-radius: 10px; cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold;
-            max-width: 120px;
-        }
+        .gender-btn { flex: 1; padding: 10px; border: 1px solid #666; background: rgba(255,255,255,0.05); color: #888; border-radius: 10px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; max-width: 120px; }
         .gender-btn.active.female { background: #ffc2d1; color: #c2185b; border-color: #ffc2d1; box-shadow: 0 0 10px rgba(255,194,209,0.3); }
         .gender-btn.active.male { background: #90caf9; color: #0d47a1; border-color: #90caf9; box-shadow: 0 0 10px rgba(144,202,249,0.3); }
-
-        /* ガイド表示 */
-        .guide-steps {
-            display: flex; gap: 10px; margin-bottom: 20px; text-align: left;
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .guide-steps { display: flex; gap: 10px; margin-bottom: 20px; text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .step-icon { font-size: 1.5rem; margin-right: 10px; }
         .step-content h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1rem; }
         .step-content p { margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.4; }
-
-        .warning-box {
-            background: rgba(255, 82, 82, 0.15); border: 1px solid #ff5252; color: #ff8a80;
-            padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;
-            display: none; position: relative; text-align: left;
-        }
+        .warning-box { background: rgba(255, 82, 82, 0.15); border: 1px solid #ff5252; color: #ff8a80; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; position: relative; text-align: left; }
         .warning-close { position: absolute; top: 5px; right: 10px; cursor: pointer; font-size: 1.2rem; opacity: 0.7; }
-        .auto-msg {
-            background: rgba(105, 240, 174, 0.15); border: 1px solid #69F0AE; color: #69F0AE;
-            padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; text-align: left;
-        }
-
-        /* 画像エリア */
-        .canvas-wrapper {
-            position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto;
-            border: 2px dashed #666; border-radius: 10px; 
-            transition: all 0.3s ease;
-            overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            min-height: 250px; display: flex; align-items: center; justify-content: center;
-        }
+        .auto-msg { background: rgba(105, 240, 174, 0.15); border: 1px solid #69F0AE; color: #69F0AE; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; text-align: left; }
+        .canvas-wrapper { position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto; border: 2px dashed #666; border-radius: 10px; transition: all 0.3s ease; overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.3); min-height: 250px; display: flex; align-items: center; justify-content: center; }
         .canvas-wrapper.has-image { border: 15px solid #444; border-radius: 5px; border-style: solid; display: block; }
-        
-        .drape-label {
-            position: absolute; bottom: 0; left: 0; width: 100%; 
-            background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0;
-            display: none; pointer-events: none;
-        }
+        .drape-label { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0; display: none; pointer-events: none; }
         canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
-        
-        .placeholder {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: none; z-index: 10; cursor: pointer;
-        }
+        .placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; z-index: 10; cursor: pointer; }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
-
-        /* ピッカー */
         .picker-panel { background: var(--panel-bg); padding: 15px; border-radius: 15px; margin-top: 15px; display: none; border: 1px solid #444; }
         .contrast-guide { font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
         .picker-steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
@@ -110,19 +40,11 @@
         .pick-btn.done { border-color: var(--accent); color: var(--accent); }
         .pick-btn.done::after { content: '✔'; margin-left: 5px; }
         .color-preview-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid #fff; margin-right: 5px; background: transparent; }
-
-        .btn-main {
-            background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px;
-            font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(224, 170, 255, 0.4); width: 100%; margin-top: 20px;
-            opacity: 0.5; pointer-events: none; transition: all 0.3s;
-        }
+        .btn-main { background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(224, 170, 255, 0.4); width: 100%; margin-top: 20px; opacity: 0.5; pointer-events: none; transition: all 0.3s; }
         .btn-main.ready { opacity: 1; pointer-events: auto; }
-
-        /* 結果画面 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         
-        /* 16タイプ強調バッジ (大) */
+        /* 16タイプ強調バッジ */
         .type-badge-large {
             display: inline-block; padding: 15px 30px; border-radius: 50px;
             font-size: 2.2rem; font-weight: 800; margin: 15px 0;
@@ -130,29 +52,24 @@
             text-align: center; width: 95%; white-space: nowrap; line-height: 1.2;
             font-family: "M PLUS Rounded 1c", sans-serif;
         }
-        
-        .result-canvas-wrapper { margin-bottom: 25px; min-height: 200px; }
 
+        .result-canvas-wrapper { margin-bottom: 25px; min-height: 200px; }
         .fortune-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .card-title { font-weight: bold; display: block; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        
         .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
         .swatch-container { display: flex; flex-direction: column; align-items: center; width: 64px; cursor: pointer; transition: transform 0.1s; }
         .swatch-container:active { transform: scale(0.95); }
         .color-swatch { width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); margin-bottom: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
-
         .drape-hint { text-align: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
         .ng-colors-wrapper { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .ng-swatch { width: 40px; height: 40px; border-radius: 4px; border: 2px solid #555; position: relative; opacity: 0.8; }
         .ng-swatch::after { content: '×'; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); color: rgba(0,0,0,0.5); font-weight: bold; font-size: 1.2rem; }
-
         .cosme-list { list-style: none; padding: 0; margin: 0; }
         .cosme-item { background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
         .cosme-icon { font-size: 1.2rem; }
         .search-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; margin-left: auto; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
         
-        /* チャット */
         .chat-section { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
         .chat-box { max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
         .chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; max-width: 85%; }
@@ -161,14 +78,11 @@
         .chat-input-area { display: flex; gap: 10px; }
         .chat-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #666; background: #222; color: #fff; }
         .chat-send { background: var(--primary); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; color: #000; }
-
         .save-area { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
         .btn-save { background: #00b894; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
         .btn-share { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
-
         .sub-controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
         .btn-sub-action { background: transparent; border: 1px solid #666; color: #ccc; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        
         .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
         .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; max-height: 80vh; overflow-y: auto; }
         .input-key { width: 90%; padding: 12px; margin: 20px 0; background: #1a1a1a; color: white; border: 1px solid var(--primary); border-radius: 5px; }
@@ -252,7 +166,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V37.0</span></h1>
+    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V33.0</span></h1>
     <div class="top-btns">
         <div class="gender-selector">
             <div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div>
@@ -347,7 +261,7 @@
             <div id="result-details"></div>
             
             <div style="text-align:center; margin-top:15px; font-size:0.8rem; color:#666;">
-                Generated by Gemini 1.5 Flash
+                Generated by Gemini 2.5 Flash
             </div>
         </div>
 
@@ -372,7 +286,7 @@
 
 <script>
     let API_KEY = "";
-    const GEMINI_MODEL = "gemini-1.5-flash"; 
+    const GEMINI_MODEL = "gemini-2.5-flash"; 
 
     let imgFile = null;
     let pickMode = 'skin';
@@ -398,7 +312,7 @@
     const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
 
     const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
-    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0i2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
+    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0i2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
     const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
     const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
 
@@ -436,6 +350,7 @@
         selectedGender = gender;
         document.getElementById('g-female').classList.toggle('active', gender === 'female');
         document.getElementById('g-male').classList.toggle('active', gender === 'male');
+        
         document.getElementById('advice-title').innerText = (gender === 'female') ? "💄 おすすめアイテム" : "👔 おすすめスタイル";
     }
 
@@ -636,22 +551,22 @@
     }
 
     function renderStylishTheme() {
+        // Central Icon Style (V21/15)
         const grad = editorCtx.createLinearGradient(0,0,360,640);
         grad.addColorStop(0, '#1a0b2e'); grad.addColorStop(0.5, '#240046'); grad.addColorStop(1, '#0d001a');
         editorCtx.fillStyle = grad; editorCtx.fillRect(0,0,360,640);
 
         const photoY = 80; const photoH = 300; const photoW = 225; const photoX = (360 - photoW) / 2;
-        editorCtx.save(); editorCtx.beginPath(); editorCtx.rect(photoX, photoY, photoW, photoH); editorCtx.clip();
+        editorCtx.save(); editorCtx.beginPath(); editorCtx.rect(px, py, pw, ph); editorCtx.clip();
 
         if (editorMode === 'photo') {
             const sx = cropRect ? cropRect.x : 0; const sy = cropRect ? cropRect.y : 0; const sw = cropRect ? cropRect.w : imgObj.width; const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(photoW / sw, photoH / sh); const renderW = sw * scale; const renderH = sh * scale;
-            const dx = photoX + (photoW - renderW) / 2; const dy = photoY + (photoH - renderH) / 2;
-            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
+            const scale = Math.max(pw/sw, ph/sh);
+            editorCtx.drawImage(imgObj, sx, sy, sw, sh, px+(pw-sw*scale)/2, py+(ph-sh*scale)/2, sw*scale, sh*scale);
         } else {
             const s = currentResultData.season;
             editorCtx.fillStyle = getSeasonColor(s) + "44"; 
-            editorCtx.fillRect(photoX, photoY, photoW, photoH);
+            editorCtx.fillRect(px, py, pw, ph);
             
             const img = new Image();
             if(s.includes("Summer") || s.includes("夏")) img.src = SVG_STYLISH_SUMMER;
@@ -659,41 +574,46 @@
             else if(s.includes("Winter") || s.includes("冬")) img.src = SVG_STYLISH_WINTER;
             else img.src = SVG_STYLISH_SPRING;
 
-            img.onload = () => {
-                editorCtx.globalAlpha = 0.8; editorCtx.drawImage(img, photoX + 40, photoY + 80, 145, 140); editorCtx.globalAlpha = 1.0;
-                editorStamps.forEach(s => drawStamp(editorCtx, s));
-            };
-            if(img.complete) img.onload();
+            if(img.complete) {
+                editorCtx.globalAlpha = 0.8; editorCtx.drawImage(img, px + 40, py + 80, 145, 140); editorCtx.globalAlpha = 1.0;
+            } else { img.onload = () => renderEditor(); }
         }
         editorCtx.restore();
 
-        editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 5; editorCtx.strokeRect(photoX, photoY, photoW, photoH);
+        editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 5; editorCtx.strokeRect(px, py, pw, ph);
         
+        // Badge
         editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.roundRect(180 - 120, 410, 240, 50, 25); editorCtx.fill();
         editorCtx.font = 'bold 22px "Shippori Mincho", serif'; editorCtx.fillStyle = getSeasonColor(currentResultData.season); editorCtx.textAlign = 'center';
-        editorCtx.fillText(currentResultData.type.split(" ")[1] || currentResultData.season, 180, 443);
+        
+        const typeName = currentResultData.type.split(" ")[1] || currentResultData.season;
+        editorCtx.fillText(typeName, 180, 443);
 
-        const swatchSize = 45; const gap = 15; const totalW = (swatchSize * 4) + (gap * 3); let startX = (360 - totalW) / 2;
+        // Palette
+        const sz = 45, gp = 15, tw = (sz*4)+(gp*3);
+        let sx = (360 - tw) / 2;
         currentResultData.best_colors.forEach((c) => {
-            editorCtx.beginPath(); editorCtx.arc(startX + swatchSize/2, 490 + swatchSize/2, swatchSize/2, 0, Math.PI*2);
-            editorCtx.fillStyle = c.hex; editorCtx.fill(); editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke();
-            startX += swatchSize + gap;
+            editorCtx.beginPath(); editorCtx.arc(sx+sz/2, 490+sz/2, sz/2, 0, Math.PI*2);
+            editorCtx.fillStyle = c.hex; editorCtx.fill();
+            editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke();
+            sx += sz + gp;
         });
+
         editorCtx.font = '10px sans-serif'; editorCtx.fillStyle = 'rgba(255,255,255,0.5)'; editorCtx.textAlign = 'right'; editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
     }
 
     function renderCuteTheme() {
+        // Rom&nd Style
         const s = currentResultData.season;
-        let mainColor = '#FDE2E4'; 
-        if(s.includes("Spring") || s.includes("春")) mainColor = '#FDE2E4';
-        if(s.includes("Summer") || s.includes("夏")) mainColor = '#E0F7FA';
-        if(s.includes("Autumn") || s.includes("秋")) mainColor = '#FAEBD7';
-        if(s.includes("Winter") || s.includes("冬")) mainColor = '#E1BEE7';
+        let bg = '#FDE2E4'; // Spring
+        if(s.includes("Summer") || s.includes("夏")) bg = '#E0F7FA';
+        if(s.includes("Autumn") || s.includes("秋")) bg = '#FAEBD7';
+        if(s.includes("Winter") || s.includes("冬")) bg = '#E1BEE7';
 
-        editorCtx.fillStyle = mainColor; editorCtx.fillRect(0,0,360,640);
+        editorCtx.fillStyle = bg; editorCtx.fillRect(0,0,360,640);
         
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
+        // Bottom White Area with Curve
+        editorCtx.fillStyle = '#fff'; editorCtx.beginPath();
         editorCtx.moveTo(0, 350);
         editorCtx.quadraticCurveTo(180, 380, 360, 350); // Gentle curve
         editorCtx.lineTo(360, 640); editorCtx.lineTo(0, 640); editorCtx.fill();
@@ -728,6 +648,7 @@
     }
     
     function drawCuteContent() {
+        // Text Group
         editorCtx.textAlign = 'center';
         
         // English Type (Small, Top)
@@ -997,6 +918,8 @@
         document.getElementById('setup-area').style.display = 'none';
 
         const adviceTarget = (selectedGender === 'male') ? "男性向けのカジュアルファッション(Tops)、髪色(Hair)、小物(Accessories)" : "おすすめコスメ（リップ、チーク、アイシャドウ）";
+        
+        // Logic Improvement: Send HSV to AI
         const sHSV = hexToHsv(skinColor.hex);
         const eHSV = hexToHsv(eyeColor.hex);
 
@@ -1007,10 +930,9 @@
         瞳/髪: ${eyeColor.hex} (Hue:${eHSV.h}, Saturation:${eHSV.s}%, Value:${eHSV.v}%)
         
         【16タイプ分類ロジック】
-        - Spring (Warm/Light/Bright): Light, Bright, Vivid, Warm
-        - Summer (Cool/Light/Soft): Light, Bright, Muted, Cool
-        - Autumn (Warm/Deep/Soft): Strong, Deep, Muted, Warm
-        - Winter (Cool/Deep/Clear): Clear, Vivid, Deep, Cool
+        - Hue (色相): 黄み寄りならWarm (Spring/Autumn)、青み寄りならCool (Summer/Winter)
+        - Saturation (彩度): 低いならMuted/Summer/Autumn、高いならVivid/Spring/Winter
+        - Value (明度): 高いならLight/Spring/Summer、低いならDeep/Autumn/Winter
         
         【指示】
         1. 上記HSVデータを分析し、4シーズン(Spring/Summer/Autumn/Winter)と、さらに細かい「16タイプ(例: Vivid Spring, Muted Autumn)」を決定してください。
@@ -1049,12 +971,8 @@
 
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
-            
-            // ★修正: 16タイプ結果の表示 (IDエラー修正)
-            document.getElementById('result-desc').innerHTML = `
-                <div class="type-badge-large" style="color:${getSeasonColor(res.season)}">${res.type}</div>
-                <div style="margin-top:5px;">${res.description}</div>
-            `;
+            // 16タイプを強調表示
+            document.getElementById('result-desc').innerHTML = `<div class="type-badge-large" style="color:${getSeasonColor(res.season)}">${res.type}</div><div style="margin-top:5px;">${res.description}</div>`;
             
             document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `
                 <div class="swatch-container" onclick="applyDrape('${c.hex}')">
@@ -1139,7 +1057,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v36_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v33_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
