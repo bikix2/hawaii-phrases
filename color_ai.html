@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V17.0 (Custom Theme)</title>
+    <title>🎨 AIカラー診断 V18.0 (Girls Edition)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -155,13 +155,12 @@
         @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
 
-        /* === エディタ(調整済) === */
+        /* === エディタ === */
         #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; justify-content: flex-start; padding-top: 20px; }
-        /* 画面全体が見えるように高さを制限 */
         #editor-canvas-box { 
             position: relative; width: 90%; max-width: 360px; aspect-ratio: 9/16; margin: 0 auto; 
             border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            max-height: 60vh; /* 画面に収める */
+            max-height: 60vh;
         }
         #editor-canvas { width: 100%; height: 100%; object-fit: contain; }
         .editor-tools { 
@@ -230,7 +229,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V17.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V18.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -358,12 +357,23 @@
     let cropRect = null; 
     let currentResultData = null; 
 
+    // Editor Variables
     let editorCanvas, editorCtx;
     let editorMode = 'photo';
     let editorTheme = 'stylish';
     let editorStamps = [];
     let selectedStampIndex = -1;
     let isDragging = false;
+
+    // --- Girl Illustrations (SVG Base64) ---
+    // Spring (Bob, energetic)
+    const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNMTAwIDMwYzMwIDAgNjAgMjAgNjAgNjB2NDBjMCAzMC0zMCA1MC02MCA1MFM0MCAxNjAgNDAgMTMwVjkwYzAtNDAgMzAtNjAgNjAtNjB6IiBmaWxsPSIjRkZFMkU0Ii8+PHBhdGggZD0iTTEwMCAyMGMzNSAwIDcwIDIwIDcwIDcwaC0xNDBjMCA1MCAzNS03MCA3MC03MHoiIGZpbGw9IiNENjU4MjgiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
+    // Summer (Updo, soft)
+    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM2QTRGNEIiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjNDAgMCA3MCAzMCA3MCA4MGMwIDIwLTEwIDQwLTIwIDUwaC0xMDBjLTEwLTEwLTIwLTMwLTIwLTUwYzAtNTAgMzAtODAgNzAtODB6IiBmaWxsPSIjNkE0RjRCIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjxwYXRoIGQ9Ik0xMDAgNDVjMzAgMCA2MCAyNSA2MCA2MGgtMTIwYzAgLTM1IDMwLTYwIDYwLTYweiIgZmlsbD0iIzZBNEY0QiIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
+    // Autumn (Wavy long, mature)
+    const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNNDAgODBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiIGZpbGw9IiM1RDQwMzciLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjNDAgMCA2MCA0MCA2MCA4MHMtMjAgODAtNjAgODBTMzAgMTY1IDQwIDEyNXMyMC04MCA2MC04MHoiIGZpbGw9IiM1RDQwMzciIGZpbGwtb3BhY2l0eT0iMC4yIi8+PHBhdGggZD0iTTEwMCA0NWMzNSAwIDYwIDMwIDYwIDcwaC0xMjBjMCAtNDAgMjUtNzAgNjAtNzB6IiBmaWxsPSIjNUQ0MDM3Ii8+PHBhdGggZD0iTTcwIDExMGE1IDUgMCAwIDEgMTAgMGE1IDUgMCAwIDEtMTAgMHptNTAgMGE1IDUgMCAwIDEgMTAgMGE1IDUgMCAwIDEtMTAgMHptLTI1IDIwYzAgNSAxMCA1IDEwIDAiIHN0cm9rZT0iIzMzMyIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==";
+    // Winter (Straight/Hime cut, cool)
+    const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNMzAgODBoMTQwdi0yMGMwLTQwLTQwLTYwLTcwLTYwcy03MCAyMC03MCA2MHoiIGZpbGw9IiMyMTIxMjEiLz48cGF0aCBkPSJNNDAgODBoMjB2MTAwaC0yMHptMTAwIDBoMjB2MTAwaC0yMHoiIGZpbGw9IiMyMTIxMjEiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjMzUgMCA2MCAyNSA2MCA2MGgtMTIwYzAgLTM1IDI1LTYwIDYwLTYweiIgZmlsbD0iIzIxMjEyMSIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
 
     window.onload = function() {
         checkApiKey();
@@ -390,6 +400,7 @@
         if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
     }
 
+    // --- Editor Logic ---
     function openEditor() {
         if(!currentResultData) return;
         document.getElementById('editor-modal').classList.remove('hidden');
@@ -418,7 +429,6 @@
     function addStamp(type) {
         const centerX = editorCanvas.width / 2;
         const centerY = editorCanvas.height / 2;
-        
         let w = 100; let h = 100;
         if(type === 'glasses') { w = 150; h = 60; }
         if(type === 'mask') { w = 120; h = 80; }
@@ -489,7 +499,6 @@
             const s = editorStamps[i];
             const sizeW = s.width * s.scale;
             const sizeH = s.height * s.scale;
-            
             if (s.type === 'text') {
                 editorCtx.font = `bold ${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
@@ -502,7 +511,6 @@
                 }
             }
         }
-
         if(selectedStampIndex !== -1) {
             isDragging = true;
             document.getElementById('stamp-size').value = editorStamps[selectedStampIndex].scale;
@@ -522,211 +530,10 @@
 
     function handleDragEnd(e) { isDragging = false; }
 
-    // --- Render Functions ---
-    function renderEditor() {
-        if (editorTheme === 'stylish') renderStylishTheme();
-        else renderCuteTheme();
-        editorStamps.forEach(s => drawStamp(editorCtx, s));
-    }
-
-    // 1. Stylish Theme (Refined)
-    function renderStylishTheme() {
-        // Dark Gradient
-        const grad = editorCtx.createLinearGradient(0,0,360,640);
-        grad.addColorStop(0, '#1a0b2e');
-        grad.addColorStop(0.5, '#240046');
-        grad.addColorStop(1, '#0d001a');
-        editorCtx.fillStyle = grad;
-        editorCtx.fillRect(0,0,360,640);
-
-        // Photo Frame
-        drawPhotoFrame(80, 225, 300, '#fff', 5, false);
-
-        // Badge
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
-        editorCtx.roundRect(180 - 100, 410, 200, 45, 22.5);
-        editorCtx.fill();
-        
-        editorCtx.font = 'bold 18px "Shippori Mincho", serif';
-        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText(currentResultData.season, 180, 440);
-
-        // Palette
-        drawColorPalette(480, 45, 15, true, false);
-
-        // Tiny Title & Footer
-        editorCtx.font = '10px sans-serif';
-        editorCtx.fillStyle = 'rgba(255,255,255,0.5)';
-        editorCtx.textAlign = 'right';
-        editorCtx.fillText("AI PERSONAL COLOR", 350, 20);
-        
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText("#AIカラー診断", 180, 625);
-    }
-
-    // 2. Cute Theme (Rom&nd Style Replica)
-    function renderCuteTheme() {
-        // Season Colors for BG
-        const s = currentResultData.season;
-        let mainColor = '#ffcdc2'; // spring
-        let subColor = '#fff';
-        let hairColor = '#8B4513';
-        
-        if(s.includes("Spring") || s.includes("春")) { mainColor = '#FDE2E4'; subColor='#FFF0F5'; hairColor='#D2691E'; }
-        if(s.includes("Summer") || s.includes("夏")) { mainColor = '#E0F7FA'; subColor='#E6E6FA'; hairColor='#808080'; }
-        if(s.includes("Autumn") || s.includes("秋")) { mainColor = '#FAEBD7'; subColor='#F5DEB3'; hairColor='#5D4037'; }
-        if(s.includes("Winter") || s.includes("冬")) { mainColor = '#E1BEE7'; subColor='#F3E5F5'; hairColor='#212121'; }
-
-        // Background with curve
-        editorCtx.fillStyle = mainColor;
-        editorCtx.fillRect(0,0,360,640);
-        
-        // Curved white bottom area
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
-        editorCtx.moveTo(0, 400);
-        editorCtx.quadraticCurveTo(180, 450, 360, 400);
-        editorCtx.lineTo(360, 640);
-        editorCtx.lineTo(0, 640);
-        editorCtx.fill();
-
-        // Illustration Area
-        if (editorMode === 'illust') {
-            // Draw Cute Girl SVG-like paths
-            editorCtx.save();
-            editorCtx.translate(180, 220); // center of face
-            
-            // Back Hair
-            editorCtx.fillStyle = hairColor;
-            editorCtx.beginPath();
-            editorCtx.arc(0, 0, 90, 0, Math.PI*2); // simplify
-            editorCtx.fill();
-
-            // Face
-            editorCtx.fillStyle = '#FFE0BD';
-            editorCtx.beginPath();
-            editorCtx.arc(0, 10, 60, 0, Math.PI*2);
-            editorCtx.fill();
-
-            // Bangs
-            editorCtx.fillStyle = hairColor;
-            editorCtx.beginPath();
-            editorCtx.arc(0, -10, 62, 3.2, 6.2); // top half
-            editorCtx.fill();
-
-            // Eyes (Happy)
-            editorCtx.strokeStyle = '#333';
-            editorCtx.lineWidth = 3;
-            editorCtx.beginPath();
-            editorCtx.arc(-25, 10, 8, 3.2, 6.2); // left closed
-            editorCtx.stroke();
-            editorCtx.beginPath();
-            editorCtx.arc(25, 10, 8, 3.2, 6.2); // right closed
-            editorCtx.stroke();
-
-            // Mouth (Smile)
-            editorCtx.fillStyle = '#ff6b6b';
-            editorCtx.beginPath();
-            editorCtx.arc(0, 30, 15, 0, Math.PI);
-            editorCtx.fill();
-            
-            editorCtx.restore();
-        } else {
-            // Photo Mode (Polaroid Style inside)
-            drawPhotoFrame(60, 200, 260, '#fff', 5, true);
-        }
-
-        // Season Text
-        editorCtx.font = 'bold 28px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#333';
-        editorCtx.textAlign = 'center';
-        
-        const seasonName = currentResultData.season.includes("(") 
-            ? currentResultData.season.split("(")[1].replace(")","") 
-            : currentResultData.season;
-        
-        editorCtx.fillText(seasonName, 180, 480);
-        
-        editorCtx.font = 'bold 16px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#888';
-        editorCtx.fillText(currentResultData.season.split("(")[0], 180, 505);
-
-        // Color Grid (Bottom)
-        drawColorPalette(530, 40, 10, false, true);
-    }
-
-    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
-        const x = (360 - w) / 2;
-        if (isPolaroid) {
-            editorCtx.fillStyle = '#fff';
-            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
-            editorCtx.shadowBlur = 10;
-            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 40);
-            editorCtx.shadowBlur = 0;
-        }
-        editorCtx.save();
-        editorCtx.beginPath();
-        editorCtx.rect(x, y, w, h);
-        editorCtx.clip();
-
-        if (editorMode === 'photo') {
-            const sx = cropRect ? cropRect.x : 0;
-            const sy = cropRect ? cropRect.y : 0;
-            const sw = cropRect ? cropRect.w : imgObj.width;
-            const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(w / sw, h / sh);
-            const renderW = sw * scale;
-            const renderH = sh * scale;
-            const dx = x + (w - renderW) / 2;
-            const dy = y + (h - renderH) / 2;
-            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
-        } 
-        editorCtx.restore();
-    }
-
-    function drawColorPalette(startY, swatchSize, gap, hasBorder, isGrid) {
-        if(isGrid) {
-            // 2x2 grid for cute mode
-            let startX = (360 - (swatchSize*2 + gap)) / 2;
-            currentResultData.best_colors.forEach((c, i) => {
-                if(i >= 4) return;
-                const row = Math.floor(i / 2);
-                const col = i % 2;
-                const x = startX + col * (swatchSize + gap);
-                const y = startY + row * (swatchSize + gap);
-                
-                // Rounded Square
-                editorCtx.beginPath();
-                editorCtx.roundRect(x, y, swatchSize, swatchSize, 8);
-                editorCtx.fillStyle = c.hex;
-                editorCtx.fill();
-            });
-        } else {
-            // Line
-            const totalW = (swatchSize * 4) + (gap * 3);
-            let startX = (360 - totalW) / 2;
-            currentResultData.best_colors.forEach((c) => {
-                editorCtx.beginPath();
-                editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2, 0, Math.PI*2);
-                editorCtx.fillStyle = c.hex;
-                editorCtx.fill();
-                if (hasBorder) {
-                    editorCtx.strokeStyle = '#fff';
-                    editorCtx.lineWidth = 2;
-                    editorCtx.stroke();
-                }
-                startX += swatchSize + gap;
-            });
-        }
-    }
-
     function drawStamp(ctx, s) {
         const scale = s.scale;
         const w = s.width * scale;
         const h = s.height * scale;
-        
         ctx.save();
         ctx.translate(s.x, s.y);
 
@@ -783,6 +590,195 @@
             else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale);
         }
         ctx.restore();
+    }
+
+    function renderEditor() {
+        if (editorTheme === 'stylish') renderStylishTheme();
+        else renderCuteTheme();
+        editorStamps.forEach(s => drawStamp(editorCtx, s));
+    }
+
+    function renderStylishTheme() {
+        const grad = editorCtx.createLinearGradient(0,0,360,640);
+        grad.addColorStop(0, '#1a0b2e');
+        grad.addColorStop(0.5, '#240046');
+        grad.addColorStop(1, '#0d001a');
+        editorCtx.fillStyle = grad;
+        editorCtx.fillRect(0,0,360,640);
+
+        // Illustration/Photo Box
+        const photoY = 80;
+        const photoH = 300;
+        const photoW = 225;
+        const photoX = (360 - photoW) / 2;
+
+        editorCtx.save();
+        editorCtx.beginPath();
+        editorCtx.rect(photoX, photoY, photoW, photoH);
+        editorCtx.clip();
+
+        if (editorMode === 'photo') {
+            const sx = cropRect ? cropRect.x : 0;
+            const sy = cropRect ? cropRect.y : 0;
+            const sw = cropRect ? cropRect.w : imgObj.width;
+            const sh = cropRect ? cropRect.h : imgObj.height;
+            const scale = Math.max(photoW / sw, photoH / sh);
+            const renderW = sw * scale;
+            const renderH = sh * scale;
+            const dx = photoX + (photoW - renderW) / 2;
+            const dy = photoY + (photoH - renderH) / 2;
+            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
+        } else {
+            // Stylish Silhouette
+            editorCtx.fillStyle = getSeasonColor(currentResultData.season);
+            editorCtx.fillRect(photoX, photoY, photoW, photoH);
+            editorCtx.globalCompositeOperation = 'destination-in';
+            editorCtx.fillStyle = '#fff';
+            editorCtx.textAlign = 'center';
+            editorCtx.textBaseline = 'middle';
+            editorCtx.font = '150px serif';
+            editorCtx.fillText('✧', photoX + photoW/2, photoY + photoH/2);
+            editorCtx.globalCompositeOperation = 'source-over';
+        }
+        editorCtx.restore();
+
+        editorCtx.strokeStyle = '#fff';
+        editorCtx.lineWidth = 5;
+        editorCtx.strokeRect(photoX, photoY, photoW, photoH);
+
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.roundRect(180 - 100, 410, 200, 45, 22.5);
+        editorCtx.fill();
+        
+        editorCtx.font = 'bold 18px "Shippori Mincho", serif';
+        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.season, 180, 440);
+
+        // Palette
+        const swatchSize = 45; const gap = 15;
+        const totalW = (swatchSize * 4) + (gap * 3);
+        let startX = (360 - totalW) / 2;
+        currentResultData.best_colors.forEach((c) => {
+            editorCtx.beginPath();
+            editorCtx.arc(startX + swatchSize/2, 480 + swatchSize/2, swatchSize/2, 0, Math.PI*2);
+            editorCtx.fillStyle = c.hex;
+            editorCtx.fill();
+            editorCtx.strokeStyle = '#fff';
+            editorCtx.lineWidth = 2;
+            editorCtx.stroke();
+            startX += swatchSize + gap;
+        });
+
+        editorCtx.font = '10px sans-serif';
+        editorCtx.fillStyle = 'rgba(255,255,255,0.5)';
+        editorCtx.textAlign = 'right';
+        editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
+    }
+
+    function renderCuteTheme() {
+        const s = currentResultData.season;
+        let mainColor = '#ffcdc2'; 
+        if(s.includes("Spring") || s.includes("春")) mainColor = '#FDE2E4';
+        if(s.includes("Summer") || s.includes("夏")) mainColor = '#E0F7FA';
+        if(s.includes("Autumn") || s.includes("秋")) mainColor = '#FAEBD7';
+        if(s.includes("Winter") || s.includes("冬")) mainColor = '#E1BEE7';
+
+        editorCtx.fillStyle = mainColor;
+        editorCtx.fillRect(0,0,360,640);
+        
+        // Bottom Area
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.moveTo(0, 380);
+        editorCtx.quadraticCurveTo(180, 420, 360, 380);
+        editorCtx.lineTo(360, 640);
+        editorCtx.lineTo(0, 640);
+        editorCtx.fill();
+
+        // Illustration or Photo
+        const photoY = 50; const photoH = 300;
+        
+        if (editorMode === 'illust') {
+            const img = new Image();
+            if(s.includes("Spring") || s.includes("春")) img.src = SVG_GIRL_SPRING;
+            else if(s.includes("Summer") || s.includes("夏")) img.src = SVG_GIRL_SUMMER;
+            else if(s.includes("Autumn") || s.includes("秋")) img.src = SVG_GIRL_AUTUMN;
+            else img.src = SVG_GIRL_WINTER;
+            
+            // Draw illustration
+            if(img.complete) {
+                editorCtx.drawImage(img, (360-240)/2, 60, 240, 300); // approx size
+            } else {
+                img.onload = () => { renderEditor(); }
+            }
+        } else {
+            // Photo Mode (Polaroid Style)
+            drawPhotoFrame(60, 200, 260, '#fff', 5, true);
+        }
+
+        // Text
+        editorCtx.font = 'bold 28px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#333';
+        editorCtx.textAlign = 'center';
+        
+        const seasonName = currentResultData.season.includes("(") 
+            ? currentResultData.season.split("(")[1].replace(")","") 
+            : currentResultData.season;
+        
+        editorCtx.fillText(seasonName, 180, 460);
+        
+        editorCtx.font = 'bold 16px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#888';
+        editorCtx.fillText(currentResultData.season.split("(")[0], 180, 490);
+
+        // Palette Grid
+        const swatchSize = 40; const gap = 10;
+        let startX = (360 - (swatchSize*2 + gap)) / 2;
+        let startY = 520;
+        
+        currentResultData.best_colors.forEach((c, i) => {
+            if(i >= 4) return;
+            const row = Math.floor(i / 2);
+            const col = i % 2;
+            const x = startX + col * (swatchSize + gap);
+            const y = startY + row * (swatchSize + gap);
+            
+            editorCtx.beginPath();
+            editorCtx.roundRect(x, y, swatchSize, swatchSize, 8);
+            editorCtx.fillStyle = c.hex;
+            editorCtx.fill();
+        });
+    }
+
+    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
+        const x = (360 - w) / 2;
+        if (isPolaroid) {
+            editorCtx.fillStyle = '#fff';
+            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
+            editorCtx.shadowBlur = 10;
+            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 40);
+            editorCtx.shadowBlur = 0;
+        }
+        editorCtx.save();
+        editorCtx.beginPath();
+        editorCtx.rect(x, y, w, h);
+        editorCtx.clip();
+
+        if (editorMode === 'photo') {
+            const sx = cropRect ? cropRect.x : 0;
+            const sy = cropRect ? cropRect.y : 0;
+            const sw = cropRect ? cropRect.w : imgObj.width;
+            const sh = cropRect ? cropRect.h : imgObj.height;
+            const scale = Math.max(w / sw, h / sh);
+            const renderW = sw * scale;
+            const renderH = sh * scale;
+            const dx = x + (w - renderW) / 2;
+            const dy = y + (h - renderH) / 2;
+            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
+        } 
+        editorCtx.restore();
     }
 
     function saveEditorImage() {
@@ -1054,7 +1050,7 @@
     function applyDrape(color) {
         const wrapper = document.getElementById('result-drape-box');
         wrapper.style.borderColor = color;
-        wrapper.style.borderStyle = 'solid'; 
+        wrapper.style.borderStyle = 'solid'; // 点線防止
         wrapper.style.borderWidth = '15px';
         wrapper.style.transform = "scale(1.02)";
         setTimeout(() => wrapper.style.transform = "scale(1)", 200);
@@ -1092,7 +1088,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v17_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v18_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
