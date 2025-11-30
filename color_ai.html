@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V15.0 (Perfect Draw)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <title>🎨 AIカラー診断 V16.0 (Dual Theme Editor)</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -157,7 +157,7 @@
 
         /* === エディタ === */
         #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; }
-        #editor-canvas-box { position: relative; width: 100%; max-width: 360px; height: 640px; margin: 10px auto; border: 2px solid #333; }
+        #editor-canvas-box { position: relative; width: 100%; max-width: 360px; height: 640px; margin: 10px auto; border: none; }
         #editor-canvas { width: 100%; height: 100%; object-fit: contain; }
         .editor-tools { 
             position: fixed; bottom: 0; left: 0; width: 100%; background: #2c2c2c; padding: 15px; 
@@ -166,11 +166,15 @@
         .editor-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; justify-content: center;}
         .tool-btn { 
             background: #444; border: 1px solid #666; color: #fff; padding: 8px 12px; 
-            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.9rem; 
+            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.9rem; font-family: 'Shippori Mincho', serif;
         }
         .tool-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
         .tool-btn-action { background: var(--accent); color: #000; font-weight: bold; }
         .size-slider { width: 100%; margin: 10px 0; accent-color: var(--primary); }
+        
+        /* テーマ切り替えボタン用のスタイル */
+        #theme-stylish.active { background: linear-gradient(45deg, #240046, #E0AAFF); color: #fff; border: none; }
+        #theme-cute.active { background: linear-gradient(45deg, #ff9a9e, #fad0c4); color: #fff; border: none; }
     </style>
 </head>
 <body>
@@ -191,6 +195,10 @@
         <canvas id="editor-canvas"></canvas>
     </div>
     <div class="editor-tools">
+        <div class="editor-row">
+            <button class="tool-btn active" id="theme-stylish" onclick="switchTheme('stylish')">🌙 スタイリッシュ</button>
+            <button class="tool-btn" id="theme-cute" onclick="switchTheme('cute')">🌸 かわいい</button>
+        </div>
         <div class="editor-row">
             <input type="range" id="stamp-size" class="size-slider" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateStampSize()">
         </div>
@@ -219,7 +227,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V15.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V16.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -350,6 +358,7 @@
     // Editor Variables
     let editorCanvas, editorCtx;
     let editorMode = 'photo';
+    let editorTheme = 'stylish'; // テーマ管理変数を追加
     let editorStamps = [];
     let selectedStampIndex = -1;
     let isDragging = false;
@@ -379,17 +388,26 @@
         if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
     }
 
-    // --- Editor Logic (Draw Edition) ---
+    // --- Editor Logic (Dual Theme & Draw Edition) ---
     function openEditor() {
         if(!currentResultData) return;
         document.getElementById('editor-modal').classList.remove('hidden');
         editorCanvas.width = 360;
         editorCanvas.height = 640;
         setEditorMode('photo');
+        switchTheme('stylish'); // 初期テーマはスタイリッシュ
     }
 
     function closeEditor() {
         document.getElementById('editor-modal').classList.add('hidden');
+    }
+
+    // テーマ切り替え関数
+    function switchTheme(theme) {
+        editorTheme = theme;
+        document.getElementById('theme-stylish').classList.toggle('active', theme === 'stylish');
+        document.getElementById('theme-cute').classList.toggle('active', theme === 'cute');
+        renderEditor();
     }
 
     function setEditorMode(mode) {
@@ -403,10 +421,7 @@
         const centerX = editorCanvas.width / 2;
         const centerY = editorCanvas.height / 2;
         
-        // V13の「描画方式」に戻しつつ、サイズ調整
-        let w = 100;
-        let h = 100;
-        
+        let w = 100; let h = 100;
         if(type === 'glasses') { w = 150; h = 60; }
         if(type === 'mask') { w = 120; h = 80; }
         if(type === 'heart') { w = 80; h = 80; }
@@ -439,7 +454,6 @@
         }
     }
 
-    // ★削除機能（1つずつ）
     function deleteSelectedStamp() {
         if(selectedStampIndex !== -1) {
             editorStamps.splice(selectedStampIndex, 1);
@@ -447,13 +461,6 @@
             renderEditor();
         } else {
             alert("消したいスタンプをタップして選択してください");
-        }
-    }
-
-    function clearStamps() {
-        if(confirm("すべてのスタンプを消しますか？")) {
-            editorStamps = [];
-            renderEditor();
         }
     }
 
@@ -486,7 +493,7 @@
             const sizeH = (s.height || 100) * s.scale;
             
             if (s.type === 'text') {
-                editorCtx.font = `${24 * s.scale}px serif`;
+                editorCtx.font = `bold ${24 * s.scale}px ${editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"'}, serif`;
                 const m = editorCtx.measureText(s.text);
                 if(pos.x >= s.x - m.width/2 && pos.x <= s.x + m.width/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
                     selectedStampIndex = i; break;
@@ -517,7 +524,7 @@
 
     function handleDragEnd(e) { isDragging = false; }
 
-    // --- Drawing Functions (V13 Logic + Fixed Heart) ---
+    // --- Drawing Functions ---
     function drawStamp(ctx, s) {
         const scale = s.scale;
         const w = s.width * scale;
@@ -528,19 +535,13 @@
 
         if(s.type === 'glasses') {
             ctx.fillStyle = '#000';
-            // Left Lens
             ctx.beginPath(); ctx.ellipse(-w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
-            // Right Lens
             ctx.beginPath(); ctx.ellipse(w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
-            // Bridge
             ctx.fillRect(-w*0.1, -h*0.1, w*0.2, h*0.1);
         }
         else if(s.type === 'mask') {
             ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.roundRect(-w/2, -h/2, w, h, 10);
-            ctx.fill();
-            // Pleats
+            ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, 10); ctx.fill();
             ctx.strokeStyle = '#ddd'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(-w*0.4, -h*0.15); ctx.lineTo(w*0.4, -h*0.15); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(-w*0.4, h*0.15); ctx.lineTo(w*0.4, h*0.15); ctx.stroke();
@@ -548,7 +549,6 @@
         else if(s.type === 'heart') {
             ctx.fillStyle = '#ff6b81';
             ctx.beginPath();
-            // ★ハート形の修正：綺麗な比率で描画
             const topCurve = h * 0.3;
             ctx.moveTo(0, topCurve - h/2); 
             ctx.bezierCurveTo(0, -h/2, -w/2, -h/2, -w/2, topCurve - h/2);
@@ -568,49 +568,141 @@
             ctx.fill();
         }
         else if(s.type === 'text') {
-            ctx.font = `bold ${24 * s.scale}px serif`;
-            ctx.fillStyle = '#fff';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
+            // テーマに合わせてフォントを変更
+            const fontName = editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"';
+            ctx.font = `bold ${24 * s.scale}px ${fontName}, serif`;
+            ctx.fillStyle = editorTheme === 'cute' ? '#ff80ab' : '#fff';
+            ctx.strokeStyle = editorTheme === 'cute' ? '#fff' : '#000';
+            ctx.lineWidth = editorTheme === 'cute' ? 4 : 3;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.strokeText(s.text, 0, 0);
             ctx.fillText(s.text, 0, 0);
         }
 
-        // Selection Box
         if (s === editorStamps[selectedStampIndex]) {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.lineWidth = 2;
             if(s.type !== 'text') ctx.strokeRect(-w/2, -h/2, w, h);
-            else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale); // text box approx
+            else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale);
         }
         ctx.restore();
     }
 
+    // メイン描画関数（テーマで分岐）
     function renderEditor() {
-        editorCtx.fillStyle = '#1a1a1a';
-        editorCtx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
-        
+        if (editorTheme === 'stylish') {
+            renderStylishTheme();
+        } else {
+            renderCuteTheme();
+        }
+        // スタンプは共通で最後に描画
+        editorStamps.forEach(s => drawStamp(editorCtx, s));
+    }
+
+    // 🌙 スタイリッシュテーマの描画
+    function renderStylishTheme() {
+        // 背景（少しリッチなグラデーション）
         const grad = editorCtx.createLinearGradient(0,0,360,640);
-        grad.addColorStop(0, '#10002b');
-        grad.addColorStop(1, '#240046');
+        grad.addColorStop(0, '#1a0b2e');
+        grad.addColorStop(0.5, '#240046');
+        grad.addColorStop(1, '#0d001a');
         editorCtx.fillStyle = grad;
         editorCtx.fillRect(0,0,360,640);
 
-        editorCtx.font = 'bold 24px Shippori Mincho';
+        // タイトル
+        editorCtx.font = 'bold 26px "Shippori Mincho", serif';
         editorCtx.fillStyle = '#E0AAFF';
         editorCtx.textAlign = 'center';
         editorCtx.fillText("AI PERSONAL COLOR", 180, 50);
+        
+        // 写真枠と写真描画
+        drawPhotoFrame(80, 225, 300, '#fff', 5, false);
 
-        const photoY = 80;
-        const photoH = 300;
-        const photoW = 225;
-        const photoX = (360 - photoW) / 2;
+        // シーズンバッジ
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.roundRect(180 - 90, 410, 180, 45, 22.5);
+        editorCtx.fill();
+        
+        editorCtx.font = 'bold 22px "Shippori Mincho", serif';
+        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.season.split('(')[0], 180, 440);
+
+        // カラーパレット
+        drawColorPalette(480, 45, 15, true);
+
+        // フッター
+        editorCtx.font = '12px sans-serif';
+        editorCtx.fillStyle = '#888';
+        editorCtx.fillText("#AIカラー診断 #Gemini", 180, 620);
+    }
+
+    // 🌸 かわいいテーマの描画
+    function renderCuteTheme() {
+        // 背景（パステルグラデーション＋ドット）
+        const grad = editorCtx.createLinearGradient(0,0,0,640);
+        grad.addColorStop(0, '#fff1f2'); // 薄いピンク
+        grad.addColorStop(1, '#ede9fe'); // 薄いパープル
+        editorCtx.fillStyle = grad;
+        editorCtx.fillRect(0,0,360,640);
+        
+        editorCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        for(let i=0; i<360; i+=20) {
+            for(let j=0; j<640; j+=20) {
+                editorCtx.beginPath(); editorCtx.arc(i, j, 2, 0, Math.PI*2); editorCtx.fill();
+            }
+        }
+
+        // タイトル（丸文字、ピンク）
+        editorCtx.font = 'bold 24px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#ff80ab';
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText("✨ My Personal Color ✨", 180, 50);
+
+        // 写真枠（ポラロイド風）
+        drawPhotoFrame(80, 240, 320, '#fff', 0, true);
+
+        // シーズン表示（かわいく）
+        const seasonName = currentResultData.season.split('(')[0];
+        const seasonColor = getSeasonColor(currentResultData.season);
+        const seasonIcon = getSeasonIcon(currentResultData.season);
+
+        editorCtx.fillStyle = seasonColor + '22'; // 薄い背景色
+        editorCtx.beginPath();
+        editorCtx.roundRect((360-240)/2, 415, 240, 40, 20);
+        editorCtx.fill();
+        
+        editorCtx.font = 'bold 22px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = seasonColor;
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText(`${seasonIcon} ${seasonName} ${seasonIcon}`, 180, 442);
+
+        // カラーパレット（丸くてかわいい）
+        drawColorPalette(480, 45, 15, false, true);
+
+        // フッター
+        editorCtx.font = '14px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#aaa';
+        editorCtx.fillText("#わたしのパーソナルカラー #AI診断", 180, 620);
+    }
+
+    // 共通：写真枠と写真/イラストの描画
+    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
+        const x = (360 - w) / 2;
+        
+        if (isPolaroid) {
+            editorCtx.fillStyle = '#fff';
+            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
+            editorCtx.shadowBlur = 10;
+            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 50);
+            editorCtx.shadowBlur = 0;
+        }
 
         editorCtx.save();
         editorCtx.beginPath();
-        editorCtx.rect(photoX, photoY, photoW, photoH);
+        editorCtx.rect(x, y, w, h);
         editorCtx.clip();
 
         if (editorMode === 'photo') {
@@ -618,56 +710,53 @@
             const sy = cropRect ? cropRect.y : 0;
             const sw = cropRect ? cropRect.w : imgObj.width;
             const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(photoW / sw, photoH / sh);
+            const scale = Math.max(w / sw, h / sh);
             const renderW = sw * scale;
             const renderH = sh * scale;
-            const dx = photoX + (photoW - renderW) / 2;
-            const dy = photoY + (photoH - renderH) / 2;
+            const dx = x + (w - renderW) / 2;
+            const dy = y + (h - renderH) / 2;
             editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
             editorCtx.fillStyle = getSeasonColor(currentResultData.season) + "44"; 
-            editorCtx.fillRect(photoX, photoY, photoW, photoH);
+            editorCtx.fillRect(x, y, w, h);
             editorCtx.font = '100px serif';
             editorCtx.fillStyle = '#fff';
-            editorCtx.fillText(getSeasonIcon(currentResultData.season), 180, photoY + 180);
+            editorCtx.textAlign = 'center';
+            editorCtx.textBaseline = 'middle';
+            editorCtx.fillText(getSeasonIcon(currentResultData.season), 180, y + h/2);
         }
         editorCtx.restore();
 
-        editorCtx.strokeStyle = '#fff';
-        editorCtx.lineWidth = 5;
-        editorCtx.strokeRect(photoX, photoY, photoW, photoH);
+        if (borderWidth > 0) {
+            editorCtx.strokeStyle = borderColor;
+            editorCtx.lineWidth = borderWidth;
+            editorCtx.strokeRect(x, y, w, h);
+        }
+    }
 
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
-        editorCtx.roundRect(180 - 80, photoY + photoH + 20, 160, 40, 20);
-        editorCtx.fill();
-        
-        editorCtx.font = 'bold 20px serif';
-        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
-        editorCtx.fillText(currentResultData.season.split('(')[0], 180, photoY + photoH + 47);
-
-        const startY = photoY + photoH + 80;
-        const swatchSize = 40;
-        const gap = 10;
+    // 共通：カラーパレット描画
+    function drawColorPalette(startY, swatchSize, gap, hasBorder, isCute=false) {
         const totalW = (swatchSize * 4) + (gap * 3);
         let startX = (360 - totalW) / 2;
 
         currentResultData.best_colors.forEach((c) => {
+            if (isCute) {
+                editorCtx.beginPath();
+                editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2 + 3, 0, Math.PI*2);
+                editorCtx.fillStyle = '#fff';
+                editorCtx.fill();
+            }
             editorCtx.beginPath();
             editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2, 0, Math.PI*2);
             editorCtx.fillStyle = c.hex;
             editorCtx.fill();
-            editorCtx.strokeStyle = '#fff';
-            editorCtx.lineWidth = 2;
-            editorCtx.stroke();
+            if (hasBorder) {
+                editorCtx.strokeStyle = '#fff';
+                editorCtx.lineWidth = 2;
+                editorCtx.stroke();
+            }
             startX += swatchSize + gap;
         });
-
-        editorCtx.font = '12px sans-serif';
-        editorCtx.fillStyle = '#888';
-        editorCtx.fillText("#AIカラー診断V15 #Gemini", 180, 620);
-
-        editorStamps.forEach(s => drawStamp(editorCtx, s));
     }
 
     function saveEditorImage() {
@@ -977,7 +1066,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v15_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v16_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
