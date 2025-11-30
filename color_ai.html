@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V19.0 (Fixed Illustrations)</title>
+    <title>🎨 AIカラー診断 V20.0 (Stylish Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -41,7 +41,6 @@
         .top-btns { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
         .btn-sm { background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
 
-        /* ガイド表示 */
         .guide-steps {
             display: flex; gap: 10px; margin-bottom: 20px; text-align: left;
             background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;
@@ -62,7 +61,6 @@
             padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; text-align: left;
         }
 
-        /* 画像エリア */
         .canvas-wrapper {
             position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto;
             border: 2px dashed #666; border-radius: 10px; 
@@ -86,7 +84,6 @@
         }
         .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
 
-        /* ピッカー */
         .picker-panel { background: var(--panel-bg); padding: 15px; border-radius: 15px; margin-top: 15px; display: none; border: 1px solid #444; }
         .contrast-guide { font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
         .picker-steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
@@ -104,7 +101,6 @@
         }
         .btn-main.ready { opacity: 1; pointer-events: auto; }
 
-        /* 結果画面 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
         .season-badge { display: inline-block; padding: 8px 25px; border-radius: 50px; font-size: 1.8rem; font-weight: bold; margin: 10px 0; background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.3); text-align: center; width: 80%; }
         
@@ -129,7 +125,6 @@
         .cosme-icon { font-size: 1.2rem; }
         .search-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; margin-left: auto; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
         
-        /* チャット */
         .chat-section { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
         .chat-box { max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
         .chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; max-width: 85%; }
@@ -229,7 +224,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V19.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V20.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -365,27 +360,17 @@
     let selectedStampIndex = -1;
     let isDragging = false;
 
-    // --- Fixed SVGs (Base64) ---
+    // --- Verified SVGs (Base64) ---
     const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMjQwIj48cGF0aCBkPSJNODAuNSAzNS41QzQ4LjEgNjMuNCA0MCA5Mi4yIDQwIDExNi41YzAgMzguOSAyOS4xIDk0IDY4IDk0YzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjY3LjEgMTkwLjkgMzAyLjkgMjMwIDMzOC41IDIzMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIC02MC41bC0xLjktMS40Yy0zLjctMi44LTguMi00LjMtMTIuOS00LjNzLTkuMiAxLjUtMTIuOSA0LjNsLTEuOSAxLjQtNDkuNiAzNy4yYy0zLjEgMi40LTYuOSAzLjctMTEuMiAzLjdIODYuOWMtMC43IDEuNC0xLjQgMi45LTIuMSA0LjRDNDMuMiAtMTUuMiA0MS43IC04LjIgNDAuNSAtNC45eiIgZmlsbD0iIzIyMiIvPjxwYXRoIGQ9Ik0xMDAgMjAwYy0xOC4yIDAtMzQuMi0xMi4xLTQwLTI4LjVzLTMuNS0zNS42IDUuNS00OS45bDE3LTI2LjljOC43LTEzLjggMTUuOS0yNi4xIDIxLjYtMzcuMWMxMC4xIDIgMTkuNyA1LjUgMjggMTAuNGMyMy4xIDEzLjYgMzcuNCAzOC41IDM3LjQgNjUuMmMwIDM3LjEtMzAuOSA2Ni44LTY5LjUgNjYuOHptMjYyLjktMi40YzE1LjggNC41IDMyLjUgNi45IDQ5LjYgNi45YzMwLjMgMCA1Ny43LTguOSA4MC4zLTI0LjZjMjMuMi0xNi4xIDM3LjgtMzkuNSA0MS4xLTY2LjFsNi4zLTUxLjNjMS42LTEyLjggMi43LTI1LjQgMy40LTM3LjhjLTE4LTI1LjMtNDguNi00MC40LTgxLjYtNDAuNGMtMzEuMSAwLTU5LjkgMTMuNS03Ny44IDM1LjhjLTE5IDIzLjctMjkuMiA1My42LTI4LjcgODQuMWMuMiAxMi4xIDIuMSAyMy45IDUuNiAzNS4xYy40IDEuMyAxIDIuNSAxLjggMy43eiIgZmlsbD0iIzAwMCIgb3BhY2l0eT0iMC43Ii8+PC9zdmc+";
     const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzIgNjRDMTQuMyA2NCAwIDc4LjMgMCA5NnYxMjhjMCAxNy43IDE0LjMgMzIgMzIgMzJoNDQ4YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjk2YzAtMTcuNy0xNC4zLTMyLTMyLTMySDMyem0wIDMyaDQ0OHYzaC00NDhWOTZ6bTAgMjhoNDQ4djNoLTQ0OFYxMjR6bTAgMjhoNDQ4djNoLTQ0OFYxNTJ6bTAgMjhoNDQ4djNoLTQ0OFYxODB6bTAgMjhoNDQ4djNoLTQ0OFYyMDh6bTAgMjhoNDQ4djNoLTQ0OFYyMzZ6IiBvcGFjaXR5PSIwLjkiLz48cGF0aCBmaWxsPSIjREREIiBkPSJNMCA5Nmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHoiIG9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==";
     const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmY2OTZiIiBkPSJNMjU2IDQ0OC4xbC0xNC4yLTEyLjlDNDguMSAyMzYuMiAwIDE5Mi43IDAgMTM4LjYgMCA3NS4xIDQ5LjkgMjUuNSAxMTIuNSAyNS41YzM1LjMgMCA2OS4xIDE2LjIgODkuNiA0MS41QzE5MC4yIDI1LjUgMjMyLjcgMCAyNzguNSAwIDM0MS4xIDAgMzkxLjIgNDkuOSAzOTEuMiAxMTMuNGMwIDU0LjEtNDguMSA5Ny42LTI0MS44IDI5OC41TDI1NiA0NDguMXoiLz48L3N2Zz4=";
-    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDBMMzE2LjUgMTk1LjVMMTUxMiAyNTZMMzE2LjUgMzE2LjVMMjU2IDUxMkwxOTUuNSAzMTYuNUwwIDI1NkwxOTUuNSAxOTUuNUwyNTYgMHoiLz48L3N2Zz4=";
+    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDBMMzE2LjUgMTk1LjVMMTUxMiAyNTZMMzE2LjUgMzE2LjVMMjU2IDUxMkwxOTUuNSAzMTYuNUwwIDI1NkwxOTUuNSAxOTUuNUwyNTYgMHoiLz48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDY0TDI4OCAxOTJMNDE2IDI1NkwyODggMzIwbC0zMiAxMjhMMjI0IDE5Mkw5NiAyNTZMMjI0IDE5MkwyNTYgNjR6IiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=";
 
-    // --- New Illustrations (Stylish & Cute) ---
-    // Stylish Icons
-    const SVG_STYLISH_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4="; // Star/Flower shape
-    const SVG_STYLISH_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="; // Sun
-    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+"; // Maple Leaf
-    const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
-
-    // Cute Girls (Line Art with Color Fills)
-    // Spring: Bob Hair
+    // Stylish Icons (Replaced with Draw Logic) - see renderStylishTheme
+    // Cute Girls
     const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
-    // Summer: Updo
     const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0iI2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
-    // Autumn: Wavy Long
     const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
-    // Winter: Straight Long
     const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
 
     window.onload = function() {
@@ -442,18 +427,14 @@
     function addStamp(type) {
         const centerX = editorCanvas.width / 2;
         const centerY = editorCanvas.height / 2;
-        let w = 100; let h = 100;
-        if(type === 'glasses') { w = 150; h = 60; }
-        if(type === 'mask') { w = 120; h = 80; }
-        if(type === 'heart') { w = 80; h = 80; }
-        if(type === 'sparkle') { w = 80; h = 80; }
-
+        
+        // Use drawStamp logic (programmatic)
         editorStamps.push({
             type: type,
             x: centerX,
             y: centerY,
-            width: w,
-            height: h,
+            width: 100, // base size
+            height: 100,
             scale: 1.0
         });
         selectedStampIndex = editorStamps.length - 1;
@@ -547,25 +528,29 @@
 
     function drawStamp(ctx, s) {
         const scale = s.scale;
-        const w = s.width * scale;
-        const h = s.height * scale;
+        
         ctx.save();
         ctx.translate(s.x, s.y);
 
         if(s.type === 'glasses') {
+            const w = 150 * scale; const h = 60 * scale;
             ctx.fillStyle = '#000';
             ctx.beginPath(); ctx.ellipse(-w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.ellipse(w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
             ctx.fillRect(-w*0.1, -h*0.1, w*0.2, h*0.1);
+            s.width = 150; s.height = 60;
         }
         else if(s.type === 'mask') {
+            const w = 120 * scale; const h = 80 * scale;
             ctx.fillStyle = '#fff';
             ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, 10); ctx.fill();
             ctx.strokeStyle = '#ddd'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(-w*0.4, -h*0.15); ctx.lineTo(w*0.4, -h*0.15); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(-w*0.4, h*0.15); ctx.lineTo(w*0.4, h*0.15); ctx.stroke();
+            s.width = 120; s.height = 80;
         }
         else if(s.type === 'heart') {
+            const w = 80 * scale; const h = 80 * scale;
             ctx.fillStyle = '#ff6b81';
             ctx.beginPath();
             const topCurve = h * 0.3;
@@ -575,8 +560,10 @@
             ctx.bezierCurveTo(0, h*0.8 - h/2, w/2, h/2 - h/2, w/2, topCurve - h/2);
             ctx.bezierCurveTo(w/2, -h/2, 0, -h/2, 0, topCurve - h/2);
             ctx.fill();
+            s.width = 80; s.height = 80;
         }
         else if(s.type === 'sparkle') {
+            const w = 80 * scale; const h = 80 * scale;
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
             ctx.moveTo(0, -h/2);
@@ -585,6 +572,7 @@
             ctx.quadraticCurveTo(-w*0.1, h*0.1, -w/2, 0);
             ctx.quadraticCurveTo(-w*0.1, -h*0.1, 0, -h/2);
             ctx.fill();
+            s.width = 80; s.height = 80;
         }
         else if(s.type === 'text') {
             const fontName = editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"';
@@ -601,7 +589,7 @@
         if (s === editorStamps[selectedStampIndex]) {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.lineWidth = 2;
-            if(s.type !== 'text') ctx.strokeRect(-w/2, -h/2, w, h);
+            if(s.type !== 'text') ctx.strokeRect(-s.width*scale/2, -s.height*scale/2, s.width*scale, s.height*scale);
             else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale);
         }
         ctx.restore();
@@ -641,24 +629,64 @@
             const dy = photoY + (photoH - renderH) / 2;
             editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
-            // Stylish Silhouette (SVG Draw)
-            editorCtx.fillStyle = getSeasonColor(currentResultData.season);
+            // Stylish Silhouette (Draw Directly)
+            const s = currentResultData.season;
+            const color = getSeasonColor(s);
+            editorCtx.fillStyle = color;
             editorCtx.fillRect(photoX, photoY, photoW, photoH);
             
-            const s = currentResultData.season;
-            let iconSvg = SVG_STYLISH_SPRING;
-            if(s.includes("Summer") || s.includes("夏")) iconSvg = SVG_STYLISH_SUMMER;
-            if(s.includes("Autumn") || s.includes("秋")) iconSvg = SVG_STYLISH_AUTUMN;
-            if(s.includes("Winter") || s.includes("冬")) iconSvg = SVG_STYLISH_WINTER;
-
-            const img = new Image();
-            img.src = iconSvg;
-            if(img.complete) {
-                // Center icon
-                editorCtx.globalAlpha = 0.8;
-                editorCtx.drawImage(img, photoX + 40, photoY + 80, 145, 140);
-                editorCtx.globalAlpha = 1.0;
-            } else { img.onload = () => renderEditor(); }
+            editorCtx.fillStyle = '#fff';
+            editorCtx.globalAlpha = 0.5;
+            
+            // Center simple icon based on season
+            const cx = photoX + photoW/2;
+            const cy = photoY + photoH/2;
+            
+            if(s.includes("Autumn") || s.includes("秋")) {
+                // Maple Leaf shape (simplified)
+                editorCtx.beginPath();
+                editorCtx.moveTo(cx, cy - 60);
+                editorCtx.lineTo(cx + 20, cy - 20);
+                editorCtx.lineTo(cx + 60, cy - 30);
+                editorCtx.lineTo(cx + 30, cy + 10);
+                editorCtx.lineTo(cx + 50, cy + 50);
+                editorCtx.lineTo(cx + 10, cy + 30);
+                editorCtx.lineTo(cx, cy + 70);
+                editorCtx.lineTo(cx - 10, cy + 30);
+                editorCtx.lineTo(cx - 50, cy + 50);
+                editorCtx.lineTo(cx - 30, cy + 10);
+                editorCtx.lineTo(cx - 60, cy - 30);
+                editorCtx.lineTo(cx - 20, cy - 20);
+                editorCtx.closePath();
+                editorCtx.fill();
+            } else if (s.includes("Spring") || s.includes("春")) {
+                // Flower
+                for(let i=0; i<5; i++) {
+                    editorCtx.beginPath();
+                    editorCtx.ellipse(cx, cy, 30, 60, (Math.PI*2/5)*i, 0, Math.PI*2);
+                    editorCtx.fill();
+                }
+                editorCtx.beginPath(); editorCtx.arc(cx, cy, 15, 0, Math.PI*2); editorCtx.fillStyle='#ffe'; editorCtx.fill();
+            } else if (s.includes("Summer") || s.includes("夏")) {
+                // Sun
+                editorCtx.beginPath(); editorCtx.arc(cx, cy, 40, 0, Math.PI*2); editorCtx.fill();
+                for(let i=0; i<8; i++) {
+                    editorCtx.beginPath();
+                    editorCtx.moveTo(cx + Math.cos((Math.PI*2/8)*i)*50, cy + Math.sin((Math.PI*2/8)*i)*50);
+                    editorCtx.lineTo(cx + Math.cos((Math.PI*2/8)*i)*80, cy + Math.sin((Math.PI*2/8)*i)*80);
+                    editorCtx.lineWidth = 5; editorCtx.strokeStyle = 'rgba(255,255,255,0.5)'; editorCtx.stroke();
+                }
+            } else {
+                // Snow
+                editorCtx.lineWidth = 5; editorCtx.strokeStyle = 'rgba(255,255,255,0.5)';
+                for(let i=0; i<3; i++) {
+                    editorCtx.beginPath();
+                    editorCtx.moveTo(cx + Math.cos((Math.PI/3)*i)*60, cy + Math.sin((Math.PI/3)*i)*60);
+                    editorCtx.lineTo(cx - Math.cos((Math.PI/3)*i)*60, cy - Math.sin((Math.PI/3)*i)*60);
+                    editorCtx.stroke();
+                }
+            }
+            editorCtx.globalAlpha = 1.0;
         }
         editorCtx.restore();
 
@@ -801,6 +829,7 @@
         link.click();
     }
 
+    // --- Main Logic (Same as before) ---
     function triggerFileIfEmpty() {
         if (!imgFile) document.getElementById('file-input').click();
     }
@@ -1098,7 +1127,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v19_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v20_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
