@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 16タイプAIカラー診断 V27.0 (High Accuracy)</title>
+    <title>🎨 16タイプAIカラー診断 V30.0 (Card Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -121,8 +121,6 @@
 
         /* 結果画面 */
         #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
-        
-        /* 16タイプ強調バッジ */
         .type-badge {
             display: inline-block; padding: 8px 25px; border-radius: 50px;
             font-size: 1.6rem; font-weight: 800; margin: 10px 0 5px 0;
@@ -253,7 +251,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V27.0</span></h1>
+    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V30.0</span></h1>
     <div class="top-btns">
         <div class="gender-selector">
             <div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div>
@@ -320,8 +318,7 @@
             
             <div style="text-align: center;">
                 <h2 style="color:var(--primary); margin:0 0 5px 0;">診断結果</h2>
-                <div id="result-season" class="season-badge">Analyzing...</div>
-                <div id="result-desc" class="season-sub"></div>
+                <div id="result-desc" style="margin-top:10px;"></div>
             </div>
 
             <div class="canvas-wrapper result-canvas-wrapper" id="result-drape-box">
@@ -395,15 +392,14 @@
     let isDragging = false;
 
     // --- Illustrations (Full Base64) ---
-    // Stylish Icons (V21/15 Style)
     const SVG_STYLISH_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4=";
     const SVG_STYLISH_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
-    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+";
+    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI7NiA2NS4zTDQzLjcgMTM3LjkgMTIxLjIgMTc1LjkgNDMuNyAyMTMuOSAyMjcuNiA0NDYuNyA0MTEuNSAyMTMuOSAzMzMuOSAxNzUuOSA0MTEuNSAxMzcuOSAyMjcuNiA2NS4zek0yMjcuNiAyMDAuM2MtMTEuNi0xNy42LTI1LjUtMzQtMzkuOC00NS42IDEwLjYgMTIuNSAyMi41IDI2LjMgMzMuNSA0MS4xIDIuNSAzLjMgNi4zIDQuNSA2LjMgNC41em00NS43LTIzLjFjLTM0LjUtMzYuOS02NS43LTYzLTg0LjItNzAuNyAxMi45IDEwLjYgMzcuMSAzMy4zIDY0LjkgNjMuOCA0LjMgNC42IDkuNSA4LjIgMTUgOC4yIDIuNCAwIDQuMy0xLjMgNC4zLTEuM3ptLTEwOC4xIDE5LjhjLTIwLjYgMTIuOS01OS4zIDQzLjEtNzEuOSA3MS4zIDEyLTIwLjYgNDIuMS01Ni44IDc3LjgtNzIgMy43LTEuNiA1LjktNS4zIDUuOS05LjQtMC45LTQuMi01LjUtNy4yLTkuOC01LjItMi0xLjEtMi0xLjEtMiAxLjF6bTEyOS45IDM4LjhjOS44LTEzLjUgMjMuMS0yNy45IDM2LjYtMzkuNSAxMy4zLTExLjQgMjUuMi0xOC43IDM0LjEtMjIuMi0xMy43IDcuOC0zMi40IDIwLjItNTMuMSAzOC4xLTIuMiAxLjktMy4xIDUuMS0yLjEgNy44IDEgMy4gMy45IDQuOSA3LjEgNC43em01OC41IDMwLjJjMi41IDAuNiAxNS4zIDQuMiAzMi41IDEwLjYgMjEuNSA4LjEgMzguNCAxNi4zIDQ4LjMgMjMuNC0xMi41LTYuNi0zMi43LTEzLjUtNTUuOS0xOC44LTE3LjUtNC0yOS00LjgtMjktNC44LTMuMy0wLjYtNi4zIDEuMy03LjcgNC4yLTEuNSAzLTAuNiA2LjUgMi4xIDguNiAwIDAgMS4zIDEuMSAzLjUgMS45em0tNDYuMiAyMi4xYy0wLjMgMy43LTMuMiA2LjYtNi45IDYuNnMtNi42LTIuOS02LjktNi42Yy0xLjYtMTYuOC01LTM4LjUtOS44LTYzLjUgNS42IDIzLjUgMTEuNiA0OC4yIDIzLjYgNjMuNXptLTMyLjEgNDAuN2MyLjEgMTYuMSA1LjMgMzEuNSA5LjMgNDYuMiAyLjUgOS4zIDUuMiAxOCA4LjEgMjUuOSAxLjMgMy43IDUuMSA1LjkgOS4yIDUuNSA0LTAuNCA3LjMtMy40IDcuOS03LjQtMy4xLTEwLjUtNi4yLTIxLjktOS4xLTM0LjItNC40LTE4LjctOC40LTM4LjgtMTEuMy02MC4zLTUuNi0yLjgtOS44LTcuOS0xMS4yLTE0LjItMS4xIDEyLjYtMS45IDgwLjktMi45IDEzMS44LTAuMSA0LjMgMy4zIDggNy42IDguMSA0LjIgMC4xIDcuOS0zLjMgOC4xLTcuNSAxLTUwLjggMS43LTExOS4zIDIuOS0xMzEuOSAwLjUtMS4zIDEuMy0yLjUgMi40LTMuNSA0LjEgMjIuMSA5LjggNDQgMTYuOSA2NS4zIDguNyAyNi4zIDE5LjUgNTMuMiAzMS4xIDc4LjYgNS44IDEyLjYgNi41IDI3LjMgMiA0MC4xLTMuNSA5LjktMTEuMyAxNy40LTIxLjUgMjAuNS01LjIgMS42LTEwLjUtMS40LTEyLTYuNi0xLjYtNS4yIDEuNC0xMC42IDYuNi0xMiA2LjMtMS44IDExLTYuMyAxMy4xLTEyLjMgMy4yLTkuMSAyLjYtMTkuNS0xLjUtMjguNi04LjYtMTguOC0xNi44LTM5LTIzLjUtNTkuMy03LjUtMjIuNy0xMy43LTQ2LjEtMTguMi03MC4xLTQuMSA1LjYtOS4zIDEwLjItMTUuNiAxMy4xLTExLjUgNS40LTI1LjEgNC4xLTM1LjYtMy40LTUuOC00LjEtMTIuMS04LjktMTguNi0xNC40LTE2LjUgMTQtNDUuNCA0Ni4xLTc1LjUgNzMuMi0xLjkgMS43LTQuMyAyLjYtNi43IDIuNi0yLjggMC01LjUtMS4xLTcuNS0zLjMtNC4xLTQuNi0zLjgtMTEuNiAwLjgtMTUuNyAyNS4zLTIyLjggNTAuNC01MC45IDY1LjUtNjQuMi0yOC43IDM1LjUtOTcuMSA5Mi44LTExMi44IDk3LjgtMy4xIDEtMTYuNiAzLjUtMjEuOS0xMi4zLTIuMS02LjQgNy40LTE1LjUgOC43LTE2LjUgNDYuNS0zOC40IDkwLjItOTYuMiAxMDguOS0xMzUuNSA1LjMtMTEuMSAxOC42LTE1LjkgMjkuNy0xMC42IDExLjEgNS4zIDE1LjkgMTguNiAxMC42IDI5LjctMTYuMSAzMy44LTUxLjggODEuMi05MC4zIDExNi4zIDIuOS0yLjEgNi0zLjIgOS4yLTMuMiA0LjYgMCA5LjIgMi4yIDEyLjIgNi40IDE3LjUgMTcuOCA0Mi43IDM0LjYgNzEuOSA0OS43IDIyLjUtMTEuNSA0Ny4xLTI4LjIgNzEuMS00OS4yIDguMy03LjMgMjEuMS02LjcgMjguNSAxLjcgNy4zIDguNCA2LjcgMjEuMi0xLjcgMjguNXoiLz48L3N2Zz4=";
     const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
 
     // Cute Girls (Female)
     const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
-    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0iI2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
+    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0i2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
     const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
     const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
 
@@ -543,7 +539,6 @@
             const s = editorStamps[i];
             const sizeW = (s.width || 100) * s.scale;
             const sizeH = (s.height || 100) * s.scale;
-            
             if (s.type === 'text') {
                 editorCtx.font = `bold ${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
@@ -556,7 +551,6 @@
                 }
             }
         }
-
         if(selectedStampIndex !== -1) {
             isDragging = true;
             document.getElementById('stamp-size').value = editorStamps[selectedStampIndex].scale;
@@ -644,28 +638,21 @@
         editorStamps.forEach(s => drawStamp(editorCtx, s));
     }
 
-    // --- V21 Logic for Stylish ---
     function renderStylishTheme() {
         const grad = editorCtx.createLinearGradient(0,0,360,640);
         grad.addColorStop(0, '#1a0b2e'); grad.addColorStop(0.5, '#240046'); grad.addColorStop(1, '#0d001a');
         editorCtx.fillStyle = grad; editorCtx.fillRect(0,0,360,640);
 
         const photoY = 80; const photoH = 300; const photoW = 225; const photoX = (360 - photoW) / 2;
-
-        editorCtx.save();
-        editorCtx.beginPath();
-        editorCtx.rect(photoX, photoY, photoW, photoH);
-        editorCtx.clip();
-
+        editorCtx.save(); editorCtx.beginPath(); editorCtx.rect(photoX, photoY, photoW, photoH); editorCtx.clip();
         if (editorMode === 'photo') {
             const sx = cropRect ? cropRect.x : 0; const sy = cropRect ? cropRect.y : 0; const sw = cropRect ? cropRect.w : imgObj.width; const sh = cropRect ? cropRect.h : imgObj.height;
             const scale = Math.max(photoW / sw, photoH / sh); const renderW = sw * scale; const renderH = sh * scale;
             const dx = photoX + (photoW - renderW) / 2; const dy = photoY + (photoH - renderH) / 2;
             editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
-            // Stylish Icon (V21 Style)
             const s = currentResultData.season;
-            editorCtx.fillStyle = getSeasonColor(s) + "44"; // Transparent color bg
+            editorCtx.fillStyle = getSeasonColor(s) + "44"; 
             editorCtx.fillRect(photoX, photoY, photoW, photoH);
             
             const img = new Image();
@@ -679,40 +666,16 @@
             } else { img.onload = () => renderEditor(); }
         }
         editorCtx.restore();
-
         editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 5; editorCtx.strokeRect(photoX, photoY, photoW, photoH);
-
-        // Badge
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
-        editorCtx.roundRect(180 - 100, 410, 200, 45, 22.5);
-        editorCtx.fill();
         
-        editorCtx.font = 'bold 18px "Shippori Mincho", serif';
-        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
-        editorCtx.textAlign = 'center';
-        // 16 Type Name
-        editorCtx.fillText(currentResultData.type || currentResultData.season, 180, 440);
+        editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.roundRect(180 - 120, 410, 240, 50, 25); editorCtx.fill();
+        editorCtx.font = 'bold 22px "Shippori Mincho", serif'; editorCtx.fillStyle = getSeasonColor(currentResultData.season); editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.type.split(" ")[1] || currentResultData.season, 180, 443);
 
         // Palette
-        const swatchSize = 45; const gap = 15;
-        const totalW = (swatchSize * 4) + (gap * 3);
-        let startX = (360 - totalW) / 2;
-        currentResultData.best_colors.forEach((c) => {
-            editorCtx.beginPath();
-            editorCtx.arc(startX + swatchSize/2, 480 + swatchSize/2, swatchSize/2, 0, Math.PI*2);
-            editorCtx.fillStyle = c.hex;
-            editorCtx.fill();
-            editorCtx.strokeStyle = '#fff';
-            editorCtx.lineWidth = 2;
-            editorCtx.stroke();
-            startX += swatchSize + gap;
-        });
-
-        editorCtx.font = '10px sans-serif';
-        editorCtx.fillStyle = 'rgba(255,255,255,0.5)';
-        editorCtx.textAlign = 'right';
-        editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
+        const swatchSize = 45; const gap = 15; const totalW = (swatchSize * 4) + (gap * 3); let startX = (360 - totalW) / 2;
+        currentResultData.best_colors.forEach((c) => { editorCtx.beginPath(); editorCtx.arc(startX + swatchSize/2, 490 + swatchSize/2, swatchSize/2, 0, Math.PI*2); editorCtx.fillStyle = c.hex; editorCtx.fill(); editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke(); startX += swatchSize + gap; });
+        editorCtx.font = '10px sans-serif'; editorCtx.fillStyle = 'rgba(255,255,255,0.5)'; editorCtx.textAlign = 'right'; editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
     }
 
     function renderCuteTheme() {
@@ -723,13 +686,12 @@
         if(s.includes("Autumn") || s.includes("秋")) mainColor = '#FAEBD7';
         if(s.includes("Winter") || s.includes("冬")) mainColor = '#E1BEE7';
 
-        editorCtx.fillStyle = mainColor;
-        editorCtx.fillRect(0,0,360,640);
+        editorCtx.fillStyle = mainColor; editorCtx.fillRect(0,0,360,640);
         
         editorCtx.fillStyle = '#fff';
         editorCtx.beginPath();
-        editorCtx.moveTo(0, 380);
-        editorCtx.quadraticCurveTo(180, 420, 360, 380);
+        editorCtx.moveTo(0, 350);
+        editorCtx.quadraticCurveTo(180, 400, 360, 350);
         editorCtx.lineTo(360, 640);
         editorCtx.lineTo(0, 640);
         editorCtx.fill();
@@ -748,38 +710,43 @@
                 else if(s.includes("Winter") || s.includes("冬")) svg = SVG_GIRL_WINTER;
             }
             
-            const img = new Image(); img.src = svg;
-            if(img.complete) { editorCtx.drawImage(img, (360-240)/2, 60, 240, 300); } else { img.onload = () => renderEditor(); }
+            const img = new Image(); 
+            img.onload = () => {
+                editorCtx.drawImage(img, (360-280)/2, 60, 280, 350);
+                drawCuteContent(); // Ensure text draws after image
+                editorStamps.forEach(s => drawStamp(editorCtx, s));
+            };
+            img.src = svg;
         } else {
-            drawPhotoFrame(60, 200, 260, '#fff', 5, true);
+            drawPhotoFrame(60, 220, 280, '#fff', 5, true);
+            drawCuteContent();
         }
-
-        editorCtx.font = 'bold 24px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#333';
-        editorCtx.textAlign = 'center';
+    }
+    
+    function drawCuteContent() {
+        // Text
+        editorCtx.font = 'bold 30px "M PLUS Rounded 1c", sans-serif'; editorCtx.fillStyle = '#333'; editorCtx.textAlign = 'center';
         
-        const seasonName = currentResultData.season.includes("(") 
-            ? currentResultData.season.split("(")[1].replace(")","") 
-            : currentResultData.season;
+        const typeName = currentResultData.type.split(" ")[1] || "Spring";
+        const seasonName = currentResultData.season.split(" ")[0]; // e.g. "Spring"
+        const jpMap = {"Spring":"イエベ春", "Summer":"ブルベ夏", "Autumn":"イエベ秋", "Winter":"ブルベ冬"};
+        const jpSeason = jpMap[seasonName] || seasonName;
         
-        editorCtx.fillText(seasonName, 180, 460);
+        // Main Title: "イエベ秋 ミュート"
+        editorCtx.fillText(jpSeason, 180, 430);
+        editorCtx.font = 'bold 40px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillText(typeName, 180, 475);
         
-        editorCtx.font = 'bold 16px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#888';
-        editorCtx.fillText(currentResultData.season.split("(")[0], 180, 490);
-
-        const swatchSize = 40; const gap = 10;
-        let startX = (360 - (swatchSize*2 + gap)) / 2;
-        let startY = 520;
-        
+        // 2x2 Palette
+        const sz = 50; const gp = 10; const startX = (360 - (sz*2 + gp))/2; const startY = 510;
         currentResultData.best_colors.forEach((c, i) => {
             if(i >= 4) return;
             const row = Math.floor(i / 2);
             const col = i % 2;
-            const x = startX + col * (swatchSize + gap);
-            const y = startY + row * (swatchSize + gap);
+            const x = startX + col * (sz + gp);
+            const y = startY + row * (sz + gp);
             editorCtx.beginPath();
-            editorCtx.roundRect(x, y, swatchSize, swatchSize, 8);
+            editorCtx.roundRect(x, y, sz, sz, 10);
             editorCtx.fillStyle = c.hex;
             editorCtx.fill();
         });
@@ -928,27 +895,6 @@
         checkReady();
     }
 
-    // Function to convert Hex to HSV (for Prompt Logic)
-    function hexToHsv(hex) {
-        let r = parseInt(hex.substring(1, 3), 16) / 255;
-        let g = parseInt(hex.substring(3, 5), 16) / 255;
-        let b = parseInt(hex.substring(5, 7), 16) / 255;
-        let max = Math.max(r, g, b), min = Math.min(r, g, b);
-        let h, s, v = max;
-        let d = max - min;
-        s = max === 0 ? 0 : d / max;
-        if (max === min) h = 0;
-        else {
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-        return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
-    }
-
     function checkBrightness() {
         const w = canvas.width; const h = canvas.height;
         if(w===0 || h===0) return;
@@ -1058,7 +1004,6 @@
             });
 
             const data = await response.json();
-            if (data.error) throw new Error(data.error.message || "API Error");
             const text = data.candidates[0].content.parts[0].text;
             const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]);
             
@@ -1066,8 +1011,11 @@
 
             document.getElementById('result-season').innerText = res.season;
             document.getElementById('result-season').style.color = getSeasonColor(res.season);
-            // 16タイプを強調表示
-            document.getElementById('result-desc').innerHTML = `<div class="type-badge" style="color:${getSeasonColor(res.season)}">${res.type}</div><div style="margin-top:5px;">${res.description}</div>`;
+            // 16タイプを強調表示（大）
+            document.getElementById('result-desc').innerHTML = `
+                <div class="type-badge" style="color:${getSeasonColor(res.season)}">${res.type}</div>
+                <div style="margin-top:5px;">${res.description}</div>
+            `;
             
             document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `
                 <div class="swatch-container" onclick="applyDrape('${c.hex}')">
@@ -1100,13 +1048,10 @@
             document.getElementById('result-details').innerHTML = detailsHtml;
 
             document.getElementById('result-wrapper').style.display = 'block';
-            
             const resultCanvas = document.getElementById('result-canvas');
             const resultCtx = resultCanvas.getContext('2d');
             drawImageToCanvas(resultCanvas, resultCtx);
-
         } catch (e) {
-            console.error(e);
             alert("エラーが発生しました。\n" + e.message);
             document.getElementById('setup-area').style.display = 'block';
         } finally {
@@ -1117,7 +1062,7 @@
     function applyDrape(color) {
         const wrapper = document.getElementById('result-drape-box');
         wrapper.style.borderColor = color;
-        wrapper.style.borderStyle = 'solid'; // 点線防止
+        wrapper.style.borderStyle = 'solid'; 
         wrapper.style.borderWidth = '15px';
         wrapper.style.transform = "scale(1.02)";
         setTimeout(() => wrapper.style.transform = "scale(1)", 200);
@@ -1155,7 +1100,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v24_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v30_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
