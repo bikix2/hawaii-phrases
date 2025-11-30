@@ -1,1098 +1,180 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 16タイプAIカラー診断 V40.0 (Final Fix)</title>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <style>
-        /* V27 Base Styles */
-        :root { --primary: #E0AAFF; --accent: #FFD700; --bg: #1a1a1a; --panel-bg: #2c2c2c; --text: #ffffff; --chat-user: #00b894; --chat-ai: #444; }
-        body { font-family: 'Shippori Mincho', serif; background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%); margin: 0; padding: 20px; color: var(--text); min-height: 100vh; user-select: none; -webkit-user-select: none; }
-        .container { max-width: 600px; margin: 0 auto; text-align: center; padding-bottom: 80px; }
-        h1 { color: var(--primary); font-size: 1.6rem; margin: 10px 0 10px 0; text-shadow: 0 0 15px rgba(224, 170, 255, 0.4); display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .version-tag { font-size: 0.8rem; color: #1a1a1a; background: var(--accent); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .top-btns { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-sm { background: rgba(255,255,255,0.1); border: 1px solid #666; color: #ccc; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.85rem; }
-        .gender-selector { display: flex; gap: 10px; justify-content: center; flex: 1; margin-right: 10px;}
-        .gender-btn { flex: 1; padding: 10px; border: 1px solid #666; background: rgba(255,255,255,0.05); color: #888; border-radius: 10px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; max-width: 120px; }
-        .gender-btn.active.female { background: #ffc2d1; color: #c2185b; border-color: #ffc2d1; box-shadow: 0 0 10px rgba(255,194,209,0.3); }
-        .gender-btn.active.male { background: #90caf9; color: #0d47a1; border-color: #90caf9; box-shadow: 0 0 10px rgba(144,202,249,0.3); }
-        .guide-steps { display: flex; gap: 10px; margin-bottom: 20px; text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-        .step-icon { font-size: 1.5rem; margin-right: 10px; }
-        .step-content h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1rem; }
-        .step-content p { margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.4; }
-        .warning-box { background: rgba(255, 82, 82, 0.15); border: 1px solid #ff5252; color: #ff8a80; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; position: relative; text-align: left; }
-        .warning-close { position: absolute; top: 5px; right: 10px; cursor: pointer; font-size: 1.2rem; opacity: 0.7; }
-        .auto-msg { background: rgba(105, 240, 174, 0.15); border: 1px solid #69F0AE; color: #69F0AE; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; display: none; text-align: left; }
-        .canvas-wrapper { position: relative; width: 100%; max-width: 320px; margin: 0 auto 20px auto; border: 2px dashed #666; border-radius: 10px; transition: all 0.3s ease; overflow: hidden; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.3); min-height: 250px; display: flex; align-items: center; justify-content: center; }
-        .canvas-wrapper.has-image { border: 15px solid #444; border-radius: 5px; border-style: solid; display: block; }
-        .drape-label { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.7rem; padding: 2px 0; display: none; pointer-events: none; }
-        canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
-        .placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; z-index: 10; cursor: pointer; }
-        .upload-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.8; }
-        .picker-panel { background: var(--panel-bg); padding: 15px; border-radius: 15px; margin-top: 15px; display: none; border: 1px solid #444; }
-        .contrast-guide { font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
-        .picker-steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-        .pick-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #666; background: transparent; color: #ccc; cursor: pointer; position: relative; font-size: 0.9rem; transition: all 0.2s; }
-        .pick-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
-        .pick-btn.done { border-color: var(--accent); color: var(--accent); }
-        .pick-btn.done::after { content: '✔'; margin-left: 5px; }
-        .color-preview-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid #fff; margin-right: 5px; background: transparent; }
-        .btn-main { background: linear-gradient(45deg, #E0AAFF, #C77dFF); color: #1a0b2e; border: none; padding: 15px 50px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(224, 170, 255, 0.4); width: 100%; margin-top: 20px; opacity: 0.5; pointer-events: none; transition: all 0.3s; }
-        .btn-main.ready { opacity: 1; pointer-events: auto; }
-        
-        #result-wrapper { display: none; animation: fadeIn 0.5s ease; text-align: left; margin-top: 30px; }
-        
-        /* ★ New Typography for Result */
-        .res-title-en { color:#aaa; font-size:1rem; font-family: 'M PLUS Rounded 1c', sans-serif; margin-top:10px; letter-spacing: 1px;}
-        .res-title-season { font-size:2.0rem; font-weight:800; margin:5px 0; font-family: 'M PLUS Rounded 1c', sans-serif; color: #fff; }
-        .res-title-type { font-size:2.5rem; font-weight:800; font-family: 'M PLUS Rounded 1c', sans-serif; margin-bottom:10px; color:#fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-        
-        .result-canvas-wrapper { margin-bottom: 25px; min-height: 200px; }
-        .fortune-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .card-title { font-weight: bold; display: block; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 20px 0; }
-        .swatch-container { display: flex; flex-direction: column; align-items: center; width: 64px; cursor: pointer; transition: transform 0.1s; }
-        .swatch-container:active { transform: scale(0.95); }
-        .color-swatch { width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); margin-bottom: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .color-name { font-size: 0.65rem; color: #ccc; text-align: center; line-height: 1.2; word-break: break-all; }
-        .drape-hint { text-align: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
-        .ng-colors-wrapper { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .ng-swatch { width: 40px; height: 40px; border-radius: 4px; border: 2px solid #555; position: relative; opacity: 0.8; }
-        .ng-swatch::after { content: '×'; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); color: rgba(0,0,0,0.5); font-weight: bold; font-size: 1.2rem; }
-        .cosme-list { list-style: none; padding: 0; margin: 0; }
-        .cosme-item { background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
-        .cosme-icon { font-size: 1.2rem; }
-        .search-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; margin-left: auto; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
-        .chat-section { margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
-        .chat-box { max-height: 300px; overflow-y: auto; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
-        .chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; max-width: 85%; }
-        .chat-msg.ai { background: var(--chat-ai); color: #fff; margin-right: auto; }
-        .chat-msg.user { background: var(--chat-user); color: #000; margin-left: auto; font-weight: bold; }
-        .chat-input-area { display: flex; gap: 10px; }
-        .chat-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #666; background: #222; color: #fff; }
-        .chat-send { background: var(--primary); border: none; padding: 0 20px; border-radius: 20px; font-weight: bold; cursor: pointer; color: #000; }
-        .save-area { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-        .btn-save { background: #00b894; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
-        .btn-share { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; flex: 1; min-width: 140px; }
-        .sub-controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .btn-sub-action { background: transparent; border: 1px solid #666; color: #ccc; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        
-        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-content { background: #2c2c2c; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; max-height: 80vh; overflow-y: auto; }
-        .input-key { width: 90%; padding: 12px; margin: 20px 0; background: #1a1a1a; color: white; border: 1px solid var(--primary); border-radius: 5px; }
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:100; display:none; justify-content:center; align-items:center; flex-direction:column; }
-        .loading-icon { font-size: 4rem; animation: spin 2s infinite linear; margin-bottom: 20px; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden { display: none !important; }
-
-        /* === エディタ === */
-        #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; justify-content: flex-start; padding-top: 20px; }
-        #editor-canvas-box { 
-            position: relative; width: 90%; max-width: 360px; aspect-ratio: 9/16; margin: 0 auto; 
-            border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            max-height: 60vh;
-        }
-        #editor-canvas { width: 100%; height: 100%; object-fit: contain; }
-        .editor-tools { 
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #2c2c2c; padding: 15px 15px 30px 15px; 
-            border-top: 1px solid #444; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; 
-        }
-        .editor-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; justify-content: center;}
-        .tool-btn { 
-            background: #444; border: 1px solid #666; color: #fff; padding: 8px 12px; 
-            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; font-family: 'Shippori Mincho', serif;
-        }
-        .tool-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
-        .tool-btn-action { background: var(--accent); color: #000; font-weight: bold; }
-        .size-slider { width: 100%; margin: 5px 0; accent-color: var(--primary); }
-        
-        #theme-stylish.active { background: linear-gradient(45deg, #240046, #E0AAFF); color: #fff; border: none; }
-        #theme-cute.active { background: linear-gradient(45deg, #ff9a9e, #fad0c4); color: #fff; border: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎨 16タイプAIカラー診断 V27.8 (Complete)</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<style>
+:root{--primary:#E0AAFF;--accent:#FFD700;--bg:#1a1a1a;--panel-bg:#2c2c2c;--text:#ffffff;--chat-user:#00b894;--chat-ai:#444}
+body{font-family:'Shippori Mincho',serif;background:linear-gradient(135deg,#1a1a1a 0%,#2c2c2c 100%);margin:0;padding:20px;color:var(--text);min-height:100vh;user-select:none;-webkit-user-select:none}
+.container{max-width:600px;margin:0 auto;text-align:center;padding-bottom:80px}
+h1{color:var(--primary);font-size:1.6rem;margin:10px 0;text-shadow:0 0 15px rgba(224,170,255,0.4);display:flex;align-items:baseline;justify-content:center;gap:10px;flex-wrap:wrap}
+.version-tag{font-size:0.8rem;color:#1a1a1a;background:var(--accent);padding:2px 8px;border-radius:4px;font-weight:bold}
+.top-btns{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.btn-sm{background:rgba(255,255,255,0.1);border:1px solid #666;color:#ccc;padding:8px 16px;border-radius:15px;cursor:pointer;font-size:0.85rem}
+.gender-selector{display:flex;gap:10px;justify-content:center;flex:1;margin-right:10px}
+.gender-btn{flex:1;padding:10px;border:1px solid #666;background:rgba(255,255,255,0.05);color:#888;border-radius:10px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:5px;font-weight:bold;max-width:120px}
+.gender-btn.active.female{background:#ffc2d1;color:#c2185b;border-color:#ffc2d1;box-shadow:0 0 10px rgba(255,194,209,0.3)}
+.gender-btn.active.male{background:#90caf9;color:#0d47a1;border-color:#90caf9;box-shadow:0 0 10px rgba(144,202,249,0.3)}
+.guide-steps{display:flex;gap:10px;margin-bottom:20px;text-align:left;background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)}
+.step-icon{font-size:1.5rem;margin-right:10px}
+.step-content h3{margin:0 0 5px 0;color:var(--primary);font-size:1rem}
+.step-content p{margin:0;font-size:0.85rem;color:#ccc;line-height:1.4}
+.warning-box{background:rgba(255,82,82,0.15);border:1px solid #ff5252;color:#ff8a80;padding:12px;border-radius:8px;margin-bottom:15px;font-size:0.9rem;display:none;position:relative;text-align:left}
+.warning-close{position:absolute;top:5px;right:10px;cursor:pointer;font-size:1.2rem;opacity:0.7}
+.auto-msg{background:rgba(105,240,174,0.15);border:1px solid #69F0AE;color:#69F0AE;padding:12px;border-radius:8px;margin-bottom:15px;font-size:0.9rem;display:none;text-align:left}
+.canvas-wrapper{position:relative;width:100%;max-width:320px;margin:0 auto 20px auto;border:2px dashed #666;border-radius:10px;transition:all .3s ease;overflow:hidden;background:#000;box-shadow:0 0 20px rgba(0,0,0,0.3);min-height:250px;display:flex;align-items:center;justify-content:center}
+.canvas-wrapper.has-image{border:15px solid #444;border-radius:5px;border-style:solid;display:block}
+.drape-label{position:absolute;bottom:0;left:0;width:100%;background:rgba(0,0,0,0.6);color:#fff;font-size:0.7rem;padding:2px 0;display:none;pointer-events:none}
+canvas{width:100%;height:100%;object-fit:contain;display:block}
+.placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;z-index:10;cursor:pointer}
+.upload-icon{font-size:3rem;margin-bottom:10px;opacity:0.8}
+.picker-panel{background:var(--panel-bg);padding:15px;border-radius:15px;margin-top:15px;display:none;border:1px solid #444}
+.contrast-guide{font-size:0.8rem;color:#aaa;background:rgba(0,0,0,0.2);padding:8px;border-radius:8px;margin-bottom:15px;text-align:left}
+.picker-steps{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
+.pick-btn{flex:1;padding:10px;border-radius:8px;border:1px solid #666;background:transparent;color:#ccc;cursor:pointer;position:relative;font-size:0.9rem;transition:all .2s}
+.pick-btn.active{background:var(--primary);color:#000;border-color:var(--primary);font-weight:bold}
+.pick-btn.done{border-color:var(--accent);color:var(--accent)}
+.pick-btn.done::after{content:'✔';margin-left:5px}
+.color-preview-dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #fff;margin-right:5px;background:transparent}
+.btn-main{background:linear-gradient(45deg,#E0AAFF,#C77dFF);color:#1a0b2e;border:none;padding:15px 50px;font-size:1.2rem;font-weight:bold;border-radius:50px;cursor:pointer;box-shadow:0 0 20px rgba(224,170,255,0.4);width:100%;margin-top:20px;opacity:0.5;pointer-events:none;transition:all .3s}
+.btn-main.ready{opacity:1;pointer-events:auto}
+#result-wrapper{display:none;animation:fadeIn 0.5s ease;text-align:left;margin-top:30px}
+.type-badge{display:inline-block;padding:8px 25px;border-radius:50px;font-size:1.6rem;font-weight:800;margin:10px 0 5px 0;background:#fff;color:#000;box-shadow:0 0 20px rgba(255,255,255,0.4);text-align:center;width:90%;white-space:nowrap;font-family:"M PLUS Rounded 1c",sans-serif}
+.season-sub{font-size:0.9rem;color:#ccc;margin-bottom:15px;letter-spacing:1px}
+.result-canvas-wrapper{margin-bottom:25px;min-height:200px}
+.fortune-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:15px;margin-bottom:15px}
+.card-title{font-weight:bold;display:block;margin-bottom:8px;border-bottom:1px solid #444;padding-bottom:5px}
+.color-palette{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0 20px 0}
+.swatch-container{display:flex;flex-direction:column;align-items:center;width:64px;cursor:pointer;transition:transform .1s}
+.swatch-container:active{transform:scale(0.95)}
+.color-swatch{width:50px;height:50px;border-radius:50%;border:3px solid rgba(255,255,255,0.3);margin-bottom:5px;box-shadow:0 4px 6px rgba(0,0,0,0.3)}
+.color-name{font-size:0.65rem;color:#ccc;text-align:center;line-height:1.2;word-break:break-all}
+.drape-hint{text-align:center;font-size:0.8rem;color:var(--accent);margin-bottom:5px;font-weight:bold}
+.ng-colors-wrapper{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ng-swatch{width:40px;height:40px;border-radius:4px;border:2px solid #555;position:relative;opacity:0.8}
+.ng-swatch::after{content:'×';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(0,0,0,0.5);font-weight:bold;font-size:1.2rem}
+.cosme-list{list-style:none;padding:0;margin:0}
+.cosme-item{background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:0.9rem;cursor:pointer}
+.cosme-icon{font-size:1.2rem}
+.search-link{color:var(--accent);font-size:0.75rem;text-decoration:none;margin-left:auto;border:1px solid var(--accent);padding:2px 6px;border-radius:4px}
+.chat-section{margin-top:30px;border-top:1px solid #444;padding-top:20px}
+.chat-box{max-height:300px;overflow-y:auto;margin-bottom:10px;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px}
+.chat-msg{margin-bottom:10px;padding:8px 12px;border-radius:10px;font-size:0.9rem;line-height:1.4;max-width:85%}
+.chat-msg.ai{background:var(--chat-ai);color:#fff;margin-right:auto}
+.chat-msg.user{background:var(--chat-user);color:#000;margin-left:auto;font-weight:bold}
+.chat-input-area{display:flex;gap:10px}
+.chat-input{flex:1;padding:10px;border-radius:20px;border:1px solid #666;background:#222;color:#fff}
+.chat-send{background:var(--primary);border:none;padding:0 20px;border-radius:20px;font-weight:bold;cursor:pointer;color:#000}
+.save-area{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.btn-save{background:#00b894;color:white;border:none;padding:12px 20px;border-radius:30px;font-weight:bold;cursor:pointer;flex:1;min-width:140px}
+.btn-share{background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);color:white;border:none;padding:12px 20px;border-radius:30px;font-weight:bold;cursor:pointer;flex:1;min-width:140px}
+.sub-controls{display:flex;justify-content:center;gap:15px;margin-top:20px}
+.btn-sub-action{background:transparent;border:1px solid #666;color:#ccc;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:0.9rem;transition:all .2s}
+.modal{display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;justify-content:center;align-items:center}
+.modal-content{background:#2c2c2c;padding:30px;border-radius:20px;width:85%;border:1px solid var(--primary);text-align:center;max-height:80vh;overflow-y:auto}
+.input-key{width:90%;padding:12px;margin:20px 0;background:#1a1a1a;color:white;border:1px solid var(--primary);border-radius:5px}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,26,26,0.95);z-index:100;display:none;justify-content:center;align-items:center;flex-direction:column}
+.loading-icon{font-size:4rem;animation:spin 2s infinite linear;margin-bottom:20px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0.5;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none!important}
+#editor-modal{background:#1a1a1a;z-index:4000;flex-direction:column;padding:0;justify-content:flex-start;padding-top:20px}
+#editor-canvas-box{position:relative;width:90%;max-width:360px;aspect-ratio:9/16;margin:0 auto;border:1px solid #333;box-shadow:0 0 30px rgba(0,0,0,0.5);max-height:60vh}
+#editor-canvas{width:100%;height:100%;object-fit:contain}
+.editor-tools{position:fixed;bottom:0;left:0;width:100%;background:#2c2c2c;padding:15px;border-top:1px solid #444;display:flex;flex-direction:column;gap:10px;box-sizing:border-box}
+.editor-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:5px;justify-content:center}
+.tool-btn{background:#444;border:1px solid #666;color:#fff;padding:8px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;font-size:0.85rem;font-family:'Shippori Mincho',serif}
+.tool-btn.active{background:var(--primary);color:#000;border-color:var(--primary);font-weight:bold}
+.tool-btn-action{background:var(--accent);color:#000;font-weight:bold}
+.size-slider{width:100%;margin:5px 0;accent-color:var(--primary)}
+#theme-stylish.active{background:linear-gradient(45deg,#240046,#E0AAFF);color:#fff;border:none}
+#theme-cute.active{background:linear-gradient(45deg,#ff9a9e,#fad0c4);color:#fff;border:none}
+</style>
 </head>
 <body>
-
-<div id="key-modal" class="modal">
-    <div class="modal-content">
-        <h2>🔑 API設定</h2>
-        <p>Gemini APIキーを入力</p>
-        <input type="password" id="api-key-input" class="input-key" placeholder="API Key">
-        <button class="btn-main ready" onclick="saveApiKey()" style="margin-top:0;">OK</button>
-    </div>
-</div>
-
-<div id="editor-modal" class="modal hidden">
-    <div style="color:white; margin-bottom:5px;">🎨 SNSカード作成</div>
-    <div id="editor-canvas-box">
-        <canvas id="editor-canvas"></canvas>
-    </div>
-    <div class="editor-tools">
-        <div class="editor-row">
-            <button class="tool-btn active" id="theme-stylish" onclick="switchTheme('stylish')">🌙 スタイリッシュ</button>
-            <button class="tool-btn" id="theme-cute" onclick="switchTheme('cute')">🌸 かわいい</button>
-        </div>
-        <div class="editor-row">
-            <input type="range" id="stamp-size" class="size-slider" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateStampSize()">
-        </div>
-        <div class="editor-row">
-            <button class="tool-btn active" id="mode-photo" onclick="setEditorMode('photo')">📸 写真</button>
-            <button class="tool-btn" id="mode-illust" onclick="setEditorMode('illust')">🎨 イラスト</button>
-        </div>
-        <div class="editor-row" id="stamp-row">
-            <button class="tool-btn" onclick="addStamp('glasses')">🕶️</button>
-            <button class="tool-btn" onclick="addStamp('mask')">😷</button>
-            <button class="tool-btn" onclick="addStamp('heart')">💖</button>
-            <button class="tool-btn" onclick="addStamp('sparkle')">✨</button>
-            <button class="tool-btn" onclick="addTextStamp()">📝文字</button>
-            <button class="tool-btn" onclick="deleteSelectedStamp()" style="color:#ff6b6b">🗑️削除</button>
-        </div>
-        <div class="editor-row">
-            <button class="tool-btn" onclick="closeEditor()">キャンセル</button>
-            <button class="tool-btn tool-btn-action" onclick="saveEditorImage()">💾 保存</button>
-        </div>
-    </div>
-</div>
-
-<div id="loading" class="loading-overlay">
-    <div class="loading-icon">🎨</div>
-    <div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem; color:#888;">16タイプ詳細診断を実行中...<br>特徴に合わせて最適なアドバイスを生成します</span></div>
-</div>
-
-<div class="container">
-    <h1>🎨 16タイプAIカラー診断 <span class="version-tag">V40.0</span></h1>
-    <div class="top-btns">
-        <div class="gender-selector">
-            <div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div>
-            <div class="gender-btn male" id="g-male" onclick="setGender('male')">👨 男性</div>
-        </div>
-        <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
-    </div>
-
-    <div id="setup-area">
-        <div class="guide-steps">
-            <div class="step-icon">📸</div>
-            <div class="step-content">
-                <h3>Step 1: 写真撮影</h3>
-                <p>明るい場所で撮影。500円玉や白い紙を顔の横に持つと精度UP！</p>
-            </div>
-        </div>
-        <div class="guide-steps">
-            <div class="step-icon">👆</div>
-            <div class="step-content">
-                <h3>Step 2: 色を指定</h3>
-                <p>肌の色と、瞳や髪のコントラスト(明度差)を分析するため、写真内の「肌」と「瞳/髪」をタップしてください。</p>
-            </div>
-        </div>
-
-        <div id="auto-msg" class="auto-msg"></div>
-        <div id="brightness-warning" class="warning-box">
-            <span class="warning-close" onclick="this.parentElement.style.display='none'">×</span>
-            ⚠️ 写真が少し暗いようです。明るい場所推奨。
-        </div>
-
-        <div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()">
-            <canvas id="main-canvas"></canvas>
-            <div class="drape-label" id="drape-label">Virtual Drape Mode</div>
-            <div class="placeholder" id="placeholder">
-                <div class="upload-icon">📷</div>
-                <div>ここをタップして写真を選択</div>
-            </div>
-        </div>
-        <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)">
-
-        <div id="picker-panel" class="picker-panel">
-            <div class="contrast-guide" id="guide-text">
-                <strong>🧐 手動設定モード</strong><br>
-                画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップしてください。
-            </div>
-
-            <div style="font-size:0.9rem; margin-bottom:10px;">👇 画像をタップして色を指定してください</div>
-            <div class="picker-steps">
-                <button class="pick-btn active" id="btn-skin" onclick="setMode('skin')">
-                    <span class="color-preview-dot" id="dot-skin"></span>肌 (Skin)
-                </button>
-                <button class="pick-btn" id="btn-eye" onclick="setMode('eye')">
-                    <span class="color-preview-dot" id="dot-eye"></span>瞳・眉 (Frame)
-                </button>
-            </div>
-            <button class="reset-btn" onclick="resetPoints()">選択をやり直す</button>
-        </div>
-
-        <button id="analyze-btn" class="btn-main" onclick="startAnalysis()">診断開始</button>
-    </div>
-
-    <div id="result-wrapper">
-        <div id="capture-target" style="background: #242424; padding: 25px; border-radius: 15px; border:1px solid #444;">
-            
-            <div style="text-align: center;">
-                <h2 style="color:var(--primary); margin:0 0 5px 0;">診断結果</h2>
-                <div id="res-type-eng" class="res-title-en"></div>
-                <div id="res-jp-season" class="res-title-season"></div>
-                <div id="res-jp-type" class="res-title-type"></div>
-                <div id="result-desc" style="font-size:0.9rem; color:#ccc; margin-bottom:15px;"></div>
-            </div>
-
-            <div class="canvas-wrapper result-canvas-wrapper" id="result-drape-box">
-                <canvas id="result-canvas"></canvas>
-                <div class="drape-label" id="result-drape-label" style="display:block;">Virtual Drape Mode</div>
-            </div>
-
-            <div class="fortune-card">
-                <span class="card-title" style="color:var(--primary)">✨ Best Colors</span>
-                <div class="drape-hint">👇 タップして「ドレープ」を試着！</div>
-                <div class="color-palette" id="best-colors"></div>
-            </div>
-            
-            <div class="fortune-card">
-                <span class="card-title" style="color:#ff6b6b;">🙅‍♀️ NG Colors (顔色がくすむ色)</span>
-                <div class="ng-colors-wrapper" id="ng-colors"></div>
-                <div id="ng-reason" style="font-size:0.8rem; margin-top:10px; color:#aaa;"></div>
-            </div>
-
-            <div class="fortune-card">
-                <span class="card-title" style="color:#ff9ff3;" id="advice-title">💄 おすすめアイテム</span>
-                <ul class="cosme-list" id="cosme-list"></ul>
-            </div>
-
-            <div id="result-details"></div>
-            
-            <div style="text-align:center; margin-top:15px; font-size:0.8rem; color:#666;">
-                Generated by Gemini 2.5 Flash
-            </div>
-        </div>
-
-        <div class="chat-section">
-            <h3 style="color:var(--primary); margin-top:0;">💬 ファッション相談AI</h3>
-            <div class="chat-box" id="chat-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" class="chat-input" placeholder="質問を入力...">
-                <button class="chat-send" onclick="sendChat()">送信</button>
-            </div>
-        </div>
-
-        <div class="save-area">
-            <button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button>
-            <button class="btn-share" onclick="openEditor()">✨ SNS用カード作成</button>
-        </div>
-        <div class="sub-controls" style="margin-top:20px;">
-            <button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button>
-        </div>
-    </div>
-</div>
-
+<div id="key-modal" class="modal"><div class="modal-content"><h2>🔑 API設定</h2><p>Gemini APIキーを入力</p><input type="password" id="api-key-input" class="input-key" placeholder="API Key"><button class="btn-main ready" onclick="saveApiKey()" style="margin-top:0;">OK</button></div></div>
+<div id="editor-modal" class="modal hidden"><div style="color:white;margin-bottom:5px;">🎨 SNSカード作成</div><div id="editor-canvas-box"><canvas id="editor-canvas"></canvas></div><div class="editor-tools"><div class="editor-row"><button class="tool-btn active" id="theme-stylish" onclick="switchTheme('stylish')">🌙 スタイリッシュ</button><button class="tool-btn" id="theme-cute" onclick="switchTheme('cute')">🌸 かわいい</button></div><div class="editor-row"><input type="range" id="stamp-size" class="size-slider" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateStampSize()"></div><div class="editor-row"><button class="tool-btn active" id="mode-photo" onclick="setEditorMode('photo')">📸 写真</button><button class="tool-btn" id="mode-illust" onclick="setEditorMode('illust')">🎨 イラスト</button></div><div class="editor-row" id="stamp-row"><button class="tool-btn" onclick="addStamp('glasses')">🕶️</button><button class="tool-btn" onclick="addStamp('mask')">😷</button><button class="tool-btn" onclick="addStamp('heart')">💖</button><button class="tool-btn" onclick="addStamp('sparkle')">✨</button><button class="tool-btn" onclick="addTextStamp()">📝文字</button><button class="tool-btn" onclick="deleteSelectedStamp()" style="color:#ff6b6b">🗑️削除</button></div><div class="editor-row"><button class="tool-btn" onclick="closeEditor()">キャンセル</button><button class="tool-btn tool-btn-action" onclick="saveEditorImage()">💾 保存</button></div></div></div>
+<div id="loading" class="loading-overlay"><div class="loading-icon">🎨</div><div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem;color:#888;">詳細診断を実行中...</span></div></div>
+<div class="container"><h1>🎨 16タイプAIカラー診断 <span class="version-tag">V27.7</span></h1><div class="top-btns"><div class="gender-selector"><div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div><div class="gender-btn male" id="g-male" onclick="setGender('male')">👨 男性</div></div><button class="btn-sm" onclick="location.reload()">🔄 Reset</button></div>
+<div id="setup-area"><div class="guide-steps"><div class="step-icon">📸</div><div class="step-content"><h3>Step 1: 写真撮影</h3><p>明るい場所で撮影。白い紙を顔の横に持つと精度UP！</p></div></div><div class="guide-steps"><div class="step-icon">👆</div><div class="step-content"><h3>Step 2: 色を指定</h3><p>写真内の「肌」と「瞳/髪」をタップしてください。</p></div></div><div id="auto-msg" class="auto-msg"></div><div id="brightness-warning" class="warning-box"><span class="warning-close" onclick="this.parentElement.style.display='none'">×</span>⚠️ 写真が暗いようです。</div><div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()"><canvas id="main-canvas"></canvas><div class="drape-label" id="drape-label">Virtual Drape Mode</div><div class="placeholder" id="placeholder"><div class="upload-icon">📷</div><div>ここをタップして写真を選択</div></div></div><input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)"><div id="picker-panel" class="picker-panel"><div class="contrast-guide" id="guide-text"><strong>🧐 手動設定モード</strong><br>画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップ。</div><div style="font-size:0.9rem;margin-bottom:10px;">👇 画像をタップして色を指定</div><div class="picker-steps"><button class="pick-btn active" id="btn-skin" onclick="setMode('skin')"><span class="color-preview-dot" id="dot-skin"></span>肌 (Skin)</button><button class="pick-btn" id="btn-eye" onclick="setMode('eye')"><span class="color-preview-dot" id="dot-eye"></span>瞳・眉 (Frame)</button></div><button class="reset-btn" onclick="resetPoints()">選択をやり直す</button></div><button id="analyze-btn" class="btn-main" onclick="startAnalysis()">診断開始</button></div>
+<div id="result-wrapper"><div id="capture-target" style="background:#242424;padding:25px;border-radius:15px;border:1px solid #444;"><div style="text-align:center;"><h2 style="color:var(--primary);margin:0 0 5px 0;">診断結果</h2><div id="result-season" class="season-badge">Analyzing...</div><div id="result-desc" class="season-sub"></div></div><div class="canvas-wrapper result-canvas-wrapper" id="result-drape-box"><canvas id="result-canvas"></canvas><div class="drape-label" id="result-drape-label" style="display:block;">Virtual Drape Mode</div></div><div class="fortune-card"><span class="card-title" style="color:var(--primary)">✨ Best Colors</span><div class="drape-hint">👇 タップして「ドレープ」を試着！</div><div class="color-palette" id="best-colors"></div></div><div class="fortune-card"><span class="card-title" style="color:#ff6b6b;">🙅‍♀️ NG Colors</span><div class="ng-colors-wrapper" id="ng-colors"></div><div id="ng-reason" style="font-size:0.8rem;margin-top:10px;color:#aaa;"></div></div><div class="fortune-card"><span class="card-title" style="color:#ff9ff3;" id="advice-title">💄 おすすめアイテム</span><ul class="cosme-list" id="cosme-list"></ul></div><div id="result-details"></div><div style="text-align:center;margin-top:15px;font-size:0.8rem;color:#666;">Generated by Gemini 2.5 Flash</div></div><div class="chat-section"><h3 style="color:var(--primary);margin-top:0;">💬 ファッション相談AI</h3><div class="chat-box" id="chat-box"></div><div class="chat-input-area"><input type="text" id="chat-input" class="chat-input" placeholder="質問を入力..."><button class="chat-send" onclick="sendChat()">送信</button></div></div><div class="save-area"><button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button><button class="btn-share" onclick="openEditor()">✨ SNS用カード作成</button></div><div class="sub-controls"><button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button></div></div></div>
 <script>
-    let API_KEY = "";
-    const GEMINI_MODEL = "gemini-2.5-flash"; 
-
-    let imgFile = null;
-    let pickMode = 'skin';
-    let skinColor = null; 
-    let eyeColor = null; 
-    let canvas, ctx;
-    let imgObj = new Image();
-    let cropRect = null; 
-    let currentResultData = null; 
-    let selectedGender = 'female'; 
-
-    let editorCanvas, editorCtx;
-    let editorMode = 'photo';
-    let editorTheme = 'stylish';
-    let editorStamps = [];
-    let selectedStampIndex = -1;
-    let isDragging = false;
-
-    // --- Illustrations (Full Base64) ---
-    const SVG_STYLISH_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4=";
-    const SVG_STYLISH_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
-    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+";
-    const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
-
-    const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
-    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0i2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
-    const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
-    const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
-
-    const SVG_BOY_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjOEI0NTEzIiBkPSJNNDAgNTBjMC0yMCAzMC0zMCA2MC0zMHM2MCAxMCA2MCAzMHY0MGMwIDIwLTMwIDMwLTYwIDMwcy02MC0xMC02MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
-    const SVG_BOY_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMzAgNTBjMC0yMCAzMC0zMCA3MC0zMHM3MCAxMCA3MCAzMHYzMGMwIDIwLTMwIDMwLTcwIDMwcy03MC0xMC03MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
-    const SVG_BOY_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNEIyNTExIiBkPSJNMzAgNjBzLTEwLTMwIDIwLTQuczUwLTEwIDUwIDEwczMwIDIwIDMwIDUwcMDIwLTQwIDMwLTcweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
-    const SVG_BOY_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNDBoMTQwdjcwYzAgMjAtNDAgMzAtNzAgMzBzLTcwLTEwLTcwLTMweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
-
-    window.onload = function() {
-        checkApiKey();
-        canvas = document.getElementById('main-canvas');
-        ctx = canvas.getContext('2d');
-        canvas.addEventListener('click', handleCanvasClick);
-        
-        editorCanvas = document.getElementById('editor-canvas');
-        editorCtx = editorCanvas.getContext('2d');
-        editorCanvas.addEventListener('mousedown', handleDragStart);
-        editorCanvas.addEventListener('mousemove', handleDragMove);
-        editorCanvas.addEventListener('mouseup', handleDragEnd);
-        editorCanvas.addEventListener('touchstart', handleDragStart, {passive: false});
-        editorCanvas.addEventListener('touchmove', handleDragMove, {passive: false});
-        editorCanvas.addEventListener('touchend', handleDragEnd);
-    };
-
-    function checkApiKey() {
-        const stored = localStorage.getItem('gemini_api_key_color');
-        if (stored) { API_KEY = stored; document.getElementById('key-modal').classList.add('hidden'); }
-    }
-    function saveApiKey() {
-        const key = document.getElementById('api-key-input').value.trim();
-        if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
-    }
-
-    function setGender(gender) {
-        selectedGender = gender;
-        document.getElementById('g-female').classList.toggle('active', gender === 'female');
-        document.getElementById('g-male').classList.toggle('active', gender === 'male');
-        
-        document.getElementById('advice-title').innerText = (gender === 'female') ? "💄 おすすめアイテム" : "👔 おすすめスタイル";
-    }
-
-    // --- Editor Logic ---
-    function openEditor() {
-        if(!currentResultData) return;
-        document.getElementById('editor-modal').classList.remove('hidden');
-        editorCanvas.width = 360;
-        editorCanvas.height = 640;
-        setEditorMode('photo');
-        switchTheme('stylish'); 
-    }
-
-    function closeEditor() { document.getElementById('editor-modal').classList.add('hidden'); }
-
-    function switchTheme(theme) {
-        editorTheme = theme;
-        document.getElementById('theme-stylish').classList.toggle('active', theme === 'stylish');
-        document.getElementById('theme-cute').classList.toggle('active', theme === 'cute');
-        renderEditor();
-    }
-
-    function setEditorMode(mode) {
-        editorMode = mode;
-        document.getElementById('mode-photo').classList.toggle('active', mode === 'photo');
-        document.getElementById('mode-illust').classList.toggle('active', mode === 'illust');
-        renderEditor();
-    }
-
-    function addStamp(type) {
-        const centerX = editorCanvas.width / 2;
-        const centerY = editorCanvas.height / 2;
-        let w = 100; let h = 100;
-        if(type === 'glasses') { w = 150; h = 60; }
-        if(type === 'mask') { w = 120; h = 80; }
-        if(type === 'heart') { w = 80; h = 80; }
-        if(type === 'sparkle') { w = 80; h = 80; }
-
-        editorStamps.push({
-            type: type,
-            x: centerX,
-            y: centerY,
-            width: w,
-            height: h,
-            scale: 1.0
-        });
-        selectedStampIndex = editorStamps.length - 1;
-        renderEditor();
-    }
-
-    function addTextStamp() {
-        const text = prompt("入れる文字を入力してください:", "似合う色発見！");
-        if(text) {
-            editorStamps.push({
-                type: 'text',
-                text: text,
-                x: editorCanvas.width / 2,
-                y: editorCanvas.height / 2,
-                scale: 1.0
-            });
-            selectedStampIndex = editorStamps.length - 1;
-            renderEditor();
-        }
-    }
-
-    function deleteSelectedStamp() {
-        if(selectedStampIndex !== -1) {
-            editorStamps.splice(selectedStampIndex, 1);
-            selectedStampIndex = -1;
-            renderEditor();
-        } else {
-            alert("消したいスタンプをタップして選択してください");
-        }
-    }
-
-    function updateStampSize() {
-        if(selectedStampIndex >= 0 && editorStamps[selectedStampIndex]) {
-            const slider = document.getElementById('stamp-size');
-            editorStamps[selectedStampIndex].scale = parseFloat(slider.value);
-            renderEditor();
-        }
-    }
-
-    // Drag Logic
-    function getPointerPos(e) {
-        const rect = editorCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const scaleX = editorCanvas.width / rect.width;
-        const scaleY = editorCanvas.height / rect.height;
-        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-    }
-
-    function handleDragStart(e) {
-        const pos = getPointerPos(e);
-        selectedStampIndex = -1;
-        for (let i = editorStamps.length - 1; i >= 0; i--) {
-            const s = editorStamps[i];
-            const sizeW = (s.width || 100) * s.scale;
-            const sizeH = (s.height || 100) * s.scale;
-            if (s.type === 'text') {
-                editorCtx.font = `bold ${24 * s.scale}px serif`;
-                const m = editorCtx.measureText(s.text);
-                if(pos.x >= s.x - m.width/2 && pos.x <= s.x + m.width/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
-                    selectedStampIndex = i; break;
-                }
-            } else {
-                if(pos.x >= s.x - sizeW/2 && pos.x <= s.x + sizeW/2 && pos.y >= s.y - sizeH/2 && pos.y <= s.y + sizeH/2) {
-                    selectedStampIndex = i; break;
-                }
-            }
-        }
-        if(selectedStampIndex !== -1) {
-            isDragging = true;
-            document.getElementById('stamp-size').value = editorStamps[selectedStampIndex].scale;
-            renderEditor();
-        }
-    }
-
-    function handleDragMove(e) {
-        if(isDragging && selectedStampIndex !== -1) {
-            e.preventDefault();
-            const pos = getPointerPos(e);
-            editorStamps[selectedStampIndex].x = pos.x;
-            editorStamps[selectedStampIndex].y = pos.y;
-            renderEditor();
-        }
-    }
-
-    function handleDragEnd(e) { isDragging = false; }
-
-    function drawStamp(ctx, s) {
-        const scale = s.scale;
-        const w = s.width * scale;
-        const h = s.height * scale;
-        ctx.save();
-        ctx.translate(s.x, s.y);
-
-        if(s.type === 'glasses') {
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.ellipse(-w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(w*0.25, 0, w*0.22, h*0.4, 0, 0, Math.PI*2); ctx.fill();
-            ctx.fillRect(-w*0.1, -h*0.1, w*0.2, h*0.1);
-        }
-        else if(s.type === 'mask') {
-            ctx.fillStyle = '#fff';
-            ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, 10); ctx.fill();
-            ctx.strokeStyle = '#ddd'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(-w*0.4, -h*0.15); ctx.lineTo(w*0.4, -h*0.15); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(-w*0.4, h*0.15); ctx.lineTo(w*0.4, h*0.15); ctx.stroke();
-        }
-        else if(s.type === 'heart') {
-            ctx.fillStyle = '#ff6b81';
-            ctx.beginPath();
-            const topCurve = h * 0.3;
-            ctx.moveTo(0, topCurve - h/2); 
-            ctx.bezierCurveTo(0, -h/2, -w/2, -h/2, -w/2, topCurve - h/2);
-            ctx.bezierCurveTo(-w/2, h/2 - h/2, 0, h*0.8 - h/2, 0, h - h/2);
-            ctx.bezierCurveTo(0, h*0.8 - h/2, w/2, h/2 - h/2, w/2, topCurve - h/2);
-            ctx.bezierCurveTo(w/2, -h/2, 0, -h/2, 0, topCurve - h/2);
-            ctx.fill();
-        }
-        else if(s.type === 'sparkle') {
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.moveTo(0, -h/2);
-            ctx.quadraticCurveTo(w*0.1, -h*0.1, w/2, 0);
-            ctx.quadraticCurveTo(w*0.1, h*0.1, 0, h/2);
-            ctx.quadraticCurveTo(-w*0.1, h*0.1, -w/2, 0);
-            ctx.quadraticCurveTo(-w*0.1, -h*0.1, 0, -h/2);
-            ctx.fill();
-        }
-        else if(s.type === 'text') {
-            const fontName = editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"';
-            ctx.font = `bold ${24 * scale}px ${fontName}, serif`;
-            ctx.fillStyle = editorTheme === 'cute' ? '#ff80ab' : '#fff';
-            ctx.strokeStyle = editorTheme === 'cute' ? '#fff' : '#000';
-            ctx.lineWidth = editorTheme === 'cute' ? 4 : 3;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.strokeText(s.text, 0, 0);
-            ctx.fillText(s.text, 0, 0);
-        }
-
-        if (s === editorStamps[selectedStampIndex]) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.lineWidth = 2;
-            if(s.type !== 'text') ctx.strokeRect(-w/2, -h/2, w, h);
-            else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale);
-        }
-        ctx.restore();
-    }
-
-    function renderEditor() {
-        if (editorTheme === 'stylish') renderStylishTheme();
-        else renderCuteTheme();
-        editorStamps.forEach(s => drawStamp(editorCtx, s));
-    }
-
-    function renderStylishTheme() {
-        const grad = editorCtx.createLinearGradient(0,0,360,640);
-        grad.addColorStop(0, '#1a0b2e'); grad.addColorStop(0.5, '#240046'); grad.addColorStop(1, '#0d001a');
-        editorCtx.fillStyle = grad; editorCtx.fillRect(0,0,360,640);
-
-        const photoY = 80; const photoH = 300; const photoW = 225; const photoX = (360 - photoW) / 2;
-        editorCtx.save(); editorCtx.beginPath(); editorCtx.rect(photoX, photoY, photoW, photoH); editorCtx.clip();
-
-        if (editorMode === 'photo') {
-            const sx = cropRect ? cropRect.x : 0; const sy = cropRect ? cropRect.y : 0; const sw = cropRect ? cropRect.w : imgObj.width; const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(photoW / sw, photoH / sh); const renderW = sw * scale; const renderH = sh * scale;
-            const dx = photoX + (photoW - renderW) / 2; const dy = photoY + (photoH - renderH) / 2;
-            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
-        } else {
-            const s = currentResultData.season;
-            editorCtx.fillStyle = getSeasonColor(s) + "44"; 
-            editorCtx.fillRect(photoX, photoY, photoW, photoH);
-            
-            const img = new Image();
-            if(s.includes("Summer") || s.includes("夏")) img.src = SVG_STYLISH_SUMMER;
-            else if(s.includes("Autumn") || s.includes("秋")) img.src = SVG_STYLISH_AUTUMN;
-            else if(s.includes("Winter") || s.includes("冬")) img.src = SVG_STYLISH_WINTER;
-            else img.src = SVG_STYLISH_SPRING;
-
-            if(img.complete) {
-                editorCtx.globalAlpha = 0.8; editorCtx.drawImage(img, photoX + 40, photoY + 80, 145, 140); editorCtx.globalAlpha = 1.0;
-            } else { img.onload = () => renderEditor(); }
-        }
-        editorCtx.restore();
-
-        editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 5; editorCtx.strokeRect(photoX, photoY, photoW, photoH);
-        
-        editorCtx.fillStyle = '#fff'; editorCtx.beginPath(); editorCtx.roundRect(180 - 120, 410, 240, 50, 25); editorCtx.fill();
-        editorCtx.font = 'bold 22px "Shippori Mincho", serif'; editorCtx.fillStyle = getSeasonColor(currentResultData.season); editorCtx.textAlign = 'center';
-        
-        const typeName = currentResultData.type.split(" ")[1] || currentResultData.season;
-        editorCtx.fillText(typeName, 180, 443);
-
-        const swatchSize = 45; const gap = 15; const totalW = (swatchSize * 4) + (gap * 3); let startX = (360 - totalW) / 2;
-        currentResultData.best_colors.forEach((c) => {
-            editorCtx.beginPath(); editorCtx.arc(startX + swatchSize/2, 490 + swatchSize/2, swatchSize/2, 0, Math.PI*2);
-            editorCtx.fillStyle = c.hex; editorCtx.fill();
-            editorCtx.strokeStyle = '#fff'; editorCtx.lineWidth = 2; editorCtx.stroke();
-            startX += swatchSize + gap;
-        });
-
-        editorCtx.font = '10px sans-serif'; editorCtx.fillStyle = 'rgba(255,255,255,0.5)'; editorCtx.textAlign = 'right'; editorCtx.fillText("AI PERSONAL COLOR", 350, 625);
-    }
-
-    function renderCuteTheme() {
-        // Rom&nd Style
-        const s = currentResultData.season;
-        let bg = '#FDE2E4'; // Spring
-        if(s.includes("Summer") || s.includes("夏")) bg = '#E0F7FA';
-        if(s.includes("Autumn") || s.includes("秋")) bg = '#FAEBD7';
-        if(s.includes("Winter") || s.includes("冬")) bg = '#E1BEE7';
-
-        editorCtx.fillStyle = bg; editorCtx.fillRect(0,0,360,640);
-        
-        // Bottom White Area with Curve
-        editorCtx.fillStyle = '#fff'; editorCtx.beginPath();
-        editorCtx.moveTo(0, 350);
-        editorCtx.quadraticCurveTo(180, 380, 360, 350); // Gentle curve
-        editorCtx.lineTo(360, 640); editorCtx.lineTo(0, 640); editorCtx.fill();
-
-        if (editorMode === 'illust') {
-            let svg;
-            if (selectedGender === 'male') {
-                svg = SVG_BOY_SPRING;
-                if(s.includes("Summer") || s.includes("夏")) svg = SVG_BOY_SUMMER;
-                else if(s.includes("Autumn") || s.includes("秋")) svg = SVG_BOY_AUTUMN;
-                else if(s.includes("Winter") || s.includes("冬")) svg = SVG_BOY_WINTER;
-            } else {
-                svg = SVG_GIRL_SPRING;
-                if(s.includes("Summer") || s.includes("夏")) svg = SVG_GIRL_SUMMER;
-                else if(s.includes("Autumn") || s.includes("秋")) svg = SVG_GIRL_AUTUMN;
-                else if(s.includes("Winter") || s.includes("冬")) svg = SVG_GIRL_WINTER;
-            }
-            
-            const img = new Image(); 
-            img.src = svg;
-            // ★修正: 確実な描画フロー
-            img.onload = () => {
-                editorCtx.drawImage(img, (360-260)/2, 40, 260, 325);
-                drawCuteContent();
-                editorStamps.forEach(st => drawStamp(editorCtx, st));
-            };
-            if(img.complete) img.onload();
-        } else {
-            drawPhotoFrame(60, 220, 280, '#fff', 5, true);
-            drawCuteContent();
-        }
-    }
-    
-    function drawCuteContent() {
-        // Text Group
-        editorCtx.textAlign = 'center';
-        
-        // English Type (Small, Top)
-        editorCtx.font = '18px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#888';
-        const engType = currentResultData.type.replace(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/g, "").trim(); 
-        editorCtx.fillText(engType || "Autumn Mute", 180, 400);
-        
-        // Japanese Season (Middle, Large)
-        editorCtx.font = 'bold 36px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#333';
-        const seasonName = currentResultData.season.split("(")[0];
-        const jpMap = {"Spring":"イエベ春", "Summer":"ブルベ夏", "Autumn":"イエベ秋", "Winter":"ブルベ冬"};
-        const jpSeason = jpMap[seasonName] || seasonName;
-        editorCtx.fillText(jpSeason, 180, 445);
-        
-        // Sub Type (Large)
-        const subType = currentResultData.type.split(" ")[0]; 
-        const subMap = {"Light":"ライト", "Bright":"ブライト", "Vivid":"ビビッド", "Warm":"ウォーム", "Cool":"クール", "Muted":"ミュート", "Strong":"ストロング", "Deep":"ディープ", "Clear":"クリア", "Soft":"ソフト"};
-        editorCtx.font = 'bold 42px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillText(subMap[subType] || subType, 180, 495);
-        
-        // Palette (2x2 Rounded Squares)
-        const sz = 50; const gp = 10; 
-        const startX = (360 - (sz*2 + gp)) / 2;
-        const startY = 520;
-        
-        currentResultData.best_colors.forEach((c, i) => {
-            if(i >= 4) return;
-            const row = Math.floor(i / 2);
-            const col = i % 2;
-            const x = startX + col * (sz + gp);
-            const y = startY + row * (sz + gp);
-            
-            editorCtx.beginPath();
-            editorCtx.roundRect(x, y, sz, sz, 12);
-            editorCtx.fillStyle = c.hex;
-            editorCtx.fill();
-        });
-    }
-
-    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
-        const x = (360 - w) / 2;
-        if (isPolaroid) {
-            editorCtx.fillStyle = '#fff';
-            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
-            editorCtx.shadowBlur = 10;
-            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 40);
-            editorCtx.shadowBlur = 0;
-        }
-        editorCtx.save();
-        editorCtx.beginPath();
-        editorCtx.rect(x, y, w, h);
-        editorCtx.clip();
-
-        if (editorMode === 'photo') {
-            const sx = cropRect ? cropRect.x : 0;
-            const sy = cropRect ? cropRect.y : 0;
-            const sw = cropRect ? cropRect.w : imgObj.width;
-            const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(w / sw, h / sh);
-            const renderW = sw * scale;
-            const renderH = sh * scale;
-            const dx = x + (w - renderW) / 2;
-            const dy = y + (h - renderH) / 2;
-            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
-        } 
-        editorCtx.restore();
-    }
-
-    function saveEditorImage() {
-        selectedStampIndex = -1;
-        renderEditor();
-        const link = document.createElement("a");
-        link.href = editorCanvas.toDataURL("image/png");
-        link.download = `my_personal_color_card_${new Date().getTime()}.png`;
-        link.click();
-    }
-
-    // --- Main Logic ---
-    function triggerFileIfEmpty() {
-        if (!imgFile) document.getElementById('file-input').click();
-    }
-    
-    function retakePhoto() {
-        document.getElementById('file-input').value = "";
-        document.getElementById('file-input').click();
-        cropRect = null;
-        document.getElementById('canvas-wrapper').className = "canvas-wrapper";
-        document.getElementById('brightness-warning').style.display = 'none';
-        document.getElementById('auto-msg').style.display = 'none';
-    }
-
-    function handleFileSelect(input) {
-        if (input.files && input.files[0]) {
-            imgFile = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imgObj.onload = async function() {
-                    document.getElementById('canvas-wrapper').classList.add('has-image');
-                    await tryAutoDetectAndCrop();
-                    checkBrightness();
-                    document.getElementById('placeholder').style.display = 'none';
-                    document.getElementById('picker-panel').style.display = 'block';
-                };
-                imgObj.src = e.target.result;
-            };
-            reader.readAsDataURL(imgFile);
-        }
-    }
-
-    async function tryAutoDetectAndCrop() {
-        cropRect = null; resetPoints();
-        const autoMsg = document.getElementById('auto-msg');
-        const guideText = document.getElementById('guide-text');
-        
-        guideText.innerHTML = `<strong>🧐 手動設定モード</strong><br>画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップしてください。`;
-
-        if ('FaceDetector' in window) {
-            try {
-                const faceDetector = new FaceDetector();
-                const faces = await faceDetector.detect(imgObj);
-                if (faces.length > 0) {
-                    const face = faces[0].boundingBox;
-                    const paddingX = face.width * 0.3; const paddingY = face.height * 0.4;
-                    cropRect = {
-                        x: Math.max(0, face.x - paddingX), y: Math.max(0, face.y - paddingY),
-                        w: Math.min(imgObj.width, face.width + paddingX*2), h: Math.min(imgObj.height, face.height + paddingY*2)
-                    };
-                    if (cropRect.x + cropRect.w > imgObj.width) cropRect.w = imgObj.width - cropRect.x;
-                    if (cropRect.y + cropRect.h > imgObj.height) cropRect.h = imgObj.height - cropRect.y;
-
-                    const skinX = face.x + face.width * 0.7; const skinY = face.y + face.height * 0.6;
-                    const eyeX = face.x + face.width * 0.3; const eyeY = face.y + face.height * 0.4;
-                    
-                    drawImageToCanvas(canvas, ctx); 
-                    const scale = canvas.width / cropRect.w;
-                    autoSetPoint('skin', (skinX - cropRect.x) * scale, (skinY - cropRect.y) * scale);
-                    setTimeout(() => autoSetPoint('eye', (eyeX - cropRect.x) * scale, (eyeY - cropRect.y) * scale), 100);
-
-                    autoMsg.innerText = "✨ 顔を自動検出しました！";
-                    autoMsg.style.display = 'block';
-                    guideText.innerHTML = `<strong>🤖 自動設定完了</strong><br>問題なければ「診断開始」を押してください。`;
-                    return;
-                }
-            } catch (e) { }
-        }
-        drawImageToCanvas(canvas, ctx);
-    }
-
-    function drawImageToCanvas(targetCanvas, targetCtx) {
-        const containerW = targetCanvas.parentElement.clientWidth;
-        if (containerW === 0) return;
-
-        const sx = cropRect ? cropRect.x : 0; const sy = cropRect ? cropRect.y : 0;
-        const sw = cropRect ? cropRect.w : imgObj.width; const sh = cropRect ? cropRect.h : imgObj.height;
-        const scale = containerW / sw; const h = sh * scale;
-        
-        targetCanvas.width = containerW; targetCanvas.height = h;
-        targetCtx.drawImage(imgObj, sx, sy, sw, sh, 0, 0, targetCanvas.width, targetCanvas.height);
-
-        if (targetCanvas.id === 'main-canvas') {
-            if (skinColor) drawMarker(targetCtx, skinColor.x, skinColor.y, '#FFD700');
-            if (eyeColor) drawMarker(targetCtx, eyeColor.x, eyeColor.y, '#00BFFF');
-        }
-    }
-
-    function autoSetPoint(type, x, y) {
-        const avg = getAverageColor(x, y, 3);
-        const hex = "#" + [avg.r, avg.g, avg.b].map(d => d.toString(16).padStart(2,'0')).join('');
-        const data = { x, y, hex };
-        if (type === 'skin') {
-            skinColor = data;
-            document.getElementById('dot-skin').style.background = hex;
-            document.getElementById('btn-skin').classList.add('done');
-        } else {
-            eyeColor = data;
-            document.getElementById('dot-eye').style.background = hex;
-            document.getElementById('btn-eye').classList.add('done');
-        }
-        drawImageToCanvas(canvas, ctx);
-        checkReady();
-    }
-
-    // Function to convert Hex to HSV (for Prompt Logic)
-    function hexToHsv(hex) {
-        let r = parseInt(hex.substring(1, 3), 16) / 255;
-        let g = parseInt(hex.substring(3, 5), 16) / 255;
-        let b = parseInt(hex.substring(5, 7), 16) / 255;
-        let max = Math.max(r, g, b), min = Math.min(r, g, b);
-        let h, s, v = max;
-        let d = max - min;
-        s = max === 0 ? 0 : d / max;
-        if (max === min) h = 0;
-        else {
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-        return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
-    }
-
-    function checkBrightness() {
-        const w = canvas.width; const h = canvas.height;
-        if(w===0 || h===0) return;
-        const imageData = ctx.getImageData(0, 0, w, h);
-        const data = imageData.data;
-        let total = 0, count = 0;
-        for (let i = 0; i < data.length; i += 40) {
-            total += 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2]; count++;
-        }
-        if ((total/count) < 40) document.getElementById('brightness-warning').style.display = 'block';
-        else document.getElementById('brightness-warning').style.display = 'none';
-    }
-
-    function setMode(mode) {
-        pickMode = mode;
-        document.getElementById('btn-skin').classList.toggle('active', mode === 'skin');
-        document.getElementById('btn-eye').classList.toggle('active', mode === 'eye');
-    }
-
-    function getAverageColor(startX, startY, range) {
-        let r=0, g=0, b=0, count=0;
-        const data = ctx.getImageData(Math.max(0, startX-range), Math.max(0, startY-range), range*2+1, range*2+1).data;
-        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i+1]; b += data[i+2]; count++; }
-        if(count===0) return {r:0, g:0, b:0};
-        return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
-    }
-
-    function handleCanvasClick(e) {
-        if (!imgObj.src) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        autoSetPoint(pickMode, x, y);
-        if (pickMode === 'skin') { setTimeout(() => setMode('eye'), 300); }
-    }
-
-    function drawMarker(context, x, y, color) {
-        context.beginPath(); context.arc(x, y, 8, 0, 2 * Math.PI); context.strokeStyle = '#fff'; context.lineWidth = 3; context.stroke();
-        context.beginPath(); context.arc(x, y, 6, 0, 2 * Math.PI); context.fillStyle = color; context.fill();
-    }
-
-    function resetPoints() {
-        skinColor = null; eyeColor = null;
-        document.getElementById('btn-skin').classList.remove('done');
-        document.getElementById('btn-eye').classList.remove('done');
-        document.getElementById('dot-skin').style.background = 'transparent';
-        document.getElementById('dot-eye').style.background = 'transparent';
-        setMode('skin');
-        drawImageToCanvas(canvas, ctx);
-        checkReady();
-    }
-
-    function checkReady() {
-        const btn = document.getElementById('analyze-btn');
-        if (skinColor && eyeColor) btn.classList.add('ready'); else btn.classList.remove('ready');
-    }
-
-    async function startAnalysis() {
-        if (!skinColor || !eyeColor) return;
-        const loading = document.getElementById('loading');
-        loading.style.display = 'flex';
-        document.getElementById('setup-area').style.display = 'none';
-
-        const adviceTarget = (selectedGender === 'male') ? "男性向けのカジュアルファッション(Tops)、髪色(Hair)、小物(Accessories)" : "おすすめコスメ（リップ、チーク、アイシャドウ）";
-        
-        // Logic Improvement: Send HSV to AI
-        const sHSV = hexToHsv(skinColor.hex);
-        const eHSV = hexToHsv(eyeColor.hex);
-
-        const prompt = `
-        あなたはパーソナルカラーの専門家です。
-        【入力データ】
-        肌色: ${skinColor.hex} (Hue:${sHSV.h}, Saturation:${sHSV.s}%, Value:${sHSV.v}%)
-        瞳/髪: ${eyeColor.hex} (Hue:${eHSV.h}, Saturation:${eHSV.s}%, Value:${eHSV.v}%)
-        
-        【16タイプ分類ロジック】
-        - Hue (色相): 黄み寄りならWarm (Spring/Autumn)、青み寄りならCool (Summer/Winter)
-        - Saturation (彩度): 低いならMuted/Summer/Autumn、高いならVivid/Spring/Winter
-        - Value (明度): 高いならLight/Spring/Summer、低いならDeep/Autumn/Winter
-        
-        【指示】
-        1. 上記HSVデータを分析し、4シーズン(Spring/Summer/Autumn/Winter)と、さらに細かい「16タイプ(例: Vivid Spring, Muted Autumn)」を決定してください。
-        2. 性別は「${selectedGender}」です。${adviceTarget}を日本の具体的商品名(ブランド+色番など)やスタイル名で提案してください。
-        
-        【出力JSON】
-        {
-            "season": "診断結果 (例: Autumn (イエベ秋))",
-            "type": "Strong Autumn",
-            "description": "特徴(20文字以内)",
-            "reasoning": ["理由1", "理由2"],
-            "best_colors": [ {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"} ],
-            "ng_colors": [ {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"}, {"hex": "#xxxxxx", "name": "色名"} ],
-            "ng_reason": "NG理由",
-            "cosmetics": [ {"type": "リップ", "name": "詳細"}, {"type": "チーク", "name": "詳細"}, {"type": "アイシャドウ", "name": "詳細"} ],
-            "advice_makeup": "メイク助言(50文字)",
-            "advice_fashion": "服の助言(50文字)"
-        }`;
-
-        const base64 = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/\w+;base64,/, "");
-
-        try {
-            const contents = [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }];
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: contents, generationConfig: { temperature: 0 } })
-            });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message || "API Error");
-            const text = data.candidates[0].content.parts[0].text;
-            const res = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]);
-            
-            currentResultData = res;
-
-            document.getElementById('result-season').innerText = res.season;
-            document.getElementById('result-season').style.color = getSeasonColor(res.season);
-            
-            // ★修正: 16タイプ結果の表示 (IDエラー修正)
-            document.getElementById('res-type-eng').innerText = res.type;
-            document.getElementById('res-jp-season').innerText = res.season.split('(')[0];
-            
-            // マッピング
-            const subType = res.type.split(" ")[0]; 
-            const subMap = {"Light":"ライト", "Bright":"ブライト", "Vivid":"ビビッド", "Warm":"ウォーム", "Cool":"クール", "Muted":"ミュート", "Strong":"ストロング", "Deep":"ディープ", "Clear":"クリア", "Soft":"ソフト"};
-            document.getElementById('res-jp-type').innerText = subMap[subType] || subType;
-            document.getElementById('res-jp-type').style.color = getSeasonColor(res.season);
-
-            document.getElementById('result-desc').innerText = res.description;
-            
-            document.getElementById('best-colors').innerHTML = res.best_colors.map(c => `
-                <div class="swatch-container" onclick="applyDrape('${c.hex}')">
-                    <div class="color-swatch" style="background:${c.hex}"></div>
-                    <div class="color-name">${c.name}</div>
-                </div>
-            `).join('');
-
-            document.getElementById('ng-colors').innerHTML = res.ng_colors.map(c => `
-                <div class="swatch-container">
-                    <div class="ng-swatch" style="background:${c.hex}"></div>
-                    <div class="color-name">${c.name}</div>
-                </div>
-            `).join('');
-            document.getElementById('ng-reason').innerText = `⚠️ ${res.ng_reason}`;
-
-            document.getElementById('cosme-list').innerHTML = res.cosmetics.map(c => `
-                <li class="cosme-item" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(c.name)}', '_blank')">
-                    <span class="cosme-icon">${getCosmeIcon(c.type)}</span>
-                    <div style="flex:1">
-                        <div style="font-weight:bold; font-size:0.8rem; color:#ccc;">${c.type}</div>
-                        <div>${c.name}</div>
-                    </div>
-                    <span class="search-link">検索 ></span>
-                </li>`).join('');
-            
-            let detailsHtml = `<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${res.reasoning.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
-            detailsHtml += `<div class="fortune-card"><span class="card-title">✨ ポイント</span><p style="font-size:0.9rem; margin:0;">${res.advice_makeup}</p></div>`;
-            detailsHtml += `<div class="fortune-card"><span class="card-title">👗 コーディネート</span><p style="font-size:0.9rem; margin:0;">${res.advice_fashion}</p></div>`;
-            document.getElementById('result-details').innerHTML = detailsHtml;
-
-            document.getElementById('result-wrapper').style.display = 'block';
-            const resultCanvas = document.getElementById('result-canvas');
-            const resultCtx = resultCanvas.getContext('2d');
-            drawImageToCanvas(resultCanvas, resultCtx);
-        } catch (e) {
-            alert("エラーが発生しました。\n" + e.message);
-            document.getElementById('setup-area').style.display = 'block';
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
-
-    function applyDrape(color) {
-        const wrapper = document.getElementById('result-drape-box');
-        wrapper.style.borderColor = color;
-        wrapper.style.borderStyle = 'solid'; // 点線防止
-        wrapper.style.borderWidth = '15px';
-        wrapper.style.transform = "scale(1.02)";
-        setTimeout(() => wrapper.style.transform = "scale(1)", 200);
-    }
-
-    function getCosmeIcon(type) {
-        if(type.includes("リップ")) return "💄";
-        if(type.includes("チーク")) return "😊";
-        if(type.includes("アイ") || type.includes("目")) return "👁️";
-        return "✨";
-    }
-
-    function getSeasonColor(seasonStr) {
-        if(seasonStr.includes("Spring") || seasonStr.includes("春")) return "#FF7F50";
-        if(seasonStr.includes("Summer") || seasonStr.includes("夏")) return "#87CEEB";
-        if(seasonStr.includes("Autumn") || seasonStr.includes("秋")) return "#DAA520";
-        if(seasonStr.includes("Winter") || seasonStr.includes("冬")) return "#4169E1";
-        return "#333";
-    }
-    
-    function getSeasonIcon(seasonStr) {
-        if(seasonStr.includes("Spring")) return "🌷";
-        if(seasonStr.includes("Summer")) return "🎐";
-        if(seasonStr.includes("Autumn")) return "🍁";
-        if(seasonStr.includes("Winter")) return "❄️";
-        return "✨";
-    }
-
-    function saveResultImage() {
-        const target = document.getElementById("capture-target");
-        const originalStyle = target.style.cssText;
-        target.style.width = "500px"; 
-        target.style.margin = "0 auto";
-        
-        html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
-            const link = document.createElement("a");
-            link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v36_${new Date().getTime()}.png`;
-            link.click();
-            target.style.cssText = originalStyle; 
-        });
-    }
-
-    async function sendChat() {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if(!text) return;
-        if(!currentResultData) { alert("まずは診断を行ってください"); return; }
-
-        const chatBox = document.getElementById('chat-box');
-        chatBox.innerHTML += `<div class="chat-msg user">${text}</div>`;
-        input.value = "";
-        
-        const prompt = `あなたはパーソナルカラー専門家。ユーザー(${currentResultData.season})の「${text}」という質問に100文字以内で答えて。`;
-
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await response.json();
-            chatBox.innerHTML += `<div class="chat-msg ai">${data.candidates[0].content.parts[0].text}</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        } catch(e) { chatBox.innerHTML += `<div class="chat-msg ai">エラー</div>`; }
-    }
+let API_KEY="";const GEMINI_MODEL="gemini-2.5-flash";let imgFile=null,pickMode='skin',skinColor=null,eyeColor=null,canvas,ctx,imgObj=new Image(),cropRect=null,currentResultData=null,selectedGender='female';let editorCanvas,editorCtx,editorMode='photo',editorTheme='stylish',editorStamps=[],selectedStampIndex=-1,isDragging=false;
+// Abstract Icons (Stylish)
+const SVG_STYLISH_SPRING="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4=";
+const SVG_STYLISH_SUMMER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
+const SVG_STYLISH_AUTUMN="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy41IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuMS03LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+";
+const SVG_STYLISH_WINTER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
+// Female
+const SVG_GIRL_SPRING="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
+const SVG_GIRL_SUMMER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0iI2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
+const SVG_GIRL_AUTUMN="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
+const SVG_GIRL_WINTER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
+// Male
+const SVG_BOY_SPRING="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjOEI0NTEzIiBkPSJNNDAgNTBjMC0yMCAzMC0zMCA2MC0zMHM2MCAxMCA2MCAzMHY0MGMwIDIwLTMwIDMwLTYwIDMwcy02MC0xMC02MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
+const SVG_BOY_SUMMER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMzAgNTBjMC0yMCAzMC0zMCA3MC0zMHM3MCAxMCA3MCAzMHYzMGMwIDIwLTMwIDMwLTcwIDMwcy03MC0xMC03MC0zMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjcwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzMzIiBkPSJNNzUgMTQwczEwIDUgMjAgMCIvPjwvc3ZnPg==";
+const SVG_BOY_AUTUMN="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNEIyNTExIiBkPSJNMzAgNjBzLTEwLTMwIDIwLTQuczUwLTEwIDUwIDEwczMwIDIwIDMwIDUwcMDIwLTQwIDMwLTcweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
+const SVG_BOY_WINTER="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNDBoMTQwdjcwYzAgMjAtNDAgMzAtNzAgMzBzLTcwLTEwLTcwLTMweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDB2NzBjMCAyMC0xMCA0MC0zNSA0MHMtMzAtMjAtMzAtNDB6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIGQ9Ik03NSAxNDBzMTAgNSAyMCAwIi8+PC9zdmc+";
+
+window.onload=function(){checkApiKey();canvas=document.getElementById('main-canvas');ctx=canvas.getContext('2d');canvas.addEventListener('click',handleCanvasClick);editorCanvas=document.getElementById('editor-canvas');editorCtx=editorCanvas.getContext('2d');editorCanvas.addEventListener('mousedown',handleDragStart);editorCanvas.addEventListener('mousemove',handleDragMove);editorCanvas.addEventListener('mouseup',handleDragEnd);editorCanvas.addEventListener('touchstart',handleDragStart,{passive:false});editorCanvas.addEventListener('touchmove',handleDragMove,{passive:false});editorCanvas.addEventListener('touchend',handleDragEnd)};
+function checkApiKey(){const s=localStorage.getItem('gemini_api_key_color');if(s){API_KEY=s;document.getElementById('key-modal').classList.add('hidden')}}
+function saveApiKey(){const k=document.getElementById('api-key-input').value.trim();if(k){API_KEY=k;localStorage.setItem('gemini_api_key_color',k);document.getElementById('key-modal').classList.add('hidden')}}
+function setGender(g){selectedGender=g;document.getElementById('g-female').classList.toggle('active',g==='female');document.getElementById('g-male').classList.toggle('active',g==='male');document.getElementById('advice-title').innerText=(g==='female')?"💄 おすすめアイテム":"👔 おすすめスタイル"}
+const TYPE_JP_MAP={"Vivid":"ビビッド","Strong":"ストロング","Deep":"ディープ","Muted":"ミュート","Soft":"ソフト","Light":"ライト","Bright":"ブライト","Pale":"ペール","Clear":"クリア","Cool":"クール","Warm":"ウォーム"};
+let currentIllustObj=new Image(),currentIllustSrc="";
+function openEditor(){if(!currentResultData)return;document.getElementById('editor-modal').classList.remove('hidden');editorCanvas.width=360;editorCanvas.height=640;currentIllustSrc="";setEditorMode('photo');switchTheme('stylish')}
+function closeEditor(){document.getElementById('editor-modal').classList.add('hidden')}
+function switchTheme(t){editorTheme=t;document.getElementById('theme-stylish').classList.toggle('active',t==='stylish');document.getElementById('theme-cute').classList.toggle('active',t==='cute');renderEditor()}
+function setEditorMode(m){editorMode=m;document.getElementById('mode-photo').classList.toggle('active',m==='photo');document.getElementById('mode-illust').classList.toggle('active',m==='illust');renderEditor()}
+function addStamp(t){const cX=editorCanvas.width/2,cY=editorCanvas.height/2;let w=100,h=100;if(t==='glasses'){w=150;h=60}if(t==='mask'){w=120;h=80}if(t==='heart'){w=80;h=80}if(t==='sparkle'){w=80;h=80}editorStamps.push({type:t,x:cX,y:cY,width:w,height:h,scale:1.0});selectedStampIndex=editorStamps.length-1;renderEditor()}
+function addTextStamp(){const t=prompt("文字を入力:","似合う色発見！");if(t){editorStamps.push({type:'text',text:t,x:editorCanvas.width/2,y:editorCanvas.height/2,scale:1.0});selectedStampIndex=editorStamps.length-1;renderEditor()}}
+function deleteSelectedStamp(){if(selectedStampIndex!==-1){editorStamps.splice(selectedStampIndex,1);selectedStampIndex=-1;renderEditor()}else{alert("選択してください")}}
+function updateStampSize(){if(selectedStampIndex>=0){editorStamps[selectedStampIndex].scale=parseFloat(document.getElementById('stamp-size').value);renderEditor()}}
+function getPointerPos(e){const r=editorCanvas.getBoundingClientRect(),cX=e.touches?e.touches[0].clientX:e.clientX,cY=e.touches?e.touches[0].clientY:e.clientY,sX=editorCanvas.width/r.width,sY=editorCanvas.height/r.height;return{x:(cX-r.left)*sX,y:(cY-r.top)*sY}}
+function handleDragStart(e){const p=getPointerPos(e);selectedStampIndex=-1;for(let i=editorStamps.length-1;i>=0;i--){const s=editorStamps[i],sW=(s.width||100)*s.scale,sH=(s.height||100)*s.scale;if(s.type==='text'){editorCtx.font=`bold ${24*s.scale}px serif`;const m=editorCtx.measureText(s.text);if(p.x>=s.x-m.width/2&&p.x<=s.x+m.width/2&&p.y>=s.y-20&&p.y<=s.y+20){selectedStampIndex=i;break}}else{if(p.x>=s.x-sW/2&&p.x<=s.x+sW/2&&p.y>=s.y-sH/2&&p.y<=s.y+sH/2){selectedStampIndex=i;break}}}if(selectedStampIndex!==-1){isDragging=true;document.getElementById('stamp-size').value=editorStamps[selectedStampIndex].scale;renderEditor()}}
+function handleDragMove(e){if(isDragging&&selectedStampIndex!==-1){e.preventDefault();const p=getPointerPos(e);editorStamps[selectedStampIndex].x=p.x;editorStamps[selectedStampIndex].y=p.y;renderEditor()}}
+function handleDragEnd(e){isDragging=false}
+function drawStamp(c,s){const sc=s.scale,w=s.width*sc,h=s.height*sc;c.save();c.translate(s.x,s.y);if(s.type==='glasses'){c.fillStyle='#000';c.beginPath();c.ellipse(-w*0.25,0,w*0.22,h*0.4,0,0,Math.PI*2);c.fill();c.beginPath();c.ellipse(w*0.25,0,w*0.22,h*0.4,0,0,Math.PI*2);c.fill();c.fillRect(-w*0.1,-h*0.1,w*0.2,h*0.1)}else if(s.type==='mask'){c.fillStyle='#fff';c.beginPath();c.roundRect(-w/2,-h/2,w,h,10);c.fill();c.strokeStyle='#ddd';c.lineWidth=2;c.beginPath();c.moveTo(-w*0.4,-h*0.15);c.lineTo(w*0.4,-h*0.15);c.stroke();c.beginPath();c.moveTo(-w*0.4,h*0.15);c.lineTo(w*0.4,h*0.15);c.stroke()}else if(s.type==='heart'){c.fillStyle='#ff6b81';c.beginPath();const t=h*0.3;c.moveTo(0,t-h/2);c.bezierCurveTo(0,-h/2,-w/2,-h/2,-w/2,t-h/2);c.bezierCurveTo(-w/2,h/2-h/2,0,h*0.8-h/2,0,h-h/2);c.bezierCurveTo(0,h*0.8-h/2,w/2,h/2-h/2,w/2,t-h/2);c.bezierCurveTo(w/2,-h/2,0,-h/2,0,t-h/2);c.fill()}else if(s.type==='sparkle'){c.fillStyle='#FFD700';c.beginPath();c.moveTo(0,-h/2);c.quadraticCurveTo(w*0.1,-h*0.1,w/2,0);c.quadraticCurveTo(w*0.1,h*0.1,0,h/2);c.quadraticCurveTo(-w*0.1,h*0.1,-w/2,0);c.quadraticCurveTo(-w*0.1,-h*0.1,0,-h/2);c.fill()}else if(s.type==='text'){const f=editorTheme==='cute'?'"M PLUS Rounded 1c"':'"Shippori Mincho"';c.font=`bold ${24*s.scale}px ${f},serif`;c.fillStyle=editorTheme==='cute'?'#ff80ab':'#fff';c.strokeStyle=editorTheme==='cute'?'#fff':'#000';c.lineWidth=editorTheme==='cute'?4:3;c.textAlign='center';c.textBaseline='middle';c.strokeText(s.text,0,0);c.fillText(s.text,0,0)}if(s===editorStamps[selectedStampIndex]){c.strokeStyle='rgba(255,255,255,0.8)';c.lineWidth=2;if(s.type!=='text')c.strokeRect(-w/2,-h/2,w,h);else c.strokeRect(-50*sc,-15*sc,100*sc,30*sc)}c.restore()}
+function renderEditor(){if(editorTheme==='stylish')renderStylishTheme();else renderCuteTheme();editorStamps.forEach(s=>drawStamp(editorCtx,s))}
+function getIllustSrc(s,isCute){if(!isCute){if(s.includes("Summer")||s.includes("夏"))return SVG_STYLISH_SUMMER;if(s.includes("Autumn")||s.includes("秋"))return SVG_STYLISH_AUTUMN;if(s.includes("Winter")||s.includes("冬"))return SVG_STYLISH_WINTER;return SVG_STYLISH_SPRING}else{if(selectedGender==='male'){if(s.includes("Summer")||s.includes("夏"))return SVG_BOY_SUMMER;if(s.includes("Autumn")||s.includes("秋"))return SVG_BOY_AUTUMN;if(s.includes("Winter")||s.includes("冬"))return SVG_BOY_WINTER;return SVG_BOY_SPRING}else{if(s.includes("Summer")||s.includes("夏"))return SVG_GIRL_SUMMER;if(s.includes("Autumn")||s.includes("秋"))return SVG_GIRL_AUTUMN;if(s.includes("Winter")||s.includes("冬"))return SVG_GIRL_WINTER;return SVG_GIRL_SPRING}}}
+function drawResultText(c,cX,sY,cM,cS,fM,fS,hS){const s=currentResultData.season,tR=currentResultData.type||s,eT=tR.split("(")[0].trim();let jS="診断結果";if(s.includes("("))jS=s.split("(")[1].replace(")","").trim();else jS=s;let jTA="";for(const[e,j]of Object.entries(TYPE_JP_MAP)){if(eT.includes(e)){jTA=j;break}}if(!jTA){const p=eT.split(" ");if(p.length>1)jTA=p[0]}c.textAlign='center';c.font=fS;c.fillStyle=cS;if(hS){c.shadowColor="rgba(0,0,0,0.8)";c.shadowBlur=4}c.fillText(eT,cX,sY);c.shadowBlur=0;c.beginPath();c.moveTo(cX-20,sY+10);c.lineTo(cX+20,sY+10);c.strokeStyle=cS;c.lineWidth=1;c.stroke();c.font=fM;c.fillStyle=cM;if(hS){c.shadowColor="rgba(0,0,0,0.5)";c.shadowBlur=10}const lH=35;if(jTA){c.fillText(jS,cX,sY+50);c.fillText(jTA,cX,sY+50+lH)}else{c.fillText(jS,cX,sY+60)}c.shadowBlur=0}
+function renderStylishTheme(){const g=editorCtx.createLinearGradient(0,0,360,640);g.addColorStop(0,'#0f0c29');g.addColorStop(0.5,'#302b63');g.addColorStop(1,'#24243e');editorCtx.fillStyle=g;editorCtx.fillRect(0,0,360,640);const pY=50,pH=320,pW=240,pX=(360-pW)/2;editorCtx.save();editorCtx.strokeStyle='#D4AF37';editorCtx.lineWidth=1;editorCtx.strokeRect(pX-5,pY-5,pW+10,pH+10);editorCtx.beginPath();editorCtx.rect(pX,pY,pW,pH);editorCtx.clip();if(editorMode==='photo'){const sx=cropRect?cropRect.x:0,sy=cropRect?cropRect.y:0,sw=cropRect?cropRect.w:imgObj.width,sh=cropRect?cropRect.h:imgObj.height,sc=Math.max(pW/sw,pH/sh),rW=sw*sc,rH=sh*sc,dx=pX+(pW-rW)/2,dy=pY+(pH-rH)/2;editorCtx.drawImage(imgObj,sx,sy,sw,sh,dx,dy,rW,rH)}else{const s=currentResultData.season;editorCtx.fillStyle=getSeasonColor(s)+"44";editorCtx.fillRect(pX,pY,pW,pH);const iS=getIllustSrc(s,false);if(currentIllustSrc!==iS){currentIllustSrc=iS;currentIllustObj.src=iS;currentIllustObj.onload=()=>renderEditor()}if(currentIllustObj.complete&&currentIllustObj.src){editorCtx.globalAlpha=0.8;editorCtx.drawImage(currentIllustObj,pX+40,pY+80,145,140);editorCtx.globalAlpha=1.0}}editorCtx.restore();editorCtx.strokeStyle='#fff';editorCtx.lineWidth=3;editorCtx.strokeRect(pX,pY,pW,pH);const paY=400,paH=140;editorCtx.save();editorCtx.fillStyle="rgba(20,20,20,0.7)";editorCtx.beginPath();editorCtx.roundRect(40,paY,280,paH,10);editorCtx.fill();editorCtx.strokeStyle="rgba(212,175,55,0.6)";editorCtx.lineWidth=1;editorCtx.stroke();editorCtx.restore();drawResultText(editorCtx,180,paY+30,'#FFFFFF','#D4AF37','800 24px "Shippori Mincho",serif','400 12px "Shippori Mincho",serif',true);const ss=35,gap=15,tW=(ss*4)+(gap*3);let sX=(360-tW)/2,palY=555;currentResultData.best_colors.forEach((c)=>{editorCtx.beginPath();editorCtx.arc(sX+ss/2,palY+ss/2,ss/2,0,Math.PI*2);editorCtx.fillStyle=c.hex;editorCtx.fill();editorCtx.strokeStyle='#D4AF37';editorCtx.lineWidth=2;editorCtx.stroke();sX+=ss+gap});editorCtx.font='10px sans-serif';editorCtx.fillStyle='rgba(212,175,55,0.7)';editorCtx.textAlign='center';editorCtx.fillText("AI PERSONAL COLOR",180,615)}
+function renderCuteTheme(){const s=currentResultData.season;let mC='#FDE2E4';if(s.includes("Spring")||s.includes("春"))mC='#FFF0F5';if(s.includes("Summer")||s.includes("夏"))mC='#E0FFFF';if(s.includes("Autumn")||s.includes("秋"))mC='#FFF8DC';if(s.includes("Winter")||s.includes("冬"))mC='#E6E6FA';editorCtx.fillStyle=mC;editorCtx.fillRect(0,0,360,640);editorCtx.fillStyle='#fff';editorCtx.beginPath();editorCtx.moveTo(0,350);editorCtx.bezierCurveTo(100,380,260,320,360,350);editorCtx.lineTo(360,640);editorCtx.lineTo(0,640);editorCtx.fill();if(editorMode==='illust'){const svg=getIllustSrc(s,true);if(currentIllustSrc!==svg){currentIllustSrc=svg;currentIllustObj.src=svg;currentIllustObj.onload=()=>{if(editorMode==='illust'&&editorTheme==='cute')renderEditor()}}if(currentIllustObj.complete&&currentIllustObj.src){editorCtx.drawImage(currentIllustObj,(360-240)/2,50,240,300)}}else{drawPhotoFrame(60,200,260,'#fff',5,true)}drawResultText(editorCtx,180,420,'#444','#888','800 32px "M PLUS Rounded 1c",sans-serif','bold 14px "M PLUS Rounded 1c",sans-serif',false);const ss=40,gap=10;let sX=(360-(ss*2+gap))/2,sY=530;currentResultData.best_colors.forEach((c,i)=>{if(i>=4)return;const row=Math.floor(i/2),col=i%2,x=sX+col*(ss+gap),y=sY+row*(ss+gap);editorCtx.beginPath();editorCtx.roundRect(x,y,ss,ss,12);editorCtx.fillStyle=c.hex;editorCtx.fill()})}
+function drawPhotoFrame(y,w,h,c,b,p){const x=(360-w)/2;if(p){editorCtx.fillStyle='#fff';editorCtx.shadowColor='rgba(0,0,0,0.1)';editorCtx.shadowBlur=10;editorCtx.fillRect(x-10,y-10,w+20,h+40);editorCtx.shadowBlur=0}editorCtx.save();editorCtx.beginPath();editorCtx.rect(x,y,w,h);editorCtx.clip();if(editorMode==='photo'){const sx=cropRect?cropRect.x:0,sy=cropRect?cropRect.y:0,sw=cropRect?cropRect.w:imgObj.width,sh=cropRect?cropRect.h:imgObj.height,sc=Math.max(w/sw,h/sh),rW=sw*sc,rH=sh*sc,dx=x+(w-rW)/2,dy=y+(h-rH)/2;editorCtx.drawImage(imgObj,sx,sy,sw,sh,dx,dy,rW,rH)}editorCtx.restore()}
+function saveEditorImage(){selectedStampIndex=-1;renderEditor();const l=document.createElement("a");l.href=editorCanvas.toDataURL("image/png");l.download=`my_card_${new Date().getTime()}.png`;l.click()}
+function triggerFileIfEmpty(){if(!imgFile)document.getElementById('file-input').click()}
+function handleFileSelect(i){if(i.files&&i.files[0]){imgFile=i.files[0];const r=new FileReader();r.onload=function(e){imgObj.onload=async function(){document.getElementById('canvas-wrapper').classList.add('has-image');await tryAutoDetectAndCrop();checkBrightness();document.getElementById('placeholder').style.display='none';document.getElementById('picker-panel').style.display='block'};imgObj.src=e.target.result};r.readAsDataURL(imgFile)}}
+async function tryAutoDetectAndCrop(){cropRect=null;resetPoints();const m=document.getElementById('auto-msg');document.getElementById('guide-text').innerHTML=`<strong>🧐 手動設定</strong><br><strong style="color:var(--accent)">肌</strong>と<strong style="color:#00BFFF">瞳</strong>をタップ。`;if('FaceDetector' in window){try{const fd=new FaceDetector(),f=await fd.detect(imgObj);if(f.length>0){const b=f[0].boundingBox,px=b.width*0.3,py=b.height*0.4;cropRect={x:Math.max(0,b.x-px),y:Math.max(0,b.y-py),w:Math.min(imgObj.width,b.width+px*2),h:Math.min(imgObj.height,b.height+py*2)};if(cropRect.x+cropRect.w>imgObj.width)cropRect.w=imgObj.width-cropRect.x;if(cropRect.y+cropRect.h>imgObj.height)cropRect.h=imgObj.height-cropRect.y;const sx=b.x+b.width*0.7,sy=b.y+b.height*0.6,ex=b.x+b.width*0.3,ey=b.y+b.height*0.4;drawImageToCanvas(canvas,ctx);const sc=canvas.width/cropRect.w;autoSetPoint('skin',(sx-cropRect.x)*sc,(sy-cropRect.y)*sc);setTimeout(()=>autoSetPoint('eye',(ex-cropRect.x)*sc,(ey-cropRect.y)*sc),100);m.innerText="✨ 顔を検出しました！";m.style.display='block';return}}catch(e){}}drawImageToCanvas(canvas,ctx)}
+function drawImageToCanvas(c,x){const w=c.parentElement.clientWidth;if(w===0)return;const sx=cropRect?cropRect.x:0,sy=cropRect?cropRect.y:0,sw=cropRect?cropRect.w:imgObj.width,sh=cropRect?cropRect.h:imgObj.height,sc=w/sw,h=sh*sc;c.width=w;c.height=h;x.drawImage(imgObj,sx,sy,sw,sh,0,0,c.width,c.height);if(c.id==='main-canvas'){if(skinColor)drawMarker(x,skinColor.x,skinColor.y,'#FFD700');if(eyeColor)drawMarker(x,eyeColor.x,eyeColor.y,'#00BFFF')}}
+function autoSetPoint(t,x,y){const a=getAverageColor(x,y,3),h="#"+[a.r,a.g,a.b].map(d=>d.toString(16).padStart(2,'0')).join(''),d={x,y,hex:h};if(t==='skin'){skinColor=d;document.getElementById('dot-skin').style.background=h;document.getElementById('btn-skin').classList.add('done')}else{eyeColor=d;document.getElementById('dot-eye').style.background=h;document.getElementById('btn-eye').classList.add('done')}drawImageToCanvas(canvas,ctx);checkReady()}
+function hexToHsv(h){let r=parseInt(h.substring(1,3),16)/255,g=parseInt(h.substring(3,5),16)/255,b=parseInt(h.substring(5,7),16)/255,max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min,s=max===0?0:d/max,v=max,hu=0;if(max!==min){switch(max){case r:hu=(g-b)/d+(g<b?6:0);break;case g:hu=(b-r)/d+2;break;case b:hu=(r-g)/d+4;break}hu/=6}return{h:Math.round(hu*360),s:Math.round(s*100),v:Math.round(v*100)}}
+function checkBrightness(){const w=canvas.width,h=canvas.height,d=ctx.getImageData(0,0,w,h).data;let t=0,c=0;for(let i=0;i<d.length;i+=40){t+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];c++}document.getElementById('brightness-warning').style.display=(t/c)<40?'block':'none'}
+function setMode(m){pickMode=m;document.getElementById('btn-skin').classList.toggle('active',m==='skin');document.getElementById('btn-eye').classList.toggle('active',m==='eye')}
+function getAverageColor(x,y,r){let tr=0,tg=0,tb=0,tc=0;const d=ctx.getImageData(Math.max(0,x-r),Math.max(0,y-r),r*2+1,r*2+1).data;for(let i=0;i<d.length;i+=4){tr+=d[i];tg+=d[i+1];tb+=d[i+2];tc++}return tc===0?{r:0,g:0,b:0}:{r:Math.round(tr/tc),g:Math.round(tg/tc),b:Math.round(tb/tc)}}
+function handleCanvasClick(e){if(!imgObj.src)return;const r=canvas.getBoundingClientRect();autoSetPoint(pickMode,e.clientX-r.left,e.clientY-r.top);if(pickMode==='skin')setTimeout(()=>setMode('eye'),300)}
+function drawMarker(c,x,y,k){c.beginPath();c.arc(x,y,8,0,2*Math.PI);c.strokeStyle='#fff';c.lineWidth=3;c.stroke();c.beginPath();c.arc(x,y,6,0,2*Math.PI);c.fillStyle=k;c.fill()}
+function resetPoints(){skinColor=null;eyeColor=null;document.getElementById('btn-skin').classList.remove('done');document.getElementById('btn-eye').classList.remove('done');document.getElementById('dot-skin').style.background='transparent';document.getElementById('dot-eye').style.background='transparent';setMode('skin');drawImageToCanvas(canvas,ctx);checkReady()}
+function checkReady(){const b=document.getElementById('analyze-btn');if(skinColor&&eyeColor)b.classList.add('ready');else b.classList.remove('ready')}
+async function startAnalysis(){if(!skinColor||!eyeColor)return;document.getElementById('loading').style.display='flex';document.getElementById('setup-area').style.display='none';
+const sH=hexToHsv(skinColor.hex),eH=hexToHsv(eyeColor.hex),tgt=(selectedGender==='male')?"男性ファッション":"コスメ";
+const p=`肌:${skinColor.hex}(H${sH.h} S${sH.s} V${sH.v}),瞳:${eyeColor.hex}(H${eH.h} S${eH.s} V${eH.v})。4シーズンと16タイプ(例:Vivid Spring)を判定し、${tgt}を提案。JSON:{season:"Spring(イエベ春)",type:"Vivid Spring",description:"特徴",reasoning:["理由"],best_colors:[{hex:"#xxx",name:"色"}],ng_colors:[{hex:"#xxx",name:"色"}],ng_reason:"NG理由",cosmetics:[{type:"項目",name:"詳細"}],advice_makeup:"助言",advice_fashion:"助言"}`;
+try{const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});const d=await res.json(),txt=d.candidates[0].content.parts[0].text,j=JSON.parse(txt.match(/\{[\s\S]*\}/)?.[0]);currentResultData=j;
+document.getElementById('result-season').innerText=j.season;document.getElementById('result-season').style.color=getSeasonColor(j.season);document.getElementById('result-desc').innerHTML=`<div class="type-badge" style="color:${getSeasonColor(j.season)}">${j.type}</div><div>${j.description}</div>`;
+document.getElementById('best-colors').innerHTML=j.best_colors.map(c=>`<div class="swatch-container" onclick="applyDrape('${c.hex}')"><div class="color-swatch" style="background:${c.hex}"></div><div class="color-name">${c.name}</div></div>`).join('');
+document.getElementById('ng-colors').innerHTML=j.ng_colors.map(c=>`<div class="swatch-container"><div class="ng-swatch" style="background:${c.hex}"></div><div class="color-name">${c.name}</div></div>`).join('');
+document.getElementById('ng-reason').innerText="⚠️ "+j.ng_reason;
+document.getElementById('cosme-list').innerHTML=j.cosmetics.map(c=>`<li class="cosme-item" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(c.name)}','_blank')"><span class="cosme-icon">${getCosmeIcon(c.type)}</span><div style="flex:1"><div style="font-weight:bold;font-size:0.8rem;color:#ccc;">${c.type}</div><div>${c.name}</div></div><span class="search-link">検索 ></span></li>`).join('');
+let h=`<div class="fortune-card"><span class="card-title">🧐 診断の根拠</span><ul>${j.reasoning.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+h+=`<div class="fortune-card"><span class="card-title">✨ ポイント</span><p style="font-size:0.9rem;margin:0;">${j.advice_makeup}</p></div><div class="fortune-card"><span class="card-title">👗 コーディネート</span><p style="font-size:0.9rem;margin:0;">${j.advice_fashion}</p></div>`;
+document.getElementById('result-details').innerHTML=h;document.getElementById('result-wrapper').style.display='block';drawImageToCanvas(document.getElementById('result-canvas'),document.getElementById('result-canvas').getContext('2d'));
+}catch(e){alert("エラー:"+e.message);document.getElementById('setup-area').style.display='block'}finally{document.getElementById('loading').style.display='none'}}
+function applyDrape(c){const b=document.getElementById('result-drape-box');b.style.borderColor=c;b.style.borderStyle='solid';b.style.borderWidth='15px';b.style.transform="scale(1.02)";setTimeout(()=>b.style.transform="scale(1)",200)}
+function getCosmeIcon(t){if(t.includes("リップ"))return"💄";if(t.includes("チーク"))return"😊";if(t.includes("アイ"))return"👁️";return"✨"}
+function getSeasonColor(s){if(s.includes("Spring")||s.includes("春"))return"#FF7F50";if(s.includes("Summer")||s.includes("夏"))return"#87CEEB";if(s.includes("Autumn")||s.includes("秋"))return"#DAA520";return"#4169E1"}
+async function sendChat(){const i=document.getElementById('chat-input'),t=i.value.trim(),b=document.getElementById('chat-box');if(!t)return;if(!currentResultData){alert("診断してください");return}b.innerHTML+=`<div class="chat-msg user">${t}</div>`;i.value="";const p=`専門家として、${currentResultData.season}タイプのユーザーの質問「${t}」に100字以内で回答して。`;try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});const d=await r.json();b.innerHTML+=`<div class="chat-msg ai">${d.candidates[0].content.parts[0].text}</div>`;b.scrollTop=b.scrollHeight}catch(e){b.innerHTML+=`<div class="chat-msg ai">エラー</div>`}}
 </script>
 </body>
 </html>
