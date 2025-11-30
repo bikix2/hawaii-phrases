@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V16.0 (Dual Theme Editor)</title>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <title>🎨 AIカラー診断 V17.0 (Custom Theme)</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -155,24 +155,28 @@
         @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
 
-        /* === エディタ === */
-        #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; }
-        #editor-canvas-box { position: relative; width: 100%; max-width: 360px; height: 640px; margin: 10px auto; border: none; }
+        /* === エディタ(調整済) === */
+        #editor-modal { background: #1a1a1a; z-index: 4000; flex-direction: column; padding: 0; justify-content: flex-start; padding-top: 20px; }
+        /* 画面全体が見えるように高さを制限 */
+        #editor-canvas-box { 
+            position: relative; width: 90%; max-width: 360px; aspect-ratio: 9/16; margin: 0 auto; 
+            border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-height: 60vh; /* 画面に収める */
+        }
         #editor-canvas { width: 100%; height: 100%; object-fit: contain; }
         .editor-tools { 
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #2c2c2c; padding: 15px; 
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #2c2c2c; padding: 15px 15px 30px 15px; 
             border-top: 1px solid #444; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; 
         }
         .editor-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; justify-content: center;}
         .tool-btn { 
             background: #444; border: 1px solid #666; color: #fff; padding: 8px 12px; 
-            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.9rem; font-family: 'Shippori Mincho', serif;
+            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; font-family: 'Shippori Mincho', serif;
         }
         .tool-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
         .tool-btn-action { background: var(--accent); color: #000; font-weight: bold; }
-        .size-slider { width: 100%; margin: 10px 0; accent-color: var(--primary); }
+        .size-slider { width: 100%; margin: 5px 0; accent-color: var(--primary); }
         
-        /* テーマ切り替えボタン用のスタイル */
         #theme-stylish.active { background: linear-gradient(45deg, #240046, #E0AAFF); color: #fff; border: none; }
         #theme-cute.active { background: linear-gradient(45deg, #ff9a9e, #fad0c4); color: #fff; border: none; }
     </style>
@@ -189,8 +193,7 @@
 </div>
 
 <div id="editor-modal" class="modal hidden">
-    <div style="color:white; margin-top:10px;">🎨 SNSカード作成</div>
-    <div style="font-size:0.7rem; color:#aaa;">ドラッグで移動 / スライダーでサイズ変更</div>
+    <div style="color:white; margin-bottom:5px;">🎨 SNSカード作成</div>
     <div id="editor-canvas-box">
         <canvas id="editor-canvas"></canvas>
     </div>
@@ -227,7 +230,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V16.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V17.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -355,10 +358,9 @@
     let cropRect = null; 
     let currentResultData = null; 
 
-    // Editor Variables
     let editorCanvas, editorCtx;
     let editorMode = 'photo';
-    let editorTheme = 'stylish'; // テーマ管理変数を追加
+    let editorTheme = 'stylish';
     let editorStamps = [];
     let selectedStampIndex = -1;
     let isDragging = false;
@@ -388,21 +390,17 @@
         if (key) { API_KEY = key; localStorage.setItem('gemini_api_key_color', key); document.getElementById('key-modal').classList.add('hidden'); }
     }
 
-    // --- Editor Logic (Dual Theme & Draw Edition) ---
     function openEditor() {
         if(!currentResultData) return;
         document.getElementById('editor-modal').classList.remove('hidden');
         editorCanvas.width = 360;
         editorCanvas.height = 640;
         setEditorMode('photo');
-        switchTheme('stylish'); // 初期テーマはスタイリッシュ
+        switchTheme('stylish'); 
     }
 
-    function closeEditor() {
-        document.getElementById('editor-modal').classList.add('hidden');
-    }
+    function closeEditor() { document.getElementById('editor-modal').classList.add('hidden'); }
 
-    // テーマ切り替え関数
     function switchTheme(theme) {
         editorTheme = theme;
         document.getElementById('theme-stylish').classList.toggle('active', theme === 'stylish');
@@ -489,11 +487,11 @@
         selectedStampIndex = -1;
         for (let i = editorStamps.length - 1; i >= 0; i--) {
             const s = editorStamps[i];
-            const sizeW = (s.width || 100) * s.scale;
-            const sizeH = (s.height || 100) * s.scale;
+            const sizeW = s.width * s.scale;
+            const sizeH = s.height * s.scale;
             
             if (s.type === 'text') {
-                editorCtx.font = `bold ${24 * s.scale}px ${editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"'}, serif`;
+                editorCtx.font = `bold ${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
                 if(pos.x >= s.x - m.width/2 && pos.x <= s.x + m.width/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
                     selectedStampIndex = i; break;
@@ -524,7 +522,206 @@
 
     function handleDragEnd(e) { isDragging = false; }
 
-    // --- Drawing Functions ---
+    // --- Render Functions ---
+    function renderEditor() {
+        if (editorTheme === 'stylish') renderStylishTheme();
+        else renderCuteTheme();
+        editorStamps.forEach(s => drawStamp(editorCtx, s));
+    }
+
+    // 1. Stylish Theme (Refined)
+    function renderStylishTheme() {
+        // Dark Gradient
+        const grad = editorCtx.createLinearGradient(0,0,360,640);
+        grad.addColorStop(0, '#1a0b2e');
+        grad.addColorStop(0.5, '#240046');
+        grad.addColorStop(1, '#0d001a');
+        editorCtx.fillStyle = grad;
+        editorCtx.fillRect(0,0,360,640);
+
+        // Photo Frame
+        drawPhotoFrame(80, 225, 300, '#fff', 5, false);
+
+        // Badge
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.roundRect(180 - 100, 410, 200, 45, 22.5);
+        editorCtx.fill();
+        
+        editorCtx.font = 'bold 18px "Shippori Mincho", serif';
+        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText(currentResultData.season, 180, 440);
+
+        // Palette
+        drawColorPalette(480, 45, 15, true, false);
+
+        // Tiny Title & Footer
+        editorCtx.font = '10px sans-serif';
+        editorCtx.fillStyle = 'rgba(255,255,255,0.5)';
+        editorCtx.textAlign = 'right';
+        editorCtx.fillText("AI PERSONAL COLOR", 350, 20);
+        
+        editorCtx.textAlign = 'center';
+        editorCtx.fillText("#AIカラー診断", 180, 625);
+    }
+
+    // 2. Cute Theme (Rom&nd Style Replica)
+    function renderCuteTheme() {
+        // Season Colors for BG
+        const s = currentResultData.season;
+        let mainColor = '#ffcdc2'; // spring
+        let subColor = '#fff';
+        let hairColor = '#8B4513';
+        
+        if(s.includes("Spring") || s.includes("春")) { mainColor = '#FDE2E4'; subColor='#FFF0F5'; hairColor='#D2691E'; }
+        if(s.includes("Summer") || s.includes("夏")) { mainColor = '#E0F7FA'; subColor='#E6E6FA'; hairColor='#808080'; }
+        if(s.includes("Autumn") || s.includes("秋")) { mainColor = '#FAEBD7'; subColor='#F5DEB3'; hairColor='#5D4037'; }
+        if(s.includes("Winter") || s.includes("冬")) { mainColor = '#E1BEE7'; subColor='#F3E5F5'; hairColor='#212121'; }
+
+        // Background with curve
+        editorCtx.fillStyle = mainColor;
+        editorCtx.fillRect(0,0,360,640);
+        
+        // Curved white bottom area
+        editorCtx.fillStyle = '#fff';
+        editorCtx.beginPath();
+        editorCtx.moveTo(0, 400);
+        editorCtx.quadraticCurveTo(180, 450, 360, 400);
+        editorCtx.lineTo(360, 640);
+        editorCtx.lineTo(0, 640);
+        editorCtx.fill();
+
+        // Illustration Area
+        if (editorMode === 'illust') {
+            // Draw Cute Girl SVG-like paths
+            editorCtx.save();
+            editorCtx.translate(180, 220); // center of face
+            
+            // Back Hair
+            editorCtx.fillStyle = hairColor;
+            editorCtx.beginPath();
+            editorCtx.arc(0, 0, 90, 0, Math.PI*2); // simplify
+            editorCtx.fill();
+
+            // Face
+            editorCtx.fillStyle = '#FFE0BD';
+            editorCtx.beginPath();
+            editorCtx.arc(0, 10, 60, 0, Math.PI*2);
+            editorCtx.fill();
+
+            // Bangs
+            editorCtx.fillStyle = hairColor;
+            editorCtx.beginPath();
+            editorCtx.arc(0, -10, 62, 3.2, 6.2); // top half
+            editorCtx.fill();
+
+            // Eyes (Happy)
+            editorCtx.strokeStyle = '#333';
+            editorCtx.lineWidth = 3;
+            editorCtx.beginPath();
+            editorCtx.arc(-25, 10, 8, 3.2, 6.2); // left closed
+            editorCtx.stroke();
+            editorCtx.beginPath();
+            editorCtx.arc(25, 10, 8, 3.2, 6.2); // right closed
+            editorCtx.stroke();
+
+            // Mouth (Smile)
+            editorCtx.fillStyle = '#ff6b6b';
+            editorCtx.beginPath();
+            editorCtx.arc(0, 30, 15, 0, Math.PI);
+            editorCtx.fill();
+            
+            editorCtx.restore();
+        } else {
+            // Photo Mode (Polaroid Style inside)
+            drawPhotoFrame(60, 200, 260, '#fff', 5, true);
+        }
+
+        // Season Text
+        editorCtx.font = 'bold 28px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#333';
+        editorCtx.textAlign = 'center';
+        
+        const seasonName = currentResultData.season.includes("(") 
+            ? currentResultData.season.split("(")[1].replace(")","") 
+            : currentResultData.season;
+        
+        editorCtx.fillText(seasonName, 180, 480);
+        
+        editorCtx.font = 'bold 16px "M PLUS Rounded 1c", sans-serif';
+        editorCtx.fillStyle = '#888';
+        editorCtx.fillText(currentResultData.season.split("(")[0], 180, 505);
+
+        // Color Grid (Bottom)
+        drawColorPalette(530, 40, 10, false, true);
+    }
+
+    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
+        const x = (360 - w) / 2;
+        if (isPolaroid) {
+            editorCtx.fillStyle = '#fff';
+            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
+            editorCtx.shadowBlur = 10;
+            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 40);
+            editorCtx.shadowBlur = 0;
+        }
+        editorCtx.save();
+        editorCtx.beginPath();
+        editorCtx.rect(x, y, w, h);
+        editorCtx.clip();
+
+        if (editorMode === 'photo') {
+            const sx = cropRect ? cropRect.x : 0;
+            const sy = cropRect ? cropRect.y : 0;
+            const sw = cropRect ? cropRect.w : imgObj.width;
+            const sh = cropRect ? cropRect.h : imgObj.height;
+            const scale = Math.max(w / sw, h / sh);
+            const renderW = sw * scale;
+            const renderH = sh * scale;
+            const dx = x + (w - renderW) / 2;
+            const dy = y + (h - renderH) / 2;
+            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
+        } 
+        editorCtx.restore();
+    }
+
+    function drawColorPalette(startY, swatchSize, gap, hasBorder, isGrid) {
+        if(isGrid) {
+            // 2x2 grid for cute mode
+            let startX = (360 - (swatchSize*2 + gap)) / 2;
+            currentResultData.best_colors.forEach((c, i) => {
+                if(i >= 4) return;
+                const row = Math.floor(i / 2);
+                const col = i % 2;
+                const x = startX + col * (swatchSize + gap);
+                const y = startY + row * (swatchSize + gap);
+                
+                // Rounded Square
+                editorCtx.beginPath();
+                editorCtx.roundRect(x, y, swatchSize, swatchSize, 8);
+                editorCtx.fillStyle = c.hex;
+                editorCtx.fill();
+            });
+        } else {
+            // Line
+            const totalW = (swatchSize * 4) + (gap * 3);
+            let startX = (360 - totalW) / 2;
+            currentResultData.best_colors.forEach((c) => {
+                editorCtx.beginPath();
+                editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2, 0, Math.PI*2);
+                editorCtx.fillStyle = c.hex;
+                editorCtx.fill();
+                if (hasBorder) {
+                    editorCtx.strokeStyle = '#fff';
+                    editorCtx.lineWidth = 2;
+                    editorCtx.stroke();
+                }
+                startX += swatchSize + gap;
+            });
+        }
+    }
+
     function drawStamp(ctx, s) {
         const scale = s.scale;
         const w = s.width * scale;
@@ -568,7 +765,6 @@
             ctx.fill();
         }
         else if(s.type === 'text') {
-            // テーマに合わせてフォントを変更
             const fontName = editorTheme === 'cute' ? '"M PLUS Rounded 1c"' : '"Shippori Mincho"';
             ctx.font = `bold ${24 * s.scale}px ${fontName}, serif`;
             ctx.fillStyle = editorTheme === 'cute' ? '#ff80ab' : '#fff';
@@ -587,176 +783,6 @@
             else ctx.strokeRect(-50*scale, -15*scale, 100*scale, 30*scale);
         }
         ctx.restore();
-    }
-
-    // メイン描画関数（テーマで分岐）
-    function renderEditor() {
-        if (editorTheme === 'stylish') {
-            renderStylishTheme();
-        } else {
-            renderCuteTheme();
-        }
-        // スタンプは共通で最後に描画
-        editorStamps.forEach(s => drawStamp(editorCtx, s));
-    }
-
-    // 🌙 スタイリッシュテーマの描画
-    function renderStylishTheme() {
-        // 背景（少しリッチなグラデーション）
-        const grad = editorCtx.createLinearGradient(0,0,360,640);
-        grad.addColorStop(0, '#1a0b2e');
-        grad.addColorStop(0.5, '#240046');
-        grad.addColorStop(1, '#0d001a');
-        editorCtx.fillStyle = grad;
-        editorCtx.fillRect(0,0,360,640);
-
-        // タイトル
-        editorCtx.font = 'bold 26px "Shippori Mincho", serif';
-        editorCtx.fillStyle = '#E0AAFF';
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText("AI PERSONAL COLOR", 180, 50);
-        
-        // 写真枠と写真描画
-        drawPhotoFrame(80, 225, 300, '#fff', 5, false);
-
-        // シーズンバッジ
-        editorCtx.fillStyle = '#fff';
-        editorCtx.beginPath();
-        editorCtx.roundRect(180 - 90, 410, 180, 45, 22.5);
-        editorCtx.fill();
-        
-        editorCtx.font = 'bold 22px "Shippori Mincho", serif';
-        editorCtx.fillStyle = getSeasonColor(currentResultData.season);
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText(currentResultData.season.split('(')[0], 180, 440);
-
-        // カラーパレット
-        drawColorPalette(480, 45, 15, true);
-
-        // フッター
-        editorCtx.font = '12px sans-serif';
-        editorCtx.fillStyle = '#888';
-        editorCtx.fillText("#AIカラー診断 #Gemini", 180, 620);
-    }
-
-    // 🌸 かわいいテーマの描画
-    function renderCuteTheme() {
-        // 背景（パステルグラデーション＋ドット）
-        const grad = editorCtx.createLinearGradient(0,0,0,640);
-        grad.addColorStop(0, '#fff1f2'); // 薄いピンク
-        grad.addColorStop(1, '#ede9fe'); // 薄いパープル
-        editorCtx.fillStyle = grad;
-        editorCtx.fillRect(0,0,360,640);
-        
-        editorCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        for(let i=0; i<360; i+=20) {
-            for(let j=0; j<640; j+=20) {
-                editorCtx.beginPath(); editorCtx.arc(i, j, 2, 0, Math.PI*2); editorCtx.fill();
-            }
-        }
-
-        // タイトル（丸文字、ピンク）
-        editorCtx.font = 'bold 24px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#ff80ab';
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText("✨ My Personal Color ✨", 180, 50);
-
-        // 写真枠（ポラロイド風）
-        drawPhotoFrame(80, 240, 320, '#fff', 0, true);
-
-        // シーズン表示（かわいく）
-        const seasonName = currentResultData.season.split('(')[0];
-        const seasonColor = getSeasonColor(currentResultData.season);
-        const seasonIcon = getSeasonIcon(currentResultData.season);
-
-        editorCtx.fillStyle = seasonColor + '22'; // 薄い背景色
-        editorCtx.beginPath();
-        editorCtx.roundRect((360-240)/2, 415, 240, 40, 20);
-        editorCtx.fill();
-        
-        editorCtx.font = 'bold 22px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = seasonColor;
-        editorCtx.textAlign = 'center';
-        editorCtx.fillText(`${seasonIcon} ${seasonName} ${seasonIcon}`, 180, 442);
-
-        // カラーパレット（丸くてかわいい）
-        drawColorPalette(480, 45, 15, false, true);
-
-        // フッター
-        editorCtx.font = '14px "M PLUS Rounded 1c", sans-serif';
-        editorCtx.fillStyle = '#aaa';
-        editorCtx.fillText("#わたしのパーソナルカラー #AI診断", 180, 620);
-    }
-
-    // 共通：写真枠と写真/イラストの描画
-    function drawPhotoFrame(y, w, h, borderColor, borderWidth, isPolaroid) {
-        const x = (360 - w) / 2;
-        
-        if (isPolaroid) {
-            editorCtx.fillStyle = '#fff';
-            editorCtx.shadowColor = 'rgba(0,0,0,0.1)';
-            editorCtx.shadowBlur = 10;
-            editorCtx.fillRect(x - 10, y - 10, w + 20, h + 50);
-            editorCtx.shadowBlur = 0;
-        }
-
-        editorCtx.save();
-        editorCtx.beginPath();
-        editorCtx.rect(x, y, w, h);
-        editorCtx.clip();
-
-        if (editorMode === 'photo') {
-            const sx = cropRect ? cropRect.x : 0;
-            const sy = cropRect ? cropRect.y : 0;
-            const sw = cropRect ? cropRect.w : imgObj.width;
-            const sh = cropRect ? cropRect.h : imgObj.height;
-            const scale = Math.max(w / sw, h / sh);
-            const renderW = sw * scale;
-            const renderH = sh * scale;
-            const dx = x + (w - renderW) / 2;
-            const dy = y + (h - renderH) / 2;
-            editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
-        } else {
-            editorCtx.fillStyle = getSeasonColor(currentResultData.season) + "44"; 
-            editorCtx.fillRect(x, y, w, h);
-            editorCtx.font = '100px serif';
-            editorCtx.fillStyle = '#fff';
-            editorCtx.textAlign = 'center';
-            editorCtx.textBaseline = 'middle';
-            editorCtx.fillText(getSeasonIcon(currentResultData.season), 180, y + h/2);
-        }
-        editorCtx.restore();
-
-        if (borderWidth > 0) {
-            editorCtx.strokeStyle = borderColor;
-            editorCtx.lineWidth = borderWidth;
-            editorCtx.strokeRect(x, y, w, h);
-        }
-    }
-
-    // 共通：カラーパレット描画
-    function drawColorPalette(startY, swatchSize, gap, hasBorder, isCute=false) {
-        const totalW = (swatchSize * 4) + (gap * 3);
-        let startX = (360 - totalW) / 2;
-
-        currentResultData.best_colors.forEach((c) => {
-            if (isCute) {
-                editorCtx.beginPath();
-                editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2 + 3, 0, Math.PI*2);
-                editorCtx.fillStyle = '#fff';
-                editorCtx.fill();
-            }
-            editorCtx.beginPath();
-            editorCtx.arc(startX + swatchSize/2, startY + swatchSize/2, swatchSize/2, 0, Math.PI*2);
-            editorCtx.fillStyle = c.hex;
-            editorCtx.fill();
-            if (hasBorder) {
-                editorCtx.strokeStyle = '#fff';
-                editorCtx.lineWidth = 2;
-                editorCtx.stroke();
-            }
-            startX += swatchSize + gap;
-        });
     }
 
     function saveEditorImage() {
@@ -1028,7 +1054,7 @@
     function applyDrape(color) {
         const wrapper = document.getElementById('result-drape-box');
         wrapper.style.borderColor = color;
-        wrapper.style.borderStyle = 'solid'; // 点線防止
+        wrapper.style.borderStyle = 'solid'; 
         wrapper.style.borderWidth = '15px';
         wrapper.style.transform = "scale(1.02)";
         setTimeout(() => wrapper.style.transform = "scale(1)", 200);
@@ -1066,7 +1092,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v16_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v17_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
