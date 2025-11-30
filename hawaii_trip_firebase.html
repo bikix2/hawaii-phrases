@@ -590,7 +590,7 @@
             const withMemo = document.getElementById('exp-memo').checked;
             const withUrl  = document.getElementById('exp-url').checked;
 
-            let text = "🌺 ハワイ旅行スケジュール 🌺\n";
+            let text = "🌺 ハワイ旅行スケジュール\n";
             let hasContent = false;
             
             for (let i = 0; i <= 8; i++) {
@@ -602,7 +602,10 @@
                 
                 if (dayData && dayData.events && dayData.events.length > 0) {
                     hasContent = true;
-                    text += `\n【${dayData.title || 'Day ' + i}】\n`;
+                    // タブから日付部分を取得して結合
+                    const tabBtn = document.querySelector(`.tab[data-day="${i}"]`);
+                    const dateStr = tabBtn ? tabBtn.innerText.split('\n')[1] || '' : '';
+                    text += `\n【${dayData.title || 'Day ' + i}】 ${dateStr}\n`;
                     
                     const events = [...dayData.events].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
                     
@@ -845,7 +848,7 @@
         }
 
         // ==========================================================
-        // 8. スワイプ操作機能
+        // 8. スワイプ操作機能 (修正版: 縦スクロール誤作動防止)
         // ==========================================================
         let touchStartX = 0;
         let touchStartY = 0;
@@ -868,7 +871,7 @@
             const diffX = touchStartX - touchEndX;
             const diffY = touchStartY - touchEndY;
 
-            // 縦スクロールの方が大きい場合はスワイプとみなさない
+            // 縦スクロールの方が大きい場合はスワイプとみなさない (重要)
             if (Math.abs(diffY) > Math.abs(diffX)) return;
 
             // スワイプ距離が50px未満なら無視
@@ -893,6 +896,7 @@
                 const tabBtn = document.querySelector(`.tab[data-day="${nextDay}"]`);
                 if (tabBtn) {
                     tabBtn.click();
+                    // タブ自体をスクロールして表示範囲に入れる
                     tabBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 }
             }
