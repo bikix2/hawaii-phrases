@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎨 AIカラー診断 V18.0 (Girls Edition)</title>
+    <title>🎨 AIカラー診断 V19.0 (Fixed Illustrations)</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -229,7 +229,7 @@
 </div>
 
 <div class="container">
-    <h1>🎨 AIカラー診断 <span class="version-tag">V18.0</span></h1>
+    <h1>🎨 AIカラー診断 <span class="version-tag">V19.0</span></h1>
     <div class="top-btns">
         <button class="btn-sm" onclick="location.reload()">🔄 Reset</button>
     </div>
@@ -365,15 +365,28 @@
     let selectedStampIndex = -1;
     let isDragging = false;
 
-    // --- Girl Illustrations (SVG Base64) ---
-    // Spring (Bob, energetic)
-    const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNMTAwIDMwYzMwIDAgNjAgMjAgNjAgNjB2NDBjMCAzMC0zMCA1MC02MCA1MFM0MCAxNjAgNDAgMTMwVjkwYzAtNDAgMzAtNjAgNjAtNjB6IiBmaWxsPSIjRkZFMkU0Ii8+PHBhdGggZD0iTTEwMCAyMGMzNSAwIDcwIDIwIDcwIDcwaC0xNDBjMCA1MCAzNS03MCA3MC03MHoiIGZpbGw9IiNENjU4MjgiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
-    // Summer (Updo, soft)
-    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM2QTRGNEIiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjNDAgMCA3MCAzMCA3MCA4MGMwIDIwLTEwIDQwLTIwIDUwaC0xMDBjLTEwLTEwLTIwLTMwLTIwLTUwYzAtNTAgMzAtODAgNzAtODB6IiBmaWxsPSIjNkE0RjRCIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjxwYXRoIGQ9Ik0xMDAgNDVjMzAgMCA2MCAyNSA2MCA2MGgtMTIwYzAgLTM1IDMwLTYwIDYwLTYweiIgZmlsbD0iIzZBNEY0QiIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
-    // Autumn (Wavy long, mature)
-    const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNNDAgODBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiIGZpbGw9IiM1RDQwMzciLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjNDAgMCA2MCA0MCA2MCA4MHMtMjAgODAtNjAgODBTMzAgMTY1IDQwIDEyNXMyMC04MCA2MC04MHoiIGZpbGw9IiM1RDQwMzciIGZpbGwtb3BhY2l0eT0iMC4yIi8+PHBhdGggZD0iTTEwMCA0NWMzNSAwIDYwIDMwIDYwIDcwaC0xMjBjMCAtNDAgMjUtNzAgNjAtNzB6IiBmaWxsPSIjNUQ0MDM3Ii8+PHBhdGggZD0iTTcwIDExMGE1IDUgMCAwIDEgMTAgMGE1IDUgMCAwIDEtMTAgMHptNTAgMGE1IDUgMCAwIDEgMTAgMGE1IDUgMCAwIDEtMTAgMHptLTI1IDIwYzAgNSAxMCA1IDEwIDAiIHN0cm9rZT0iIzMzMyIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==";
-    // Winter (Straight/Hime cut, cool)
-    const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBkPSJNMzAgODBoMTQwdi0yMGMwLTQwLTQwLTYwLTcwLTYwcy03MCAyMC03MCA2MHoiIGZpbGw9IiMyMTIxMjEiLz48cGF0aCBkPSJNNDAgODBoMjB2MTAwaC0yMHptMTAwIDBoMjB2MTAwaC0yMHoiIGZpbGw9IiMyMTIxMjEiLz48cGF0aCBkPSJNMTAwIDU1YzM1IDAgNjUgMjAgNjUgNTB2MzBjMCAzNS0zNSA1NS02NSA1NVMzNSAxMzUgMzUgMTA1VjEwNWMwLTMwIDMwLTUwIDY1LTUweiIgZmlsbD0iI0ZGRTA5OSIvPjxwYXRoIGQ9Ik0xMDAgNDVjMzUgMCA2MCAyNSA2MCA2MGgtMTIwYzAgLTM1IDI1LTYwIDYwLTYweiIgZmlsbD0iIzIxMjEyMSIvPjxwYXRoIGQ9Ik03MCAxMTBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bTUwIDBhNSA1IDAgMCAxIDEwIDBhNSA1IDAgMCAxLTEwIDB6bS0yNSAyMGMwIDUgMTAgNSAxMCAwIiBzdHJva2U9IiMzMzMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=";
+    // --- Fixed SVGs (Base64) ---
+    const SVG_GLASSES = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMjQwIj48cGF0aCBkPSJNODAuNSAzNS41QzQ4LjEgNjMuNCA0MCA5Mi4yIDQwIDExNi41YzAgMzguOSAyOS4xIDk0IDY4IDk0YzM1LjYgMCA2NS4zLTI2LjIgNzEuMi02MWwxOS4yLTExNS4yaDMuNmgxOS4ybDE5LjIgMTE1LjJDMjY3LjEgMTkwLjkgMzAyLjkgMjMwIDMzOC41IDIzMGMzOC45IDAgNjgtNTQuNiA2OC05My41YzAtMjkuMy03LjUtNjQtMjIuOS05OS4yYy02LjEtMTQuMS0xMi0yNi40LTE3LjMtMzYuOWgyMjYuNWMtNC4xIDAtOC0xLjMtMTEuMi0zLjdMNjcyIC02MC41bC0xLjktMS40Yy0zLjctMi44LTguMi00LjMtMTIuOS00LjNzLTkuMiAxLjUtMTIuOSA0LjNsLTEuOSAxLjQtNDkuNiAzNy4yYy0zLjEgMi40LTYuOSAzLjctMTEuMiAzLjdIODYuOWMtMC43IDEuNC0xLjQgMi45LTIuMSA0LjRDNDMuMiAtMTUuMiA0MS43IC04LjIgNDAuNSAtNC45eiIgZmlsbD0iIzIyMiIvPjxwYXRoIGQ9Ik0xMDAgMjAwYy0xOC4yIDAtMzQuMi0xMi4xLTQwLTI4LjVzLTMuNS0zNS42IDUuNS00OS45bDE3LTI2LjljOC43LTEzLjggMTUuOS0yNi4xIDIxLjYtMzcuMWMxMC4xIDIgMTkuNyA1LjUgMjggMTAuNGMyMy4xIDEzLjYgMzcuNCAzOC41IDM3LjQgNjUuMmMwIDM3LjEtMzAuOSA2Ni44LTY5LjUgNjYuOHptMjYyLjktMi40YzE1LjggNC41IDMyLjUgNi45IDQ5LjYgNi45YzMwLjMgMCA1Ny43LTguOSA4MC4zLTI0LjZjMjMuMi0xNi4xIDM3LjgtMzkuNSA0MS4xLTY2LjFsNi4zLTUxLjNjMS42LTEyLjggMi43LTI1LjQgMy40LTM3LjhjLTE4LTI1LjMtNDguNi00MC40LTgxLjYtNDAuNGMtMzEuMSAwLTU5LjkgMTMuNS03Ny44IDM1LjhjLTE5IDIzLjctMjkuMiA1My42LTI4LjcgODQuMWMuMiAxMi4xIDIuMSAyMy45IDUuNiAzNS4xYy40IDEuMyAxIDIuNSAxLjggMy43eiIgZmlsbD0iIzAwMCIgb3BhY2l0eT0iMC43Ii8+PC9zdmc+";
+    const SVG_MASK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMzIwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzIgNjRDMTQuMyA2NCAwIDc4LjMgMCA5NnYxMjhjMCAxNy43IDE0LjMgMzIgMzIgMzJoNDQ4YzE3LjcgMCAzMi0xNC4zIDMyLTMyVjk2YzAtMTcuNy0xNC4zLTMyLTMyLTMySDMyem0wIDMyaDQ0OHYzaC00NDhWOTZ6bTAgMjhoNDQ4djNoLTQ0OFYxMjR6bTAgMjhoNDQ4djNoLTQ0OFYxNTJ6bTAgMjhoNDQ4djNoLTQ0OFYxODB6bTAgMjhoNDQ4djNoLTQ0OFYyMDh6bTAgMjhoNDQ4djNoLTQ0OFYyMzZ6IiBvcGFjaXR5PSIwLjkiLz48cGF0aCBmaWxsPSIjREREIiBkPSJNMCA5Nmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHptMCAzMmg1MTJ2MTZIMHoiIG9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==";
+    const SVG_HEART = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmY2OTZiIiBkPSJNMjU2IDQ0OC4xbC0xNC4yLTEyLjlDNDguMSAyMzYuMiAwIDE5Mi43IDAgMTM4LjYgMCA3NS4xIDQ5LjkgMjUuNSAxMTIuNSAyNS41YzM1LjMgMCA2OS4xIDE2LjIgODkuNiA0MS41QzE5MC4yIDI1LjUgMjMyLjcgMCAyNzguNSAwIDM0MS4xIDAgMzkxLjIgNDkuOSAzOTEuMiAxMTMuNGMwIDU0LjEtNDguMSA5Ny42LTI0MS44IDI5OC41TDI1NiA0NDguMXoiLz48L3N2Zz4=";
+    const SVG_SPARKLE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDBMMzE2LjUgMTk1LjVMMTUxMiAyNTZMMzE2LjUgMzE2LjVMMjU2IDUxMkwxOTUuNSAzMTYuNUwwIDI1NkwxOTUuNSAxOTUuNUwyNTYgMHoiLz48L3N2Zz4=";
+
+    // --- New Illustrations (Stylish & Cute) ---
+    // Stylish Icons
+    const SVG_STYLISH_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDUxMkMyNTYgMjc2LjQgMTA1LjEgMjU2IDAgMjU2YzEwNS4xIDAgMjU2LTIwLjQgMjU2LTI1NiAwIDIzNS42IDE1MC45IDI1NiAyNTYgMjU2LTEwNS4xIDAtMjU2IDIwLjQtMjU2IDI1NnoiLz48L3N2Zz4="; // Star/Flower shape
+    const SVG_STYLISH_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZEMzAwIiBkPSJNMjU2IDE2MGMtNTIuOSAwLTk2IDQzLjEtOTYgOTZzNDMuMSA5NiA5NiA5NiA5Ni00My4xIDk2LTk2LTQzLjEtOTYtOTYtOTYem0wIDMyYzM1LjMgMCA2NCAyOC43IDY0IDY0cy0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjQgMjguNy-NjQgNjQtNjR6Ii8+PHBhdGggZmlsbD0iI0ZGRDMwMCIgZD0iTTI1NiAwdjY0bTYwIDExTDI1NiAwbDExIDYwbC0xMS02MHptMCA0NDh2NjRtLTYwLTExbDYwIDExbC0xMS02MGwxMSA2MHpNNDQ4IDI1NmgyNTZtLTExIDYwbC02MC0xMWw2MCAxMWwtNjAtMTF6TTAgMjU2aDY0bTExLTYwTDY0IDI1NmwtMTEtNjBsMTEgNjB6IiBzdHJva2U9IiNGRkQzMDAiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="; // Sun
+    const SVG_STYLISH_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRjU3QzAwIiBkPSJNMjI3LjYgMjAwLjNjLTExLjYtMTcuNi0yNS41LTM0LTM5LjgtNDUuNiAxMC42IDEyLjUgMjIuNSAyNi4zIDMzLjUgNDEuMSAyLjUgMy4zIDYuMyA0LjUgNi4zIDQuNXptNDUuNy0yMy4xYy0zNC41LTM2LjktNjUuNy02My04NC4yLTcwLjcgMTIuOSAxMC42IDM3LjEgMzMuMyA2NC45IDYzLjggNC4zIDQuNiA5LjUgOC4yIDE1IDguMiAyLjQgMCA0LjMtMS4zIDQuMy0xLjN6bS0xMDguMSAxOS44Yy0yMC42IDEyLjktNTkuMyA0My4xLTcxLjkgNzEuMyAxMi0yMC42IDQyLjEtNTYuOCA3Ny44LTcyIDMuNy0xLjYgNS45LTUuMyA1LjktOS40LTAuOS00LjItNS41LTcuMi05LjgtNS4yLTItMS4xLTItMS4xLTIgMS4xem0xMjkuOSAzOC44YzkuOC0xMy41IDIzLjEtMjcuOSAzNi42LTM5LjUgMTMuMy0xMS40IDI1LjItMTguNyAzNC4xLTIyLjItMTMuNyA3LjgtMzIuNCAyMC4yLTUzLjEgMzguMS0yLjIgMS45LTMuMSA1LjEtMi4xIDcuOCAxIDMuIDMuOSA0LjkgNy4xIDQuN3ptNTguNSAzMC4yYzIuNSAwLjYgMTUuMyA0LjIgMzIuNSAxMC42IDIxLjUgOC4xIDM4LjQgMTYuMyA0OC4zIDIzLjQtMTIuNS02LjYtMzIuNy0xMy41LTU1LjktMTguOC0xNy41LTQtMjktNC44LTI5LTQuOC0zLjMtMC42LTYuMyAxLjMtNy43IDQuMi0xLjUgMy0wLjYgNi41IDIuMSA4LjYgMCAwIDEuMyAxLjEgMy41IDEuOXptLTQ2LjIgMjIuMWMtMC4zIDMuNy0zLjIgNi42LTYuOSA2LjZzLTYuNi0yLjktNi45LTYuNmMtMS42LTE2LjgtNS0zOC41LTkuOC02My41IDUuNiAyMy41IDExLjYgNDguMiAyMy42IDYzLjV6bS0zMi4xIDQwLjdjMi4xIDE2LjEgNS4zIDMxLjUgOS4zIDQ2LjIgMi41IDkuMyA1LjIgMTggOC4xIDI1LjkgMS4zIDMuNyA1LjEgNS45IDkuMiA1LjUgNC0wLjQgNy4zLTMuNCA3LjktNy40LTMuMS0xMC41LTYuMi0yMS45LTkuMS0zNC4yLTQuNC0xOC43LTguNC0zOC44LTExLjMtNjAuMy01LjYtMi44LTkuOC03LjktMTEuMi0xNC4yLTEuMSAxMi42LTEuOSA4MC45LTIuOSAxMzEuOC0wLjEgNC4zIDMuMyA4IDcuNiA4LjEgNC4yIDAuMSA3LjktMy4zIDguMS03LjUgMS01MC44IDEuNy0xMTkuMyAyLjktMTMxLjkgMC41LTEuMyAxLjMtMi41IDIuNC0zLjUgNC4xIDIyLjEgOS44IDQ0IDE2LjkgNjUuMyA4LjcgMjYuMyAxOS41IDUzLjIgMzEuMSA3OC42IDUuOCAxMi42IDYuNSAyNy4zIDIgNDAuMS0zLjUgOS45LTExLjMgMTcuNC0yMS41IDIwLjUtNS4yIDEuNi0xMC41LTEuNC0xMi02LjYtMS42LTUuMiAxLjQtMTAuNiA2LjYtMTIgNi4zLTTEuOCAxMS02LjMgMTMuMS0xMi4zIDMuMi05LjEgMi42LTE5LjUtMS41LTI4LjYtOC42LTE4LjgtMTYuOC0zOS0yMy41LTU5LjMtNy41LTIyLjctMTMuNy00Ni4xLTE4LjItNzAuMS00LjEgNS42LTkuMyAxMC4yLTE1LjYgMTMuMS0xMS41IDUuNC0yNS4xIDQuMS0zNS42LTMuNC01LjgtNC4xLTEyLjEtOC45LTE4LjYtMTQuNC0xNi41IDE0LTQ1LjQgNDYuMS03NS41IDczLjItMS45IDEuNy00LjMgMi42LTYuNyAyLjYtMi44IDAtNS41LTEuMS03LjUtMy4zLTQuMS00LjYtMy44LTExLjYgMC44LTE1LjcgMjUuMy0yMi44IDUwLjQtNTAuOSA2NS41LTY0LjItMjguNyAzNS41LTk3LjEgOTIuOC0xMTIuOCA5Ny44LTMuMSAxLTE2LjYgMy41LTIxLjktMTIuMy0yLjEtNi40IDcuNC0xNS41IDguNy0xNi41IDQ2LjUtMzguNCA5MC4yLTk2LjIgMTA4LjktMTM1LjUgNS4zLTExLjEgMTguNi0xNS45IDI5LjctMTAuNiAxMS4xIDUuMyAxNS45IDE4LjYgMTAuNiAyOS43LTE2LjEgMzMuOC01MS44IDgxLjItOTAuMyAxMTYuMyAyLjktMi4xIDYtMy4yIDkuMi0zLjIgNC42IDAgOS4yIDIuMiAxMi4yIDYuNCAxNy41IDE3LjggNDIuNyAzNC42IDcxLjkgNDkuNyAyMi41LTExLjUgNDcuMS0yOC4yIDcxLjEtNDkuMiA4LjMtNy4zIDIxLjEtNi43IDI4LjUgMS43IDcuMyA4LjQgNi43IDIxLjItMS43IDI4LjV6Ii8+PC9zdmc+"; // Maple Leaf
+    const SVG_STYLISH_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ4VjE2QzExNi40IDE2IDAgMTMyLjQgMCAyNzJzMTE2LjQgMjU2IDI1NiAyNTYgMjU2LTExNi40IDI1Ni0yNTZTNDAyLjQgMTYgMjY0IDE2djMyYTAgMCAwIDAgMCAwIDB6bTAgMzg0Yy03MC43IDAtMTI4LTU3LjMtMTI4LTEyOHM1Ny4zLTEyOCAxMjgtMTI4IDEyOCA1Ny4zIDEyOCAxMjgtNTcuMyAxMjgtMTI4IDEyOHoiLz48L3N2Zz4=";
+
+    // Cute Girls (Line Art with Color Fills)
+    // Spring: Bob Hair
+    const SVG_GIRL_SPRING = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=";
+    // Summer: Updo
+    const SVG_GIRL_SUMMER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSI0MCIgcj0iMjUiIGZpbGw9IiM4MDgwODAiLz48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0iI2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==";
+    // Autumn: Wavy Long
+    const SVG_GIRL_AUTUMN = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjNUQ0MDM3IiBkPSJNNDAgNTBzLTEwIDQwIDEwIDgwczMwIDYwIDMwIDYwczIwIDAgNDAgMHM0MC0yMCAzMC02MHMxMC00MCAxMC04MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiM1RDQwMzciIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
+    // Winter: Straight Long
+    const SVG_GIRL_WINTER = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjMjEyMTIxIiBkPSJNMzAgNTBoMTQwdjE1MGgtMzBWMTUwaC04MHY1MEgzMHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxwYXRoIGZpbGw9IiMyMTIxMjEiIGQ9Ik0zNSA5MGMwLTMwIDY1LTMwIDY1IDBIMzV6Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMjAiIHI9IjUiIGZpbGw9IiMzMzMiLz48cGF0aCBmaWxsPSIjZmY2YjZiIiBkPSJNNzUgMTQwYTEwIDEwIDAgMCAwIDIwIDB6Ii8+PC9zdmc+";
 
     window.onload = function() {
         checkApiKey();
@@ -497,10 +510,11 @@
         selectedStampIndex = -1;
         for (let i = editorStamps.length - 1; i >= 0; i--) {
             const s = editorStamps[i];
-            const sizeW = s.width * s.scale;
-            const sizeH = s.height * s.scale;
+            const sizeW = (s.width || 100) * s.scale;
+            const sizeH = (s.height || 100) * s.scale;
+            
             if (s.type === 'text') {
-                editorCtx.font = `bold ${24 * s.scale}px serif`;
+                editorCtx.font = `${24 * s.scale}px serif`;
                 const m = editorCtx.measureText(s.text);
                 if(pos.x >= s.x - m.width/2 && pos.x <= s.x + m.width/2 && pos.y >= s.y - 20 && pos.y <= s.y + 20) {
                     selectedStampIndex = i; break;
@@ -511,6 +525,7 @@
                 }
             }
         }
+
         if(selectedStampIndex !== -1) {
             isDragging = true;
             document.getElementById('stamp-size').value = editorStamps[selectedStampIndex].scale;
@@ -606,11 +621,8 @@
         editorCtx.fillStyle = grad;
         editorCtx.fillRect(0,0,360,640);
 
-        // Illustration/Photo Box
-        const photoY = 80;
-        const photoH = 300;
-        const photoW = 225;
-        const photoX = (360 - photoW) / 2;
+        // Photo/Illust Box
+        const photoY = 80; const photoH = 300; const photoW = 225; const photoX = (360 - photoW) / 2;
 
         editorCtx.save();
         editorCtx.beginPath();
@@ -629,16 +641,24 @@
             const dy = photoY + (photoH - renderH) / 2;
             editorCtx.drawImage(imgObj, sx, sy, sw, sh, dx, dy, renderW, renderH);
         } else {
-            // Stylish Silhouette
+            // Stylish Silhouette (SVG Draw)
             editorCtx.fillStyle = getSeasonColor(currentResultData.season);
             editorCtx.fillRect(photoX, photoY, photoW, photoH);
-            editorCtx.globalCompositeOperation = 'destination-in';
-            editorCtx.fillStyle = '#fff';
-            editorCtx.textAlign = 'center';
-            editorCtx.textBaseline = 'middle';
-            editorCtx.font = '150px serif';
-            editorCtx.fillText('✧', photoX + photoW/2, photoY + photoH/2);
-            editorCtx.globalCompositeOperation = 'source-over';
+            
+            const s = currentResultData.season;
+            let iconSvg = SVG_STYLISH_SPRING;
+            if(s.includes("Summer") || s.includes("夏")) iconSvg = SVG_STYLISH_SUMMER;
+            if(s.includes("Autumn") || s.includes("秋")) iconSvg = SVG_STYLISH_AUTUMN;
+            if(s.includes("Winter") || s.includes("冬")) iconSvg = SVG_STYLISH_WINTER;
+
+            const img = new Image();
+            img.src = iconSvg;
+            if(img.complete) {
+                // Center icon
+                editorCtx.globalAlpha = 0.8;
+                editorCtx.drawImage(img, photoX + 40, photoY + 80, 145, 140);
+                editorCtx.globalAlpha = 1.0;
+            } else { img.onload = () => renderEditor(); }
         }
         editorCtx.restore();
 
@@ -646,6 +666,7 @@
         editorCtx.lineWidth = 5;
         editorCtx.strokeRect(photoX, photoY, photoW, photoH);
 
+        // Badge
         editorCtx.fillStyle = '#fff';
         editorCtx.beginPath();
         editorCtx.roundRect(180 - 100, 410, 200, 45, 22.5);
@@ -688,7 +709,6 @@
         editorCtx.fillStyle = mainColor;
         editorCtx.fillRect(0,0,360,640);
         
-        // Bottom Area
         editorCtx.fillStyle = '#fff';
         editorCtx.beginPath();
         editorCtx.moveTo(0, 380);
@@ -697,28 +717,21 @@
         editorCtx.lineTo(0, 640);
         editorCtx.fill();
 
-        // Illustration or Photo
-        const photoY = 50; const photoH = 300;
-        
         if (editorMode === 'illust') {
+            let girlSvg = SVG_GIRL_SPRING;
+            if(s.includes("Summer") || s.includes("夏")) girlSvg = SVG_GIRL_SUMMER;
+            if(s.includes("Autumn") || s.includes("秋")) girlSvg = SVG_GIRL_AUTUMN;
+            if(s.includes("Winter") || s.includes("冬")) girlSvg = SVG_GIRL_WINTER;
+
             const img = new Image();
-            if(s.includes("Spring") || s.includes("春")) img.src = SVG_GIRL_SPRING;
-            else if(s.includes("Summer") || s.includes("夏")) img.src = SVG_GIRL_SUMMER;
-            else if(s.includes("Autumn") || s.includes("秋")) img.src = SVG_GIRL_AUTUMN;
-            else img.src = SVG_GIRL_WINTER;
-            
-            // Draw illustration
+            img.src = girlSvg;
             if(img.complete) {
-                editorCtx.drawImage(img, (360-240)/2, 60, 240, 300); // approx size
-            } else {
-                img.onload = () => { renderEditor(); }
-            }
+                editorCtx.drawImage(img, (360-240)/2, 60, 240, 300);
+            } else { img.onload = () => renderEditor(); }
         } else {
-            // Photo Mode (Polaroid Style)
             drawPhotoFrame(60, 200, 260, '#fff', 5, true);
         }
 
-        // Text
         editorCtx.font = 'bold 28px "M PLUS Rounded 1c", sans-serif';
         editorCtx.fillStyle = '#333';
         editorCtx.textAlign = 'center';
@@ -733,7 +746,6 @@
         editorCtx.fillStyle = '#888';
         editorCtx.fillText(currentResultData.season.split("(")[0], 180, 490);
 
-        // Palette Grid
         const swatchSize = 40; const gap = 10;
         let startX = (360 - (swatchSize*2 + gap)) / 2;
         let startY = 520;
@@ -744,7 +756,6 @@
             const col = i % 2;
             const x = startX + col * (swatchSize + gap);
             const y = startY + row * (swatchSize + gap);
-            
             editorCtx.beginPath();
             editorCtx.roundRect(x, y, swatchSize, swatchSize, 8);
             editorCtx.fillStyle = c.hex;
@@ -790,7 +801,6 @@
         link.click();
     }
 
-    // --- Main Logic (Same as before) ---
     function triggerFileIfEmpty() {
         if (!imgFile) document.getElementById('file-input').click();
     }
@@ -1088,7 +1098,7 @@
         html2canvas(target, { backgroundColor: "#242424", scale: 2 }).then(canvas => {
             const link = document.createElement("a");
             link.href = canvas.toDataURL("image/png");
-            link.download = `my_personal_color_v18_${new Date().getTime()}.png`;
+            link.download = `my_personal_color_v19_${new Date().getTime()}.png`;
             link.click();
             target.style.cssText = originalStyle; 
         });
