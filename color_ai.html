@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🎨 16タイプAIカラー診断 V36.2 (Logic Fix)</title>
+<title>🎨 16タイプAIカラー診断 V36.3 (Balance Fix)</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
@@ -98,12 +98,12 @@ canvas{width:100%;height:100%;object-fit:contain;display:block}
 <div id="key-modal" class="modal"><div class="modal-content"><h2>🔑 API設定</h2><p>Gemini APIキーを入力</p><input type="password" id="api-key-input" class="input-key" placeholder="API Key"><button class="btn-main ready" onclick="saveApiKey()" style="margin-top:0;">OK</button></div></div>
 <div id="editor-modal" class="modal hidden"><div style="color:white;margin-bottom:5px;">🎨 SNSカード作成</div><div id="editor-canvas-box"><canvas id="editor-canvas"></canvas></div><div class="editor-tools"><div class="editor-row"><button class="tool-btn active" id="theme-stylish" onclick="switchTheme('stylish')">🌙 スタイリッシュ</button><button class="tool-btn" id="theme-cute" onclick="switchTheme('cute')">🌸 かわいい</button></div><div class="editor-row" style="color:#fff;font-size:0.8rem;margin-bottom:2px;">スタンプサイズ</div><div class="editor-row"><input type="range" id="stamp-size" class="size-slider" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateStampSize()"></div><div class="editor-row"><button class="tool-btn active" id="mode-photo" onclick="setEditorMode('photo')">📸 写真</button><button class="tool-btn" id="mode-illust" onclick="setEditorMode('illust')">🎨 イラスト</button></div><div class="editor-row" id="stamp-row"><button class="tool-btn" onclick="addStamp('glasses')">🕶️</button><button class="tool-btn" onclick="addStamp('mask')">😷</button><button class="tool-btn" onclick="addStamp('heart')">💖</button><button class="tool-btn" onclick="addStamp('sparkle')">✨</button><button class="tool-btn" onclick="addTextStamp()">📝文字</button><button class="tool-btn" onclick="deleteSelectedStamp()" style="color:#ff6b6b">🗑️削除</button></div><div class="editor-row"><button class="tool-btn" onclick="closeEditor()">キャンセル</button><button class="tool-btn tool-btn-action" onclick="saveEditorImage()">💾 保存</button></div></div></div>
 <div id="loading" class="loading-overlay"><div class="loading-icon">🎨</div><div class="loading-msg">AI分析中...<br><span style="font-size:0.8rem;color:#888;">詳細診断を実行中...</span></div></div>
-<div class="container"><h1>🎨 16タイプAIカラー診断 <span class="version-tag">V36.2</span></h1><div class="top-btns"><div class="gender-selector"><div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div><div class="gender-btn male" id="g-male" onclick="setGender('male')">👨 男性</div></div><button class="btn-sm" onclick="location.reload()">🔄 Reset</button></div>
+<div class="container"><h1>🎨 16タイプAIカラー診断 <span class="version-tag">V36.3</span></h1><div class="top-btns"><div class="gender-selector"><div class="gender-btn active female" id="g-female" onclick="setGender('female')">👩 女性</div><div class="gender-btn male" id="g-male" onclick="setGender('male')">👨 男性</div></div><button class="btn-sm" onclick="location.reload()">🔄 Reset</button></div>
 <div id="setup-area"><div class="guide-steps"><div class="step-icon">📸</div><div class="step-content"><h3>Step 1: 写真撮影</h3><p>明るい場所で撮影。白い紙を顔の下に持って一緒に撮影すると精度UP！</p></div></div><div class="guide-steps"><div class="step-icon">👆</div><div class="step-content"><h3>Step 2: 色を指定</h3><p>写真内の「肌」と「瞳/髪」をタップしてください。</p></div></div><div id="auto-msg" class="auto-msg"></div><div id="brightness-warning" class="warning-box"><span class="warning-close" onclick="this.parentElement.style.display='none'">×</span>⚠️ 写真が暗いようです。</div><div class="canvas-wrapper" id="canvas-wrapper" onclick="triggerFileIfEmpty()"><canvas id="main-canvas"></canvas><div class="drape-label" id="drape-label">Virtual Drape Mode</div><div class="placeholder" id="placeholder"><div class="upload-icon">📷</div><div>ここをタップして写真を選択</div></div></div><input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)"><div id="picker-panel" class="picker-panel"><div class="contrast-guide" id="guide-text"><strong>🧐 手動設定モード</strong><br>画像の中の<strong style="color:var(--accent)">「肌」</strong>と<strong style="color:#00BFFF">「瞳・髪」</strong>を順番にタップ。</div><div style="font-size:0.9rem;margin-bottom:10px;">👇 画像をタップして色を指定</div><div class="picker-steps"><button class="pick-btn active" id="btn-skin" onclick="setMode('skin')"><span class="color-preview-dot" id="dot-skin"></span>肌 (Skin)</button><button class="pick-btn" id="btn-eye" onclick="setMode('eye')"><span class="color-preview-dot" id="dot-eye"></span>瞳・髪 (Hair)</button></div><button class="reset-btn" onclick="resetPoints()">選択をやり直す</button></div><button id="analyze-btn" class="btn-main" onclick="startAnalysis()">診断開始</button></div>
 <div id="result-wrapper"><div id="capture-target" style="background:#242424;padding:25px;border-radius:15px;border:1px solid #444;"><div style="text-align:center;"><h2 style="color:var(--primary);margin:0 0 5px 0;">診断結果</h2><div id="result-season-container"></div><div id="result-desc" class="season-sub"></div></div><div class="canvas-wrapper result-canvas-wrapper" id="result-drape-box"><canvas id="result-canvas"></canvas><div class="drape-label" id="result-drape-label" style="display:block;">Virtual Drape Mode</div></div><div class="fortune-card"><span class="card-title" style="color:var(--primary)">✨ Best Colors</span><div class="drape-hint">👇 タップして「ドレープ」を試着！</div><div class="color-palette" id="best-colors"></div></div><div class="fortune-card"><span class="card-title" style="color:#ff6b6b;">🙅‍♀️ NG Colors</span><div class="ng-colors-wrapper" id="ng-colors"></div><div id="ng-reason" style="font-size:0.8rem;margin-top:10px;color:#aaa;"></div></div><div class="fortune-card"><span class="card-title" style="color:#ff9ff3;" id="advice-title">💄 おすすめアイテム</span><ul class="cosme-list" id="cosme-list"></ul></div><div id="result-details"></div><div style="text-align:center;margin-top:15px;font-size:0.8rem;color:#666;">Generated by Gemini 2.5 Flash</div></div><div class="chat-section"><h3 style="color:var(--primary);margin-top:0;">💬 ファッション相談AI</h3><div class="chat-box" id="chat-box"></div><div class="chat-input-area"><input type="text" id="chat-input" class="chat-input" placeholder="質問を入力..."><button class="chat-send" onclick="sendChat()">送信</button></div></div><div class="save-area"><button class="btn-save" onclick="saveResultImage()">📸 全体を保存</button><button class="btn-share" onclick="openEditor()">✨ SNS用カード作成</button></div><div class="sub-controls"><button class="btn-sub-action" onclick="location.reload()">🔄 もう一度診断する</button></div></div></div>
 <script>
 let API_KEY="";const GEMINI_MODEL="gemini-2.5-flash";let imgFile=null,pickMode='skin',skinColor=null,eyeColor=null,canvas,ctx,imgObj=new Image(),cropRect=null,currentResultData=null,selectedGender='female';let editorCanvas,editorCtx,editorMode='photo',editorTheme='stylish',editorStamps=[],selectedStampIndex=-1,isDragging=false;
-// --- ASSETS DEFINITION (Fixed Male Autumn) ---
+// --- ASSETS DEFINITION ---
 const ASSETS={
     GIRL_SPRING:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjRkZFMkU0IiBkPSJNMCAwaDIwMHYyNTBIMHoiIG9wYWNpdHk9IjAuMSIvPjxwYXRoIGZpbGw9IiNENjU4MjgiIGQ9Ik01MCA1MGMwLTIwIDIwLTQwIDUwLTQwczUwIDIwIDUwIDQwdjYwYzAgMzAtMjAgNTAtNTAgNTBzLTUwLTIwLTUwLTUweiIvPjxwYXRoIGZpbGw9IiNGRkUwOTkiIGQ9Ik02NSA3MGMwLTMwIDM1LTMwIDM1IDBzMCAzMCAzNSAwYzAtMzAgMzUtMzAgMzUgMHY2MGMwIDIwLTEwIDQwLTM1IDQwcy0zNS0yMC0zNS00MHoiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjExNSIgY3k9IjExMCIgcj0iNSIgZmlsbD0iIzMzMyIvPjxwYXRoIGZpbGw9IiNmZjZiNmIiIGQ9Ik05MCAxMzBhMTAgMTAgMCAwIDAgMjAgMHoiLz48L3N2Zz4=",
     GIRL_SUMMER:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjUwIj48cGF0aCBmaWxsPSIjODA4MDgwIiBkPSJNMzAgODBjMC0zMCAzMC01MCA3MC01MHM3MCAyMCA3MCA1MHY1MGMwIDIwLTIwIDUwLTcwIDUwcy03MC0zMC03MC01MHoiLz48cGF0aCBmaWxsPSIjRkZFMDk5IiBkPSJNMzUgOTBjMC0zMCA2NS0zMCA2NSAwdjYwYzAgMjAtMTAgNDAtMzUgNDBzLTMwLTIwLTMwLTQweiIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTIwIiByPSI1IiBmaWxsPSIjMzMzIi8+PHBhdGggZmlsbD0iI2ZmNmI2YiIgZD0iTTc1IDE0MGExMCAxMCAwIDAgMCAyMCAweiIvPjwvc3ZnPg==",
@@ -167,33 +167,34 @@ function handleCanvasClick(e){if(!imgObj.src)return;const r=canvas.getBoundingCl
 function drawMarker(c,x,y,k){c.beginPath();c.arc(x,y,8,0,2*Math.PI);c.strokeStyle='#fff';c.lineWidth=3;c.stroke();c.beginPath();c.arc(x,y,6,0,2*Math.PI);c.fillStyle=k;c.fill()}
 function resetPoints(){skinColor=null;eyeColor=null;document.getElementById('btn-skin').classList.remove('done');document.getElementById('btn-eye').classList.remove('done');document.getElementById('dot-skin').style.background='transparent';document.getElementById('dot-eye').style.background='transparent';setMode('skin');drawImageToCanvas(canvas,ctx);checkReady()}
 function checkReady(){const b=document.getElementById('analyze-btn');if(skinColor&&eyeColor)b.classList.add('ready');else b.classList.remove('ready')}
-// --- MAIN FIX IS HERE ---
+// --- FIXED LOGIC (V36.3) ---
 async function startAnalysis(){if(!skinColor||!eyeColor)return;document.getElementById('loading').style.display='flex';document.getElementById('setup-area').style.display='none';const sH=hexToHsv(skinColor.hex),eH=hexToHsv(eyeColor.hex),tgt=(selectedGender==='male')?"男性ファッション(具体的なブランド・商品名・色を提案。例:ユニクロ エアリズムコットンオーバーサイズTシャツ(白), NewBalance 996(グレー)など。コスメ禁止)":"コスメ(具体的商品名,色番)";
 const p=`あなたはプロのパーソナルカラーアナリストです。以下の肌と瞳の色データに基づき、日本人のパーソナルカラー診断(4シーズンと16タイプ)を行ってください。
 【入力データ】
 肌: ${skinColor.hex} (HSV: H${sH.h} S${sH.s} V${sH.v})
 瞳: ${eyeColor.hex} (HSV: H${eH.h} S${eH.s} V${eH.v})
-【重要な診断ルール】
-1. 日本人の肌診断の注意点:
-   - 日本人の約5割は「Summer (Blue Base)」と言われています。
-   - **重要:** 日本人の「Summer」タイプは、肌の色自体は「黄色み（オークル）」を帯びていることが非常に多いです。
-   - そのため、**「肌のHEX値が黄色い」という理由だけで「Autumn」や「Spring」と判定してはいけません。**
-   - 瞳の色がソフトブラックや赤褐色で、コントラストが強すぎない場合は「Summer」の可能性を優先的に検討してください。
-2. 画像特性の考慮:
-   - 写真は室内照明により、実際よりも「黄色く」「暗く」写っている可能性が高いです。
-   - 彩度(S)が高く出ている場合、それを照明の影響と割引いて、彩度低めの「Summer」や「Winter」の可能性を探ってください。
-3. 出力制限:
-   - "reasoning"(診断根拠のまとめ)、"advice_makeup"、"advice_fashion"の文章は、それぞれ【最大300文字以内】に要約してください。長文は避けてください。
-4. 出力形式:
+【診断ルール】
+1. 黄みの「質」を見極める (重要):
+   - 単に黄色い肌だからといって「イエベ」とは限りませんが、逆に「ブルベ夏」と決めつけるのも避けてください。
+   - 肌色が「オレンジ、ゴールド、テラコッタ、深いブロンズ」に近いリッチな黄みの場合 → 明確に「Autumn」と診断してください。
+   - 肌色が「明るいアイボリー、クリーム、ピーチ」に近い場合 → 「Spring」の可能性が高いです。
+   - 肌色が「薄いレモンイエロー、ピンクみの強いオークル、グレーがかった黄み」の場合 → 「Summer」や「Winter」の可能性が高いです。
+2. 色黒・日焼け肌の判定:
+   - 「色黒・暗い肌 = ブルベ」という誤診を避けてください。
+   - **深くリッチな小麦色や黄金色のブロンズ肌**は、間違いなく「Autumn (Strong/Deep/Warm)」の特徴です。
+   - 赤黒い、または青黒い日焼け肌の場合のみ「Winter」や「Summer」を検討してください。
+3. 照明の影響:
+   - 全体が「一様に薄い黄色」で覆われている場合は照明の影響(Summerの可能性)を考慮しますが、**肌自体が強い彩度(鮮やかなオレンジやゴールド)を持っている場合**は、それを本来の色として尊重し、イエベと判定してください。
+4. 出力要件:
+   - "reasoning", "advice_makeup", "advice_fashion" はそれぞれ【300文字以内】で簡潔に。
    - 16タイプ分類: (Light Spring, Bright Spring, Vivid Spring, Warm Spring, Light Summer, Bright Summer, Muted Summer, Cool Summer, Strong Autumn, Deep Autumn, Muted Autumn, Warm Autumn, Clear Winter, Vivid Winter, Deep Winter, Cool Winter)
-   - Spring固定禁止。Autumn過剰診断を避けること。
    - ${tgt}を提案。
 JSON形式で出力してください:
 {
-  "season": "判定結果(例: ブルベ夏 Summer)",
+  "season": "判定結果(例: イエベ秋 Autumn)",
   "type": "16タイプ英語表記",
   "description": "そのタイプの特徴解説",
-  "reasoning": ["診断根拠1", "診断根拠2(肌の黄みだけでなく、瞳の穏やかさ等から判断した等)"],
+  "reasoning": ["診断根拠1", "診断根拠2(肌の黄みの質や深さから判断した等)"],
   "best_colors": [{"hex": "#xxx", "name": "色名"}],
   "ng_colors": [{"hex": "#xxx", "name": "色名"}],
   "ng_reason": "NGの理由",
