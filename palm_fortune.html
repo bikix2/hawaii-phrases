@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✋ AI手相占い V37</title>
+    <title>✋ AI手相占い V38</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -137,7 +137,7 @@
         .crystal-ball { font-size: 4rem; animation: glow 1.5s infinite alternate; margin-bottom: 20px; }
         .loading-msg { color: var(--primary); }
         @keyframes glow { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
-        @keyframes fadeIn { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; }
         .modal-content { background: #240046; padding: 30px; border-radius: 20px; width: 85%; border: 1px solid var(--primary); text-align: center; }
@@ -161,19 +161,8 @@
     <div class="loading-msg" id="loading-msg">運命を読み解いています...</div>
 </div>
 
-<div id="camera-modal">
-    <video id="video" autoplay playsinline></video>
-    <div class="close-camera" onclick="closeCamera()">×</div>
-    <div class="guide-text-container">
-        <div class="guide-main-text">手のひらをドアップで！</div>
-        <div class="guide-sub-text">指は切れてOK。黄色い枠いっぱいに<br>「手のひら」を写してね</div>
-    </div>
-    <div class="palm-focus-overlay"></div>
-    <div class="shutter-btn" onclick="takePhoto()"></div>
-</div>
-
 <div class="container">
-    <h1>✋ AI手相占い V37</h1>
+    <h1>✋ AI手相占い V38</h1>
     
     <div id="settings-area">
         <div class="hand-selector">
@@ -201,7 +190,7 @@
         <div class="upload-box full-width" id="box1" onclick="triggerFile(1)">
             <div id="ph1">
                 <div class="upload-icon">📷</div>
-                <div class="upload-label" id="label1">カメラを起動</div>
+                <div class="upload-label" id="label1">ここをタップして撮影</div>
             </div>
             <img id="preview1" class="preview-img">
         </div>
@@ -406,7 +395,7 @@
     }
     
     function createCard(title, score, points, color) {
-        const safePoints = Array.isArray(points) ? points : ["データ読み取り失敗"];
+        const safePoints = Array.isArray(points) ? points : ["潜在的な可能性が秘められています。"];
         return `
         <div class="fortune-card">
             <div class="line-header">
@@ -446,7 +435,7 @@
         const handLabel = (selectedHand === 'left') ? "左手（生まれつきの運勢）" : "右手（現在の運勢）";
 
         if (mode === 'single') {
-            // ★ AIプロンプト：正直鑑定 & 200文字制限
+            // ★ AIプロンプト：正直鑑定・長文・200字制限・救済あり
             prompt = `
             あなたは「的中率が高い」と評判の、誠実で嘘をつかない熟練手相占い師です。
             画像の手相（${handLabel}）を分析し、「です・ます調」で鑑定してください。
@@ -459,20 +448,18 @@
             - 頭脳線や財運線が見えにくい場合でも、「解析不可」とは返さず、全体の手の形や他の線のバランスから推測し、コールドリーディングの手法を用いて必ず結果を出力してください。
             
             【鑑定スタイル：誠実・客観的】
-            - 無理に辛口にする必要はありませんが、お世辞も不要です。
-            - 良い相は素直に褒め、悪い相や注意すべき点は正直に指摘してください。
+            - 良い点は褒め、悪い点や注意点も正直に伝えてください。
             - 客観的な事実に基づき、ユーザーの信頼を得られるような鑑定を心がけてください。
 
             7項目(感情,頭脳,生命,運命,太陽,財運,結婚)について、点数(1-5)と具体的かつ現実的な箇条書きでJSON出力してください。
             【制約】箇条書き(points)は、1行40〜60文字程度で、詳しく具体的に。
-            ★【重要】"message"（総合アドバイス）は、要点を絞り、必ず【200文字以内】で簡潔にまとめてください。
+            ★【重要】"message"（総合アドバイス）は、必ず【200文字以内】で簡潔にまとめてください。
 
             Format: {"heart": {"score":4, "points":["詳しい解説...", "詳しい解説..."]}, ... "message":"..."}
             `;
         } else {
             prompt = `
-            2つの手相（1枚目, 2枚目）を比較し、カップルの相性診断をしてください。
-            良い面だけでなく、ぶつかりやすい点や注意すべき相性の悪さも正直に指摘してください。
+            2つの手相を比較し、カップルの相性診断をして。
             Format: {"score": 85, "compatibility_desc": "...", "points": ["..."], "advice": "..."}
             `;
         }
@@ -552,9 +539,7 @@
             document.getElementById('result-wrapper').scrollIntoView({behavior: 'smooth'});
 
         } catch (e) {
-            // エラー時はフォールバックを表示
             console.error(e);
-            const fallback = generateFallbackResult();
             alert("エラーが発生しました。もう一度お試しください。");
             postBtns.style.display = 'flex';
             btn.disabled = false;
