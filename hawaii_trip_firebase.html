@@ -17,6 +17,7 @@
         .header { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 20px; text-align: center; }
         .header h1 { font-size: 20px; margin-bottom: 5px; }
         .header .dates { font-size: 14px; opacity: 0.95; margin-bottom: 5px; }
+        .header .countdown { font-size: 16px; font-weight: bold; margin: 5px 0 10px 0; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); background: rgba(255,255,255,0.25); padding: 5px 15px; border-radius: 20px; display: inline-block; }
         .header .update-info { font-size: 10px; opacity: 0.9; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center; }
         
         /* タブエリア */
@@ -139,6 +140,8 @@
             <h1>🌺 ハワイ旅行プラン 🌺</h1>
             <div class="dates">Day0: 12/12(金) 出発 〜 Day8: 12/19(金) 帰国</div>
             
+            <div id="countdown" class="countdown">計算中...</div>
+
             <div class="update-info">
                 <span id="app-updated"></span>
                 <span id="data-updated">Data: ---</span>
@@ -277,10 +280,13 @@
     
     <script>
         // ==========================================================
-        // 0. プログラム更新日時 (手動設定)
+        // 0. プログラム更新日時
         // ==========================================================
-        const APP_LAST_UPDATED = "2025/11/30 11:30"; 
+        const APP_LAST_UPDATED = "2025/12/03 19:40"; 
         
+        // ★★★ カウントダウン用基準日 ★★★
+        const TRIP_START_DATE = new Date("2025-12-12T00:00:00");
+
         // ==========================================================
         // 1. Firebase設定
         // ==========================================================
@@ -906,13 +912,13 @@
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
-        let touchStartTime = 0; // 追加: タッチ開始時間
+        let touchStartTime = 0;
         const availableDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 99, 100]; 
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now(); // 時間記録
+            touchStartTime = Date.now();
         }, {passive: true});
 
         document.addEventListener('touchend', e => {
@@ -932,7 +938,7 @@
             const diffX = touchStartX - touchEndX;
             const diffY = touchStartY - touchEndY;
 
-            // 3. 縦スクロールの方が大きい場合はスワイプとみなさない
+            // 3. 縦スクロールの方が大きい場合はスワイプとみなさない (重要)
             if (Math.abs(diffY) > Math.abs(diffX)) return;
 
             // 4. スワイプ距離が50px未満なら無視
@@ -963,6 +969,27 @@
             }
         }
 
+        // ==========================================================
+        // 9. カウントダウン機能
+        // ==========================================================
+        function updateCountdown() {
+            const now = new Date();
+            const diff = TRIP_START_DATE - now;
+
+            const countdownEl = document.getElementById('countdown');
+            
+            if (diff <= 0) {
+                countdownEl.innerHTML = "Enjoy Hawaii! 🌺";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            countdownEl.innerHTML = `ハワイまであと ${days}日 ${hours}時間 ${minutes}分`;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
@@ -977,6 +1004,10 @@
                 });
             });
             startRealtimeListener();
+            
+            // カウントダウン開始
+            updateCountdown();
+            setInterval(updateCountdown, 60000); // 1分ごとに更新
         });
     </script>
 </body>
