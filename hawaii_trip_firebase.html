@@ -900,17 +900,19 @@
         }
 
         // ==========================================================
-        // 8. スワイプ操作機能 (修正版: 縦スクロール誤作動防止)
+        // 8. スワイプ操作機能 (修正版: 縦スクロール誤作動防止 + テキスト選択対応)
         // ==========================================================
         let touchStartX = 0;
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
+        let touchStartTime = 0; // 追加: タッチ開始時間
         const availableDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 99, 100]; 
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now(); // 時間記録
         }, {passive: true});
 
         document.addEventListener('touchend', e => {
@@ -920,13 +922,20 @@
         }, {passive: true});
 
         function handleSwipe() {
+            // 1. テキスト選択中はスワイプ無効
+            if (window.getSelection().toString().length > 0) return;
+
+            // 2. タッチ時間が長すぎる場合はスワイプ無効 (0.3秒以上はドラッグとみなす)
+            const touchDuration = Date.now() - touchStartTime;
+            if (touchDuration > 300) return;
+
             const diffX = touchStartX - touchEndX;
             const diffY = touchStartY - touchEndY;
 
-            // 縦スクロールの方が大きい場合はスワイプとみなさない (重要)
+            // 3. 縦スクロールの方が大きい場合はスワイプとみなさない
             if (Math.abs(diffY) > Math.abs(diffX)) return;
 
-            // スワイプ距離が50px未満なら無視
+            // 4. スワイプ距離が50px未満なら無視
             if (Math.abs(diffX) < 50) return;
 
             // 右へスワイプ (指を右から左へ) -> 次の日
