@@ -37,7 +37,14 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* スケジュール項目 */
-        .day-title { color: #FF6B6B; font-size: 20px; margin-bottom: 15px; border-bottom: 3px solid #FF6B6B; }
+        .day-title-wrapper { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #FF6B6B; margin-bottom: 15px; padding-bottom: 5px; }
+        .day-title { color: #FF6B6B; font-size: 20px; margin: 0; border: none; }
+        .day-title-edit-btn { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.5; transition: opacity 0.2s; }
+        .day-title-edit-btn:hover { opacity: 1; }
+        
+        .day-title-form { display: none; margin-bottom: 15px; border-bottom: 3px solid #FF6B6B; padding-bottom: 10px; }
+        .day-title-form input { font-size: 18px; padding: 5px; width: 70%; border: 1px solid #ccc; border-radius: 4px; }
+        
         .schedule-item { background: #f9f9f9; border-left: 4px solid #4ECDC4; padding: 15px; margin-bottom: 20px; border-radius: 8px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .time { font-weight: bold; color: #FF6B6B; font-size: 15px; }
         .location { font-size: 18px; font-weight: bold; color: #333; margin: 5px 0; }
@@ -384,7 +391,19 @@
                 return timeA.localeCompare(timeB);
             });
 
-            let html = `<h2 class="day-title">${dayData.title || (dayNum + '日目')}</h2>`;
+            // タイトル表示エリア (編集機能付き)
+            const titleText = dayData.title || (dayNum + '日目');
+            let html = `
+                <div class="day-title-wrapper" id="title-view-${dayNum}">
+                    <h2 class="day-title">${titleText}</h2>
+                    <button class="day-title-edit-btn" onclick="showTitleEdit(${dayNum})">✏️</button>
+                </div>
+                <div class="day-title-form" id="title-edit-${dayNum}">
+                    <input type="text" id="title-input-${dayNum}" value="${titleText}">
+                    <button onclick="saveDayTitle(${dayNum})" style="padding:5px 10px; background:#4CAF50; color:white; border:none; border-radius:4px; margin-left:5px;">保存</button>
+                    <button onclick="cancelTitleEdit(${dayNum})" style="padding:5px 10px; background:#999; color:white; border:none; border-radius:4px; margin-left:5px;">取消</button>
+                </div>
+            `;
             
             if (events.length === 0) {
                 html += '<p style="text-align:center; color:#888;">予定がまだありません。</p>';
@@ -432,6 +451,37 @@
             html += `<div id="form-container-${dayNum}"></div>`; 
 
             contentDiv.innerHTML = html;
+        }
+
+        // ==========================================================
+        // 3.5 タイトル編集機能
+        // ==========================================================
+        function showTitleEdit(dayNum) {
+            document.getElementById(`title-view-${dayNum}`).style.display = 'none';
+            document.getElementById(`title-edit-${dayNum}`).style.display = 'block';
+        }
+
+        function cancelTitleEdit(dayNum) {
+            document.getElementById(`title-view-${dayNum}`).style.display = 'flex';
+            document.getElementById(`title-edit-${dayNum}`).style.display = 'none';
+        }
+
+        async function saveDayTitle(dayNum) {
+            const newTitle = document.getElementById(`title-input-${dayNum}`).value.trim();
+            if (!newTitle) return alert("タイトルを入力してください");
+
+            toggleLoader(true);
+            try {
+                const dayKey = `day${dayNum}`;
+                await db.collection('trip-schedule').doc(dayKey).set({ title: newTitle }, { merge: true });
+                updateLastEdited();
+                toggleLoader(false);
+                // 再描画はリアルタイムリスナーが自動で行う
+            } catch (error) {
+                console.error(error);
+                alert("保存に失敗しました: " + error.message);
+                toggleLoader(false);
+            }
         }
 
         // ==========================================================
@@ -605,7 +655,9 @@
                     // タブから日付部分を取得して結合
                     const tabBtn = document.querySelector(`.tab[data-day="${i}"]`);
                     const dateStr = tabBtn ? tabBtn.innerText.split('\n')[1] || '' : '';
-                    text += `\n【${dayData.title || 'Day ' + i}】 ${dateStr}\n`;
+                    // タイトル(編集後含む)と日付を結合
+                    const dayTitle = dayData.title || ('Day ' + i);
+                    text += `\n【${dayTitle}】 ${dateStr}\n`;
                     
                     const events = [...dayData.events].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
                     
