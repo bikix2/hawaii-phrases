@@ -20,13 +20,6 @@
         .header .countdown { font-size: 16px; font-weight: bold; margin: 5px 0 10px 0; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); background: rgba(255,255,255,0.25); padding: 5px 15px; border-radius: 20px; display: inline-block; }
         .header .update-info { font-size: 10px; opacity: 0.9; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center; }
         
-        /* 世界時計スタイル */
-        .world-clock-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px; font-size: 13px; }
-        .clock-item { text-align: center; }
-        .clock-label { font-size: 10px; opacity: 0.8; display: block; }
-        .clock-time { font-weight: bold; font-family: monospace; font-size: 14px; }
-        .time-diff { font-size: 11px; text-align: center; margin-top: -5px; margin-bottom: 10px; opacity: 0.9; }
-
         /* タブエリア */
         .tabs { display: flex; background: #f5f5f5; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .tab { flex: 1; min-width: 80px; padding: 12px 5px; text-align: center; background: #e0e0e0; border: none; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.3s; border-right: 1px solid #ccc; flex-shrink: 0; }
@@ -148,19 +141,6 @@
             <div class="dates">Day0: 12/12(金) 出発 〜 Day8: 12/19(金) 帰国</div>
             
             <div id="countdown" class="countdown">計算中...</div>
-
-            <div class="world-clock-container">
-                <div class="clock-item">
-                    <span class="clock-label">🇯🇵 日本 (JST)</span>
-                    <span id="clock-jp" class="clock-time">--/-- --:--</span>
-                </div>
-                <div style="align-self:center; opacity:0.5;">|</div>
-                <div class="clock-item">
-                    <span class="clock-label">🌺 ハワイ (HST)</span>
-                    <span id="clock-hi" class="clock-time">--/-- --:--</span>
-                </div>
-            </div>
-            <div class="time-diff">※時差: 日本が19時間進んでいます</div>
 
             <div class="update-info">
                 <span id="app-updated"></span>
@@ -300,9 +280,9 @@
     
     <script>
         // ==========================================================
-        // 0. プログラム更新日時 (手動設定)
+        // 0. プログラム更新日時
         // ==========================================================
-        const APP_LAST_UPDATED = "2025/12/03 20:30"; 
+        const APP_LAST_UPDATED = "2025/12/03 19:40"; 
         
         // ★★★ カウントダウン用基準日 ★★★
         const TRIP_START_DATE = new Date("2025-12-12T00:00:00");
@@ -990,30 +970,24 @@
         }
 
         // ==========================================================
-        // 9. カウントダウン & 世界時計機能
+        // 9. カウントダウン機能
         // ==========================================================
-        function updateTimer() {
+        function updateCountdown() {
             const now = new Date();
-            
-            // 1. カウントダウン
             const diff = TRIP_START_DATE - now;
+
             const countdownEl = document.getElementById('countdown');
+            
             if (diff <= 0) {
                 countdownEl.innerHTML = "Enjoy Hawaii! 🌺";
-            } else {
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                countdownEl.innerHTML = `ハワイまであと ${days}日 ${hours}時間 ${minutes}分`;
+                return;
             }
 
-            // 2. 世界時計
-            const options = { month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' };
-            const jpStr = new Intl.DateTimeFormat('ja-JP', { ...options, timeZone: 'Asia/Tokyo' }).format(now);
-            const hiStr = new Intl.DateTimeFormat('ja-JP', { ...options, timeZone: 'Pacific/Honolulu' }).format(now);
-            
-            document.getElementById('clock-jp').innerText = jpStr;
-            document.getElementById('clock-hi').innerText = hiStr;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            countdownEl.innerHTML = `ハワイまであと ${days}日 ${hours}時間 ${minutes}分`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1031,9 +1005,9 @@
             });
             startRealtimeListener();
             
-            // タイマー開始
-            updateTimer();
-            setInterval(updateTimer, 1000); // 1秒ごとに更新
+            // カウントダウン開始
+            updateCountdown();
+            setInterval(updateCountdown, 60000); // 1分ごとに更新
         });
     </script>
 </body>
